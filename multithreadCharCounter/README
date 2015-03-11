@@ -1,0 +1,43 @@
+Author: Phyo Thiha
+Date: 3/8/2015
+===================
+There are three programs in this folder.
+1. MultiThreadCharCounter.java	-	Runs multithreaded character counter
+									and reports character count table
+									as well as the time taken to run it
+									at the end. Max. threads allowed is 64.
+
+2. SimpleCharCounter.java	- 	Runs simple (one main() thread) character 
+								counting. This is implemented to verify 
+								the correctness of multi-thread program 
+								above, and see if there's any significant
+								time difference between simple vs. 
+								multi-thread approaches.
+
+3. CharCountTest.java	- 	Runs many iterations of character count programs
+							(both multi-thread and simple approach) and
+							reports average time taken. I simply became curious
+							as to if multi-thread approach performs better
+							on average over the simple approach [*].
+
+
+There is also a folder named "/test" with ~100 text files of various size 
+(generated with a quick python script) so that user can use them to test
+run these programs above using those text files.
+
+The procedure to compile and run the programs are fairly straightforward
+and are detailed as comments at the top of each Java file.
+
+[*] It takes about 0.05 sec on average to count characters in ~100 files 
+inside the "/test" folder using simple approach. The average time drops
+to about ~0.03 seconds when an additional thread was added. It also performs
+slightly better (~0.04 secs) when running with two additional threads.
+BUT beyond that, adding more threads simply doesn't do any better (i.e. 
+the same as) than simple approach. I assume it's down to the IO time (probably
+from disk read).
+
+[**] The programs ignores "\n", "\t", "\r", " " (space) characters in counting
+because they don't show up well when printing to stdout (terminal).
+
+Thank you and please let me know if there's any issue running these.
+-Phyo
