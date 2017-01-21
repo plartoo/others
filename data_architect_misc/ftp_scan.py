@@ -25,6 +25,7 @@ import pdb
 import re
 import csv
 import zipfile
+import codecs
 
 from ftplib import FTP
 
@@ -39,8 +40,9 @@ TEMP_FOLDER = 'temp_from_ftp'
 with FTP(FTP_HOST) as ftp:
     ftp.login(user = USR_OUTBOUND, passwd = PWD_OUTBOUND)
     ftp.cwd(ROOT_OUTBOUND)
-    for dir in ftp.nlst(): # TODO: uncomment this
-    # for dir in ['Mediatools']:  # TODO: uncomment this
+    # for dir in ftp.nlst(): # TODO: uncomment this when we're sure we want to scan across all folders
+    for dir in ['ASP', 'Celtra', 'DCM_Campaign_Report', 'DCM_Conversion_Report', 'DCM_Creative_Metadata',
+                'DCM_Placement_Metadata_Report', 'Mediatools', 'NetPak', 'Vindico']:
         print("\nProcessing FTP folder:", dir)
         ftp.cwd('/'.join((ROOT_OUTBOUND, dir)))
         all_files = []
@@ -70,13 +72,13 @@ with FTP(FTP_HOST) as ftp:
                 row_count = 0
                 col_count = None
                 for row in reader:
+                    # print(row)
                     if not col_count:
                         col_count = len(row)
                     row_count += 1
 
             metadata_file_name = csv_file_name.replace('.csv',
                                                        ''.join(['_', METADATA_FILE_POSTFIX, '.csv']))
-                                                       # ''.join(['_', re.sub(r'_$','', METADATA_FILE_POSTFIX), '.csv']))
             metadata_file = os.path.join(TEMP_FOLDER, metadata_file_name)
             print("Writing metadata file locally:", metadata_file_name)
             with open(metadata_file, 'w', newline='', encoding=ENCODING) as csv_f:
