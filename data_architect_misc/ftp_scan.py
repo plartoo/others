@@ -24,46 +24,48 @@ and each of these zip files wraps ONE CSV FILE in them.
 import pdb
 import re
 import csv
+import zipfile
+
 from ftplib import FTP
 
 from account_info import *
 from ftp_utils import *
 from my_utils import *
 
-encoding = 'utf-16'
-metafile_keyword = 'control_file_'
-temp_folder = 'temp_from_ftp'
+ENCODING = 'utf-16'
+METADATA_FILE_POSTFIX = 'control_file'
+TEMP_FOLDER = 'temp_from_ftp'
 
 with FTP(FTP_HOST) as ftp:
     ftp.login(user = USR_OUTBOUND, passwd = PWD_OUTBOUND)
     ftp.cwd(ROOT_OUTBOUND)
-    # for dir in ftp.nlst(): # TODO: uncomment this
-    for dir in ['Mediatools']:  # TODO: uncomment this
-
+    for dir in ftp.nlst(): # TODO: uncomment this
+    # for dir in ['Mediatools']:  # TODO: uncomment this
+        print("\nProcessing FTP folder:", dir)
         ftp.cwd('/'.join((ROOT_OUTBOUND, dir)))
-
-        files = []
+        all_files = []
         files_with_metadata = []
-        for f in ftp.nlst():
-            if re.search(metafile_keyword, f, re.M|re.I):
-                files_with_metadata.append(f.replace(metafile_keyword, ''))
+        for file_from_ftp in ftp.nlst():
+            if re.search(METADATA_FILE_POSTFIX, file_from_ftp, re.M|re.I):
+                files_with_metadata.append(file_from_ftp.replace('_' + METADATA_FILE_POSTFIX, ''))
             else:
-                files.append(f)
+                all_files.append(file_from_ftp)
 
-        files_to_prepare_metadata = list(set(files) - set(files_with_metadata))
+        files_to_prepare_metadata = list(set(all_files) - set(files_with_metadata))
+        print("Files to prepare metadata are:", str(files_to_prepare_metadata))
 
-        for f in files_to_prepare_metadata:
-            print("Downloading file:", f)
-            download_from_ftp(ftp, f, temp_folder)
-            unzip(temp_folder, f, temp_folder)
-            csv_file_name = f.replace('.zip', '.csv')
+        for source_file_name in files_to_prepare_metadata:
+            print("Downloading file:", source_file_name)
+            download_from_ftp(ftp, source_file_name, TEMP_FOLDER)
+            unzip(TEMP_FOLDER, source_file_name, TEMP_FOLDER)
+            csv_file_name = source_file_name.replace('.zip', '.csv')
 
-            zip_file_size = get_filesize(temp_folder, f)
-            unzipped_file_size = get_filesize(temp_folder, csv_file_name)
-            csv_file = os.path.join(temp_folder, csv_file_name)
+            zip_file_size = get_filesize(TEMP_FOLDER, source_file_name)
+            unzipped_file_size = get_filesize(TEMP_FOLDER, csv_file_name)
+            csv_file = os.path.join(TEMP_FOLDER, csv_file_name)
 
             print("Reading CSV file:", csv_file)
-            with open(csv_file, newline='', encoding=encoding) as csv_f:
+            with open(csv_file, newline='', encoding=ENCODING) as csv_f:
                 reader = csv.reader(csv_f)
                 row_count = 0
                 col_count = None
@@ -72,17 +74,14 @@ with FTP(FTP_HOST) as ftp:
                         col_count = len(row)
                     row_count += 1
 
-            print("zipped file size:", zip_file_size)
-            print("unzipped file size:", unzipped_file_size)
-            print("row count:", (row_count-1))
-            print("column count:", col_count)
-
             metadata_file_name = csv_file_name.replace('.csv',
-                                                       ''.join(['_', re.sub(r'_$','', metafile_keyword), '.csv']))
-            metadata_file = os.path.join(temp_folder, metadata_file_name)
-            with open(metadata_file, 'w', newline='', encoding=encoding) as csv_f:
+                                                       ''.join(['_', METADATA_FILE_POSTFIX, '.csv']))
+                                                       # ''.join(['_', re.sub(r'_$','', METADATA_FILE_POSTFIX), '.csv']))
+            metadata_file = os.path.join(TEMP_FOLDER, metadata_file_name)
+            print("Writing metadata file locally:", metadata_file_name)
+            with open(metadata_file, 'w', newline='', encoding=ENCODING) as csv_f:
                 metadata = [
-                    ['File_name', f],
+                    ['File_name', source_file_name],
                     ['Zipped_file_size', str(zip_file_size)],
                     ['Unzipped_file_size', str(unzipped_file_size)],
                     ['Row_count', str(row_count - 1)],
@@ -90,11 +89,21 @@ with FTP(FTP_HOST) as ftp:
                 ]
                 csv.writer(csv_f).writerows(metadata)
 
-            # upload_to_ftp(ftp, temp_folder, metadata_file_name)
-            exit()
+            print("Zipping metadata file...")
+            zipped_file_name = metadata_file_name.replace('.csv', '.zip')
+            zf = zipfile.ZipFile(os.path.join(TEMP_FOLDER, zipped_file_name), mode='w')
+            try:
+                zf.write(metadata_file, arcname=metadata_file_name)
+            finally:
+                zf.close()
 
+            print("Uploading zipped control/metadata file to FTP...")
+            upload_to_ftp(ftp, TEMP_FOLDER, zipped_file_name)
 
+            print("Removing local temp files...")
+            for f in [source_file_name, metadata_file_name, csv_file_name, zipped_file_name]:
+                file_with_path = os.path.join(TEMP_FOLDER, f)
+                os.remove(file_with_path)
 
+print("\nCreating control/metadata files for the data export files in FTP finished successfully.")
 
-
-print('end')
