@@ -1,0 +1,65 @@
+For 2014-2016 Q1
+2987 sites
+6081 names 
+
+Fuzzy lookup: 
+http://datapigtechnologies.com/blog/index.php/text-match-and-fuzzy-lookup/
+
+Jaccard similarity (local)
+
+LCS (local):
+https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_subsequence#Python
+http://www.bogotobogo.com/python/python_longest_common_substring_lcs_algorithm_generalized_suffix_tree.php
+https://www.ics.uci.edu/~eppstein/161/960229.html
+https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
+[?] https://rosettacode.org/wiki/Longest_common_subsequence#Python
+
+Levenshtein (local and jellyfish):
+http://blog.ce-se.de/2010/10/11/levenshtein-distance-edit-distance-easily-explained/
+https://rosettacode.org/wiki/Levenshtein_distance#Python
+Levenshtein distance: gives you a measure of how different two strings are as the number of changes needed to turn one string into another. Pros: easy to implement, Cons: not normalized, a score of 2 means a good match for a pattern of length 20 but a bad match for a pattern of length 3.
+
+Damerau Levenshtein (local and jellyfish):
+https://pypi.python.org/pypi/jellyfish
+
+Jaro Winkler (pyjarowinkler and jellyfish):
+https://pypi.python.org/pypi/pyjarowinkler or https://github.com/nap/jaro-winkler-distance
+
+"p" is a constant scaling factor for how much the score is adjusted upwards for having common prefixes. 
+"p" should not exceed 0.25, otherwise the distance can become larger than 1. 
+The standard value for this constant in Winkler's work is p = 0.1
+
+Other notes:
+Jaro Winkler vs Levenshtein
+http://stackoverflow.com/questions/25540581/difference-between-jaro-winkler-and-levenshtein-distance
+
+Jelly fish (seems buggy in D-Leven algorithm)
+https://github.com/jamesturk/jellyfish
+
+https://www.peterbe.com/plog/uniqifiers-benchmark
+====
+Notes:
+Jaro is very consistent for most words. But it performs poorly when the beginning of the words aren't the same.
+E.g., "shiftfacebook" vs. "facebook" is only 0.47 in jaro score. Or "rachaelrayshow" vs. "rachelrayshow".
+But Jaccard score is good for those (typically it yields "-"ve when we subtract "Jaccard - Jaro" if the first few letters of words are different).
+In that case, we can try removing first few letters of the word to see if jaro score increases, and if so, we can say they match. Otherwise, nope.
+
+
+1. Find n-grams. Unsurprisingly, found that .com, .net, etc. are common. So decided to get rid of them.
+2. Find appropriate similarity metrics. Found five and after analyzing the average and std dev. of the scores for ground truth data, decided to use four.
+3. Relabel some of the updated_sites to have "Mobile" and "Tablet" tags in addition to standard ones.
+4. 
+
+total updated sites: 6082
+updated sites deduped: 3040 (even without transforming, we halved the amount of computation required)
+updated sites transformed deduped: 2961 (with transform, we removed 100 more)
+
+What I did so far:
+1. pip install xlrd
+2. in python
+>> import pandas as pd
+>> df = pd.read_excel('SuppliernameSite_all_Final.xlsx', sheetname='Sheet1', index_col=None)
+>> df.to_csv('train.csv', sep='\t', encoding='utf-8')
+
+
+
