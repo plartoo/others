@@ -32,11 +32,25 @@ The standard value for this constant in Winkler's work is p = 0.1
 Other notes:
 Jaro Winkler vs Levenshtein
 http://stackoverflow.com/questions/25540581/difference-between-jaro-winkler-and-levenshtein-distance
+http://stackoverflow.com/questions/6690739/fuzzy-string-comparison-in-python-confused-with-which-library-to-use
 
 Jelly fish (seems buggy in D-Leven algorithm)
 https://github.com/jamesturk/jellyfish
 
+Auto complete algorithms:
+http://stackoverflow.com/questions/2901831/algorithm-for-autocomplete
+
+Why Pickle?
+http://stackoverflow.com/questions/8968884/python-serialization-why-pickle
+
+Pickle vs. Shelve
+http://stackoverflow.com/questions/4103430/what-is-the-difference-between-pickle-and-shelve
+http://stackoverflow.com/questions/14668475/pickle-versus-shelve-storing-large-dictionaries-in-python
+
+Fastest way to uniqify a list in Python:
 https://www.peterbe.com/plog/uniqifiers-benchmark
+
+
 ====
 Notes:
 Jaro is very consistent for most words. But it performs poorly when the beginning of the words aren't the same.
@@ -54,7 +68,8 @@ total updated sites: 6082
 updated sites deduped: 3040 (even without transforming, we halved the amount of computation required)
 updated sites transformed deduped: 2961 (with transform, we removed 100 more)
 
-What I did so far:
+
+What I did so far to find n-grams:
 1. pip install xlrd
 2. in python
 >> import pandas as pd
