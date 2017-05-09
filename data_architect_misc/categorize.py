@@ -1,3 +1,4 @@
+import os
 import time
 import schedule
 import pandas as pd
@@ -56,7 +57,7 @@ def main():
 
 
 if __name__ == "__main__":
-    print("\n\n*****DO NOT KILL this program*****\n")
+    print("\n\n*****DO NOT KILL this program::", os.path.basename(__file__) ,"*****\n")
     print("If you accidentally or intentionally killed this program, please rerun it")
     print("This program runs processes every: friday at 6:00am EST")
 
