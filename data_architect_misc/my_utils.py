@@ -1,10 +1,13 @@
 import os
 import zipfile
 
-def unzip(source_folder, zip_file, dest_folder):
+
+def unzip_file(source_folder, zip_file, dest_folder):
     zip_file_with_full_path = os.path.join(source_folder, zip_file)
     with zipfile.ZipFile(zip_file_with_full_path, 'r') as zip_file:
         zip_file.extractall(dest_folder)
+        return zip_file.namelist()
+
 
 def get_filesize(folder, file):
     """

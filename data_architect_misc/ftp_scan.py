@@ -22,10 +22,10 @@ and each of these zip files wraps ONE CSV FILE in them.
 """
 
 import pdb
+import os
 import re
 import csv
 import zipfile
-import codecs
 
 from ftplib import FTP
 
@@ -41,8 +41,9 @@ with FTP(FTP_HOST) as ftp:
     ftp.login(user = USR_OUTBOUND, passwd = PWD_OUTBOUND)
     ftp.cwd(ROOT_OUTBOUND)
     # for dir in ftp.nlst(): # TODO: uncomment this when we're sure we want to scan across all folders
-    for dir in ['ASP', 'Celtra', 'DCM_Campaign_Report', 'DCM_Conversion_Report', 'DCM_Creative_Metadata',
-                'DCM_Placement_Metadata_Report', 'Mediatools', 'NetPak', 'Vindico']:
+    # for dir in ['ASP', 'Celtra', 'DCM_Campaign_Report', 'DCM_Conversion_Report', 'DCM_Creative_Metadata',
+    #             'DCM_Placement_Metadata_Report', 'Mediatools', 'NetPak', 'SpotPak', 'Vindico']:
+    for dir in ['SpotPak']:
         print("\nProcessing FTP folder:", dir)
         ftp.cwd('/'.join((ROOT_OUTBOUND, dir)))
         all_files = []
@@ -59,53 +60,55 @@ with FTP(FTP_HOST) as ftp:
         for source_file_name in files_to_prepare_metadata:
             print("Downloading file:", source_file_name)
             download_from_ftp(ftp, source_file_name, TEMP_FOLDER)
-            unzip(TEMP_FOLDER, source_file_name, TEMP_FOLDER)
-            csv_file_name = source_file_name.replace('.zip', '.csv')
+            files_unzipped = unzip_file(TEMP_FOLDER, source_file_name, TEMP_FOLDER)
 
-            zip_file_size = get_filesize(TEMP_FOLDER, source_file_name)
-            unzipped_file_size = get_filesize(TEMP_FOLDER, csv_file_name)
-            csv_file = os.path.join(TEMP_FOLDER, csv_file_name)
+            for file_unzipped in files_unzipped:
+                zip_file_size = get_filesize(TEMP_FOLDER, source_file_name)
+                unzipped_file_size = get_filesize(TEMP_FOLDER, file_unzipped)
+                file_unzipped_with_path = os.path.join(TEMP_FOLDER, file_unzipped)
 
-            print("Reading CSV file:", csv_file)
-            with open(csv_file, newline='', encoding=ENCODING) as csv_f:
-                reader = csv.reader(csv_f)
-                row_count = 0
-                col_count = None
-                for row in reader:
-                    # print(row)
-                    if not col_count:
-                        col_count = len(row)
-                    row_count += 1
+                print("Reading unzipped file:", file_unzipped_with_path)
+                with open(file_unzipped_with_path, newline='', encoding=ENCODING) as csv_f:
+                    reader = csv.reader(csv_f)
+                    row_count = 0
+                    col_count = None
+                    for row in reader:
+                        # print(row)
+                        if not col_count:
+                            pdb.set_trace()
+                            col_count = len(row)
+                        row_count += 1
 
-            metadata_file_name = csv_file_name.replace('.csv',
-                                                       ''.join(['_', METADATA_FILE_POSTFIX, '.csv']))
-            metadata_file = os.path.join(TEMP_FOLDER, metadata_file_name)
-            print("Writing metadata file locally:", metadata_file_name)
-            with open(metadata_file, 'w', newline='', encoding=ENCODING) as csv_f:
-                metadata = [
-                    ['File_name', source_file_name],
-                    ['Zipped_file_size', str(zip_file_size)],
-                    ['Unzipped_file_size', str(unzipped_file_size)],
-                    ['Row_count', str(row_count - 1)],
-                    ['Column_count', str(col_count)]
-                ]
-                csv.writer(csv_f).writerows(metadata)
+                metadata_file_name = ''.join([os.path.splitext(file_unzipped)[0], '_', METADATA_FILE_POSTFIX, '.csv'])
+                metadata_file_with_path = os.path.join(TEMP_FOLDER, metadata_file_name)
+                print("Writing metadata file locally:", metadata_file_name)
+                with open(metadata_file_with_path, 'w', newline='', encoding=ENCODING) as csv_f:
+                    metadata = [
+                        ['File_name', source_file_name],
+                        ['Zipped_file_size', str(zip_file_size)],
+                        ['Unzipped_file_size', str(unzipped_file_size)],
+                        ['Row_count', str(row_count - 1)],
+                        ['Column_count', str(col_count)]
+                    ]
+                    pdb.set_trace()
 
-            print("Zipping metadata file...")
-            zipped_file_name = metadata_file_name.replace('.csv', '.zip')
-            zf = zipfile.ZipFile(os.path.join(TEMP_FOLDER, zipped_file_name), mode='w')
-            try:
-                zf.write(metadata_file, arcname=metadata_file_name)
-            finally:
-                zf.close()
+                    csv.writer(csv_f).writerows(metadata)
 
-            print("Uploading zipped control/metadata file to FTP...")
-            upload_to_ftp(ftp, TEMP_FOLDER, zipped_file_name)
+                print("Zipping metadata file...")
+                zipped_file_name = metadata_file_name.replace('.csv', '.zip')
+                zf = zipfile.ZipFile(os.path.join(TEMP_FOLDER, zipped_file_name), mode='w')
+                try:
+                    zf.write(metadata_file_with_path, arcname=metadata_file_name)
+                finally:
+                    zf.close()
 
-            print("Removing local temp files...")
-            for f in [source_file_name, metadata_file_name, csv_file_name, zipped_file_name]:
-                file_with_path = os.path.join(TEMP_FOLDER, f)
-                os.remove(file_with_path)
+                print("Uploading zipped control/metadata file to FTP...")
+                upload_to_ftp(ftp, TEMP_FOLDER, zipped_file_name)
+
+                print("Removing local temp files...")
+                for f in [source_file_name, metadata_file_name, file_unzipped, zipped_file_name]:
+                    file_with_path = os.path.join(TEMP_FOLDER, f)
+                    os.remove(file_with_path)
 
 print("\nCreating control/metadata files for the data export files in FTP finished successfully.")
 
