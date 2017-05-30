@@ -21,7 +21,6 @@ and each of these zip files wraps ONE CSV FILE in them.
 
 """
 
-import pdb
 import os
 import re
 import csv
@@ -41,9 +40,8 @@ with FTP(FTP_HOST) as ftp:
     ftp.login(user = USR_OUTBOUND, passwd = PWD_OUTBOUND)
     ftp.cwd(ROOT_OUTBOUND)
     # for dir in ftp.nlst(): # TODO: uncomment this when we're sure we want to scan across all folders
-    # for dir in ['ASP', 'Celtra', 'DCM_Campaign_Report', 'DCM_Conversion_Report', 'DCM_Creative_Metadata',
-    #             'DCM_Placement_Metadata_Report', 'Mediatools', 'NetPak', 'SpotPak', 'Vindico']:
-    for dir in ['SpotPak']:
+    for dir in ['ASP', 'Celtra', 'DCM_Campaign_Report', 'DCM_Conversion_Report', 'DCM_Creative_Metadata',
+                'DCM_Placement_Metadata_Report', 'Mediatools', 'NetPak', 'SpotPak', 'Vindico']:
         print("\nProcessing FTP folder:", dir)
         ftp.cwd('/'.join((ROOT_OUTBOUND, dir)))
         all_files = []
@@ -75,7 +73,6 @@ with FTP(FTP_HOST) as ftp:
                     for row in reader:
                         # print(row)
                         if not col_count:
-                            pdb.set_trace()
                             col_count = len(row)
                         row_count += 1
 
@@ -90,8 +87,6 @@ with FTP(FTP_HOST) as ftp:
                         ['Row_count', str(row_count - 1)],
                         ['Column_count', str(col_count)]
                     ]
-                    pdb.set_trace()
-
                     csv.writer(csv_f).writerows(metadata)
 
                 print("Zipping metadata file...")
