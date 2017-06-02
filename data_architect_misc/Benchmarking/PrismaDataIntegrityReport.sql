@@ -10,7 +10,6 @@ DECLARE @end_date VARCHAR(50);
 --  DELETE a
 --  FROM [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_Log] a
 --  WHERE a.PID <> 0
-
 SET @run_id = (SELECT MAX(PID) FROM [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_Log])+1; --CONVERT(VARCHAR, GETDATE(), 112);
 SET @log_table = 'Compliance_Log';
 SET @start_date = '2014-01-01'; --Adjust this accordingly
@@ -18,7 +17,6 @@ SET @end_date = CONVERT(DATE, Dateadd(s, -1, Dateadd(mm, Datediff(m, 0, Getdate(
 
 
 EXEC [dbo].[LogProcessNameAndLaunchTime] @log_table, @run_id, '1: Creating BuyOrderDetails base table'
-
 IF OBJECT_ID('Compliance_BuyOrderDetails') IS NOT NULL
    DROP TABLE Compliance_BuyOrderDetails
 
@@ -115,7 +113,8 @@ END AS [New_PlacementMonth] -- combine whatever raw month and year columns are i
 ,CAST(NULL AS float) AS [Weighted_PlannedClicks]
 ,CAST(NULL AS float) AS [Weighted_PlannedImpressions]
 ,CAST(NULL AS float) AS [Weighted_PlannedUnits]
-,SUM(1) OVER (PARTITION BY [ParentId], [PackageType], [PlacementMonth], [PlacementYear] ) as [New_NumOfChildrenWithPlcMonthInfo] -- takes about up to 6.5 minutes total when this is added
+--,SUM(1) OVER (PARTITION BY [ParentId], [PackageType], [PlacementMonth], [PlacementYear] ) as [New_NumOfChildrenWithPlcMonthInfo] -- takes about up to 6.5 minutes total when this is added
+,SUM(1) OVER (PARTITION BY [ParentId], [PackageType], [PlacementMonthlyStartDate], [PlacementMonthlyEndDate]) as [New_NumOfChildrenWithPlcMonthInfo]
 ,[SupplierActions]
 ,[SupplierClicks]
 ,[SupplierCost]
@@ -130,21 +129,39 @@ AND [PlacementEndDate] >= @start_date
 AND [PackageType] IN ('Package', 'Child', 'Standalone')
 
 
-EXEC [dbo].[LogProcessNameAndLaunchTime] @log_table, @run_id, '2b: Copy Planned metrics from Parents to Children'
+EXEC [dbo].[LogProcessNameAndLaunchTime] @log_table, @run_id, '2b: Copy Planned metrics from Parents to Child'
 UPDATE A
 SET			
-			A.[Weighted_PlannedActions] = (1.0 * B.[PlannedActions])/B.[New_NumOfChildrenWithPlcMonthInfo]
-			,A.[Weighted_PlannedAmount] = (1.0 * B.[PlannedAmount])/B.[New_NumOfChildrenWithPlcMonthInfo]
-			,A.[Weighted_PlannedClicks] = (1.0 * B.[PlannedClicks])/B.[New_NumOfChildrenWithPlcMonthInfo]
-			,A.[Weighted_PlannedImpressions] = (1.0 * B.[PlannedImpressions])/B.[New_NumOfChildrenWithPlcMonthInfo]
-			,A.[Weighted_PlannedUnits] = (1.0 * B.[PlannedUnits])/B.[New_NumOfChildrenWithPlcMonthInfo]
-FROM		[DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_PlacementMonthly] AS A
-INNER JOIN	(SELECT * FROM [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_PlacementMonthly] AS C WHERE C.[PackageType] IN ('Package', 'Standalone')) AS B
+			A.[Weighted_PlannedActions] = (1.0 * B.[PlannedActions])/A.[New_NumOfChildrenWithPlcMonthInfo]
+			,A.[Weighted_PlannedAmount] = (1.0 * B.[PlannedAmount])/A.[New_NumOfChildrenWithPlcMonthInfo]
+			,A.[Weighted_PlannedClicks] = (1.0 * B.[PlannedClicks])/A.[New_NumOfChildrenWithPlcMonthInfo]
+			,A.[Weighted_PlannedImpressions] = (1.0 * B.[PlannedImpressions])/A.[New_NumOfChildrenWithPlcMonthInfo]
+			,A.[Weighted_PlannedUnits] = (1.0 * B.[PlannedUnits])/A.[New_NumOfChildrenWithPlcMonthInfo]
+-- 2467172 out of 2796042 child rows affected; 326704 has PlacementMonthlyStart/EndDate NULL and therefore, they have PlannedAmt as NULL as well
+FROM		(SELECT * FROM [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_PlacementMonthly] WHERE [PackageType] = 'Child') AS A
+INNER JOIN	(SELECT * FROM [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_PlacementMonthly] AS C WHERE C.[PackageType] = 'Package') AS B
 ON A.[ParentId] = B.[PlacementId]
--- Yufan said matching ONLY on PlacementId is enough, but I found that PlacementMonthlyStartDate is necessary for correct distribution
-AND A.[PlacementMonthlyStartDate] = B.[PlacementMonthlyStartDate] 
-AND A.[PlacementMonthlyEndDate] = B.[PlacementMonthlyEndDate]
-WHERE A.[PackageType] = 'Child'
+-- Yufan said matching ONLY on PlacementId is enough, but Phyo thought PlacementMonthlyStartDate is necessary
+--AND A.[PlacementMonthlyStartDate] = B.[PlacementMonthlyStartDate] 
+--AND A.[PlacementMonthlyEndDate] = B.[PlacementMonthlyEndDate] 
+-- BUT, including PlacementMonthlyStart/EndDate as JOIN key creates problem because when we SUM the original PlannedAmount from Parent ('Package') 
+-- and compare that with Weighted_PlannedAmount for children ('Child') after this UPDATE statement, they differ by A LOT (like 1bn out of 10bn total).
+-- Removing these two as INNER JOIN keys reduces that amount to just about 373m. Detail analysis is shared in the Benchmarking Documentation folder
+-- here: V:\GRM\Dept\BusinessScience\GroupM Benchmarking\3.Documentation\Compliance Report
+
+
+-- Jessie wants to treat Standalone as its own child and therefore, we need to do weighting for its own; 
+-- We also decided to also copy over parent/package planned metrics from original column to weighted column
+EXEC [dbo].[LogProcessNameAndLaunchTime] @log_table, @run_id, '2c: Copy Planned metrics from Standalone to itself for Weighted column'
+UPDATE A
+SET                  
+                     A.[Weighted_PlannedActions] = (1.0 * A.[PlannedActions])/A.[New_NumOfChildrenWithPlcMonthInfo]
+                     ,A.[Weighted_PlannedAmount] = (1.0 * A.[PlannedAmount])/A.[New_NumOfChildrenWithPlcMonthInfo]
+                     ,A.[Weighted_PlannedClicks] = (1.0 * A.[PlannedClicks])/A.[New_NumOfChildrenWithPlcMonthInfo]
+                     ,A.[Weighted_PlannedImpressions] = (1.0 * A.[PlannedImpressions])/A.[New_NumOfChildrenWithPlcMonthInfo]
+                     ,A.[Weighted_PlannedUnits] = (1.0 * A.[PlannedUnits])/A.[New_NumOfChildrenWithPlcMonthInfo]
+FROM          [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_PlacementMonthly] AS A
+WHERE A.[PackageType] IN ('Standalone') -- 930705 out of 930705 rows affected
 
 
 EXEC [dbo].[LogProcessNameAndLaunchTime] @log_table, @run_id, '3: Creating PlacementDetails base table'
@@ -219,41 +236,47 @@ FOR [CustomColumnName] IN (
 	)
 ) AS PivotTable;
 
+
 EXEC [dbo].[LogProcessNameAndLaunchTime] @log_table, @run_id, '5: Building final Placements table'
 IF OBJECT_ID('Compliance_All_Placements') IS NOT NULL
    DROP TABLE Compliance_All_Placements
 
 SELECT 
-	a.[AdserverActions]
+	a.[CampaignId]
+	,a.[CampaignPublicId]
+	,a.[CampaignName]
+	,a.[CampaignStartDate]
+	,a.[CampaignEndDate]
+	,a.[New_NumOfChildrenWithPlcMonthInfo]
+	,a.[PackageId]
+	,a.[PackageType]
+	,a.[ParentId]
+	,a.[PlacementId]
+	,a.[PlacementStartDate]
+	,a.[PlacementEndDate]
+	,a.[PlacementMonth]
+	,a.[PlacementYear]
+	,a.[New_PlacementMonth]
+	,a.[PlacementMonthlyEndDate]
+	,a.[PlacementMonthlyStartDate]
+	,a.[BuyType]
+	,a.[PlannedActions]
+	,a.[PlannedAmount]
+	,a.[PlannedClicks]
+	,a.[PlannedImpressions]
+	,a.[PlannedUnits]
+	,a.[Weighted_PlannedActions]
+	,a.[Weighted_PlannedAmount]
+	,a.[Weighted_PlannedClicks]
+	,a.[Weighted_PlannedImpressions]
+	,a.[Weighted_PlannedUnits]
+	,a.[AdserverActions]
 	,a.[AdserverClicks]
 	,a.[AdserverCost]
 	,a.[AdserverImpressions]
 	,a.[AdserverUnits]
 	,a.[AdvertiserCode]
 	,a.[AdvertiserName]
-	,a.[BuyType]
-	,a.[CampaignEndDate]
-	,a.[CampaignId]
-	,a.[CampaignName]
-	,a.[CampaignPublicId]
-	,a.[CampaignStartDate]
-	,a.[New_NumOfChildrenWithPlcMonthInfo]
-	,a.[New_PlacementMonth]
-	,a.[PackageId]
-	,a.[PackageType]
-	,a.[ParentId]
-	,a.[PlacementEndDate]
-	,a.[PlacementId]
-	,a.[PlacementMonth]
-	,a.[PlacementMonthlyEndDate]
-	,a.[PlacementMonthlyStartDate]
-	,a.[PlacementStartDate]
-	,a.[PlacementYear]
-	,a.[PlannedActions]
-	,a.[PlannedAmount]
-	,a.[PlannedClicks]
-	,a.[PlannedImpressions]
-	,a.[PlannedUnits]
 	,a.[SupplierActions]
 	,a.[SupplierClicks]
 	,a.[SupplierCode]
@@ -261,11 +284,6 @@ SELECT
 	,a.[SupplierImpressions]
 	,a.[SupplierName]
 	,a.[SupplierUnits]
-	,a.[Weighted_PlannedActions]
-	,a.[Weighted_PlannedAmount]
-	,a.[Weighted_PlannedClicks]
-	,a.[Weighted_PlannedImpressions]
-	,a.[Weighted_PlannedUnits]
 	,b.[CostMethod]
 	,b.[Dimension]
 	,b.[Positioning]
@@ -331,11 +349,31 @@ ON a.[PlacementId] = c.[PlacementId]
 --      ,[SupplierCode]
 --      ,[PlannedAmount]
 --      ,[Weighted_PlannedAmount]
---	  ,[Divisor]
+--	  ,[New_NumOfChildrenWithPlcMonthInfo]
 --  FROM [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_PlacementMonthly]
 --WHERE ([ParentId] =  '652253' OR [PlacementId] = '652253') AND
---[CampaignId] = '16628' AND ([New_PlacementMonth] IS NULL OR [New_PlacementMonth] = '2014-02-01 00:00:00')
+--[CampaignId] = '16628' AND ([New_PlacementMonth] IS NULL OR [New_PlacementMonth] = '2014-02-01 00:00:00
 --) s
+
+/*
+-- how to QA distribution of parent's planned amount to children
+SELECT [CampaignId]
+      ,[ParentId]
+	  ,[PackageType]
+      ,[PlacementId]
+	  ,[PlacementMonthlyStartDate]
+	  ,[PlacementMonthlyEndDate]
+      ,[New_PlacementMonth]
+      ,[SupplierCode]
+      ,[PlannedAmount]
+      ,[Weighted_PlannedAmount]
+	  ,[New_NumOfChildrenWithPlcMonthInfo]
+  FROM [DM_1305_GroupMBenchmarkingUS].[dbo].[Compliance_PlacementMonthly]
+WHERE ([ParentId] =  '652253' OR [PlacementId] = '652253') AND
+[CampaignId] = '16628'
+ORDER BY [PlacementMonthlyStartDate]
+AND ([New_PlacementMonth] IS NULL OR [New_PlacementMonth] = '2014-02-01 00:00:00')
+*/
 
 /*
 SELECT COUNT(*)
