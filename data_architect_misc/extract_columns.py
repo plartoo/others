@@ -6,6 +6,7 @@ desired_cols = [    # provide list of columns that you'd like to extract from th
     'WAVE'
     ,'DUMINTERVWID'
     ,'DUMENDDATE'
+    ,'WEEK_FINAL'
     ,'QB10GRID_1'
     ,'QB15_1'
     ,'QB30GRID_1_1'
