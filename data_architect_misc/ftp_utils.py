@@ -1,5 +1,6 @@
 import os
 
+
 def download_from_ftp(ftp_obj, file_to_download, dest_folder):
     if not os.path.exists(dest_folder):  # create local folder
         os.makedirs(dest_folder)
@@ -9,6 +10,13 @@ def download_from_ftp(ftp_obj, file_to_download, dest_folder):
                        local_file.write,
                        1024)
     local_file.close()
+
+
+def download_from_sftp(sftp_obj, file_to_download, dest_folder):
+    if not os.path.exists(dest_folder):  # create local folder
+        os.makedirs(dest_folder)
+    sftp_obj.get(file_to_download, os.path.join(dest_folder, file_to_download))
+
 
 def upload_to_ftp(ftp_obj, source_folder, file_to_upload):
     local_file = open(os.path.join(source_folder, file_to_upload), 'rb')
