@@ -41,7 +41,7 @@ with FTP(FTP_HOST) as ftp:
     ftp.cwd(ROOT_OUTBOUND)
     # for dir in ftp.nlst(): # TODO: uncomment this when we're sure we want to scan across all folders
     for dir in ['ASP', 'Celtra', 'DCM_Campaign_Report', 'DCM_Conversion_Report', 'DCM_Creative_Metadata',
-                'DCM_Placement_Metadata_Report', 'Mediatools', 'NetPak', 'SpotPak', 'Vindico']:
+                'DCM_Placement_Metadata_Report', 'Mediatools', 'NetPak', 'SpotPak', 'PrintPak', 'Vindico']:
         print("\nProcessing FTP folder:", dir)
         ftp.cwd('/'.join((ROOT_OUTBOUND, dir)))
         all_files = []
