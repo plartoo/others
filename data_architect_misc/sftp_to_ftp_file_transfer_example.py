@@ -36,8 +36,8 @@ def main():
             # files_previously_transferred = [f for f in os.listdir(local_folder) if os.path.isfile(os.path.join(local_folder, f))]
 
     # Example of FTP_TRANSFER_PARAMS dictionary structure
-    FTP_TRANSFER_PARAMS = {'from': {'host':'superpa.in', 'username': 'nielsen', 'pwd': '***REMOVED***', 'location': '/files'}, #FAKEPASSWORD
-                             'to': {'host':'liveftp.groupm.com', 'username': 'TargetInboundFTP', 'pwd': '***REMOVED***', 'location': '/Target Inbound/DataSources/Nielsen'},}
+    FTP_TRANSFER_PARAMS = {'from': {'host':'superpa.in', 'username': 'nielsen', 'pwd': 'FAKEPASSWORD', 'location': '/files'}, #FAKEPASSWORD
+                             'to': {'host':'liveftp.groupm.com', 'username': 'TargetInboundFTP', 'pwd': 'FAKEPASSWORD', 'location': '/Target Inbound/DataSources/Nielsen'},}
 
     # Because we don't want to go through the trouble of setting up the true fingerprint, we'll follow this
     # https://stackoverflow.com/questions/38939454/verify-host-key-with-pysftp
