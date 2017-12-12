@@ -54,10 +54,7 @@ def main(argv):
     root = tree.getroot()
     parent=root.findall(".//group[@name='[AdvertiserAccess]']/groupfilter/groupfilter/groupfilter[@function='filter']")
 
-    import pdb
-    #pdb.set_trace()
     for child in parent[1:]:
-        #pdb.set_trace()
         if child.attrib['expression']:
             expr = child.attrib['expression']
             regex_match = re.search('.*\\\\(.+)\'\)', expr)
@@ -70,9 +67,12 @@ def main(argv):
                     if ('from' in eee.attrib) and ('to' in eee.attrib): # for admins
                         member = 'ALL'
                         file_out.write(user_name + ", " + member + "\n")
-
                 for eee in child.findall("./groupfilter/groupfilter"):
                     if ('member' in eee.attrib): # for members
+                        member = eee.attrib['member']
+                        file_out.write(user_name + ", " + member + "\n")
+                for eee in child.findall("./groupfilter[@function='member']"):
+                    if ('member' in eee.attrib):
                         member = eee.attrib['member']
                         file_out.write(user_name + ", " + member + "\n")
 
