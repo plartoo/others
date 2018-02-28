@@ -1,19 +1,16 @@
 import pandas as pd
-import os.path
 import glob
 import sys
+import re
 
 """
 Description:
 Script to process Singapore raw data files.
 
 Place this script in the folder where the raw Excel data files is. 
-** MAKE SURE TO REMOVE ANY OTHER FILES THAT ARE NOT MEANT TO BE PROCESSED.
+** MAKE SURE TO REMOVE ANY OTHER EXCEL FILES THAT ARE NOT MEANT TO BE PROCESSED.
 
 Then, run as follow:
->> python fill_cells_with_values_from_above.py 
-to process ALL Excel files in the folder and merge them into one. OR
-
 >> python fill_cells_with_values_from_above.py <pattern_of_the_file_names_to_process>
 to process selected files that matches the pattern of the file names provided.
 
@@ -23,36 +20,47 @@ will only process the Colgate (non-SOS) files in the folder and produce ONE fina
 
 Note: Python 3.5+ and pandas must be installed.
 """
-# define parameters here; we can turn them into args to be fed as cmdline arguments later
+# define parameters here; we can use optparse to cleanly feed as cmdline params later
 rows_to_skip = 7 # will drop first non-null 8 rows in the raw file
 rows_to_drop = [-1]
 columns_to_drop = [0]
-new_column_names = ['Category','Subcategory','Product','Media','Period','Spend']
-output_file_name = 'processed.xlsx'
-
-if os.path.isfile(output_file_name):
-    print("\n******ATTENTION******")
-    print("Output file named ''", output_file_name ,"'' already exists in the folder. "
-                                                 "Please remove/rename that first and rerun the code.")
-    sys.exit()
+nonsos_column_names = ['Category','Subcategory','Advertiser','Product','Media','Period','Spend']
+sos_column_names = ['Category','Subcategory','Product','Media','Period','Spend']
+scrape_advertiser_after = r'SG_(.*?)_'
 
 if len(sys.argv) > 1:
     file_name_pattern = '*' + sys.argv[1] + '*.xlsx'
 else:
-    file_name_pattern = '*.xlsx'
+    print("\n******ATTENTION******")
+    print("You must provide file name pattern as parameter to find the relevant input files in this folder.",
+          "For example, try 'Spend_SG_' to process CP spend files and try 'Spend_SOS_SG_' for SOS file.")
+    sys.exit()
 
 files = glob.glob(file_name_pattern) # get all '.xlsx' files from the folder that matches the name pattern
 final_df = pd.DataFrame()
 
 for file_name in files:
-    print(file_name)
+    print("\nProcessing file: ", file_name)
     cur_df = pd.read_excel(file_name)
     cur_df.drop(cur_df.index[:rows_to_skip], inplace=True) # REF: https://goo.gl/8pKEAS and https://stackoverflow.com/a/17950081
     cur_df.drop(cur_df.index[rows_to_drop], inplace=True)
     cur_df.drop(cur_df.columns[columns_to_drop], axis=1, inplace=True) # REF: https://stackoverflow.com/a/18145399
     cur_df.fillna(method='ffill', inplace=True)# forward fill empty cells; REF: https://stackoverflow.com/a/27209766/1330974
-    cur_df.columns = new_column_names # REF: https://stackoverflow.com/a/11346337
-    print(cur_df)
+
+    re_match =  re.search(scrape_advertiser_after, file_name, re.M|re.I)
+    sos = re.search(r'SOS', file_name, re.M|re.I)
+    if sos:
+        cur_df.columns = sos_column_names # REF: https://stackoverflow.com/a/11346337
+        output_file_name = 'sos_processed.xlsx'
+    else:
+        if re_match:
+            advertiser = re_match.group(1)
+            print("Advertiser: ", advertiser, "\n")
+            cur_df.insert(loc=2, column='A', value=advertiser) # REF: https://stackoverflow.com/a/18674915
+            cur_df.columns = nonsos_column_names
+            output_file_name = 'cp_processed.xlsx'
+            # print(cur_df)
+
     final_df = final_df.append(cur_df, ignore_index=True) # REF: https://stackoverflow.com/a/41529411
 
 # write to excel
