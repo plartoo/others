@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import date
 import glob
 import sys
 import re
@@ -27,6 +28,8 @@ columns_to_drop = [0]
 nonsos_column_names = ['Category','Subcategory','Advertiser','Product','Media','Period','Spend']
 sos_column_names = ['Category','Subcategory','Product','Media','Period','Spend']
 scrape_advertiser_after = r'SG_(.*?)_'
+min_date = date.max # set to absolute max date possible; REF: https://stackoverflow.com/a/31972447
+max_date = date.min
 
 if len(sys.argv) > 1:
     file_name_pattern = '*' + sys.argv[1] + '*.xlsx'
@@ -51,19 +54,23 @@ for file_name in files:
     sos = re.search(r'SOS', file_name, re.M|re.I)
     if sos:
         cur_df.columns = sos_column_names # REF: https://stackoverflow.com/a/11346337
-        output_file_name = 'sos_processed.xlsx'
+        output_file_name = 'Spend_SOS_SG'
     else:
         if re_match:
             advertiser = re_match.group(1)
             print("Advertiser: ", advertiser, "\n")
             cur_df.insert(loc=2, column='A', value=advertiser) # REF: https://stackoverflow.com/a/18674915
             cur_df.columns = nonsos_column_names
-            output_file_name = 'cp_processed.xlsx'
+            output_file_name = 'Spend_SG'
             # print(cur_df)
 
+    cur_df['Period'] = cur_df['Period'].apply(lambda x: x.date())
+    min_date = min(cur_df['Period']) if min_date > min(cur_df['Period']) else  min_date
+    max_date = max(cur_df['Period']) if max_date < max(cur_df['Period']) else  max_date
     final_df = final_df.append(cur_df, ignore_index=True) # REF: https://stackoverflow.com/a/41529411
 
 # write to excel
+output_file_name += '_' + min_date.strftime('%Y%m') + 'to' + max_date.strftime('%Y%m') + '.xlsx'
 writer = pd.ExcelWriter(output_file_name)
 final_df.to_excel(writer, 'Sheet1', index=False)
 writer.save()
