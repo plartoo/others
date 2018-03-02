@@ -25,8 +25,8 @@ Note: Python 3.5+ and pandas must be installed.
 rows_to_skip = 7 # will drop first non-null 8 rows in the raw file
 rows_to_drop = [-1]
 columns_to_drop = [0]
-nonsos_column_names = ['Category','Subcategory','Advertiser','Product','Media','Period','Spend']
-sos_column_names = ['Category','Subcategory','Product','Media','Period','Spend']
+nonsos_column_names = ['Column2','Column3','Column4','Column5','Column6','Column7','$']
+sos_column_names = ['Column2','Column3','Column4','Column5','Column6','$']
 scrape_advertiser_after = r'SG_(.*?)_'
 min_date = date.max # set to absolute max date possible; REF: https://stackoverflow.com/a/31972447
 max_date = date.min
