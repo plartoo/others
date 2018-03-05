@@ -54,23 +54,27 @@ for file_name in files:
     sos = re.search(r'SOS', file_name, re.M|re.I)
     if sos:
         cur_df.columns = sos_column_names # REF: https://stackoverflow.com/a/11346337
-        output_file_name = 'Spend_SOS_SG'
+        cur_df.drop(cur_df[cur_df.Column6 == 'Total'].index, inplace=True)
+        cur_df['Column6'] = cur_df['Column6'].apply(lambda x: x.date())
+        min_date = min(cur_df['Column6']) if min_date > min(cur_df['Column6']) else  min_date
+        max_date = max(cur_df['Column6']) if max_date < max(cur_df['Column6']) else  max_date 
+        output_file_name = 'DS003g_Spend_SOS_SG'
     else:
         if re_match:
             advertiser = re_match.group(1)
             print("Advertiser: ", advertiser, "\n")
             cur_df.insert(loc=2, column='A', value=advertiser) # REF: https://stackoverflow.com/a/18674915
             cur_df.columns = nonsos_column_names
-            output_file_name = 'Spend_SG'
+            cur_df['Column7'] = cur_df['Column7'].apply(lambda x: x.date())
+            min_date = min(cur_df['Column7']) if min_date > min(cur_df['Column7']) else  min_date
+            max_date = max(cur_df['Column7']) if max_date < max(cur_df['Column7']) else  max_date
+            output_file_name = 'DS003g_Spend_SG'
             # print(cur_df)
 
-    cur_df['Period'] = cur_df['Period'].apply(lambda x: x.date())
-    min_date = min(cur_df['Period']) if min_date > min(cur_df['Period']) else  min_date
-    max_date = max(cur_df['Period']) if max_date < max(cur_df['Period']) else  max_date
     final_df = final_df.append(cur_df, ignore_index=True) # REF: https://stackoverflow.com/a/41529411
 
 # write to excel
-output_file_name += '_' + min_date.strftime('%Y%m') + 'to' + max_date.strftime('%Y%m') + '.xlsx'
+output_file_name += '_' + min_date.strftime('%Y%m') + 'to' + max_date.strftime('%Y%m') + '_Cleaned' + '.xlsx'
 writer = pd.ExcelWriter(output_file_name)
 final_df.to_excel(writer, 'Sheet1', index=False)
 writer.save()
