@@ -1,0 +1,85 @@
+question about KF generation:
+
+Q1: Do we have FOUR (as opposed to THREE shown in the documentation) to generate GEO and DEMO dimension files? No. We don't usually send these files for APAC
+What about Network and Daypart? Has data for ALL countries
+ONLY CREAtive will have APAC data dimension file as well.
+
+Q2: 
+MED_KF_XXX[CC]_MM_YYYY.csv
+XXX = Country Key
+
+What is "Country Key"? Does that mean we produce MANY files at once? E.g., We are to generate Mexico, what are the files produced in the KF file set?
+Also, what about "MM"? Is that representative of the MAX date in the data or is that more about the day KF file was generated? => current month
+
+Q3: what if we generate everything for each region? (because it's going to be very big)
+
+Q33: 
+  SELECT [Geography Dim]
+	,[Product Dim]
+	,[Media Dim]
+	,[Demographic Dim]
+	,[Creative Dim]
+	,[Daypart Dim]
+	,[Network Dim]
+	,[Month/Year] [Month Year]
+	,[Country]
+	,[Local Currency]
+	,REPLACE(FORMAT([Spend Local], 'N', 'en-us'), ',', '') [Spend Local]
+	,[Spend USD]
+	,REPLACE(FORMAT([TRP], 'N', 'en-us'), ',', '') [TRP]
+	,REPLACE(FORMAT([Normalized TRP], 'N', 'en-us'), ',', '') [Normalized TRP]	# the values must NOT have commas
+	,[Insertions]
+	,REPLACE(FORMAT([Impressions], 'N', 'en-us'), ',', '') [Impressions]
+FROM [dbo].[MED_KF_HK]
+
+why do we do replace and converting to 'N', 'en-us'?
+
+
+Q4: What is the process to generate KF files?
+
+Ask CBS: [Country] vs [Country ID] = We might want to coordinate wityh CBS to leave this column name the same for all the regions; 
+to see if we can deliver in TSV format (having commas can mess up QA sometimes); "","",""
+Ask CBS if we can deliver just ONE file for each dimension for the whole world; 
+
+
+Day1:
+python generate_kf.py HK -t y (will transfer to FTP)
+python generate_kf.py HK -t n (will NOT transfer to FTP)
+==> 
+
+Day2:
+python generate_kf.py Col Mx USD
+==> 9 dimension files; 3 fact files; == 12 files total + MED_BRAND_MANUF_NA.csv; MED_MARKET_SUBCAT_NA.csv
+
+
+
+
+
+
+
+
+
+1. Relationship between Hub and Country;   FROM [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY]
+
+
+
+i guess right now someone has to copy the dump the data files to FTP?
+what is the QA after generating these files? I heard they load them in staging?
+
+For generating "MED_MEDIA_DM.csv", I think we use a different query than the following given in Edgar's doc?
+SELECT [Media Dim], [Media Dim Text], [Dim Type], [Dim Type Text], [Media lvl 1], [Media lvl 1 text], 
+	[Media lvl 2], [Media lvl 2 text], [Media lvl 3], [Media lvl 3 text], [Spot Length], [Spot  Bucket Length] 
+FROM [dbo].[V_MED_MEDIA_DM]
+
+For LATAM, NA and so on (not APAC):
+[dbo].[CP_DIM_COUNTRY] and [dbo].COUNTRY_MASTER have configs like hubs and stuff
+
+
+
+
+
+https://community.esri.com/thread/202412-using-python-with-pyodbc-to-export-sql-to-excel
+https://stackoverflow.com/questions/37051297/reading-from-sql-server-with-params-pandas-or-pyodbc-not-functioning-properly
+
+https://www.ch-edoc-reservation.admin.ch/internet_booking/show_next_free_dates
+
