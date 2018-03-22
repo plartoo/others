@@ -1,0 +1,157 @@
+SELECT [Media Dim], [Media Dim Text], [Dim Type], [Dim Type Text], [Media lvl 1], [Media lvl 1 text], [Media lvl 2], [Media lvl 2 text], [Media lvl 3], [Media lvl 3 text], [Spot Length], [Spot  Bucket Length] 
+FROM [dbo].[V_MED_MEDIA_DM]
+SELECT [Product Dim], [Product Dim Text], [Dim Type], [Dim Type Text], [6L Category], [6L Subcategory], [6L Brand], [6L Subbrand], [6L Variant], [1PH Category], [1PH Subcategory], [1PH ProductCategory], [1PH Brand], [1PH Subbrand], [1PH Variant] 
+FROM [dbo].[V_MED_PROD_DM]
+SELECT [Geography Dim], [Geo Dim Text], [Dim Type], [Dim Type Text], [Division], [Subdivision], [Hub], [Country], [Region], [Region Text], [SubRegion], [SubRegion Text], [Province], [ProvinceText], [CityTier], [CityTier Text], [City], [City Text] 
+FROM [dbo].[V_MED_GEO_DM] WHERE HUB = 29
+SELECT [Geography Dim], [Geo Dim Text], [Dim Type], [Dim Type Text], [Division], [Subdivision], [Hub], [Country], [Region], [Region Text], [SubRegion], [SubRegion Text], [Province], [ProvinceText], [CityTier], [CityTier Text], [City], [City Text] 
+FROM [dbo].[V_MED_GEO_DM] WHERE HUB IN (3,5,6,30,31,32,33)
+SELECT [Geography Dim], [Geo Dim Text], [Dim Type], [Dim Type Text], [Division], [Subdivision], [Hub], [Country], [Region], [Region Text], [SubRegion], [SubRegion Text], [Province], [ProvinceText], [CityTier], [CityTier Text], [City], [City Text] 
+FROM [dbo].[V_MED_GEO_DM] WHERE HUB = 36
+SELECT [Demographics], [TA Dim Text], [Dim Type], [Dim Type Text], [Is Gbl TA? Key], [Is Gbl TA? Text], [Global Name], [Global Name Text], [Sort Number] 
+FROM [dbo].[V_MED_DEMO_DM] WHERE DIVISION_KEY = 'NA'
+SELECT [Demographics], [TA Dim Text], [Dim Type], [Dim Type Text], [Is Gbl TA? Key], [Is Gbl TA? Text], [Global Name], [Global Name Text], [Sort Number] 
+FROM [dbo].[V_MED_DEMO_DM] WHERE DIVISION_KEY = 'LA'
+SELECT [Demographics], [TA Dim Text], [Dim Type], [Dim Type Text], [Is Gbl TA? Key], [Is Gbl TA? Text], [Global Name], [Global Name Text], [Sort Number] 
+FROM [dbo].[V_MED_DEMO_DM] WHERE DIVISION_KEY = 'SP'
+SELECT [Creative Dim], [Creative Dim text], [Dim Type], [Dim Type Text], [Global Name], [Global Name Text] 
+FROM [dbo].[V_MED_CREA_DM] WHERE DIVISION_KEY = 'NA'
+SELECT [Creative Dim], [Creative Dim text], [Dim Type], [Dim Type Text], [Global Name], [Global Name Text] 
+FROM [dbo].[V_MED_CREA_DM] WHERE  DIVISION_KEY = 'LA'
+SELECT [Creative Dim], [Creative Dim text], [Dim Type], [Dim Type Text], [Global Name], [Global Name Text] 
+FROM [dbo].[V_MED_CREA_DM] WHERE  DIVISION_KEY = 'SP'
+
+
+Soon with APAC Phase 2.2 implementation
+SELECT [Network Dim], [Network Dim Text] 
+FROM [dbo].[V_MED_NETWORK_DM]
+SELECT [Daypart Dim], [Daypart Dim Text] 
+FROM [dbo].[V_MED_DAYPART_DM]
+SELECT [Country ID], [CountryName], [BrandID], [BrandName], [LocalManuf], [GlobalManuf], [StartDate] 
+FROM [dbo].[V_MED_BRAND_MANF] WHERE [COUNTRY ID] IN (96,102)
+SELECT [Country ID], [CountryName], [BrandID], [BrandName], [LocalManuf], [GlobalManuf], [StartDate] 
+FROM [dbo].[V_MED_BRAND_MANF] WHERE [COUNTRY ID] IN (3,12,15,17,22,23,53,63,64,68,91,92,104,106,107,108,109,110)
+SELECT [Country ID], [CountryName], [BrandID], [BrandName], [LocalManuf], [GlobalManuf], [StartDate] 
+FROM [dbo].[V_MED_BRAND_MANF] WHERE [COUNTRY ID] IN (4, 57)
+SELECT [Country ID], [Subcategory Key], [C/NC Flag], [C/NC Text] 
+FROM [dbo].[V_MED_MARKET_SUBCAT] WHERE [COUNTRY ID] IN (3,12,15,17,22,23,53,63,64,68,91,92,104,106,107,108,109,110)
+SELECT [Country ID], [Subcategory Key], [C/NC Flag], [C/NC Text] 
+FROM [dbo].[V_MED_MARKET_SUBCAT] WHERE [COUNTRY ID] IN (96,102)
+SELECT [Country ID], [Subcategory Key], [C/NC Flag], [C/NC Text] 
+FROM [dbo].[V_MED_MARKET_SUBCAT] WHERE [COUNTRY ID] IN (4, 57)
+
+
+"Database = DM_1219_ColgateGlobal
+SELECT [Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim], [Daypart Dim], [Network Dim], [Month Year], [Country ID], [Local Currency], REPLACE(FORMAT([Spend Local], 'N', 'en-us'), ',', '') [Spend Local], [Spend USD], REPLACE(FORMAT([TRP], 'N', 'en-us'), ',', '') [TRP], REPLACE(FORMAT([Normalized TRP], 'N', 'en-us'), ',', '') [Normalized TRP], [Insertions], REPLACE(FORMAT([Impressions], 'N', 'en-us'), ',', '') [Impressions] 
+FROM [dbo].[V_Transaction_Data] WHERE [COUNTRY ID] = @CP_COUNTRY_ID
+
+@CP_COUNTRY_ID = Reference table --> [dbo].[CP_DIM_COUNTRY], column --> [CP_COUNTRY_ID]
+
+[Country] vs [Country ID] = We might want to coordinate wityh CBS to leave this column name the same for all the regions."
+"Database = DM_1035_ColgateAPACCompetitive
+
+SELECT [Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim], [Daypart Dim], [Network Dim], [Month/Year] [Month Year], [Country], [Local Currency], REPLACE(FORMAT([Spend Local], 'N', 'en-us'),',','') [Spend Local], [Spend USD], REPLACE(FORMAT([TRP], 'N', 'en-us'),',','') [TRP], REPLACE(FORMAT([Normalized TRP], 'N', 'en-us'),',','') [Normalized TRP], [Insertions], REPLACE(FORMAT([Impressions], 'N', 'en-us'),',','') [Impressions] 
+FROM [dbo].[MED_KF_XXX]
+
+XXX = Country Prefix, there is a view for each country.
+
+[Country] vs [Country ID]= We might want to coordinate wityh CBS to leave this column name the same for all the regions."
+
+
+
+===========
+MED_DEMO_DM_ALL.csv		=>	SELECT [Demographics], [TA Dim Text], [Dim Type], [Dim Type Text], [Is Gbl TA? Key], [Is Gbl TA? Text], [Global Name], [Global Name Text], [Sort Number] 
+FROM [dbo].[V_MED_DEMO_DM]
+
+MED_GEO_DM_ALL.csv		=> SELECT [Geography Dim], [Geo Dim Text], [Dim Type], [Dim Type Text], [Division], [Subdivision], [Hub], [Country], [Region], [Region Text], [SubRegion], [SubRegion Text], [Province], [ProvinceText], [CityTier], [CityTier Text], [City], [City Text] 
+FROM [dbo].[V_MED_GEO_DM]
+
+MED_PROD_DM_ALL.csv		=> SELECT [Product Dim], [Product Dim Text], [Dim Type], [Dim Type Text], [6L Category], [6L Subcategory], [6L Brand], [6L Subbrand], [6L Variant], [1PH Category], [1PH Subcategory], [1PH ProductCategory], [1PH Brand], [1PH Subbrand], [1PH Variant] 
+FROM [dbo].[V_MED_PROD_DM]
+
+MED_MEDIA_DM_ALL.csv	=> SELECT [Media Dim], [Media Dim Text], [Dim Type], [Dim Type Text], [Media lvl 1], [Media lvl 1 text], [Media lvl 2], [Media lvl 2 text], [Media lvl 3], [Media lvl 3 text], [Spot Length], [Spot  Bucket Length] 
+FROM [dbo].[V_MED_MEDIA_DM]
+
+MED_CREA_DM_ALL.csv		=> SELECT [Creative Dim], [Creative Dim text], [Dim Type], [Dim Type Text], [Global Name], [Global Name Text] 
+FROM [dbo].[V_MED_CREA_DM]
+
+MED_NETWORK_DM_ALL.csv	=> SELECT [Network Dim],[Network Dim Text] 
+FROM [DM_1219_ColgateGlobal].[dbo].[V_MED_NETWORK_DM]
+
+MED_DAYPART_DM_ALL.csv	=> SELECT [Daypart Dim],[Daypart Dim Text] 
+FROM [DM_1219_ColgateGlobal].[dbo].[V_MED_DAYPART_DM]
+
+MED_CHANNEL_DM_ALL.csv	=> ********** WE NEED TO TAKE CARE OF CHANNEL
+
+MED_BRAND_MANUF_ALL.csv	=> SELECT [Country ID], [CountryName], [BrandID], [BrandName], [LocalManuf], [GlobalManuf], [StartDate] 
+FROM [dbo].[V_MED_BRAND_MANF] 
+
+MED_MARKET_SUBCAT_ALL.csv => SELECT [Country ID], [Subcategory Key], [C/NC Flag], [C/NC Text] 
+FROM [dbo].[V_MED_MARKET_SUBCAT]
+
+
+SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim], 
+		[Daypart Dim], [Network Dim], [Month Year], [Country ID], [Local Currency], 
+		REPLACE(FORMAT([Spend Local], 'N', 'en-us'), ',', '') [Spend Local], 
+		[Spend USD], REPLACE(FORMAT([TRP], 'N', 'en-us'), ',', '') [TRP], 
+		REPLACE(FORMAT([Normalized TRP], 'N', 'en-us'), ',', '') [Normalized TRP], 
+		[Insertions], REPLACE(FORMAT([Impressions], 'N', 'en-us'), ',', '') [Impressions] 
+FROM [dbo].[V_Transaction_Data] WHERE [COUNTRY ID] = @CP_COUNTRY_ID 
+-- this id comes from '[CP_COUNTRY_ID] of CP_DIM_COUNTRY; [COUNTRY_KEY] from that table is used for file names
+
+
+SELECT  [Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim], 
+		[Daypart Dim], [Network Dim], [Month/Year] AS [Month Year], [Country] AS [Country ID], [Local Currency], 
+		REPLACE(FORMAT([Spend Local], 'N', 'en-us'),',','') [Spend Local], 
+		[Spend USD], REPLACE(FORMAT([TRP], 'N', 'en-us'),',','') [TRP], 
+		REPLACE(FORMAT([Normalized TRP], 'N', 'en-us'),',','') [Normalized TRP], 
+		[Insertions], REPLACE(FORMAT([Impressions], 'N', 'en-us'),',','') [Impressions] 
+FROM [dbo].[MED_KF_XXX]
+--
+CHM: CN
+HKG: HK
+IDN: ID (indo)
+IRP: IN (india)
+MAL: MY
+PHI: PH
+SGP: SG
+THA: TH
+TWN: TW
+VTN: VN
+
+
+
+
+/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT TOP (1000) [CP_COUNTRY_ID]
+      ,[COUNTRY_KEY]
+      ,[COUNTRY_NAME]
+      ,[GM_COUNTRY_ID]
+      ,[HUB_ID]
+      ,[HUB_KEY]
+      ,[HUB_TEXT]
+      ,[SUBDIVISION_ID]
+      ,[SUBDIVISION_KEY]
+      ,[SUBDIVISION_TEXT]
+      ,[DIVISION_ID]
+      ,[DIVISION_KEY]
+      ,[DIVISION_TEXT]
+      ,[ADD_DATE]
+  FROM [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY]
+  WHERE DIVISION_TEXT = 'Asia'
+
+
+  --[HUB_ID]
+  --[CP_COUNTRY_ID]
+  --  [DIVISION_KEY]
+
+
+
+
+
+
+
+
+
+
+
