@@ -120,8 +120,6 @@ TWN: TW
 VTN: VN
 
 
-
-
 /****** Script for SelectTopNRows command from SSMS  ******/
 SELECT TOP (1000) [CP_COUNTRY_ID]
       ,[COUNTRY_KEY]
@@ -152,6 +150,41 @@ SELECT TOP (1000) [CP_COUNTRY_ID]
 
 
 
+Question: Ask if [Country Key] in fact file names are from [CP_DIM_COUNTRY].[COUNTRY_KEY] or 
+[COUNTRY_MASTER].[COUNTRY_CODE] for Asia countries
 
 
+Todo:
+We need to formally merge [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY] and [DM_1219_ColgateGlobal].[dbo].[COUNTRY_MASTER]
+
+Idea
+=====
+1))
+  Temporarily Merge: [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY]
+  and  [DM_1219_ColgateGlobal].[dbo].[COUNTRY_MASTER]
+  My suggestion: JOIN [COUNTRY_MASTER] INTO [CP_DIM_COUNTRY] using [GM_COUNTRY_ID] to bring 
+  
+  Code that I used to temporarily merge:
+  SELECT TOP (1000) [CP_COUNTRY_ID]
+      ,[COUNTRY_KEY]
+      ,a.[COUNTRY_NAME]
+      ,[GM_COUNTRY_ID]
+	--,[COUNTRY_ID] AS b_cid
+	--,[COUNTRY_CODE] AS b_ccode
+	--,b.[COUNTRY_NAME] AS b_cname
+	  ,CASE WHEN [DIVISION_TEXT] = 'Asia' THEN [COUNTRY_CODE] ELSE COUNTRY_KEY END AS [MERGED_COUNTRY_KEY]
+      ,[HUB_ID]
+      ,[HUB_KEY]
+      ,[HUB_TEXT]
+      ,[SUBDIVISION_ID]
+      ,[SUBDIVISION_KEY]
+      ,[SUBDIVISION_TEXT]
+      ,[DIVISION_ID]
+      ,[DIVISION_KEY]
+      ,[DIVISION_TEXT]
+      ,[ADD_DATE]
+  INTO [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY_NEW] 
+  FROM [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY] a
+  LEFT JOIN [DM_1219_ColgateGlobal].[dbo].[COUNTRY_MASTER] b
+  ON a.GM_COUNTRY_ID = b.COUNTRY_ID
 
