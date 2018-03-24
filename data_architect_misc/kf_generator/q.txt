@@ -154,8 +154,6 @@ Question: Ask if [Country Key] in fact file names are from [CP_DIM_COUNTRY].[COU
 [COUNTRY_MASTER].[COUNTRY_CODE] for Asia countries
 
 
-Todo:
-We need to formally merge [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY] and [DM_1219_ColgateGlobal].[dbo].[COUNTRY_MASTER]
 
 Idea
 =====
@@ -187,4 +185,29 @@ Idea
   FROM [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY] a
   LEFT JOIN [DM_1219_ColgateGlobal].[dbo].[COUNTRY_MASTER] b
   ON a.GM_COUNTRY_ID = b.COUNTRY_ID
+
+Todo:
+1. We need to formally merge [DM_1219_ColgateGlobal].[dbo].[CP_DIM_COUNTRY] and [DM_1219_ColgateGlobal].[dbo].[COUNTRY_MASTER]
+2. Ask Poonam to see if it's okay to include sequential numbers in Fact file even if we are not sending them in chunks
+3. Ask Poonam to see if the '"' is okay. And also is small caps in header names is okay?
+4. # TODO: Fix incorrect format for country_id and subcat_key columns in our db 
+market_subcat = """
+SELECT 
+    CAST([Country ID] AS INT) AS [Country ID], 
+    CAST([Subcategory Key] AS INT) AS [Subcategory Key],
+    [C/NC Flag],
+    [C/NC Text]
+FROM [DM_1219_ColgateGlobal].[dbo].[V_MED_MARKET_SUBCAT]
+"""
+
+5. Jholman will reate below view
+# TODO:
+channel = """
+"""
+
+6. [V_Transaction_Data] and [MED_KF_SG] have some schema mismatch. e.g., 'Geography Dim' in former is BIGINT; the latter is VARCHAR
+Also, why is "Impressions" in V_Transaction_Data a FLOAT? It should always be INT.
+
+
+
 
