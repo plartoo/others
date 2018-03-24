@@ -93,18 +93,24 @@ dim_queries = [
 
 
 def get_fact_query(country_metadata):
+    # TODO: we have type mismatch between APAC tables and rest-of-the-world tables
     fact_query_non_APAC = """
-    SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim], 
-    		[Daypart Dim], [Network Dim], [Month Year], [Country ID], [Local Currency], 
-    		[Spend Local], [Spend USD], [TRP], [Normalized TRP], [Insertions], [Impressions] 
+    SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim],
+        [Daypart Dim], [Network Dim], [Month Year], [Country ID], [Local Currency], 
+        CAST([Spend Local] AS DECIMAL(14,2)) AS [Spend Local], 
+        CAST([Spend USD] AS INT) AS [Spend USD], 
+        CAST([TRP] AS DECIMAL(14,2)) AS [TRP], 
+        CAST([Normalized TRP] AS DECIMAL(14,2)) AS [Normalized TRP], 
+        CAST([Insertions] AS INT) AS [Insertions], 
+        CAST([Impressions]  AS DECIMAL(14,2)) AS [Impressions] 
     FROM [DM_1219_ColgateGlobal].[dbo].[V_Transaction_Data] 
     WHERE [COUNTRY ID] = @CP_COUNTRY_ID 
     """
 
     fact_query_APAC = """
-    SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim], 
-    		[Daypart Dim], [Network Dim], [Month/Year] AS [Month Year], [Country] AS [Country ID], 
-    		[Local Currency], [Spend Local], [Spend USD], [TRP], [Normalized TRP], [Insertions],[Impressions]  
+    SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim],
+        [Daypart Dim], [Network Dim], [Month/Year] AS [Month Year], [Country] AS [Country ID], 
+        [Local Currency], [Spend Local], [Spend USD], [TRP], [Normalized TRP], [Insertions],[Impressions]  
     FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@MERGED_COUNTRY_KEY] 
     """
 
