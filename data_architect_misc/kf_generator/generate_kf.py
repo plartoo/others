@@ -55,8 +55,8 @@ if __name__ == '__main__':
         pp.pprint(q)
         writer.write_data_incrementally(db.get_connection(), q)
 
-    # for q in queries.dim_queries:
-    #     print("\n===> Generating Dimension file using the query and config below:")
-    #     pp.pprint(q)
-    #     writer.write_data_all_at_once(db.fetch_all_data(q['query']), q)
+    for q in queries.dim_queries:
+        print("\n===> Generating Dimension file using the query and config below:")
+        pp.pprint(q)
+        writer.write_data_all_at_once(db.fetch_all_data(q['query']), q)
     print('\n###Key figure file generation completed.###')
