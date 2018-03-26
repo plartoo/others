@@ -107,7 +107,7 @@ class DataWriter(object):
         return self.get_size_in_bytes(row)
 
     def get_approximate_rows_per_doc(self, row_size, size_limit):
-        return int(size_limit/row_size)
+        return int(size_limit*DataWriter.BYTES_IN_MEGABYTES/row_size)
 
     def get_row_per_doc(self, db_connection, configs):
         # since we are going to pull and write data incrementally, we need two parameters below

@@ -22,8 +22,10 @@ def prepare_fact_queries_and_output_configs(countries, country_metadata):
         if c in country_metadata:
             fact_query_and_output_config = queries.get_fact_query(country_metadata[c])
             fact_query_and_output_config['split_file'] = True
-            fact_query_and_output_config['split_by'] = 'row' # alternative is 'size'
-            fact_query_and_output_config['split_limit'] = ROW_COUNT # for 'size', provide integer as file size in MB
+            # fact_query_and_output_config['split_by'] = 'row' # alternative is 'size'
+            # fact_query_and_output_config['split_limit'] = ROW_COUNT # for 'size', provide integer as file size in MB
+            fact_query_and_output_config['split_by'] = 'size' # alternative is 'size'
+            fact_query_and_output_config['split_limit'] = 190 # for 'size', provide integer as file size in MB
             q.append(fact_query_and_output_config)
         else:
             sys.exit('\n***!!! WARNING: [COUNTRY_KEY] is not found in the [CP_DIM_COUNTRY] => ' + c)
