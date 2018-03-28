@@ -18,7 +18,7 @@ import re
 import sys
 import time
 from datetime import datetime, date, timedelta
-from sqlalchemy import create_engine
+# from sqlalchemy import create_engine
 
 
 def standard_input(url):
@@ -68,6 +68,7 @@ def adtxtcrawl(sites):
         print('Working On: ' + transform_url_2)
         try:  # Try-except block to handle HTML connection errors
             r = requests.get(transform_url_2, headers=headers, timeout=60, allow_redirects=True)
+
             if r.status_code == requests.codes.ok and "error 404" in r.text.lower():
                 func_dict_list.append(no_ads_txt(url, transform_url_2, resp="HTTP 200 but received error in HTML body"))
 
@@ -91,9 +92,11 @@ def adtxtcrawl(sites):
                         except IndexError:
                             pass
 
-                    import pdb
-                    pdb.set_trace()
                     func_dict_list.append(out_dict)
+                import pdb
+                pdb.set_trace()
+                print('ah')
+
 
             else:  # Block to handle non 200 HTTP response
                 func_dict_list.append(no_ads_txt(url, transform_url_2, resp=r.status_code))
@@ -110,6 +113,6 @@ def adtxtcrawl(sites):
 if __name__ == '__main__':
     start_time = time.time()
     sites = [
-            'http://www.espn.com/ads.txt',
+            'http://www.espn.com',
         ]
     adtxtcrawl(sites)
