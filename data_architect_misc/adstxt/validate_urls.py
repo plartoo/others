@@ -40,7 +40,11 @@ if __name__ == '__main__':
                         print(url)
                         rt = requests.get(url, timeout=10)
                         good_urls.append([url, rt.status_code])
-                    except (requests.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError, socket.gaierror, socket.timeout, urllib3.exceptions.ReadTimeoutError, zlib.error, urllib3.exceptions.DecodeError, socket.timeout, urllib3.exceptions.ReadTimeoutError) as e:
+                    except (requests.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError,
+                            urllib3.exceptions.MaxRetryError, socket.gaierror,
+                            socket.timeout, urllib3.exceptions.ReadTimeoutError, zlib.error,
+                            urllib3.exceptions.DecodeError,
+                            requests.exceptions.TooManyRedirects, requests.exceptions.SSLError) as e:
                         bad_urls.append([url, 'error:', str(e)])
                     except Exception as e: # REF: https://stackoverflow.com/a/45700425
                         print(traceback.print_exc())
