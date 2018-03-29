@@ -19,6 +19,7 @@ class AdstxtSpiderMiddleware(object):
 
     def __init__(self):
         self.failed_URLs = []
+        self.start_time = datetime.now().replace(microsecond=0)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -82,6 +83,7 @@ class AdstxtSpiderMiddleware(object):
                 print('error', e)
                 spider.logger.error('Error in writing CSV (output) file: ' + output_file)
 
+        print('Total time taken:', str(datetime.now().replace(microsecond=0) - self.start_time))
         spider.logger.info('Spider closed: %s' % spider.name)
 
 
