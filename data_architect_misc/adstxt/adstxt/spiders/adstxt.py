@@ -28,7 +28,7 @@ class AdsTxtSpider(scrapy.Spider):
         url_file = os.path.join(cur_dir_path, 'urls_to_scrape.csv')
         with open(url_file, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
-            return [('https://'+ str(r) + '/ads.txt') for r in csvreader]
+            return [''.join(['https://',r[0],'/ads.txt']) for r in csvreader][0:10000]
 
     def start_requests(self):
         urls = self.load_urls_to_crawl()
