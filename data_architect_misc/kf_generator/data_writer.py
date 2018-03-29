@@ -120,7 +120,6 @@ class DataWriter(object):
             return configs['split_limit']
         elif configs['split_by'] == 'size':
             row_size = self.get_size_of_first_row(db_connection, configs['query'])
-            row_limit = self.get_approximate_rows_per_doc(row_size, configs['split_limit'])
             return self.get_approximate_rows_per_doc(row_size, configs['split_limit'])
         else:
             return self.row_count_limit
@@ -149,7 +148,7 @@ class DataWriter(object):
                                                                       configs['output_file_basename'])
             self.write_to_file(cur_doc, os.path.join(self.output_dir, output_file_name), configs)
             print('at row number:', str(total_row_count))
-            del cur_doc # hoping to invoke Python garbage collector REF: https://stackoverflow.com/q/1316767
+            del cur_doc # hopefully invoke Python garbage collector REF: https://stackoverflow.com/q/1316767
             del rows
             file_count += 1
 
