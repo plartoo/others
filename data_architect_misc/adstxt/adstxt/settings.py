@@ -50,9 +50,9 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
-#    'adstxt.middlewares.AdstxtSpiderMiddleware': 543,
-#}
+SPIDER_MIDDLEWARES = {
+   'adstxt.middlewares.AdstxtSpiderMiddleware': 543,
+}
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html

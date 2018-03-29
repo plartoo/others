@@ -5,6 +5,10 @@
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+import csv
+import os.path
+from datetime import datetime
+
 from scrapy import signals
 
 
@@ -13,24 +17,27 @@ class AdstxtSpiderMiddleware(object):
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
 
+    def __init__(self):
+        self.failed_URLs = []
+
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
+        # REF: https://doc.scrapy.org/en/latest/topics/signals.html
+        crawler.signals.connect(s.spider_closed, signal=signals.spider_closed)
         return s
 
     def process_spider_input(self, response, spider):
         # Called for each response that goes through the spider
         # middleware and into the spider.
-
         # Should return None or raise an exception.
         return None
 
     def process_spider_output(self, response, result, spider):
         # Called with the results returned from the Spider, after
         # it has processed the response.
-
         # Must return an iterable of Request, dict or Item objects.
         for i in result:
             yield i
@@ -38,7 +45,11 @@ class AdstxtSpiderMiddleware(object):
     def process_spider_exception(self, response, exception, spider):
         # Called when a spider or process_spider_input() method
         # (from other spider middleware) raises an exception.
-
+        # How to catch exceptions REF: https://doc.scrapy.org/en/latest/topics/request-response.html
+        # https://stackoverflow.com/a/31149178
+        # https://github.com/scrapy/scrapy/issues/2821
+        # print('exception:', response.url, ' =>', str(response.status))
+        self.failed_URLs.append([response.url, response.status])
         # Should return either None or an iterable of Response, dict
         # or Item objects.
         pass
@@ -53,7 +64,24 @@ class AdstxtSpiderMiddleware(object):
             yield r
 
     def spider_opened(self, spider):
+        spider.create_output_dir()
         spider.logger.info('Spider opened: %s' % spider.name)
+
+    def spider_closed(self, spider):
+        output_file_name = ''.join(['failed_urls_', datetime.now().strftime('%Y-%m-%d'),'.csv'])
+        output_file = os.path.join(spider.OUTPUT_DIR, output_file_name)
+
+        with open(output_file, 'a', newline='', encoding='utf-8') as fo:
+            try:
+                writer = csv.writer(fo, delimiter=',', lineterminator='\n',
+                                    quotechar='"', quoting=csv.QUOTE_ALL)
+                writer.writerows(self.failed_URLs)
+                print('Recorded non-working URLs in file: ', output_file)
+            except csv.Error as e:
+                print('error', e)
+                spider.logger.error('Error in writing CSV (output) file: ' + output_file)
+
+        spider.logger.info('Spider closed: %s' % spider.name)
 
 
 class AdstxtDownloaderMiddleware(object):
