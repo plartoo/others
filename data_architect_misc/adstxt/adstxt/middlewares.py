@@ -33,6 +33,7 @@ class AdstxtSpiderMiddleware(object):
         # Called for each response that goes through the spider
         # middleware and into the spider.
         # Should return None or raise an exception.
+        print(response.url)
         return None
 
     def process_spider_output(self, response, result, spider):
@@ -70,7 +71,7 @@ class AdstxtSpiderMiddleware(object):
     def spider_closed(self, spider):
         output_file_name = ''.join(['failed_urls_', datetime.now().strftime('%Y-%m-%d'),'.csv'])
         output_file = os.path.join(spider.OUTPUT_DIR, output_file_name)
-
+        # Note: we may not append and instead write new file; then aggregate them later
         with open(output_file, 'a', newline='', encoding='utf-8') as fo:
             try:
                 writer = csv.writer(fo, delimiter=',', lineterminator='\n',
