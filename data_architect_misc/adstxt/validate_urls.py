@@ -25,7 +25,7 @@ if __name__ == '__main__':
     bad_urls = []
     i = 0
     try:
-        with open('domains.csv') as csvfile:
+        with open('20180324_all_urls_from_mindshare.csv') as csvfile:
             csvreader = csv.reader(csvfile)
             for row in csvreader:
                 i += 1
@@ -37,7 +37,6 @@ if __name__ == '__main__':
                 except Exception as e:
                     url = 'http://' + row[0] + '/ads.txt'
                     try:
-                        print(url)
                         rt = requests.get(url, timeout=10)
                         good_urls.append([url, rt.status_code])
                     except (requests.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError,
@@ -45,10 +44,10 @@ if __name__ == '__main__':
                             socket.timeout, urllib3.exceptions.ReadTimeoutError, zlib.error,
                             urllib3.exceptions.DecodeError,
                             requests.exceptions.TooManyRedirects, requests.exceptions.SSLError) as e:
-                        bad_urls.append([url, 'error:', str(e)])
+                        bad_urls.append([url, str(e)])
                     except Exception as e: # REF: https://stackoverflow.com/a/45700425
                         print(traceback.print_exc())
-                        bad_urls.append([url, 'error:', str(e)])
+                        bad_urls.append([url, str(e)])
     except Exception as e:
         fgood = 'good_urls_' + dt + '.csv'
         fbad = 'bad_urls_' + dt + '.csv'
