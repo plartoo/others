@@ -1,4 +1,6 @@
+import csv
 import itertools
+import os.path
 from datetime import datetime
 from urllib.parse import urlsplit
 # import pprint
@@ -11,30 +13,31 @@ class AdsTxtSpider(scrapy.Spider):
     name = "adstxt"
     COMMENT_CHAR = '#'
     DELIMITER = ','
+    OUTPUT_DIR = None
 
+    @classmethod
+    def create_output_dir(cls):
+        cur_dir_path = os.path.dirname(os.path.realpath(__file__))
+        cls.OUTPUT_DIR = os.path.join(cur_dir_path, datetime.now().strftime('%Y-%m-%d'))#-%H%M%S'))
+        if not os.path.exists(cls.OUTPUT_DIR):
+            os.makedirs(cls.OUTPUT_DIR)
+
+    # TODO: replace thie method with loader for S3/Redshift
+    def load_urls_to_crawl(self):
+        cur_dir_path = os.path.dirname(os.path.realpath(__file__))
+        url_file = os.path.join(cur_dir_path, 'urls_to_scrape.csv')
+        with open(url_file, 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            return [('https://'+ str(r) + '/ads.txt') for r in csvreader]
 
     def start_requests(self):
-        # TODO: check response status and handle accordingly
-        # How to catch errors: https://doc.scrapy.org/en/latest/topics/request-response.html
-        # https://stackoverflow.com/a/31149178
-        # https://github.com/scrapy/scrapy/issues/2821
-        # TODO: replace with method to load domains from csv here
-        urls = [
-            'http://www.espn.com/ads.txt',
-            'https://stackoverflow.com/ads.txt',
-            'https://www.reddit.com/ads.txt',
-            'https://weather.com/ads.txt',
-            'https://HUFFINGTONPOST.COM/ads.txt'
-        ]
+        urls = self.load_urls_to_crawl()
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
-                # , errback=self.err_callback)
-
 
     def parse_ads_txt_line(self, ads_txt_str):
         field_names = ['exchange_name', 'exchange_id', 'payment_type', 'tag_id']
         return dict(itertools.zip_longest(field_names, [i.strip() for i in ads_txt_str.split(AdsTxtSpider.DELIMITER)]))
-
 
     def parse(self, response):
         cur_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
