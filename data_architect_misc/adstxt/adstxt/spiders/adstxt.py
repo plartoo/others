@@ -14,9 +14,11 @@ class AdsTxtSpider(scrapy.Spider):
 
 
     def start_requests(self):
-        # TODO: plug in domain loader here
         # TODO: check response status and handle accordingly
         # How to catch errors: https://doc.scrapy.org/en/latest/topics/request-response.html
+        # https://stackoverflow.com/a/31149178
+        # https://github.com/scrapy/scrapy/issues/2821
+        # TODO: replace with method to load domains from csv here
         urls = [
             'http://www.espn.com/ads.txt',
             'https://stackoverflow.com/ads.txt',
@@ -37,7 +39,7 @@ class AdsTxtSpider(scrapy.Spider):
     def parse(self, response):
         cur_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
         for line in response.body.split(b'\n'):
-            # decode from str to bytes so that the carriage returns can be stripped away
+            # Decode from str to bytes so that the carriage returns can be stripped away
             split_line = line.decode('utf-8').split(AdsTxtSpider.COMMENT_CHAR)
             comment = ''.join(split_line[1:]).strip()
             if split_line[0].strip():
