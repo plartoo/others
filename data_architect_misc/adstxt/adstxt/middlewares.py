@@ -34,7 +34,7 @@ class AdstxtSpiderMiddleware(object):
         # Called for each response that goes through the spider
         # middleware and into the spider.
         # Should return None or raise an exception.
-        print(response.url)
+        # print(response.url, ':', response.status)
         return None
 
     def process_spider_output(self, response, result, spider):
