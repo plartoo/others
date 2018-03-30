@@ -10,8 +10,10 @@ Use command prompt to run python and this script, with the input file (required)
 
 """
 
+import csv
 import multiprocessing as mp
 import requests
+import os.path
 import numpy as np
 import pandas as pd
 import re
@@ -93,10 +95,6 @@ def adtxtcrawl(sites):
                             pass
 
                     func_dict_list.append(out_dict)
-                import pdb
-                pdb.set_trace()
-                print('ah')
-
 
             else:  # Block to handle non 200 HTTP response
                 func_dict_list.append(no_ads_txt(url, transform_url_2, resp=r.status_code))
@@ -110,9 +108,17 @@ def adtxtcrawl(sites):
             func_dict_list.append(no_ads_txt(url, transform_url_2, resp=str(e)[:100]))
 
 
+def load_urls_to_crawl():
+    cur_dir_path = os.path.dirname(os.path.realpath(__file__))
+    url_file = os.path.join(cur_dir_path, 'urls_to_scrape.csv')
+    with open(url_file, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        # return [''.join(['https://',r[0],'/ads.txt']) for r in csvreader][0:10000]
+        return [r[0] for r in csvreader][0:10000]
+
+
 if __name__ == '__main__':
-    start_time = time.time()
-    sites = [
-            'http://www.espn.com',
-        ]
+    start_time = datetime.now().replace(microsecond=0)
+    sites = load_urls_to_crawl() #['http://www.espn.com',]
     adtxtcrawl(sites)
+    print(str(datetime.now().replace(microsecond=0) - start_time))
