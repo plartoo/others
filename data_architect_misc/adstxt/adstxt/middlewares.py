@@ -17,10 +17,6 @@ class AdstxtSpiderMiddleware(object):
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
 
-    def __init__(self):
-        self.failed_URLs = []
-        self.start_time = datetime.now().replace(microsecond=0)
-
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
@@ -34,7 +30,7 @@ class AdstxtSpiderMiddleware(object):
         # Called for each response that goes through the spider
         # middleware and into the spider.
         # Should return None or raise an exception.
-        # print(response.url, ':', response.status)
+        print(response.url, ':', response.status)
         return None
 
     def process_spider_output(self, response, result, spider):
@@ -51,7 +47,7 @@ class AdstxtSpiderMiddleware(object):
         # https://stackoverflow.com/a/31149178
         # https://github.com/scrapy/scrapy/issues/2821
         # print('exception:', response.url, ' =>', str(response.status))
-        self.failed_URLs.append([response.url, response.status])
+        spider.failed_urls.append([response.url, response.status])
         # Should return either None or an iterable of Response, dict
         # or Item objects.
         pass
@@ -71,20 +67,20 @@ class AdstxtSpiderMiddleware(object):
 
     def spider_closed(self, spider):
         output_file_name = ''.join(['failed_urls_', datetime.now().strftime('%Y-%m-%d'),'.csv'])
-        output_file = os.path.join(spider.OUTPUT_DIR, output_file_name)
+        output_file = os.path.join(spider.output_dir, output_file_name)
         # Note: we may not append and instead write new file; then aggregate them later
         with open(output_file, 'a', newline='', encoding='utf-8') as fo:
             try:
-                writer = csv.writer(fo, delimiter=',', lineterminator='\n',
-                                    quotechar='"', quoting=csv.QUOTE_ALL)
-                writer.writerows(self.failed_URLs)
+                writer = csv.writer(fo, delimiter=spider.delimiter, lineterminator=spider.line_terminator,
+                                    quotechar=spider.quote_char, quoting=csv.QUOTE_ALL)
+                writer.writerows(spider.failed_urls)
                 print('Recorded non-working URLs in file: ', output_file)
             except csv.Error as e:
                 print('error', e)
                 spider.logger.error('Error in writing CSV (output) file: ' + output_file)
 
-        print('Total time taken:', str(datetime.now().replace(microsecond=0) - self.start_time))
         spider.logger.info('Spider closed: %s' % spider.name)
+        print('\n\nTotal time taken:', str(datetime.now().replace(microsecond=0) - spider.start_time))
 
 
 class AdstxtDownloaderMiddleware(object):
