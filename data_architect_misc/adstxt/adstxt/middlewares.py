@@ -47,6 +47,8 @@ class AdstxtSpiderMiddleware(object):
         # https://stackoverflow.com/a/31149178
         # https://github.com/scrapy/scrapy/issues/2821
         # print('exception:', response.url, ' =>', str(response.status))
+        # import pdb
+        # pdb.set_trace()
         spider.failed_urls.append([response.url, response.status])
         # Should return either None or an iterable of Response, dict
         # or Item objects.
@@ -68,11 +70,14 @@ class AdstxtSpiderMiddleware(object):
     def spider_closed(self, spider):
         output_file_name = ''.join(['failed_urls_', datetime.now().strftime('%Y-%m-%d'),'.csv'])
         output_file = os.path.join(spider.output_dir, output_file_name)
-        # Note: we may not append and instead write new file; then aggregate them later
-        with open(output_file, 'a', newline='', encoding='utf-8') as fo:
+
+        with open(output_file, 'a', ) as fo:
             try:
-                writer = csv.writer(fo, delimiter=spider.delimiter, lineterminator=spider.line_terminator,
-                                    quotechar=spider.quote_char, quoting=csv.QUOTE_ALL)
+                writer = csv.writer(fo,
+                                    delimiter=spider.delimiter.decode('utf-8'),
+                                    lineterminator=spider.line_terminator,
+                                    quotechar=spider.quote_char,
+                                    quoting=csv.QUOTE_ALL)
                 writer.writerows(spider.failed_urls)
                 print('Recorded non-working URLs in file: ', output_file)
             except csv.Error as e:

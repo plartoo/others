@@ -8,13 +8,14 @@ from urllib.parse import urlsplit
 
 import scrapy
 from scrapy.spidermiddlewares.httperror import HttpError
+from scrapy.http import Request
 from twisted.internet.error import DNSLookupError, ConnectionRefusedError
 from twisted.internet.error import TimeoutError, TCPTimedOutError
 
 class AdsTxtSpider(scrapy.Spider):
     name = "adstxt"
-    comment_char = '#'
-    delimiter = ','
+    comment_char = b'#'
+    delimiter = b','
     line_terminator = '\n'
     quote_char = '"'
 
@@ -36,14 +37,14 @@ class AdsTxtSpider(scrapy.Spider):
         url_file = os.path.join(cur_dir_path, 'urls_to_scrape_all.csv')
         with open(url_file, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
-            return [''.join(['https://', r[0], '/ads.txt']) for r in csvreader][0:10000]
+            return [b''.join(['https://', r[0], '/ads.txt']) for r in csvreader][0:10000]
 
     def start_requests(self):
         # urls = self.load_urls_to_crawl()
         urls = [
             # 'https://ES.EDUXDREAM.GHOST.DETECTOR/ads.txt', # DNSLookupError; catch it in err_callback() and store it in failure; it is NOT caught by process_spider_exception middleware
-
-            # 'https://www.coupons.com/ads.txt', # 404; caught by process_spider_exception middleware, so it'll now be captured in failure list
+            #
+            'https://www.coupons.com/ads.txt', # 404; caught by process_spider_exception middleware, so it'll now be captured in failure list
             # 'https://www.c-span.org/ads.txt', # 404
             # 'https://pages.ebay.com/ads.txt', # 404
 
@@ -54,6 +55,9 @@ class AdsTxtSpider(scrapy.Spider):
 
             # 'http://www.WSILTV.COM/ads.txt', # this works
             'https://www.WSILTV.COM/ads.txt',
+            'http://www.WTOL.COM/ads.txt', # this works; SSL handshake error for 'https'; when exception happens, it doesn't go into 'parse()' nor 'process_spider_exception()' in the middleware, but it goes to err_callback
+            # 'https://www.WSILTV.COM/random',
+
             # this returns SSL handshake error; retried 2-3 times and gave up; We need to use RetryMiddleWare to handle 'http', 'https' stuff
             # 'http://www.WTOL.COM/ads.txt', # this works; SSL handshake error for 'https'; when exception happens, it doesn't go into 'parse()' nor 'process_spider_exception()' in the middleware, but it goes to err_callback
             # 'http://www.WTOC.COM/ads.txt',  # SSL handshake error for 'https'
@@ -64,10 +68,11 @@ class AdsTxtSpider(scrapy.Spider):
         for url in urls:
             meta = {
                 'dont_redirect': True,
-                # 'handle_httpstatus_list': [301, 302], # if we add this, it'll follow redirect for these status codes
+                # 'handle_httpstatus_list': [301, 302, 404, 500, 502], # if we add this, it'll follow redirect for these status codes
             }
             yield scrapy.Request(url=url, callback=self.parse,
-                                 meta=meta, errback=self.err_callback)
+                                 meta=meta,
+                                 errback=self.err_callback)
 
     def parse_ads_txt_line(self, ads_txt_str):
         field_names = ['exchange_name', 'exchange_id', 'payment_type', 'tag_id']
@@ -79,8 +84,9 @@ class AdsTxtSpider(scrapy.Spider):
         # we added 'meta' in start_requests and we ignore response.status != 200
         for line in response.body.splitlines():
             # Decode from str to bytes so that the carriage returns can be stripped away
-            split_line = line.decode('utf-8').split(AdsTxtSpider.comment_char)
-            comment = ''.join(split_line[1:]).strip()
+            # split_line = line.decode('utf-8').split(AdsTxtSpider.comment_char)
+            split_line = line.split(AdsTxtSpider.comment_char)
+            comment = b''.join(split_line[1:]).strip()
             if split_line[0].strip():
                 ads_txt_dict = self.parse_ads_txt_line(split_line[0])
                 ads_txt_dict['has_adstxt'] = 1
@@ -111,7 +117,9 @@ class AdsTxtSpider(scrapy.Spider):
             self.failed_urls.append([failure.request.url, 'TimeoutError'])
             return
         elif failure.check(ConnectionRefusedError):
-            print('haha')
+            # return self.parse(scrapy.http.TextResponse(failure.request.url, status=222222))
+            new_request = Request('http://www.WSILTV.COM/ads.txt', callback=self.parse, meta={'dont_redirect': True})
+            self.crawler.engine.crawl(new_request, self.crawler.spider)
         else:
             pass
 
