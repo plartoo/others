@@ -1,6 +1,6 @@
-# Ads.txt Checker by Jamie K
-
 """
+Linear crawling. Takes ~1:44:26 to crawl 10K urls.
+
 Use case: Extract Ads.txt document from website
 
 Usage:

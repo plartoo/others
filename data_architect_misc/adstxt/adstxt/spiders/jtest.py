@@ -1,12 +1,8 @@
-# Ads.txt Checker by Jamie K
-
 """
-Use case: Extract Ads.txt document from website
+Test with threads to scrap sites.
 
 Usage:
 Use command prompt to run python and this script, with the input file (required) next to this module's name
-
->>> python AdsTxtCheck.py <filename.xlsx>
 
 """
 import csv
@@ -109,7 +105,7 @@ def adtxtcrawl(sites, q):
 
 def load_urls_to_crawl():
     cur_dir_path = os.path.dirname(os.path.realpath(__file__))
-    url_file = os.path.join(cur_dir_path, 'urls_to_scrape.csv')
+    url_file = os.path.join(cur_dir_path, 'urls_to_scrape_all.csv')
     with open(url_file, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         # return [''.join(['https://',r[0],'/ads.txt']) for r in csvreader][0:10000]
@@ -151,4 +147,4 @@ if __name__ == '__main__':
 
     #####################
 
-    print("Completed in %f seconds" % str(datetime.now().replace(microsecond=0) - start_time))
+    print("Completed in seconds:", str(datetime.now().replace(microsecond=0) - start_time))
