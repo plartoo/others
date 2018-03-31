@@ -15,19 +15,19 @@ SPIDER_MODULES = ['adstxt.spiders']
 NEWSPIDER_MODULE = 'adstxt.spiders'
 
 ## DAS settings starts here
-# Read more REF: https://www.tutorialspoint.com/scrapy/scrapy_settings.htm
-LOG_ENABLED = False # TODO: Set appropriate log levels https://doc.scrapy.org/en/latest/topics/logging.html
+LOG_ENABLED = True # TODO: Set appropriate log levels https://doc.scrapy.org/en/latest/topics/logging.html
+# LOG_LEVEL = 'INFO'
 # COMPRESSION_ENABLED = False
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
-## DAS settings ends here
-
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0'
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False # used to be True; but this costs one GET request
+RETRY_TIMES = 1 # default is 2 REF: https://stackoverflow.com/q/41404281
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 32
+#CONCURRENT_REQUESTS = 32
+## DAS settings ends here
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -46,7 +46,7 @@ CONCURRENT_REQUESTS = 32
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Language': 'en',
 }
 
 # Enable or disable spider middlewares
