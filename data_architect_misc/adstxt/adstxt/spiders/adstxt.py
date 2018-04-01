@@ -19,17 +19,34 @@ class AdsTxtSpider(scrapy.Spider):
     line_terminator = '\n'
     quote_char = '"'
 
-    def __init__(self, category=None):
-        # REF: https://stackoverflow.com/a/31242534
-        self.create_output_dir()
-        self.start_time = datetime.now().replace(microsecond=0)
-        self.failed_urls = []
+    def __init__(self, start_index=None, *args, **kwargs):
+        """
+        Creates a Spider object instance.
 
-    def create_output_dir(self):
+        :param start_index: Optional index provided as commandline parameter
+                            to start crawling from the list of URLs.
+                            If not given, spider will scrap everything it loads
+                            into the list of URLS.
+        Note: num_to_crawl => if start_index is given, we'll crawl the next
+                              10K URLs from there.
+        """
+        self.start_index = start_index
+        self.num_to_crawl = 10000
+        self.output_dir = self.get_output_dir()
+        self.start_time = datetime.now().replace(microsecond=0)
+        self.failed_urls = [] # Capture failed urls => REF: https://stackoverflow.com/a/31242534
+        self.meta = {
+                'dont_redirect': True,
+                # if we add the key below, we will follow redirect for the status codes listed
+                # 'handle_httpstatus_list': [301, 302, 404, 500, 502],
+        }
+
+    def get_output_dir(self):
         cur_dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.output_dir = os.path.join(cur_dir_path, datetime.now().strftime('%Y-%m-%d'))  # -%H%M%S'))
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
+        output_dir = os.path.join(cur_dir_path, datetime.now().strftime('%Y-%m-%d'))  # -%H%M%S'))
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        return output_dir
 
     # TODO: replace thie method with loader for S3/Redshift
     def load_urls_to_crawl(self):
@@ -37,41 +54,18 @@ class AdsTxtSpider(scrapy.Spider):
         url_file = os.path.join(cur_dir_path, 'urls_to_scrape_all.csv')
         with open(url_file, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
-            return [b''.join(['https://', r[0], '/ads.txt']) for r in csvreader][0:10000]
+            return [''.join(['https://', r[0], '/ads.txt']) for r in csvreader]
 
     def start_requests(self):
-        # urls = self.load_urls_to_crawl()
-        urls = [
-            # 'https://ES.EDUXDREAM.GHOST.DETECTOR/ads.txt', # DNSLookupError; catch it in err_callback() and store it in failure; it is NOT caught by process_spider_exception middleware
-            #
-            'https://www.coupons.com/ads.txt', # 404; caught by process_spider_exception middleware, so it'll now be captured in failure list
-            # 'https://www.c-span.org/ads.txt', # 404
-            # 'https://pages.ebay.com/ads.txt', # 404
+        urls = self.load_urls_to_crawl()
+        if self.start_index:
+            index = int(self.start_index)
+            assert index >= 0, "\n\n!!!Index provided in commandline must be non-negative.\n\n"
+            urls = urls[index:(index+self.num_to_crawl)]
 
-            # 'https://YP.COM/ads.txt', # 301 error; following them gives you homepage or something totally different than expected. So i stopped redirect using meta. the error is caught by process_spider_exception middleware, so it'll now be captured in failure list
-            # 'https://boomstreet.com/ads.txt' # same as above 302 redirect to either their https:// site or home page; do NOT follow and add them to failure list
-            # 'https://freebiesfrenzy.com/ads.txt' # 302/301
-            # 'https://ES-US.DEPORTES.YAHOO.COM/ads.txt' # 302/301
-
-            # 'http://www.WSILTV.COM/ads.txt', # this works
-            'https://www.WSILTV.COM/ads.txt',
-            'http://www.WTOL.COM/ads.txt', # this works; SSL handshake error for 'https'; when exception happens, it doesn't go into 'parse()' nor 'process_spider_exception()' in the middleware, but it goes to err_callback
-            # 'https://www.WSILTV.COM/random',
-
-            # this returns SSL handshake error; retried 2-3 times and gave up; We need to use RetryMiddleWare to handle 'http', 'https' stuff
-            # 'http://www.WTOL.COM/ads.txt', # this works; SSL handshake error for 'https'; when exception happens, it doesn't go into 'parse()' nor 'process_spider_exception()' in the middleware, but it goes to err_callback
-            # 'http://www.WTOC.COM/ads.txt',  # SSL handshake error for 'https'
-            # 'https://www.nbc12.com/ads.txt', # another SSL handshake failure
-            # 'https://www.KTVN.COM/ads.txt', # another SSL handshake failure
-            # 'https://www.KCBD.COM/ads.txt', # another SSL handshake failure
-        ]
         for url in urls:
-            meta = {
-                'dont_redirect': True,
-                # 'handle_httpstatus_list': [301, 302, 404, 500, 502], # if we add this, it'll follow redirect for these status codes
-            }
             yield scrapy.Request(url=url, callback=self.parse,
-                                 meta=meta,
+                                 meta=self.meta,
                                  errback=self.err_callback)
 
     def parse_ads_txt_line(self, ads_txt_str):
@@ -107,25 +101,43 @@ class AdsTxtSpider(scrapy.Spider):
             # Also, we want to return as soon as we add them to failure url list;
             # otherwise, it'll go to middleware process_spider_exception().
             self.failed_urls.append([failure.value.response.url, failure.value.response.status])
-            return
         elif failure.check(DNSLookupError):
             # E.g., 'https://ES.EDUXDREAM.GHOST.DETECTOR/ads.txt' that does NOT exist or make any sense
             self.failed_urls.append([failure.request.url, 'DNSLookupError'])
-            return
         elif failure.check(TimeoutError, TCPTimedOutError):
             # Not sure what we should do about them. Could be that the server was busy at the time.
             self.failed_urls.append([failure.request.url, 'TimeoutError'])
-            return
         elif failure.check(ConnectionRefusedError):
-            # return self.parse(scrapy.http.TextResponse(failure.request.url, status=222222))
-            new_request = Request('http://www.WSILTV.COM/ads.txt', callback=self.parse, meta={'dont_redirect': True})
-            self.crawler.engine.crawl(new_request, self.crawler.spider)
+            # This error is mostly because of SSL handshake error (http vs. https)
+            if 'https' in failure.request.url:
+                new_request = Request(failure.request.url.replace('https', 'http'),
+                                      callback=self.parse, meta=self.meta)
+                self.crawler.engine.crawl(new_request, self.crawler.spider)
+                self.failed_urls.append([failure.request.url, 'Retrying http. Probably SSL handshake error.'])
+            else:
+                self.failed_urls.append([failure.request.url, str(failure.value)])
         else:
-            pass
+            self.failed_urls.append([failure.request.url, ''.join(['Unseen error: ', str(failure.value)])])
 
-        return
-        # if failure.value.reasons and ('OpenSSL.SSL.Error' in str(failure.value.reasons[0].type)):
-        #     self.logger.error(repr(failure))
-        #     self.logger.info('raising exception')
+    def closed(self, reason):
+        # REF: https://stackoverflow.com/a/33312325/1330974
+        output_file_name = ''.join(['failed_urls_', datetime.now().strftime('%Y-%m-%d'),'.csv'])
+        output_file = os.path.join(self.output_dir, output_file_name)
 
-        # TODO: Add RetryMiddleware: https://doc.scrapy.org/en/latest/topics/downloader-middleware.html#module-scrapy.downloadermiddlewares.retry
+        with open(output_file, 'a', ) as fo:
+            try:
+                writer = csv.writer(fo,
+                                    delimiter=self.delimiter.decode('utf-8'),
+                                    lineterminator=self.line_terminator,
+                                    quotechar=self.quote_char,
+                                    quoting=csv.QUOTE_ALL)
+                writer.writerows(self.failed_urls)
+                self.logger.info('Recorded non-working URLs in file: ' + output_file)
+            except csv.Error as e:
+                self.logger.error('Error in writing CSV (output) file: ' + output_file)
+                self.logger.error(str(e))
+
+        self.logger.info('\n\n:::::> Total time taken: ' +
+                         str(datetime.now().replace(microsecond=0) - self.start_time) +
+                         '\n\n')
+
