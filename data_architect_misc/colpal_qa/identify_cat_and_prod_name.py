@@ -55,19 +55,25 @@ if __name__ == '__main__':
     fname = '20180330_mapping.csv'
     data = load_mappings(fname)
     for country, gm_prod in data.items():
-        print("\n\nCOUNTRY=>", country, "\n==========================\n")
+        i = 0
         for gm_prod, gm_cat in gm_prod.items():
-            # print("\tGM_PRODUCT=>", gm_prod)
-            if len(gm_cat.keys()) > 1:
-                pdb.set_trace()
-                for gm_cat, cp_subcat in gm_cat.items():
-                    print("\t\tGM_CATEGORY=>", gm_cat)
-                    for cp_subcat, rows in cp_subcat.items():
-                        print("\t\t\tCP_SUBCATEGORY=>", cp_subcat)
-                        pp.pprint(rows)
+            for gm_cat, cp_subcat in gm_cat.items():
+                if len(cp_subcat.keys()) > 1:
+                    i += 1
+                    print("\n\n", str(i)+ ".", country, "(Country)=>", gm_prod, "(GM_PRODUCT)=>", gm_cat, "(GM_CATEGORY)")
                     # pp.pprint(cp_subcat)
-                import sys
-                sys.exit()
+                    # pdb.set_trace()
+                    for cp_subcat, rows in cp_subcat.items():
+                        # print("\n\nCOUNTRY=>", country, "\n==========================\n")
+                        # print("\tGM_PRODUCT=>", gm_prod)
+                        # print("\t\tGM_CATEGORY=>", gm_cat)
+                        # print("\t\t\tCP_SUBCATEGORY=>", cp_subcat)
+                        for rr in rows:
+                            # print(rr[3],"\t\t",rr[9],"\t\t",rr[7],"\t\t",rr[12])
+                            print(rr[9], "\t\t", rr[7], "\t\t", rr[12])
+                    # pp.pprint(cp_subcat)
+        # import sys
+        # sys.exit()
 
     # GM_CATEGORY cannot belong to >1 CP_SUBCAT
     # GM_PRODUCT_NAME cannot belong to >1 GM_CATEGORY
