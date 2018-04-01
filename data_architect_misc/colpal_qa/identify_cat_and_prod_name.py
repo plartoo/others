@@ -54,24 +54,41 @@ def load_mappings(filename):
 if __name__ == '__main__':
     fname = '20180330_mapping.csv'
     data = load_mappings(fname)
+    # total_pairs = 0
+    # for country, gm_prod in data.items():
+    #     i = 0
+    #     for gm_prod, gm_cat in gm_prod.items():
+    #         for gm_cat, cp_subcat in gm_cat.items():
+    #             if len(cp_subcat.keys()) > 1:
+    #                 i += 1
+    #                 print("\n\n")
+    #                 # print("\n\n", str(i)+ ".", country, "(Country)=>", gm_prod, "(GM_PRODUCT)=>", gm_cat, "(GM_CATEGORY)")
+    #                 for cp_subcat, rows in cp_subcat.items():
+    #                     total_pairs += 1
+    #                     for rr in rows:
+    #                         print(str(i)+ ".", country, "(country)\t\t", rr[9], "(GM_Product_Name)\t\t",
+    #                               rr[7], "(GM_Category_Name)\t\t", rr[12], "(CP_Subcategory_Name)")
+    #
+    # print("Total incidents which breaks GM_CATEGORY => CP_SUBCATEGORY rule", str(total_pairs))
+
+
+    total_pairs = 0
     for country, gm_prod in data.items():
         i = 0
         for gm_prod, gm_cat in gm_prod.items():
-            for gm_cat, cp_subcat in gm_cat.items():
-                if len(cp_subcat.keys()) > 1:
-                    i += 1
-                    print("\n\n", str(i)+ ".", country, "(Country)=>", gm_prod, "(GM_PRODUCT)=>", gm_cat, "(GM_CATEGORY)")
-                    # pp.pprint(cp_subcat)
-                    # pdb.set_trace()
+            if len(gm_cat.keys()) > 1:
+                i += 1
+                print("\n\n")
+                for gm_cat, cp_subcat in gm_cat.items():
+                    # print("\n\n", str(i)+ ".", country, "(Country)=>", gm_prod, "(GM_PRODUCT)=>", gm_cat, "(GM_CATEGORY)")
                     for cp_subcat, rows in cp_subcat.items():
-                        # print("\n\nCOUNTRY=>", country, "\n==========================\n")
-                        # print("\tGM_PRODUCT=>", gm_prod)
-                        # print("\t\tGM_CATEGORY=>", gm_cat)
-                        # print("\t\t\tCP_SUBCATEGORY=>", cp_subcat)
+                        total_pairs += 1
                         for rr in rows:
-                            # print(rr[3],"\t\t",rr[9],"\t\t",rr[7],"\t\t",rr[12])
-                            print(rr[9], "\t\t", rr[7], "\t\t", rr[12])
-                    # pp.pprint(cp_subcat)
+                            print(str(i)+ ".", country, "(country)\t\t", rr[9], "(GM_Product_Name)\t\t",
+                                  rr[7], "(GM_Category_Name)\t\t", rr[12], "(CP_Subcategory_Name)")
+
+        print("Total incidents which breaks GM_CATEGORY => CP_SUBCATEGORY rule", str(total_pairs))
+
         # import sys
         # sys.exit()
 
@@ -80,7 +97,5 @@ if __name__ == '__main__':
     # Under each country, collect data
     # under each group of country data,
     # COUNTRY => {GM_PRODUCT_NAME_x => { GM_CATEGORY_NAME  => CP_SUBCATEGORY => row
-
-    pdb.set_trace()
     print("finished")
 
