@@ -1,6 +1,7 @@
 import csv
 import itertools
 import os.path
+import re
 from datetime import datetime
 from urllib.parse import urlsplit
 # import pprint
@@ -34,8 +35,11 @@ class AdsTxtSpider(scrapy.Spider):
         self.num_to_crawl = 10000
         self.output_dir = self.get_output_dir()
         self.start_time = datetime.now().replace(microsecond=0)
-        self.failed_urls = [] # Capture failed urls => REF: https://stackoverflow.com/a/31242534
+        self.html_tag = re.compile(br'(<[a-z]*>)')
+        self.failed_urls = []
         self.meta = {
+                # for sites like 'http://YP.COM/ads.txt' that redirects to 'https://YP.COM'
+                # we added 'meta' in start_requests and we ignore response.status != 200
                 'dont_redirect': True,
                 # if we add the key below, we will follow redirect for the status codes listed
                 # 'handle_httpstatus_list': [301, 302, 404, 500, 502],
@@ -76,20 +80,23 @@ class AdsTxtSpider(scrapy.Spider):
         cur_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
         # for sites like 'http://YP.COM/ads.txt' that redirects to 'https://YP.COM'
         # we added 'meta' in start_requests and we ignore response.status != 200
-        for line in response.body.splitlines():
-            # Decode from str to bytes so that the carriage returns can be stripped away
-            # split_line = line.decode('utf-8').split(AdsTxtSpider.comment_char)
-            split_line = line.split(AdsTxtSpider.comment_char)
-            comment = b''.join(split_line[1:]).strip()
-            if split_line[0].strip():
-                ads_txt_dict = self.parse_ads_txt_line(split_line[0])
-                ads_txt_dict['has_adstxt'] = 1
-                # REF: https://stackoverflow.com/a/20728813
-                ads_txt_dict['domain'] = "{0.scheme}://{0.netloc}/".format(urlsplit(response.url))
-                ads_txt_dict['ads_txt_url'] = response.url
-                ads_txt_dict['last_fetched_date'] = cur_datetime
-                ads_txt_dict['comment'] = comment
-                yield ads_txt_dict
+        if not self.html_tag.search(response.body):
+            for line in response.body.splitlines():
+                # Decode from str to bytes so that the carriage returns can be stripped away
+                # split_line = line.decode('utf-8').split(AdsTxtSpider.comment_char)
+                split_line = line.split(AdsTxtSpider.comment_char)
+                comment = b''.join(split_line[1:]).strip()
+                if split_line[0].strip():
+                    ads_txt_dict = self.parse_ads_txt_line(split_line[0])
+                    ads_txt_dict['has_adstxt'] = 1
+                    # REF: https://stackoverflow.com/a/20728813
+                    ads_txt_dict['domain'] = "{0.scheme}://{0.netloc}/".format(urlsplit(response.url))
+                    ads_txt_dict['ads_txt_url'] = response.url
+                    ads_txt_dict['last_fetched_date'] = cur_datetime
+                    ads_txt_dict['comment'] = comment
+                    yield ads_txt_dict
+        else:
+            self.failed_urls.append([response.url, 'Remove from future scraping.'])
 
     def err_callback(self, failure):
         # REF: https://doc.scrapy.org/en/latest/topics/request-response.html#using-errbacks-to-catch-exceptions-in-request-processing
@@ -103,7 +110,7 @@ class AdsTxtSpider(scrapy.Spider):
             self.failed_urls.append([failure.value.response.url, failure.value.response.status])
         elif failure.check(DNSLookupError):
             # E.g., 'https://ES.EDUXDREAM.GHOST.DETECTOR/ads.txt' that does NOT exist or make any sense
-            self.failed_urls.append([failure.request.url, 'DNSLookupError'])
+            self.failed_urls.append([failure.request.url, 'DNSLookupError. Remove from future scraping.'])
         elif failure.check(TimeoutError, TCPTimedOutError):
             # Not sure what we should do about them. Could be that the server was busy at the time.
             self.failed_urls.append([failure.request.url, 'TimeoutError'])
