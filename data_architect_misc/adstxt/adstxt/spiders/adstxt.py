@@ -35,7 +35,7 @@ class AdsTxtSpider(scrapy.Spider):
         self.num_to_crawl = 10000
         self.output_dir = self.get_output_dir()
         self.start_time = datetime.now().replace(microsecond=0)
-        self.html_tag = re.compile(br'(<[a-z]*>)')
+        self.html_tag = re.compile(br'(<[A-Za-z]*>)')
         self.failed_urls = []
         self.meta = {
                 # for sites like 'http://YP.COM/ads.txt' that redirects to 'https://YP.COM'
