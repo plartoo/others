@@ -1,4 +1,3 @@
-import pdb
 import sys
 import pandas as pd
 
@@ -14,18 +13,16 @@ column_headers_needed = ['Date', 'ADVERTISER_NAME', 'BRAND_DESC', 'PRODUCT_CATEG
                          'Title', 'Station', 'Title Top Level',
                          'Start Time', 'Duration', 'NO_SPOTS_CB', 'CumGRP (%)']
 
-fname = "TRP_data.xlsx"
-temp_fname = 'temp_'+fname+'.csv'
-df1=pd.read_excel(fname)
+fname = "TRP_data.xlsx" # raw data file name
+outfile = "cleaned_TRP_data.csv"
 
-# df1=df.drop(df.index[:3])
-df1.to_csv(temp_fname, index=False)
-df2 = pd.read_csv(temp_fname)
-l2 = df2.values.tolist()
-# pdb.set_trace()
+df1=pd.read_excel(fname)
+l2 = df1.values.tolist()
+
+# 1. Verify if expected headers show up
 potential_headers = []
 last_header_row_index = 0
-for row in df2.iterrows():
+for row in df1.iterrows():
     index, data = row
     if len(set(expected_column_headers).intersection(set(data))) > 5:
         last_header_row_index = index
@@ -44,44 +41,39 @@ if not set(column_headers_needed).issubset(set(column_headers_found)):
     sys.exit('Cannot find all headers needed in the raw data. Please review the code and raw data.')
 
 
+# 2. Drop some columns that we don't need
+df2 = df1[last_header_row_index + 1:]
+df2.columns = column_headers_found
 
-df3 = df2[last_header_row_index+1:]
-df3.columns = column_headers_found
-df4 = df3.dropna(thresh=4) # REF: https://stackoverflow.com/a/22553757
-df5 = df4.fillna(method='ffill')
-
-if df5.columns[0] == df5.columns[3]:
-    cols = df5.columns.tolist()
+df3 = df2
+if df3.columns[0] == df3.columns[3]:
+    cols = df3.columns.tolist()
     cols[0] = 'To_Delete'
-    df5.columns = cols
-    df5 = df5.drop(['To_Delete'], axis=1)
-    # df5 = df5.drop(df5.columns[0], axis=1)
+    df3.columns = cols
+    df3 = df3.drop(['To_Delete'], axis=1)
 else:
     sys.exit('There used to be two Date columns and we usually drop the first one. Now it has changed. '
              'Please inspect the raw data and the code.')
 
-if df5.columns[1] == df5.columns[6]:
-    cols = df5.columns.tolist()
+if df3.columns[1] == df3.columns[6]:
+    cols = df3.columns.tolist()
     cols[1] = 'To_Delete'
-    df5.columns = cols
-    df5 = df5.drop(['To_Delete'], axis=1)
+    df3.columns = cols
+    df3 = df3.drop(['To_Delete'], axis=1)
 else:
     sys.exit('There used to be two Station columns and we usually drop the first one. Now it has changed. '
              'Please inspect the raw data and the code.')
 
-columns_to_drop = list(set(df5.columns).difference(set(column_headers_needed)))
-df5 = df5.drop(columns_to_drop, axis=1)
-df5.to_csv('test_ffilled_2.csv', index=False)
-# pdb.set_trace()
+columns_to_drop = list(set(df3.columns).difference(set(column_headers_needed)))
+df3 = df3.drop(columns_to_drop, axis=1)
 
-# columns = df2.columns
-# for row in df2.iterrows():
-#     pdb.set_trace()
-#     print('')
+# 3. Drop rows that have too many holes (arbitrary but safe threshold for blank cells per row to delete=4)
+df3 = df3.dropna(thresh=4) # REF: https://stackoverflow.com/a/22553757
 
-print('finished')
+# 4. Forward fill some cells below using the data from above (most adjacent) cells
+df3 = df3.fillna(method='ffill')
 
-# df3=pd.read_csv('test.csv')
-# df4=df3.fillna(method='ffill')
-# df4.to_csv('test_ffilled.csv')
-# pd.to_datetime(df4.loc[4]['Report: Col Pal Monthly TV Data Reporting.rep'])
+# 5. Write to output file
+df3.to_csv(outfile, index=False)
+
+print('Cleaned TRP file. Output written to:', outfile)
