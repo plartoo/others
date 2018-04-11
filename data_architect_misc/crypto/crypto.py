@@ -24,16 +24,20 @@ key = base64.urlsafe_b64encode(kdf.derive(password))
 f = Fernet(key)
 
 encoding = 'utf-8'
-fn = "test_csv.csv"
+# fn = "test_csv.csv"
+# feo = "test_csv_encrypted"
+# fdcsv = "test_csv_decrypted.csv"
+
+fn = "test_xls.xls"
 fn_temp = "temp_" + fn
-feo = "test_csv_encrypted"
-fdcsv = "test_csv_decrypted.csv"
+feo = "test_xls_encrypted"
+fdcsv = "test_xls_decrypted.csv"
 dir_path = os.path.dirname(os.path.realpath(__file__))
-temp_path = os.path.join(dir_path, 'temp', fn)
+temp_path = os.path.join(dir_path, 'temp')
 
 if os.path.splitext(fn)[-1] in ['.xlsx', '.xls']:
     # TODO: https://stackoverflow.com/a/48435144
-    pd.read_excel(fn).to_csv(fn_temp, index=False)
+    pd.read_excel(fn).to_csv(os.path.join(temp_path, fn_temp), index=False)
     with open(fn_temp, 'r') as  fi:
         data = b''.join(l.encode(encoding) for l in fi.readlines())
 elif os.path.splitext(fn)[-1] in ['.csv']:
