@@ -98,6 +98,128 @@ pp = pprint.PrettyPrinter(indent=4)
 # sos_list_of_words = chop up GM_PRODUCT_NAME And GM_BRAND_NAME WHERE SOS_PRODUCT = 0
 # sos_list_of_words = ['LOREAL', 'ELVIVE'.....]
 # for w in every sos_list_of_words look for in sos_product the case WHERE w == (or is part of) GM_BRAND_NAME then print it out
+# REF: http://www.auladiez.com/ejercicios/16_preposiciones.php
+spanish_prepositions = [
+'a'
+,'ante'
+,'bajo'
+,'cabe'
+,'con'
+,'contra'
+,'de'
+,'desde'
+,'en'
+,'entre'
+,'hacia'
+,'hasta'
+,'para'
+,'por'
+,'según'
+,'sin'
+,'so'
+,'sobre'
+,'tras'
+,'durante'
+,'mediante'
+,'excepto'
+,'salvo'
+,'incluso'
+,'más'
+,'menos'
+,'acerca'
+,'de'
+,'al'
+,'lado'
+,'alrededor'
+,'antes'
+,'a pesar'
+,'cerca'
+,'con arreglo'
+,'con objeto'
+,'debajo'
+,'delante'
+,'dentro'
+,'después'
+,'detrás'
+,'encima'
+,'en cuanto'
+,'enfrente'
+,'en virtud'
+,'frente'
+,'fuera'
+,'gracias'
+,'junto'
+,'lejos'
+,'por'
+,'culpa'
+]
+# REF: https://www.keepandshare.com/doc/13166/prepositions-list
+english_prepositions = [
+'a'
+,'an'
+,'the'
+,'aboard'
+,'about'
+,'above'
+,'absent'
+,'according'
+,'across'
+,'after'
+,'against'
+,'ahead'
+,'along'
+,'alongside'
+,'amid'
+,'amidst'
+,'among'
+,'around'
+,'as'
+,'far'
+,'well'
+,'at'
+,'atop'
+,'before'
+,'behind'
+,'below'
+,'beneath'
+,'beside'
+,'between'
+,'by'
+,'means'
+,'of'
+,'despite'
+,'down'
+,'due'
+,'to'
+,'during'
+,'except'
+,'far'
+,'from'
+,'following'
+,'for'
+,'in'
+,'addition'
+,'case'
+,'front'
+,'place'
+,'spite'
+,'inside'
+,'instead'
+,'in'
+,'into'
+,'like'
+,'mid'
+,'minus'
+,'near'
+,'next'
+,'notwithstanding'
+,'off'
+,'on'
+,'account'
+,'behalf'
+,'top'
+]
+
 
 def split_words(str):
     nonaphanumeric_removed = re.sub('[^0-9A-Za-z]+', ' ', str)
@@ -108,36 +230,50 @@ def load_mappings(filename):
     cur_dir_path = os.path.dirname(os.path.realpath(__file__))
     url_file = os.path.join(cur_dir_path, filename)
     sos_prods = []
-    sos_list_of_words = []
+    sos_list_of_words = {}
 
     with open(url_file, 'r') as csvfile:
         for row in csv.DictReader(csvfile):
             if row['SOS_PRODUCT'] == '1':
                 sos_prods.append(row)
             else:
-                sos_list_of_words += split_words(row['GM_PRODUCT_NAME'])
-                sos_list_of_words += split_words(row['GM_BRAND_NAME'])
-    return (sos_prods, list(set(sos_list_of_words)))
+                sos_list_of_words.setdefault(row['GM_COUNTRY_NAME'], set())
+                for w in (split_words(row['GM_PRODUCT_NAME']) + split_words(row['GM_BRAND_NAME'])):
+                    if not ignore_this_word(w):
+                        sos_list_of_words[row['GM_COUNTRY_NAME']].add(w)
+    return (sos_prods, sos_list_of_words)
 
+def ignore_this_word(w):
+    if len(w) < 3:
+        return True
+    elif re.match(r'^\d+$', w, re.I): # words with all numerical letters in it
+        return True
+    elif w in set(spanish_prepositions+english_prepositions):
+        return True
+    else:
+        return False
 
 if __name__ == '__main__':
     fname = '20180411_LATAM_mappings.csv'
     (sos_prods, sos_list_of_words) = load_mappings(fname)
 
-    with open('sos_list_of_words_used.csv', 'w') as fo:
-        writer = csv.writer(fo, delimiter=',', lineterminator='\n')
-        for w in sos_list_of_words:
-            writer.writerow([w])
-
-    # header = [k for k in sos_prods[0].keys()]
-    # rows_with_potential_qa_issue = [header]
-    # for row in sos_prods:
-    #     gm_prod = set(split_words(row['GM_PRODUCT_NAME']))
-    #     gm_brand = set(split_words(row['GM_BRAND_NAME']))
-    #     if (not gm_prod.isdisjoint(sos_list_of_words)) or (not gm_brand.isdisjoint(sos_list_of_words)):
-    #         rows_with_potential_qa_issue.append([v for v in row.values()])
-    #
-    # with open('20180411_prod_and_brand_name_qa.csv', 'w') as fo:
+    # # print out words that we use to check against brand and product names for reviewing
+    # with open('20180411_2_sos_list_of_words_used.csv', 'w') as fo:
     #     writer = csv.writer(fo, delimiter=',', lineterminator='\n')
-    #     writer.writerows(rows_with_potential_qa_issue)
+    #     for k,v in sos_list_of_words.items():
+    #         for w in v:
+    #             writer.writerow([k,w])
+
+    header = [k for k in sos_prods[0].keys()]
+    rows_with_potential_qa_issue = [header]
+    for row in sos_prods:
+        gm_prod = set(split_words(row['GM_PRODUCT_NAME']))
+        gm_brand = set(split_words(row['GM_BRAND_NAME']))
+        if (not gm_prod.isdisjoint(sos_list_of_words[row['GM_COUNTRY_NAME']])) \
+                or (not gm_brand.isdisjoint(sos_list_of_words[row['GM_COUNTRY_NAME']])):
+            rows_with_potential_qa_issue.append([v for v in row.values()])
+
+    with open('20180411_prod_and_brand_name_qa.csv', 'w') as fo:
+        writer = csv.writer(fo, delimiter=',', lineterminator='\n')
+        writer.writerows(rows_with_potential_qa_issue)
     print('haha')
