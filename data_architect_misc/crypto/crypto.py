@@ -4,6 +4,9 @@ import pdb
 import base64
 import csv
 import os
+import sys
+
+import pandas as pd
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -22,29 +25,48 @@ f = Fernet(key)
 
 encoding = 'utf-8'
 fn = "test_csv.csv"
+fn_temp = "temp_" + fn
 feo = "test_csv_encrypted"
 fdcsv = "test_csv_decrypted.csv"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+temp_path = os.path.join(dir_path, 'temp', fn)
 
-with open(fn, 'r') as  fi:
-    data = b''.join(l.encode(encoding) for l in fi.readlines())
+if os.path.splitext(fn)[-1] in ['.xlsx', '.xls']:
+    # TODO: https://stackoverflow.com/a/48435144
+    pd.read_excel(fn).to_csv(fn_temp, index=False)
+    with open(fn_temp, 'r') as  fi:
+        data = b''.join(l.encode(encoding) for l in fi.readlines())
+elif os.path.splitext(fn)[-1] in ['.csv']:
+    with open(fn, 'r') as  fi:
+        data = b''.join(l.encode(encoding) for l in fi.readlines())
+else:
+    sys.exit('The file is neither Excel or CSV. This program only encrypts aformentioned file types...')
 
 token = f.encrypt(data)
-
 
 with open(feo, 'wb') as fo:
     fo.write(token)
 
-print("written encrypted data")
-
-# f.decrypt(token)
 with open(feo, 'rb') as fi:
     encrypted_data = b''.join(l for l in fi.readlines())
 
 d_data = f.decrypt(encrypted_data).decode(encoding)
 
 # REF: https://stackoverflow.com/a/3305964
+d_data_to_write = []
 reader = csv.reader(d_data.splitlines(), delimiter=',')
 for row in reader:
-    print('\t'.join(row))
+    d_data_to_write.append((row))
+    # print('\t'.join(row))
+
+with open(fdcsv, 'w', newline='', encoding=encoding) as fo:
+    writer = csv.writer(fo)
+    writer.writerows(d_data_to_write)
 
 print('ha')
+
+
+# Other refs:
+# https://www.blog.pythonlibrary.org/2016/05/18/python-3-an-intro-to-encryption/
+# https://stackoverflow.com/a/39356747
+
