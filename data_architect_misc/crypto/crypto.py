@@ -28,17 +28,25 @@ encoding = 'utf-8'
 # feo = "test_csv_encrypted"
 # fdcsv = "test_csv_decrypted.csv"
 
-fn = "test_xls.xls"
-fn_temp = "temp_" + fn
-feo = "test_xls_encrypted"
-fdcsv = "test_xls_decrypted.csv"
+# fn = "test_xls.xls"
+# feo = "test_xls_encrypted"
+# fdcsv = "test_xls_decrypted.csv"
+
+fn = "test_xlsx.xlsx"
+feo = "test_xlsx_encrypted"
+fdcsv = "test_xlsx_decrypted.csv"
+
+fn_split = os.path.splitext(fn)
+fn_temp = 'temp_' + fn_split[0] + '.csv'
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 temp_path = os.path.join(dir_path, 'temp')
+temp_file = os.path.join(temp_path, fn_temp)
 
 if os.path.splitext(fn)[-1] in ['.xlsx', '.xls']:
     # TODO: https://stackoverflow.com/a/48435144
-    pd.read_excel(fn).to_csv(os.path.join(temp_path, fn_temp), index=False)
-    with open(fn_temp, 'r') as  fi:
+    pd.read_excel(fn).to_csv(temp_file, index=False)
+    with open(temp_file, 'r') as  fi:
         data = b''.join(l.encode(encoding) for l in fi.readlines())
 elif os.path.splitext(fn)[-1] in ['.csv']:
     with open(fn, 'r') as  fi:
