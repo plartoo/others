@@ -77,3 +77,6 @@ if __name__ == '__main__':
         c.encrypt_and_write(data, b'123')
     # c.generate_salt_file()
     print("Done")
+
+# https://stackoverflow.com/questions/9884353/xls-to-csv-converter
+# https://gist.github.com/scottming/99c09685360376d4cac2de7c891e8050/9670acd5044d11871188e04b8123263ad132f512
