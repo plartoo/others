@@ -91,3 +91,8 @@ print('ha')
 # https://www.blog.pythonlibrary.org/2016/05/18/python-3-an-intro-to-encryption/
 # https://stackoverflow.com/a/39356747
 
+# Maybe think about iterating Excel sheets like below and convert them to CSV?
+# https://gist.github.com/scottming/99c09685360376d4cac2de7c891e8050/9670acd5044d11871188e04b8123263ad132f512
+
+# Instead of using pandas, try this to convert XLS to CSV?
+# https://stackoverflow.com/questions/9884353/xls-to-csv-converter
