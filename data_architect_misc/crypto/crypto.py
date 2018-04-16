@@ -1,10 +1,6 @@
 import base64
-import csv
-import io
 import os
-import sys
 
-import pandas as pd
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -65,17 +61,36 @@ class Crypto(object):
         fernet = Fernet(self.generate_key(password, salt_file))
         with open(encrypted_file, 'rb') as fi:
             encrypted_data = b''.join(l for l in fi.readlines())
-            data = fernet.decrypt(encrypted_data).decode(self.ENCODING)
-            with open(outfile, 'w') as fo:
+            data = fernet.decrypt(encrypted_data)
+            with open(outfile, 'wb') as fo:
                 fo.write(data)
 
 
 if __name__ == '__main__':
     c = Crypto()
-    with open(os.path.join('temp','temp_test_xlsx.csv'), 'r') as fi:
-        data = b''.join(l.encode(c.ENCODING) for l in fi.readlines())
-        c.encrypt_and_write(data, b'123')
+    # with open(os.path.join('1_raw','test_csv.csv'), 'r') as fi:
+    #     data = b''.join(l.encode(c.ENCODING) for l in fi.readlines())
+    #     c.encrypt_and_write(data, b'123')
     # c.generate_salt_file()
+
+    # with open(os.path.join('1_raw','test_csv.csv'), 'rb') as fi:
+    #     c.encrypt_and_write(fi.read(), b'123')
+    # load_and_decrypt('encrypted_data', 'decrypted_csv.csv', b'123')
+
+    # with open(os.path.join('1_raw','test_xls.xls'), 'rb') as fi:
+    #     c.encrypt_and_write(fi.read(), b'123')
+    # c.load_and_decrypt('encrypted_data', 'decrypted_xls.xls', b'123')
+
+    # with open(os.path.join('1_raw','test_xlsx.xlsx'), 'rb') as fi:
+    #     c.encrypt_and_write(fi.read(), b'123')
+    # c.load_and_decrypt('encrypted_data', 'decrypted_xlsx.xlsx', b'123')
+
+
+    # create_folder
+    # move_file
+    # delete_file
+    # delete_folder
+
     print("Done")
 
 # https://stackoverflow.com/questions/9884353/xls-to-csv-converter
