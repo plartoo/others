@@ -73,9 +73,8 @@ SELECT
 FROM [DM_1219_ColgateGlobal].[dbo].[V_MED_MARKET_SUBCAT]
 """
 
-# TODO:
 channel = """
-Jholman will reate this view later 
+Edgar and Phyo decided on May 17, 2018 that we don't report this.  
 """
 
 dim_queries = [
@@ -88,7 +87,6 @@ dim_queries = [
     {'query': daypart, 'output_file_basename': 'MED_DAYPART_DM_ALL'},
     {'query': brand, 'output_file_basename': 'MED_BRAND_MANUF_ALL'},
     {'query': market_subcat, 'output_file_basename': 'MED_MARKET_SUBCAT_ALL'},
-    # {'MED_CHANNEL_DM_ALL':, 'split_file': False}, # TODO: add after Jholman created channel view
 ]
 
 
