@@ -104,7 +104,7 @@ def get_fact_query(country_metadata):
     # SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim],
     #     [Daypart Dim], [Network Dim], [Month/Year] AS [Month Year], [Country] AS [Country ID],
     #     [Local Currency], [Spend Local], [Spend USD], [TRP], [Normalized TRP], [Insertions],[Impressions]
-    # FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@MERGED_COUNTRY_KEY]
+    # FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@COUNTRY_KEY]
     # """
     fact_query_APAC = """
     SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim],
@@ -116,13 +116,13 @@ def get_fact_query(country_metadata):
         CAST([Normalized TRP] AS DECIMAL(38,2)) AS [Normalized TRP], 
         CAST([Insertions] AS INT) AS [Insertions], 
         CAST([Impressions]  AS DECIMAL(38,2)) AS [Impressions] 
-    FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@MERGED_COUNTRY_KEY]    
+    FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@COUNTRY_KEY]    
     """
 
     output_file = 'MED_KF_'
     if country_metadata['division_text'] == 'Asia':
-        query = fact_query_APAC.replace('@MERGED_COUNTRY_KEY', str(country_metadata['merged_country_key']))
-        output_file += str(country_metadata['merged_country_key'])
+        query = fact_query_APAC.replace('@COUNTRY_KEY', str(country_metadata['country_key']))
+        output_file += str(country_metadata['country_key'])
     else:
         query = fact_query_non_APAC.replace('@CP_COUNTRY_ID', str(country_metadata['cp_country_id']))
         output_file += str(country_metadata['country_key'])
