@@ -1,7 +1,10 @@
-//https://ecomfe.github.io/echarts-examples/public/editor.html?c=treemap-obama
-//http://echarts.baidu.com/examples/#chart-type-treemap
-//https://ecomfe.github.io/echarts-doc/public/en/option.html#series-treemap
-
+<!--
+http://echarts.baidu.com/examples/#chart-type-treemap
+http://echarts.baidu.com/examples/editor.html?c=treemap-show-parent 
+http://echarts.baidu.com/examples/editor.html?c=treemap-drill-down
+http://echarts.baidu.com/examples/data/asset/data/disk.tree.json
+http://echarts.baidu.com/examples/editor.html?c=treemap-simple
+-->
 <!DOCTYPE html>
 <html>
 <head>
@@ -68,7 +71,7 @@ $.get('https://ecomfe.github.io/echarts-examples/public/data/asset/data/obama_bu
         var newNode = {};
         newNode.name = node.name;
         newNode.id = node.id;
-        newNode.discretion = node.discretion;
+//        newNode.discretion = node.discretion;
         newNode.value = (node.value || []).slice();
         return newNode;
     }
@@ -147,8 +150,8 @@ $.get('https://ecomfe.github.io/echarts-examples/public/data/asset/data/obama_bu
     function createSeriesCommon(mode) { // required fields
         return {
             type: 'treemap',
-            tooltip: {
-                formatter: getTooltipFormatter(mode)
+            tooltip: { //'tooltipformatter here'
+                //formatter: getTooltipFormatter(mode)
             },
             label: {
                 normal: {
@@ -209,75 +212,51 @@ $.get('https://ecomfe.github.io/echarts-examples/public/data/asset/data/obama_bu
     }
 
     formatUtil = echarts.format;
-    var modes = ['2012Budget', '2011Budget', 'Growth'];
+    var modes = '2012Budget'//['2012Budget', '2011Budget', 'Growth'];
+	var seriesCommon = createSeriesCommon('series1',0)
+            seriesCommon.name = 'series1'; // this all got joined to seriesOpt above
+            seriesCommon.top = 80;
+            seriesCommon.visualDimension = null;
+            seriesCommon.levels = getLevelOption(0);
+	seriesCommon.data = [
+		{
+			name: 'sopac', id: '1', value: 100, 
+			children: [
+				{name: 'sopac-c1', id: '2', value: 20},
+				{name: 'sopac-c2', id: '2', value: 30},
+				{name: 'sopac-c3', id: '2', value: 40},
+				{name: 'sopac-c3', id: '2', value: 10},
+			]
+		},
+	]
 var myOption = {
-        title: {
-            top: 5,
-            left: 'center',
-            text: 'How $3.7 Trillion is Spent',
-            subtext: 'Obama’s 2012 Budget Proposal',
-            backgroundColor: 'rgb(243,243,243)',
-            borderRadius: [5, 5, 0, 0]
-        },
-
-        legend: {
-            data: modes,
-            selectedMode: 'single',
-            top: 55,
-            itemGap: 5,
-            backgroundColor: 'rgb(243,243,243)',
-            borderRadius: 5
-        },
-
-        tooltip: {
-        },
-
-        series: modes.map(function (mode, idx) {
-            var seriesOpt = createSeriesCommon(idx);
-            seriesOpt.name = mode; // this all got joined to seriesOpt above
-            seriesOpt.top = 80;
-            seriesOpt.visualDimension = idx === 2 ? 2 : null;
-            seriesOpt.data = buildData(idx, obama_budget_2012);
-            seriesOpt.levels = getLevelOption(idx);
-            return seriesOpt;
-        })
-    };
+    series: [{
+        type: 'treemap',
+        data: [{
+            name: 'nodeA',            // First tree
+            value: 10,
+            children: [{
+                name: 'nodeAa',       // First leaf of first tree
+                value: 4
+            }, {
+                name: 'nodeAb',       // Second leaf of first tree
+                value: 6
+            }]
+        }, {
+            name: 'nodeB',            // Second tree
+            value: 20,
+            children: [{
+                name: 'nodeBa',       // Son of first tree
+                value: 20,
+                children: [{
+                    name: 'nodeBa1',  // Granson of first tree
+                    value: 20
+                }]
+            }]
+        }]
+    }]
+};
 	myChart.setOption(option=myOption);
-	
-	/*
-    myChart.setOption(option = {
-        title: {
-            top: 5,
-            left: 'center',
-            text: 'How $3.7 Trillion is Spent',
-            subtext: 'Obama’s 2012 Budget Proposal',
-            backgroundColor: 'rgb(243,243,243)',
-            borderRadius: [5, 5, 0, 0]
-        },
-
-        legend: {
-            data: modes,
-            selectedMode: 'single',
-            top: 55,
-            itemGap: 5,
-            backgroundColor: 'rgb(243,243,243)',
-            borderRadius: 5
-        },
-
-        tooltip: {
-        },
-
-        series: modes.map(function (mode, idx) {
-            var seriesOpt = createSeriesCommon(idx);
-            seriesOpt.name = mode;
-            seriesOpt.top = 80;
-            seriesOpt.visualDimension = idx === 2 ? 2 : null;
-            seriesOpt.data = buildData(idx, obama_budget_2012);
-            seriesOpt.levels = getLevelOption(idx);
-            return seriesOpt;
-        })
-    });
-	*/
 });
     </script>
 </body>
