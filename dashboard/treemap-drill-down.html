@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+<script  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+      <script src="echarts.js"></script>
+       <!--script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script-->
+       <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+option = null;
+var uploadedDataURL = "https://ecomfe.github.io/echarts-examples/public/data/asset/data/ec-option-doc-statistics-201604.json";
+
+myChart.showLoading();
+
+$.getJSON(uploadedDataURL, function (rawData) {
+
+    myChart.hideLoading();
+
+    function convert(source, target, basePath) {
+        for (var key in source) {
+            var path = basePath ? (basePath + '.' + key) : key;
+            if (key.match(/^\$/)) {
+
+            }
+            else {
+                target.children = target.children || [];
+                var child = {
+                    name: path
+                };
+                target.children.push(child);
+                convert(source[key], child, path);
+            }
+        }
+
+        if (!target.children) {
+            target.value = source.$count || 1;
+        }
+        else {
+            target.children.push({
+                name: basePath,
+                value: source.$count
+            });
+        }
+		
+    }
+
+    var data = [];
+
+    convert(rawData, data, '');
+	console.log('h');
+
+    myChart.setOption(option = {
+        title: {
+            text: 'ECharts blah blah blah',
+            subtext: '2016/04',
+            left: 'leafDepth'
+        },
+        tooltip: {},
+        series: [{
+            name: 'Root',
+            type: 'treemap',
+			dimensions: ['value','brand'],
+            visibleMin: 300,
+			leafDepth: 2, // this is what turns on the drill down mode
+			// roam: //false, zoom, pan, true,
+			// this 'label' option prevents the ability to click on a rectangle and move deeper
+			/*label: {
+				show: true,
+				formatter: '{b}'
+			},*/
+			
+			
+			// this upperLabel and level below adds topline boundary for each region, country
+                /*upperLabel: {
+                    normal: {
+                        show: false,
+                        height: 30
+                    }
+                },*/			
+				levels: 
+					[
+						{
+							itemStyle: {
+								normal: {
+									borderColor: '#555',//'#fff',
+									borderWidth: 4,
+									gapWidth: 4
+								}
+							},
+							// don't put upperLabel here. it messes up the aesthetics
+						},
+						{
+							colorSaturation: [0.3, 0.6],
+							itemStyle: {
+								normal: {
+									borderColorSaturation: 0.9,
+									gapWidth: 2,
+									borderWidth: 2
+								}
+							},
+							upperLabel: { // need this to turn ON the boundaries between regions
+								normal: {
+									show: true,
+									color: 'black',
+									//textBorderColor: 'black',
+									//formatter: 'blah: {b}',
+								}
+							},
+						},
+						{
+							colorSaturation: [0.3, 0.5],
+							itemStyle: {
+								normal: {
+									borderColorSaturation: 0.6,
+									gapWidth: 1
+								}
+							},
+						},
+						{
+							colorSaturation: [0.3, 0.5]
+						}
+					],	
+			//data.children, // to see what data.children looks like, review: 'treemap-drill-down_data.json'; an array of hashes [{name: and children: [..] or value: or both beneath}]
+			// data should be more like {'2017': [{},{},{}...], '2016': [{},{},{}...], '2015': [{},{},{}...]}
+            data: [
+					{ 
+						name: 'Region1',
+						brand: 9,
+						children: [
+							{
+								 name: 'Region1-Country1',//we can add other stuff like this: '\nhaha', 
+								 value: [1000,8], // we can define dimensions like here: https://ecomfe.github.io/echarts-doc/public/en/option.html#dataset.dimensions
+								/*label: {
+								show: true,
+									formatter: '{b}: {c} => {@brand} brand: {@[1]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
+								},*/
+								 children: [
+									{ name: 'Region1-Country1-Brand1', value: 200 },
+									{ name: 'Region1-Country1-Brand2', value: 500 },
+									{ name: 'Region1-Country1-Brand3', value: 300 },
+								 ]
+							},
+							{
+								 name: 'Region1-Country2', 
+								 value: 500, 
+								 brand: 9,
+								 children: [
+									{ name: 'Region1-Country2-Brand1', value: 100 },
+									{ name: 'Region1-Country2-Brand2', value: 200 },
+									{ name: 'Region1-Country2-Brand3', value: 200 },
+								 ]
+							},
+						]
+					},
+					{ 
+						name: 'Region2',
+						children: [
+							{
+								 name: 'Region2-Country1', 
+								 value: 600, // total of all brands in that country combined for that period
+								 brand: 10,
+								 children: [
+									{ name: 'Region2-Country1-Brand1', value: 150 },
+									{ name: 'Region2-Country1-Brand2', value: 150 },
+									{ name: 'Region2-Country1-Brand3', value: 300 },
+								 ]
+							},
+							{
+								 name: 'Region2-Country2', 
+								 value: 500, 
+								 brand: 11,					 
+								 children: [
+									{ name: 'Region2-Country2-Brand1', value: 100 },
+									{ name: 'Region2-Country2-Brand2', value: 200 },
+									{ name: 'Region2-Country2-Brand3', value: 200 },
+								 ]
+							},
+						]
+					},
+				],
+        }]
+    })
+});;
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+       </script>
+   </body>
+</html>
