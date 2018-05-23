@@ -64,13 +64,63 @@ $.getJSON(uploadedDataURL, function (rawData) {
     convert(rawData, data, '');
 	console.log('h');
 
+    function getTooltipFormatter(params) {
+	console.log('haha');
+	
+		return function (info) {
+		if (!info.data.children) { return;}
+
+		var node_name = info.data.children[info.dataIndex].name;
+		var values = info.data.children[info.dataIndex].value;
+		
+            return [
+                node_name,
+                ': ',
+				values[0],
+            ].join('');		
+		};
+	}
+	
     myChart.setOption(option = {
         title: {
             text: 'ECharts blah blah blah',
             subtext: '2016/04',
             left: 'leafDepth'
         },
-        tooltip: {},
+		tooltip: {
+			//'{b}:\nbC => {@[1]};\nvalue: {@[0]}',
+			// https://ecomfe.github.io/echarts-doc/public/en/option.html#series-treemap.tooltip.formatter
+			formatter: //getTooltipFormatter(),
+			function (params) {
+				var tooltip;
+				if (params === null) { return;}
+				//console.log(JSON.stringify(params));
+				//{
+				//"componentType":"series","componentSubType":"treemap","seriesType":"treemap","seriesIndex":0,
+				//"seriesId":"\u0000Root\u00000","seriesName":"Root","name":"Region2-Country1-Brand3","dataIndex":14,
+				//"data":{"name":"Region2-Country1-Brand3","value":300},
+				//"value":300,
+				//"color":"rgba(37,54,65,1)","marker":"<span style=\"display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:rgba(37,54,65,1);\"></span>",
+				//"$vars":["seriesName","name","value"],
+				//"treePathInfo":[{"name":"Root","dataIndex":0,"value":2600},{"name":"Region2","dataIndex":10,"value":1100},{"name":"Region2-Country1","dataIndex":11,"value":[600,11]},{"name":"Region2-Country1-Brand3","dataIndex":14,"value":300}]
+				//}
+				if ('treePathInfo' in params){
+					//console.log('treepath info exists');
+					// path hierarchy is like this: Root => Region => Country => Brand; so if treePathInfo.length == 4, then we are at the leaf level
+					if (params.treePathInfo.length == 4) {
+						tooltip = ['<div class="tooltip-title">' + params.data.name + '</div>',
+								'Spend: &nbsp;&nbsp;' + params.data.value + '<br>',
+							].join('');
+					} else if (params.treePathInfo.length == 3) {
+						tooltip = ['<div class="tooltip-title">' + params.data.name + '</div>',
+								'Spend: &nbsp;&nbsp;' + params.data.value + '<br>',
+								'Unique Brand Count: &nbsp;&nbsp;' + params.data.children.length + '<br>',								
+							].join('');
+					} else { tooltip = ''; }
+				}
+				return tooltip;
+			}
+		},		
         series: [{
             name: 'Root',
             type: 'treemap',
@@ -81,14 +131,15 @@ $.getJSON(uploadedDataURL, function (rawData) {
 					show: true,
 					formatter: '{b}:\nbC => {@[1]};\nvalue: {@[0]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
 					// roam: //false, zoom, pan, true,
-			},							
+			},
 			// do NOT add upperLabel here; it looks a bit messy in output visual; but adding this here includes topline boundary for each region, country
 			/*upperLabel: {
 				normal: {
 					show: false,
 					height: 30
 				}
-			},*/			
+			},*/
+			// adding tooltip here does NOT work... but in test2.html, we were able to add it under series...
 			levels: 
 				[
 					{ // Region level configs
@@ -96,8 +147,8 @@ $.getJSON(uploadedDataURL, function (rawData) {
 							normal: {
 								borderColor: '#555',//'#fff',
 								borderWidth: 4,
-								gapWidth: 4
-							}
+								gapWidth: 4,
+							},
 						},
 						// don't put upperLabel here. it messes up the aesthetics
 					},
@@ -128,10 +179,10 @@ $.getJSON(uploadedDataURL, function (rawData) {
 						},
 						// adding label to append 'brandCount' in node description did NOT work
 					},
-					{ // this level is not currently being used: https://ecomfe.github.io/echarts-doc/public/en/option.html#series-treemap.levels
+					/*{ // this level is not currently being used: https://ecomfe.github.io/echarts-doc/public/en/option.html#series-treemap.levels
 						colorSaturation: [0.3, 0.5],
 						// adding label to append 'brandCount' in node description did NOT work
-					},
+					},*/
 				],	
 		//data.children, // to see what data.children looks like, review: 'treemap-drill-down_data.json'; an array of hashes [{name: and children: [..] or value: or both beneath}]
 		// data should be more like {'2017': [{},{},{}...], '2016': [{},{},{}...], '2015': [{},{},{}...]}
