@@ -77,122 +77,124 @@ $.getJSON(uploadedDataURL, function (rawData) {
 			dimensions: ['value','brand'],
             visibleMin: 300,
 			leafDepth: 2, // this is what turns on the drill down mode
-			// roam: //false, zoom, pan, true,
-			// this 'label' option prevents the ability to click on a rectangle and move deeper
-			/*label: {
-				show: true,
-				formatter: '{b}'
-			},*/
-			
-			
-			// this upperLabel and level below adds topline boundary for each region, country
-                /*upperLabel: {
-                    normal: {
-                        show: false,
-                        height: 30
-                    }
-                },*/			
-				levels: 
-					[
-						{
-							itemStyle: {
-								normal: {
-									borderColor: '#555',//'#fff',
-									borderWidth: 4,
-									gapWidth: 4
-								}
-							},
-							// don't put upperLabel here. it messes up the aesthetics
+			label: {
+					show: true,
+					formatter: '{b}:\nbC => {@[1]};\nvalue: {@[0]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
+					// roam: //false, zoom, pan, true,
+			},							
+			// do NOT add upperLabel here; it looks a bit messy in output visual; but adding this here includes topline boundary for each region, country
+			/*upperLabel: {
+				normal: {
+					show: false,
+					height: 30
+				}
+			},*/			
+			levels: 
+				[
+					{ // Region level configs
+						itemStyle: {
+							normal: {
+								borderColor: '#555',//'#fff',
+								borderWidth: 4,
+								gapWidth: 4
+							}
 						},
-						{
-							colorSaturation: [0.3, 0.6],
-							itemStyle: {
-								normal: {
-									borderColorSaturation: 0.9,
-									gapWidth: 2,
-									borderWidth: 2
-								}
-							},
-							upperLabel: { // need this to turn ON the boundaries between regions
-								normal: {
-									show: true,
-									color: 'black',
-									//textBorderColor: 'black',
-									//formatter: 'blah: {b}',
-								}
-							},
+						// don't put upperLabel here. it messes up the aesthetics
+					},
+					{ // Country level configs 
+						colorSaturation: [0.4, 0.2], // here, left value corresponds to how light/dark the right box go; the higher it is, the lighter the right/smaller box goes
+						itemStyle: {
+							normal: {
+								borderColorSaturation: 0.9, // need to set this to '0.9' to contrast with Root level boundary
+								gapWidth: 3,
+								borderWidth: 3
+							}
 						},
-						{
-							colorSaturation: [0.3, 0.5],
-							itemStyle: {
-								normal: {
-									borderColorSaturation: 0.6,
-									gapWidth: 1
-								}
-							},
-						},
-						{
-							colorSaturation: [0.3, 0.5]
-						}
-					],	
-			//data.children, // to see what data.children looks like, review: 'treemap-drill-down_data.json'; an array of hashes [{name: and children: [..] or value: or both beneath}]
-			// data should be more like {'2017': [{},{},{}...], '2016': [{},{},{}...], '2015': [{},{},{}...]}
-            data: [
-					{ 
-						name: 'Region1',
-						brand: 9,
-						children: [
-							{
-								 name: 'Region1-Country1',//we can add other stuff like this: '\nhaha', 
-								 value: [1000,8], // we can define dimensions like here: https://ecomfe.github.io/echarts-doc/public/en/option.html#dataset.dimensions
-								/*label: {
+						upperLabel: { // need to add this in this SPECIFIC LEVEL to turn on the boundaries between regions
+							normal: {
 								show: true,
-									formatter: '{b}: {c} => {@brand} brand: {@[1]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
-								},*/
-								 children: [
-									{ name: 'Region1-Country1-Brand1', value: 200 },
-									{ name: 'Region1-Country1-Brand2', value: 500 },
-									{ name: 'Region1-Country1-Brand3', value: 300 },
-								 ]
-							},
-							{
-								 name: 'Region1-Country2', 
-								 value: 500, 
-								 brand: 9,
-								 children: [
-									{ name: 'Region1-Country2-Brand1', value: 100 },
-									{ name: 'Region1-Country2-Brand2', value: 200 },
-									{ name: 'Region1-Country2-Brand3', value: 200 },
-								 ]
-							},
-						]
+								color: 'black',
+							}
+						},
+						// adding label to append 'brandCount' in node description did NOT work
 					},
-					{ 
-						name: 'Region2',
-						children: [
-							{
-								 name: 'Region2-Country1', 
-								 value: 600, // total of all brands in that country combined for that period
-								 brand: 10,
-								 children: [
-									{ name: 'Region2-Country1-Brand1', value: 150 },
-									{ name: 'Region2-Country1-Brand2', value: 150 },
-									{ name: 'Region2-Country1-Brand3', value: 300 },
-								 ]
+					{ // Brand level configs
+						colorSaturation: [0.4,0.2],//[0.3, 0.5],
+						itemStyle: {
+							normal: {
+								borderColorSaturation: 0.6,
+								gapWidth: 1
 							},
-							{
-								 name: 'Region2-Country2', 
-								 value: 500, 
-								 brand: 11,					 
-								 children: [
-									{ name: 'Region2-Country2-Brand1', value: 100 },
-									{ name: 'Region2-Country2-Brand2', value: 200 },
-									{ name: 'Region2-Country2-Brand3', value: 200 },
-								 ]
-							},
-						]
+						},
+						// adding label to append 'brandCount' in node description did NOT work
 					},
-				],
+					{ // this level is not currently being used: https://ecomfe.github.io/echarts-doc/public/en/option.html#series-treemap.levels
+						colorSaturation: [0.3, 0.5],
+						// adding label to append 'brandCount' in node description did NOT work
+					},
+				],	
+		//data.children, // to see what data.children looks like, review: 'treemap-drill-down_data.json'; an array of hashes [{name: and children: [..] or value: or both beneath}]
+		// data should be more like {'2017': [{},{},{}...], '2016': [{},{},{}...], '2015': [{},{},{}...]}
+		data: [
+				{ 
+					name: 'Region1',
+					children: [
+						{
+							name: 'Region1-Country1',//we can add other stuff like this: '\nhaha', 
+							value: [1000,8], // we can define dimensions like here: https://ecomfe.github.io/echarts-doc/public/en/option.html#dataset.dimensions
+							/*
+							// we can add label like below in each data item level; it allows us to use '{@brand}', but is a bit less computationally efficient because of the need to structure the data items like this
+							label: {
+							show: true,
+								formatter: '{b}: {c} => {@brand} brand: {@[1]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
+							},
+							*/
+							 children: [
+								{ name: 'Region1-Country1-Brand1', value: [200,2],
+									label: { // For now, this is the only way I know how to show what I want in Brand level nodes (i.e. remove Brand counts)
+											show: true,
+											formatter: '{b}'//'{b}: {@[0]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
+									},
+								},
+								{ name: 'Region1-Country1-Brand2', value: 500 },
+								{ name: 'Region1-Country1-Brand3', value: 300 },
+							 ]
+						},
+						{
+							 name: 'Region1-Country2', 
+							 value: [500,5], 
+							 children: [
+								{ name: 'Region1-Country2-Brand1', value: 100 },
+								{ name: 'Region1-Country2-Brand2', value: 200 },
+								{ name: 'Region1-Country2-Brand3', value: 200 },
+							 ]
+						},
+					]
+				},
+				{ 
+					name: 'Region2',
+					children: [
+						{
+							 name: 'Region2-Country1', 
+							 value: [600,11], // total of all brands in that country combined for that period
+							 children: [
+								{ name: 'Region2-Country1-Brand1', value: 150 },
+								{ name: 'Region2-Country1-Brand2', value: 150 },
+								{ name: 'Region2-Country1-Brand3', value: 300 },
+							 ]
+						},
+						{
+							 name: 'Region2-Country2', 
+							 value: [500,12], 
+							 children: [
+								{ name: 'Region2-Country2-Brand1', value: 100 },
+								{ name: 'Region2-Country2-Brand2', value: 200 },
+								{ name: 'Region2-Country2-Brand3', value: 200 },
+							 ]
+						},
+					]
+				},
+			],
         }]
     })
 });;
