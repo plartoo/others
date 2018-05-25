@@ -1,0 +1,76 @@
+hierarchy::: period => world => region => country => advertiser => brands
+
+
+metrics I care about:::
+=sum_of_spend_world, 
+===sum_of_uniq_regions_in_world,
+====sum_of_uniq_countries_in_world, 
+=====sum_of_uniq_advertisers_in_world, 
+==sum_of_uniq_brands_in_world
+
+=sum_of_spend_in_each_region, 
+====sum_of_uniq_countries_in_each_region, 
+======sum_of_uniq_advertisers_in_each_region, 
+==sum_of_uniq_brands_in_each_region
+
+=sum_of_spend_in_each_country, 
+=====sum_of_uniq_advertisers_in_each_country, 
+==sum_of_uniq_brands_in_each_country
+
+=sum_of_spend_in_each_advertiser, 
+==sum_of_uniq_brands_in_each_advertiser
+
+=sum_of_spend_in_brand
+
+
+maybe we should define tree/forest this way:::
+'Year': ['', 'Region', 'Country', 'Advertiser', 'Brand']
+'Year': ['Region', 'Country', 'Advertiser', 'Brand']
+'Year': ['Country', 'Advertiser', 'Brand']
+-- if '' then replace with <hierarchy_name>+': ALL'
+
+  
+  { '2015': 
+	[
+		{ 
+			name: 'World',
+			value: [sum_of_spend_world, sum_of_uniq_countries_in_world, sum_of_uniq_advertisers_in_world, sum_of_uniq_brands_in_world]
+			children: [
+				{ 
+					name: 'Region1',
+					value: [sum_of_spend_in_region, sum_of_uniq_countries_in_region, sum_of_uniq_advertisers_in_region, sum_of_uniq_brands_in_region]
+					children: [
+						{
+							name: 'Country1',
+							value: [sum_of_spend_in_country, sum_of_uniq_advertisers_in_country, sum_of_uniq_brands_in_country],
+							 children: [
+								{ 
+									name: 'Advertiser',
+									value: [sum_of_spend_in_advertiser, sum_of_uniq_brands_in_advertiser],
+									label: {
+											show: true,
+											formatter: '{b}'//'{b}: {@[0]}',
+									},
+									children: [
+										{
+											name: 'Brand',
+											value: [sum_of_spend_in_brand]
+											label: {
+													show: true,
+													formatter: '{b}'//'{b}: {@[0]}',
+											}
+										},
+										...
+									] // end of advertiser's children
+								},
+								...
+							 ], // end of country's children
+						},
+					] // end of region's children
+				},
+				...
+			], // end of world's children		
+		}
+	],
+'2016': ...
+}
