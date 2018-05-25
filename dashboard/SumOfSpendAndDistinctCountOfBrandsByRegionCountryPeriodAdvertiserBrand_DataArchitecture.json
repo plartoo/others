@@ -24,7 +24,7 @@ metrics I care about:::
 
 
 maybe we should define tree/forest this way:::
-'Year': ['', 'Region', 'Country', 'Advertiser', 'Brand']
+'Year': ['Year', 'Region', 'Country', 'Advertiser', 'Brand']
 'Year': ['Region', 'Country', 'Advertiser', 'Brand']
 'Year': ['Country', 'Advertiser', 'Brand']
 -- if '' then replace with <hierarchy_name>+': ALL'
@@ -33,7 +33,7 @@ maybe we should define tree/forest this way:::
   { '2015': 
 	[
 		{ 
-			name: 'World',
+			name: 'ALL',
 			value: [sum_of_spend_world, sum_of_uniq_countries_in_world, sum_of_uniq_advertisers_in_world, sum_of_uniq_brands_in_world]
 			children: [
 				{ 
