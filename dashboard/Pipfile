@@ -8,6 +8,8 @@ pandas = "*"
 pyecharts = "*"
 python-pptx = "*"
 pypyodbc = "*"
+flask = "*"
+pyodbc = "*"
 
 [dev-packages]
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d0342d705fe483e4035b10eb7b665771cba072bde9682376cebba6191eb31c34"
+            "sha256": "548810e8b0e0da07f3bf38ecb17216095192f63e4dd2f548ad9fa603eca11fc3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,13 @@
         ]
     },
     "default": {
+        "click": {
+            "hashes": [
+                "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d",
+                "sha256:f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"
+            ],
+            "version": "==6.7"
+        },
         "dukpy": {
             "hashes": [
                 "sha256:0f85faca6d32044ac64347965c4d3e8c19c92df03d40ca9bf93ae38dfefba8d4",
@@ -44,11 +51,25 @@
             ],
             "version": "==0.2.0"
         },
+        "flask": {
+            "hashes": [
+                "sha256:2271c0070dbcb5275fad4a82e29f23ab92682dc45f9dfbc22c02ba9b9322ce48",
+                "sha256:a080b744b7e345ccfcbc77954861cb05b3c63786e93f2b3875e0913d44b43f05"
+            ],
+            "index": "pypi",
+            "version": "==1.0.2"
+        },
         "future": {
             "hashes": [
                 "sha256:e39ced1ab767b5936646cedba8bcce582398233d6a627067d4c6a454c90cfedb"
             ],
             "version": "==0.16.0"
+        },
+        "itsdangerous": {
+            "hashes": [
+                "sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519"
+            ],
+            "version": "==0.24"
         },
         "javascripthon": {
             "hashes": [
@@ -240,6 +261,25 @@
             ],
             "version": "==0.0.3"
         },
+        "pyodbc": {
+            "hashes": [
+                "sha256:0d16d2ab46092e59014d42293db9ff116a2929eed72cb847f6bd29040f1790ab",
+                "sha256:275c01335490712564235a94fdbafdba85721337f6a31f649f8cc0f559ac1144",
+                "sha256:28451afcee183337f7f07048bedf0d138e74727406e9bb97a27626c85591a8a5",
+                "sha256:4a71b7a65b02585864eee4b87a39a31700854cb55170db7f47ab49ce2ac5a9fe",
+                "sha256:5f37be47ebe9b8e3244268fdb3b9cfdd119f138be9b7b39814270ce0d7a3aaca",
+                "sha256:a8f4fb7adf854584ccb1da872f0625e6464d28c06641cf5ab419f02045e56d84",
+                "sha256:ad333ea7bafecd75357839d1d186f1c13e6f18c95a857eb1622f8aa480cfb40c",
+                "sha256:bb33d032c1f25781db64e2e4fecf77047fab2ddde42a6cd9496e3c66fb8e9f66",
+                "sha256:bbdedf6882864c2822fa9263d5dda8f3f87189f83158f02ebd77770a930a9ef6",
+                "sha256:bd74b09592c300af4926da05533eea00e375ab3c9900fd109516bf635a42e346",
+                "sha256:d65afdec794d62defafcf5b379805bcaf8d63735f72107cb3590af92ed61436f",
+                "sha256:e5ec8522d8fa39abedf2da4b9bf43b65b932c80ec452442df319075ab9fe7bd5",
+                "sha256:fc92776ddfb3411b816bc255726343fc4350be8d679efa420a6129ac02927ae7"
+            ],
+            "index": "pypi",
+            "version": "==4.0.23"
+        },
         "pypyodbc": {
             "hashes": [
                 "sha256:90a9a1fdbe5c06b875155d82562beb50bb22743190ca9b46a2cb71030ee65496"
@@ -274,6 +314,13 @@
                 "sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb"
             ],
             "version": "==1.11.0"
+        },
+        "werkzeug": {
+            "hashes": [
+                "sha256:c3fd7a7d41976d9f44db327260e263132466836cef6f91512889ed60ad26557c",
+                "sha256:d5da73735293558eb1651ee2fddc4d0dedcfa06538b8813a2e20011583c9e49b"
+            ],
+            "version": "==0.14.1"
         },
         "xlsxwriter": {
             "hashes": [
