@@ -11,22 +11,23 @@ import pyodbc
 import account_info
 import queries
 
-ROOT = 'ALL'
+ROOT_LEVEL = 'ROOT'
+ROOT_NAME = 'ALL'
 ANCHOR = 'Year'
 METRICS = ['SumOfSpend','UniqBrandCount','UniqRegionCount','UniqCountryCount','UniqAdvertiserCount']
 
-def build_data_block(row, level, hierarchy, label=None):
-    # print(row)
-    # pdb.set_trace()
-    # print(row)
-    # print(level)
-    name = ROOT if level in (ROOT, ANCHOR) else row[level]
+def build_data_block(row, level, hierarchy, metrics=METRICS, label=None):
+    name = ROOT_NAME if level==ROOT_LEVEL else row[level]
     d = {
         'name': name,
-        'value': [row[m] for m in METRICS],
-        'label': label
+        'level': level,
+        'value': [row[m] for m in metrics],
     }
-    d.setdefault('children',[]) if hierarchy[-1] != level
+    # leaves of the tree do NOT have children TODO: test if ECharts allow empty list for leaves; if so, remove this code
+    if hierarchy[-1] != level:
+        d.setdefault('children',[])
+    if label is not None:
+        d.setdefault('label', label)
     return d
 
 def build_data_tree_by_year(dataframe, hierarchy):
@@ -40,16 +41,20 @@ def build_data_tree_by_year(dataframe, hierarchy):
     #
     # ['ALL','2013','2014','2015','2016']
 
-    temp = {ROOT:[]}
+    temp = {} # {ROOT:[]}
     i = 0
     for index, row in dataframe.iterrows():
         i += 1
-        cur_row = [row[h] for h in hierarchy]
-        nonempty_field_cnt = sum(x is not None for x in cur_row)
-        level = ROOT if nonempty_field_cnt == 0 else hierarchy[nonempty_field_cnt-1]
+        # cur_row = [row[h] for h in hierarchy]
+        # nonempty_field_cnt = sum(x is not None for x in cur_row)
+        path = ['ROOT']+[l for l in [row[h] for h in hierarchy] if l is not None]
+        # ['ROOT','Year','Region']
+        # Given a path, walk down the dict and if no such node exists, create one
+        level = ROOT if len(path) == 0 else hierarchy[len(path)-1]
         block = build_data_block(row, level)
-        if level == ROOT:#nonempty_field_cnt == 0:
-            temp[ROOT].append(block)
+        if level == ROOT: # this is for Worldwide/global statistics
+            temp[ROOT] = block
+            # temp[ROOT].append(block)
         elif level == ANCHOR:
             yr = row[ANCHOR]
             temp.setdefault(yr, [])
