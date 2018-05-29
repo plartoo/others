@@ -29,48 +29,56 @@ maybe we should define tree/forest this way:::
 'Year': ['Country', 'Advertiser', 'Brand']
 -- if '' then replace with <hierarchy_name>+': ALL'
 
-  
-  { '2015': 
-	[
-		{ 
-			name: 'ALL',
-			value: [sum_of_spend_world, sum_of_uniq_countries_in_world, sum_of_uniq_advertisers_in_world, sum_of_uniq_brands_in_world]
-			children: [
-				{ 
-					name: 'Region1',
-					value: [sum_of_spend_in_region, sum_of_uniq_countries_in_region, sum_of_uniq_advertisers_in_region, sum_of_uniq_brands_in_region]
-					children: [
-						{
-							name: 'Country1',
-							value: [sum_of_spend_in_country, sum_of_uniq_advertisers_in_country, sum_of_uniq_brands_in_country],
-							 children: [
-								{ 
-									name: 'Advertiser',
-									value: [sum_of_spend_in_advertiser, sum_of_uniq_brands_in_advertiser],
-									label: {
-											show: true,
-											formatter: '{b}'//'{b}: {@[0]}',
-									},
-									children: [
-										{
-											name: 'Brand',
-											value: [sum_of_spend_in_brand]
-											label: {
-													show: true,
-													formatter: '{b}'//'{b}: {@[0]}',
-											}
-										},
-										...
-									] // end of advertiser's children
+{
+  name: 'ALL'
+  level: 'ROOT'
+  value: xxxx,
+  children: [
+	{
+		name: '2015',
+		level: 'Year'
+		value: xxxx, Yearly total
+		children: [
+			{
+				name: 'Region1',
+				level: 'Region'
+				value: [sum_of_spend_in_region, sum_of_uniq_countries_in_region, sum_of_uniq_advertisers_in_region, sum_of_uniq_brands_in_region]
+				children: [
+					{
+						name: 'Country1',
+						level: 'Country',
+						value: [sum_of_spend_in_country, sum_of_uniq_advertisers_in_country, sum_of_uniq_brands_in_country],
+						children: [
+							{
+								name: 'Advertiser1',
+								level: 'Advertiser',
+								value: [sum_of_spend_in_advertiser, sum_of_uniq_brands_in_advertiser],
+								label: { show: true,
+										formatter: '{b}'//'{b}: {@[0]}',
 								},
-								...
-							 ], // end of country's children
-						},
-					] // end of region's children
-				},
-				...
-			], // end of world's children		
-		}
-	],
-'2016': ...
+								children: [
+									{
+										name: 'Brand1',
+										level: 'Brand',
+										value: [sum_of_spend_in_brand]
+										label: {
+												show: true,
+												formatter: '{b}'//'{b}: {@[0]}',
+										}
+									},
+									more brands here...
+								]// end of advertiser's children
+							},
+							more advertisers here...
+						 ],// end of country's children
+					},
+					more countries here
+				]// end of region's children
+			},
+			more regions here ...
+		],// end of year's children
+	},
+	more years here ....
+  ],
 }
+
