@@ -43,7 +43,7 @@ rows = [
     # row 15 => SUM of values from (row 16+row 18) = 15+10 = 25; represents total sales in 2014 from Chile and Colombia combined
     {'Year': 2014, 'Region': 'LTM', 'Country': 'Chile', 'Manufacturer': None, 'Brand': None, 'Value': 15},
     # ** TRICKY: row 16 => SUM of values from (row 17+row 20+row 21) =  0+5+10 = 15; total sales in 2014 for Chile
-    {'Year': 2014, 'Region': 'LTM', 'Country': 'Chile', 'Manufacturer': 'M1', 'Brand': None, 'Value': 0},  # row 17
+    {'Year': 2014, 'Region': 'LTM', 'Country': 'Chile', 'Manufacturer': 'M1', 'Brand': None, 'Value': 15},  # row 17
     {'Year': 2014, 'Region': 'LTM', 'Country': 'Colombia', 'Manufacturer': None, 'Brand': None, 'Value': 10},
     # row 18 => SUM of values from (row 19) = 10; total sales in 2014 for Colombia
     {'Year': 2014, 'Region': 'LTM', 'Country': 'Colombia', 'Manufacturer': 'M1', 'Brand': None, 'Value': 10},  # row 19
