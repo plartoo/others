@@ -29,7 +29,7 @@ maybe we should define tree/forest this way:::
 'Year': ['Country', 'Advertiser', 'Brand']
 -- if '' then replace with <hierarchy_name>+': ALL'
 
-{
+[{
   name: 'ALL'
   level: 'ROOT'
   value: xxxx,
@@ -80,5 +80,5 @@ maybe we should define tree/forest this way:::
 	},
 	more years here ....
   ],
-}
+}]
 
