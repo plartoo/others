@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="css/autocomplete-0.3.css" />
+		<style>
+		.filter{
+			min-height: 100px;
+			overflow: hidden;
+			/*height: 6em;
+			line-height: 1.1em;
+			overflow: auto;*/
+		}
+		</style>
+   </head>   
+   <body style="height: 100%; margin: 0">
+
+		<p><b>Add/remove from the list of countries currently selected to show in the visualization</b></p>
+		<div id="country_filter" class="filter" style="margin-bottom: 12px;"></div>
+		<!--input type="button" class="button radius" id="reload_btn_country_filter" value="Show value in console" /-->
+
+		<p><b>Add/remove from the list of advertisers currently selected to show in the visualization</b></p>
+		<div id="advertiser_filter" class="filter" style="margin-bottom: 12px;"></div>
+		<!--input type="button" class="button radius" id="reload_btn_advertiser_filter" value="Show value in console" /-->
+		
+		<!--container for ECharts-->
+		<div id="container" style="height: 100%"></div>
+		<script  src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="js/autocomplete-0.3.0.min.js"></script>
+		<script src="js/echarts.js"></script>
+		<script type="text/javascript">
+
+		function difference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
+		  var a2Set = new Set(a2);
+		  return a1.filter(function(x) { return !a2Set.has(x); });
+		}
+
+		function symmetricDifference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
+		  return difference(a1, a2).concat(difference(a2, a1));
+		}
+		
+		var dom = document.getElementById("container");
+		var myChart = echarts.init(dom);
+		var app = {};
+		var option = null;
+
+		//var uploadedDataURL = "https://ecomfe.github.io/echarts-examples/public/data/asset/data/ec-option-doc-statistics-201604.json";
+		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_and_brand";
+
+		myChart.showLoading();
+
+		function organizeData(data){ // data is the JSON output from pandas with (orient='records') format
+			var organizedData = {
+			'UniqYear': new Set(),
+			'UniqRegion': new Set(),
+			'UniqCountry': new Set(),
+			'UniqAdvertiser': new Set(),
+			'Headers': new Array(),
+			'Data': new Array(),
+			}
+
+			data.forEach(function(row) {
+				// extract headers
+				if (organizedData['Headers'].length == 0) {
+					organizedData['Headers'] = Object.keys(row);
+					organizedData['Dimensions'] = Object.keys(row).slice(0,4);
+				}
+				
+				// select uniq values from the dimension columns
+				organizedData['Dimensions'].forEach(function(h) {
+					organizedData['Uniq'+h].add(row[h]);
+				});
+				
+				// select the data in array format (as opposed to the one in record-oriented format returned by pandas)
+				organizedData['Data'].push(Object.values(row));
+			});
+			return organizedData;
+		}
+
+		var onChange = function(newValue, oldValue) {
+		  console.log('Search bar updated.');
+		  console.log('Old Value');
+		  console.log(JSON.stringify(oldValue));
+		  console.log('New Value');
+		  console.log(JSON.stringify(newValue));
+		  if (newValue.length > oldValue.length){
+			// we should remove the difference between the newValue - oldValue
+			var diff = difference(newValue, oldValue);
+			console.log('Added value');
+			console.log(JSON.stringify(diff));
+			var diff = symmetricDifference(oldValue, newValue);
+			console.log(JSON.stringify(diff));
+		  } else {
+			var diff = difference(oldValue, newValue);
+			console.log('Removed value');
+			console.log(JSON.stringify(diff));
+			var diff = symmetricDifference(newValue, oldValue);
+			console.log(JSON.stringify(diff));
+			// we should add the difference between oldValue - newValue to option like below
+			// widget.addOption('options', diff); // HERE, we need to know how to get widget
+		  }
+		};
+
+		function prepareFilterConfig(initValues) {
+			var vals = new Array();
+			initValues.forEach(function(v) {
+				vals.push([v]);
+			});
+			
+			return {
+				onChange: onChange,
+				initialValue: vals,
+				lists: {
+					options: initValues,
+			  }
+			}
+		} // end prepareFilterConfig()
+
+		var data;
+		var country_filter;
+		var advertiser_filter;
+
+		$.getJSON(uploadedDataURL, function (rawData) {
+
+			myChart.hideLoading();
+
+			data = organizeData(rawData);
+			country_filter = new AutoComplete('country_filter', prepareFilterConfig(Array.from(data['UniqCountry']).sort()));
+			advertiser_filter = new AutoComplete('advertiser_filter', prepareFilterConfig(Array.from(data['UniqAdvertiser']).sort()));
+
+			//$(document).ready(initFilter('country_filter', ));
+			//$(document).ready(initFilter('advertiser_filter', Array.from(data['UniqAdvertiser']).sort()));
+
+			var myOption = 
+			option = { // REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=doc-example/scatter-tutorial-dataZoom-1
+				xAxis: {
+					type: 'value'
+				},
+				yAxis: {
+					type: 'value'
+				},
+				dataZoom: [
+					{
+						type: 'slider',
+						start: 1,
+						end: 35
+					}
+				],
+				series: [
+					{
+						name: 'MyScatter',
+						type: 'scatter',
+						itemStyle: {
+										  normal: {
+													//color:'blue', 
+													label:{
+													textStyle:{
+																fontWeight:'bold',
+																fontSize:15
+																},
+												   show:true,
+												   position: 'inside',
+												   formatter: '{@[1]}', // REF: https://stackoverflow.com/a/38604295/1330974
+												}
+										}
+								  },
+						symbolSize: function (val) { return val[2] * 40; },
+						// [[x,y,val],[x,y,val]]
+						data: [["14.616","7.241","0.896"],["3.958","5.701","0.955"],]
+					}
+				]
+			};
+			
+			myChart.setOption(option = myOption);
+			console.log('option set');
+
+		}); // end of getJSON
+       </script>
+   </body>
+</html>
