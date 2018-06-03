@@ -10,6 +10,7 @@ python-pptx = "*"
 pypyodbc = "*"
 flask = "*"
 pyodbc = "*"
+flask-cors = "*"
 
 [dev-packages]
 
