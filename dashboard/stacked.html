@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html style="height: 100%">
-   <head>
+	<head>
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="css/autocomplete-0.3.css" />
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
@@ -12,98 +12,60 @@
 			font-size: 125%;
 			width: 290px;
 		}
-		.plot {
-			border: 1px solid #ccc!important;
-			border-style: dotted;
-			border-radius: 16px;
-			/*padding: 0.01em 16px;*/
-			
+		.vh-100 {
+		  min-height: 100vh;
 		}
 
-		div.plot { 
-			position:fixed; 
-			width:50%; 
-			height:50% 
+		.choose-plot {
+		  padding-top: 15px;
+		  padding-bottom: 15px;
 		}
-		
-		#container-parent-1 { top:10%; left:0;   }
-		#container-parent-2 { top:10%; left:50%; }
-		#container-parent-3 { top:60%; left:0;   }
-		#container-parent-4 { top:60%; left:50%; }
-		
+
+		.bordered {
+		  border: 1px solid #ccc;
+		  border-radius: 10px;
+		}
 		</style>
-   </head>   
-   <body style="height: 100%; padding: 0; margin: 0px 0px 0px 5px">
-
-		<p><b>Add/remove COOUNTRIES (max: 5), ADVERTISERS (max: 4), YEAR (max: 1) and plot location below. Then, click 'Load Plot'.</b></p>
-		<div style='margin-bottom: 0 0 5px 5px;'> <!--REF: https://stackoverflow.com/a/2637775/1330974 -->
-			<div id="country_filter" style="width: 500px; float: left;"></div>
-			<div id="advertiser_filter" style="width: 680px; float: left; margin-left: 20px;"></div>
-			<div id="year_filter" style="width: 200px; float: left; margin-left: 20px;"></div>
-			<div id="select-frame" style="width: 200px; float: left; margin-left: 20px;">
-				<select id="select-options" class="custom-select custom-select-lg">
-				  <option selected>Choose location of the plot</option>
-				  <option value="1">1. Top-left</option>
-				  <option value="2">2. Top-right</option>
-				  <option value="3">3. Bottom-left</option>
-				  <option value="4">4. Bottom-right</option>
-				</select>
-			</div>
-			<div id="select-frame" style="width: 100px; float: left; margin-left: 110px;">
-				<input id="load_plot" type="button" class="btn btn-primary" value="Load Plot" style="width: 100px; height: 51px;">
-			</div>
-		</div>
-		
-		<div class="container">
+	</head>
+	<body>
+		<div class="container-fluid d-flex h-100 flex-column vh-100">
 			<div class="row">
-				<div id="container-parent-1" class="col plot">
-					<span> 1 of 4 </span>
-					<div id="container-1"></div>
-				</div>
-				<div id="container-parent-2" class="col plot">
-					<span> 2 of 4 </span>
-					<div id="container-2"></div>
+				<div class="col choose-plot">
+				<strong class="mb-2">Add/remove COUNTRIES (max: 5), ADVERTISERS (max 4), YEAR (max 1), and plot location below. Then, click 'load plot'.</strong>
+					<div class="row">
+					  <div id="country-filter" class="col-3">
+					  </div>				
+					  <div id="advertiser-filter" class="col-4">
+					  </div>				
+					  <div id="year-filter" class="col-2">
+					  </div>				
+					  <div class="col-2">
+						<select class="custom-select">
+						  <option>Choose plot</option>
+						  <option value="1">1. Top-left</option>
+						  <option value="2">2. Top-right</option>
+						  <option value="3">3. Bottom-left</option>
+						  <option value="4">4. Bottom-right</option>
+						</select>
+					  </div>
+					  <div class="col-1">
+						<button class="btn btn-primary">Load plot</button>
+					  </div>
+					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div id="container-parent-3" class="col plot">
-					<span> 3 of 4</span>
-					<div id="container-3"></div>
-				</div>
-				<div id="container-parent-4" class="col plot">
-					<span>4 of 4</span>
-					<div id="container-4"></div>
-				</div>
+			<div class="row flex-fill d-flex justify-content-start">
+				<div class="col-6 bordered">1 of 4</div>
+				<div class="col-6 bordered">2 of 4</div>
+				<div class="col-6 bordered">3 of 4</div>
+				<div class="col-6 bordered">4 of 4</div>
 			</div>
 		</div>
 		<script  src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js" integrity="sha384-u/bQvRA/1bobcXlcEYpsEdFVK/vJs3+T+nXLsBYJthmdBuavHvAW6UsmqO2Gd/F9" crossorigin="anonymous"></script>
 		<script src="js/autocomplete-0.3.0.min.js"></script>
 		<script src="js/echarts-4.1.0.js"></script>
 		<script type="text/javascript">
-
-		function median(values) { //REF: https://gist.github.com/caseyjustus/1166258
-			values.sort(function(a,b) {return a - b;});
-			var half = Math.floor(values.length/2);
-			if(values.length % 2) {
-				return values[half];
-			} else {
-				return (values[half-1] + values[half]) / 2.0;
-			}
-		}
-		
-		function removeSmallest(arr) { //REF: https://stackoverflow.com/a/37225358/1330974
-		  var min = Math.min.apply(null, arr);
-		  return arr.filter((e) => {return e != min});
-		}		
-
-		function difference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
-		  var a2Set = new Set(a2);
-		  return a1.filter(function(x) { return !a2Set.has(x); });
-		}
-
-		function symmetricDifference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
-		  return difference(a1, a2).concat(difference(a2, a1));
-		}
 		
 		var onChange = function(newValue, oldValue) {
 		  /* TODO: 
@@ -386,7 +348,7 @@
 			//I think we need to create [[all options for 2013], [all options for 2014],...] 
 			//and I'm not even sure if EChart would accept that, so decided not to risk it 
 			// for now given the time constraint.
-			relevantYearData.UniqYear.forEach(function(y,i) {
+			relevantYearData.UniqPeriod.forEach(function(y,i) {
 				option.series.push({
 					// itemStyle, label, tooltip
 					name: y,
@@ -425,9 +387,11 @@
 		function organizeData(allData){ // allData is the JSON output from pandas with (orient='records') format
 			var organizedData = {
 			'UniqYear': new Set(),
+			'UniqPeriod': new Set(),
 			'UniqRegion': new Set(),
 			'UniqCountry': new Set(),
 			'UniqAdvertiser': new Set(),
+			'UniqBrand': new Set(),
 			'Headers': new Array(),
 			'Data': {}, //new Array(),
 			}
@@ -436,20 +400,24 @@
 				// extract headers
 				if (organizedData['Headers'].length == 0) {
 					organizedData['Headers'] = Object.keys(row);
-					organizedData['Dimensions'] = Object.keys(row).slice(0,4);
+					organizedData['Dimensions'] = Object.keys(row).slice(0,5);
 				}
 
+				var yr = new Date(row['Period'] + ' 00:00:00').getFullYear();
 				// select uniq values from the dimension columns
-				organizedData['Dimensions'].forEach(function(h) {
-					organizedData['Uniq'+h].add(row[h]);
+				organizedData['Dimensions'].forEach(function(d) {
+					if (d == 'Period') { // we want to keep track of Year as well
+						organizedData['UniqYear'].add(yr);
+					}
+					organizedData['Uniq'+d].add(row[d]);
 				});
 				
 				// select the data in array format (as opposed to the one in record-oriented format returned by pandas)
 				//organizedData['Data'].push(row);//Object.values(row)); // NOTE: Object.values(row) gives ['2013','LATAM','Argentina',...]
-				if (row['Year'] in organizedData['Data']){
-					organizedData['Data'][row['Year']].push(row);
+				if (yr in organizedData['Data']){
+					organizedData['Data'][yr].push(row);
 				} else {
-					organizedData['Data'][row['Year']] = [row];
+					organizedData['Data'][yr] = [row];
 				}				
 			});
 			return organizedData;
@@ -463,21 +431,21 @@
 		var advertisersSelected;
 		var yearSelected;
 		var chartOptions;
-		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_and_brand";
+		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_by_country_advertiser_brand";
 		$.getJSON(uploadedDataURL, function (rawData) {
 			allData = organizeData(rawData);
 			
 			// set autocomplete filters for Country and Advertiser picking
 			var uniqCountriesSorted = Array.from(allData['UniqCountry']).sort();
 			var uniqAdvertisersSorted = Array.from(allData['UniqAdvertiser']).sort();
-			var uniqYearsSorted = Array.from(allData['UniqYear']).sort();
+			var UniqYearsSorted = Array.from(allData['UniqYear']).sort();
 			
 			// prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder)
 			var defaultCountries = [['Australia'], ['Brazil'], ['Colombia'], ['Mexico']];
 			var defaultAdvertisers = [['COLGATE'], ['UNILEVER'], ['JOHNSON & JOHNSON']];
-			country_filter = new AutoComplete('country_filter', prepareFilterConfig(uniqCountriesSorted, defaultCountries, 5, 'Countries'));
-			advertiser_filter = new AutoComplete('advertiser_filter', prepareFilterConfig(uniqAdvertisersSorted, defaultAdvertisers, 4, 'Advertisers'));
-			year_filter = new AutoComplete('year_filter', prepareFilterConfig(uniqYearsSorted, [['2017']], 1, 'Year'));
+			year_filter = new AutoComplete('year-filter', prepareFilterConfig(UniqYearsSorted, [['2017']], 1, 'Year'));
+			country_filter = new AutoComplete('country-filter', prepareFilterConfig(uniqCountriesSorted, defaultCountries, 1, 'Countries'));
+			advertiser_filter = new AutoComplete('advertiser-filter', prepareFilterConfig(uniqAdvertisersSorted, defaultAdvertisers, 4, 'Advertisers'));
 		}); // end of getJSON
        </script>
    </body>
