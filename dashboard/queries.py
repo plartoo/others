@@ -15,7 +15,7 @@ SELECT [Year]
   ORDER BY 1,2,3,4,5
 """.format(DATABASE)
 
-investment_and_brand = """
+spend_by_country_advertiser = """
 SELECT [Year]
       ,[Region]
       ,[Country]
@@ -33,4 +33,14 @@ SELECT [Year]
   [ADVERTISER] IS NOT NULL
   AND
   [BRAND] IS NULL
+""".format(DATABASE)
+
+spend_by_country_advertiser_brand = """
+SELECT [Period]
+      ,[Region]
+      ,[Country]
+      ,[Advertiser]
+      ,[Brand]
+      ,[SumOfSpend]
+  FROM {}.[DFID065658_SampleDataForDashboard_Spend_By_Brand]
 """.format(DATABASE)
