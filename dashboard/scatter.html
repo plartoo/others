@@ -9,13 +9,16 @@
    </head>   
    <body style="height: 100%; margin: 0px 0px 0px 5px">
 
-		<p><b>Add/remove COOUNTRIES (max: 5), ADVERTISERS (max: 4) and YEAR (max: 1) below, and click 'Load Plot'.</b></p>
+		<p><b>Add/remove COOUNTRIES (max: 5), ADVERTISERS (max: 4) and YEAR (max: 1), and click 'Load Plot'.</b></p>
 		<div style='overflow: hidden; margin-bottom: 5px; margin-left:5px;'> <!--REF: https://stackoverflow.com/a/2637775/1330974 -->
 			<div id="country_filter" style="width: 500px; float: left;"></div>
 			<div id="advertiser_filter" style="width: 680px; float: left; margin-left: 20px;"></div>
 			<div id="year_filter" style="width: 200px; float: left; margin-left: 20px;"></div>
+			<div id="select-frame" style="width: 100px; float: left; margin-left: 24px;">
+				<input id="load_plot" type="button" class="btn btn-primary" value="Load Plot" style="width: 100px; height: 51px;">
+			</div>
+
 		</div>
-		<input type="button" class="btn btn-primary" id="load_plot" value="Load Plot">
 		
 		<!--container for ECharts-->
 		<div id="container" style="height: 100%"></div>
