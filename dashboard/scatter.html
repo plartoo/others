@@ -407,7 +407,7 @@
 		var advertisersSelected;
 		var yearSelected;
 		var chartOptions;
-		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_and_brand";
+		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_by_country_advertiser";
 		$.getJSON(uploadedDataURL, function (rawData) {
 			allData = organizeData(rawData);
 			
