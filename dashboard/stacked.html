@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="css/autocomplete-0.3.css" />
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+		<style>
+		.custom-select-lg {
+			border: 2px solid #ccc;
+			height: 52px;
+			padding: 0 0 0 15px;
+			font-size: 125%;
+			width: 290px;
+		}
+		.plot {
+			border: 1px solid #ccc!important;
+			border-style: dotted;
+			border-radius: 16px;
+			/*padding: 0.01em 16px;*/
+			
+		}
+
+		div.plot { 
+			position:fixed; 
+			width:50%; 
+			height:50% 
+		}
+		
+		#container-parent-1 { top:10%; left:0;   }
+		#container-parent-2 { top:10%; left:50%; }
+		#container-parent-3 { top:60%; left:0;   }
+		#container-parent-4 { top:60%; left:50%; }
+		
+		</style>
+   </head>   
+   <body style="height: 100%; padding: 0; margin: 0px 0px 0px 5px">
+
+		<p><b>Add/remove COOUNTRIES (max: 5), ADVERTISERS (max: 4), YEAR (max: 1) and plot location below. Then, click 'Load Plot'.</b></p>
+		<div style='margin-bottom: 0 0 5px 5px;'> <!--REF: https://stackoverflow.com/a/2637775/1330974 -->
+			<div id="country_filter" style="width: 500px; float: left;"></div>
+			<div id="advertiser_filter" style="width: 680px; float: left; margin-left: 20px;"></div>
+			<div id="year_filter" style="width: 200px; float: left; margin-left: 20px;"></div>
+			<div id="select-frame" style="width: 200px; float: left; margin-left: 20px;">
+				<select id="select-options" class="custom-select custom-select-lg">
+				  <option selected>Choose location of the plot</option>
+				  <option value="1">1. Top-left</option>
+				  <option value="2">2. Top-right</option>
+				  <option value="3">3. Bottom-left</option>
+				  <option value="4">4. Bottom-right</option>
+				</select>
+			</div>
+			<div id="select-frame" style="width: 100px; float: left; margin-left: 110px;">
+				<input id="load_plot" type="button" class="btn btn-primary" value="Load Plot" style="width: 100px; height: 51px;">
+			</div>
+		</div>
+		
+		<div class="container">
+			<div class="row">
+				<div id="container-parent-1" class="col plot">
+					<span> 1 of 4 </span>
+					<div id="container-1"></div>
+				</div>
+				<div id="container-parent-2" class="col plot">
+					<span> 2 of 4 </span>
+					<div id="container-2"></div>
+				</div>
+			</div>
+			<div class="row">
+				<div id="container-parent-3" class="col plot">
+					<span> 3 of 4</span>
+					<div id="container-3"></div>
+				</div>
+				<div id="container-parent-4" class="col plot">
+					<span>4 of 4</span>
+					<div id="container-4"></div>
+				</div>
+			</div>
+		</div>
+		<script  src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="js/autocomplete-0.3.0.min.js"></script>
+		<script src="js/echarts-4.1.0.js"></script>
+		<script type="text/javascript">
+
+		function median(values) { //REF: https://gist.github.com/caseyjustus/1166258
+			values.sort(function(a,b) {return a - b;});
+			var half = Math.floor(values.length/2);
+			if(values.length % 2) {
+				return values[half];
+			} else {
+				return (values[half-1] + values[half]) / 2.0;
+			}
+		}
+		
+		function removeSmallest(arr) { //REF: https://stackoverflow.com/a/37225358/1330974
+		  var min = Math.min.apply(null, arr);
+		  return arr.filter((e) => {return e != min});
+		}		
+
+		function difference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
+		  var a2Set = new Set(a2);
+		  return a1.filter(function(x) { return !a2Set.has(x); });
+		}
+
+		function symmetricDifference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
+		  return difference(a1, a2).concat(difference(a2, a1));
+		}
+		
+		var onChange = function(newValue, oldValue) {
+		  /* TODO: 
+		  console.log('Search bar updated.');
+		  console.log('Old Value');
+		  console.log(JSON.stringify(oldValue));
+		  console.log('New Value');
+		  console.log(JSON.stringify(newValue));
+		  console.log('***********');
+
+		  console.log(JSON.stringify(this.lists));
+		  this.lists.options.options = [{optionHTML: "Argentina", tokenHTML: "Argentina", value: "Argentina"}];
+		  if (newValue.length > oldValue.length){
+			// we should remove the difference between the newValue - oldValue
+			var diff = difference(newValue, oldValue);
+			console.log('Added value');
+			console.log(JSON.stringify(diff));
+			var diff = symmetricDifference(oldValue, newValue);
+			console.log(JSON.stringify(diff));
+		  } else {
+			var diff = difference(oldValue, newValue);
+			console.log('Removed value');
+			console.log(JSON.stringify(diff));
+			var diff = symmetricDifference(newValue, oldValue);
+			console.log(JSON.stringify(diff));
+			// we should add the difference between oldValue - newValue to option like below
+			// widget.addOption('options', diff); // HERE, we need to know how to get widget
+		  }
+		  */
+		};
+
+		function getFirstNVals(availableOptions, n) {
+			var vals = new Array();
+			availableOptions.forEach(function(v, i) {
+			// NOTE: there is a bug in the AutoComplete JS library.
+			// If we don't subtract '1' from maxSelectionAllowed, it still allows one more extra than what we want.
+				if (i < (n-1)) { 
+					vals.push([v]);
+				}
+			}); // TODO: ask SO why this function is ran many times even though I only called 'prepareFilterConfig' twice		
+		}
+		
+		function prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder) {
+			var vals = initVals;
+			//var vals = getFirstNVals(availableOptions, maxSelectionAllowed);
+
+			return {
+				maxTokenGroups: maxSelectionAllowed,
+				placeholderHTML: placeholder,
+				onChange: onChange, // TODO: Forget about this now. I want us to NOT show the ones that are already in the list
+				initialValue: vals,
+				lists: {
+					options: availableOptions,
+			  }
+			}
+		} // end prepareFilterConfig()
+
+
+		var dom = document.getElementById("container-1");
+		var myChart; //= echarts.init(dom);
+		var curOption = null;
+		
+		$('#load_plot').on('click', function() {
+			if (myChart !== undefined) {
+				myChart.dispose(); // REF: https://ecomfe.github.io/echarts-doc/public/en/api.html#echartsInstance
+			}
+			var v = $("#select-options").find("option:selected").val();
+			$('#container-parent-'+v+' span').text('hahaha');
+			/*
+			console.log("Loading the plot");
+			countriesSelected = country_filter.getValue().map(x => x[0].value);
+			advertisersSelected = advertiser_filter.getValue().map(x => x[0].value);
+			yearSelected = year_filter.getValue().map(x => x[0].value);
+			if (yearSelected.length == 0) {
+				alert('Please select a YEAR');
+				return;
+			}
+
+			///* TODO: temporarily commented out; need to put back in
+			myChart = echarts.init(dom, null, {renderer: 'canvas'}); // REF: https://ecomfe.github.io/echarts-doc/public/en/tutorial.html#Render%20by%20Canvas%20or%20SVG
+			myChart.showLoading();
+			myChart.setOption(curOption = createOptions(advertisersSelected, countriesSelected, yearSelected, allData['Data'][yearSelected]));
+			myChart.hideLoading();
+			//*/
+		});
+
+		var allRelevantSpends = [1];
+		function prepareData(country, advertisers, relevantYearData) {
+			var relevantData = [];
+			allRelevantSpends = [1];
+			advertisers.forEach(function(advertiser, i) {
+				var foundAdvertiser = false;
+				relevantYearData.forEach(function(row, j) {
+					if ((row['Country'] == country) && (row['Advertiser'] == advertiser)) {
+						foundAdvertiser = true;
+						allRelevantSpends.push(row['SumOfSpend']); // to find average/max/min spend of all selected countries and advertisers
+						relevantData.push([row['Advertiser'], row['SumOfSpend'], row['UniqBrandCount']]);
+					}
+				});
+				
+				if (!foundAdvertiser) {//(relevantData.length == 0) {
+					relevantData.push([advertiser, 0, 0]);
+				}
+			});
+			return relevantData;
+		}
+		
+		function createOptions(advertisersSelected, countriesSelected, yearSelected, relevantYearData) {
+			var option = { // REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=doc-example/scatter-tutorial-dataZoom-1
+					title: [],
+					singleAxis: [],
+					series: [],
+					tooltip: { 
+						position: 'top',
+						formatter: function (params) {
+							return 'Spend: $' + Math.round(params.value[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+									+ '<br># of Brands: ' + params.value[2];
+						}
+					},
+					/*
+					// Note: useless because our x-Axis is categorical 
+					dataZoom: [{ // REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-large&theme=light
+						type: 'inside'
+					}, {
+						type: 'slider'
+					}],
+					*/
+					toolbox: {
+						feature: {
+							dataView: { // TODO: update this to present data in a more CSV way: https://ecomfe.github.io/echarts-doc/public/en/option.html#toolbox.feature.dataView.optionToContent
+									show: true, 
+									readOnly: false,
+									title: 'View Data',
+							},
+							saveAsImage: {
+									show: true,
+									name: 'Size of Relevant Investment and # of Brands Supported',
+									title: 'Save as Image (PNG)',
+							},
+							dataZoom: {
+									title: {
+										zoom: 'Area zooming',
+										back: 'Restore area zooming',
+									},
+									// TODO: we may need to go back to this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-punchCard
+									show: false,
+									yAxisIndex: false,
+							},
+							restore: {
+									show: true,
+									title: 'Restore configuration',
+							},							
+							magicType: {
+									show: false, 
+									type: ['line', 'bar', 'stack', 'tiled'],
+									title: {
+										line: 'For line charts',
+										bar: 'For bar charts',
+										stack: 'For stacked charts',
+										tiled: 'For tiled charts',
+									}									
+							},
+							brush: { //https://ecomfe.github.io/echarts-doc/public/en/option.html#brush.id
+									show: false,
+									type: ['lineX','clear'],
+									title: {
+										rect: 'Rectangle selection',
+										polygon: 'Polygon selection',
+										lineX: 'Horizontal selection',
+										lineY: 'Vertical selection',
+										keep: 'Keep previous selection',
+										clear: 'Clear selection',									
+									}									
+							},
+						}
+					},
+					///*
+					// TODO: allow multiple year selection
+					legend: { // https://ecomfe.github.io/echarts-doc/public/en/option.html#legend
+						data: [yearSelected[0]],//['2013','2014','2015','2016','2017','2018'],
+						selectedMode: 'single',
+						type: 'scroll',
+						//top: 0,
+						// align: 'right', // 'icon => label' vs. 'label => icon'
+						//padding: [0,0,10,0], //up, right, down, left; bad to use here
+						bottom: 30,
+						itemGap: 5,
+						backgroundColor: 'rgb(243,243,243)',
+						borderRadius: 5,
+						orient: 'vertical',//'horizontal',
+					},
+					//*/
+					/*
+					dataZoom: [ // Not very useful here
+						{
+							type: 'slider',
+							start: 1,
+							end: 35,
+						},
+					],
+					*/
+					// TODO: allow screenshot and data viewer
+			};// End of option
+
+			countriesSelected.forEach(function(country,i) {
+				// REF: Choose from here: https://getbootstrap.com/docs/4.0/utilities/colors/#background-color
+				var colorPalette = ['#c23531', '#2f4554', '#007bff', '#ca8622', '#6e7074', '#61a0a8', '#546570', '#749f83'];
+				option.title.push({
+					/* the ones below are from Treemap; here, we are shifting title to the left side of the axis, so irrelevant here
+					// REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=treemap-obama
+					top: 5,
+					left: 'center',
+					text: 'Size of Relevant Investment and # of Brands Supported',
+					subtext: '',
+					backgroundColor: 'rgb(243,243,243)',
+					borderRadius: [5, 5, 0, 0],
+					*/
+					textBaseline: 'middle',
+					top: (i + 0.5) * 100 / 7 + '%',
+					text: country.split(' ').join('\n'),
+				});
+
+				option.singleAxis.push({ // we MUST define 'singleAxis' for each country
+					left: 150,
+					type: 'category',
+					boundaryGap: false,
+					data: advertisersSelected,
+					top: (i * 100 / 7 + 5) + '%',
+					height: (100 / 7 - 10) + '%',
+					axisLabel: {
+						//interval: 2,
+						//rotate: -90,
+					},
+				});
+
+				option.series.push({
+					name: yearSelected,
+					singleAxisIndex: i,
+					coordinateSystem: 'singleAxis',
+					type: 'scatter',
+					top: 80,
+					//color: colorPalette[i % colorPalette.length], // rotate from color palette of my choice
+					/*
+					markPoint : { // Marking min and max approach didn't work: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-weight
+						data : [
+							{type : 'max', name: 'FFFFFFF'},
+							{type : 'min', name: 'YYYY'}
+						]
+					},
+					*/
+					itemStyle: {
+						normal: {
+								//color:'#fff', // bubble's color
+								label:{
+									textStyle:{
+												fontWeight:'bold',
+												fontSize:13,
+												//color: '#fff',
+											},
+									show:true,
+									textBorderColor: '#fff',
+									textBorderWidth: 0.3,
+									position: 'inside',
+									formatter: '{@[2]}', // REF: https://stackoverflow.com/a/38604295/1330974
+							}
+						}
+					},
+					data: prepareData(country, advertisersSelected, relevantYearData),
+					symbolSize: function (dataItem) {
+					
+						//return (30 * dataItem[1])/median(allRelevantSpends); // Not that great
+						//return (30 * dataItem[1])/Math.min.apply(null, removeSmallest(allRelevantSpends));
+						return (25 * dataItem[1])/10000000;
+						//return (0.5 * dataItem[1])/100000000;
+					}
+				});
+			});
+
+			/* I tried, but got 'singleAxis' should be specified error. 
+			//I think we need to create [[all options for 2013], [all options for 2014],...] 
+			//and I'm not even sure if EChart would accept that, so decided not to risk it 
+			// for now given the time constraint.
+			relevantYearData.UniqYear.forEach(function(y,i) {
+				option.series.push({
+					// itemStyle, label, tooltip
+					name: y,
+					singleAxisIndex: i,
+					coordinateSystem: 'singleAxis',
+					type: 'scatter',
+					top: 80,
+					itemStyle: {
+						normal: {
+								//color:'#fff', // bubble's color
+								label:{
+									textStyle:{
+												fontWeight:'bold',
+												fontSize:13,
+												//color: '#fff',
+											},
+									show:true,
+									textBorderColor: '#fff',
+									textBorderWidth: 0.3,
+									position: 'inside',
+									formatter: '{@[1]}', // REF: https://stackoverflow.com/a/38604295/1330974
+							}
+						}
+					},
+
+					data: [],
+					symbolSize: function (dataItem) {
+						return dataItem[1] * 5;
+					}
+				});
+			});*/
+			
+			return option;// end of ChartOption
+		}
+
+		function organizeData(allData){ // allData is the JSON output from pandas with (orient='records') format
+			var organizedData = {
+			'UniqYear': new Set(),
+			'UniqRegion': new Set(),
+			'UniqCountry': new Set(),
+			'UniqAdvertiser': new Set(),
+			'Headers': new Array(),
+			'Data': {}, //new Array(),
+			}
+
+			allData.forEach(function(row) {
+				// extract headers
+				if (organizedData['Headers'].length == 0) {
+					organizedData['Headers'] = Object.keys(row);
+					organizedData['Dimensions'] = Object.keys(row).slice(0,4);
+				}
+
+				// select uniq values from the dimension columns
+				organizedData['Dimensions'].forEach(function(h) {
+					organizedData['Uniq'+h].add(row[h]);
+				});
+				
+				// select the data in array format (as opposed to the one in record-oriented format returned by pandas)
+				//organizedData['Data'].push(row);//Object.values(row)); // NOTE: Object.values(row) gives ['2013','LATAM','Argentina',...]
+				if (row['Year'] in organizedData['Data']){
+					organizedData['Data'][row['Year']].push(row);
+				} else {
+					organizedData['Data'][row['Year']] = [row];
+				}				
+			});
+			return organizedData;
+		}
+
+		var allData;
+		var country_filter;
+		var advertiser_filter;
+		var year_filter;
+		var countriesSelected;
+		var advertisersSelected;
+		var yearSelected;
+		var chartOptions;
+		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_and_brand";
+		$.getJSON(uploadedDataURL, function (rawData) {
+			allData = organizeData(rawData);
+			
+			// set autocomplete filters for Country and Advertiser picking
+			var uniqCountriesSorted = Array.from(allData['UniqCountry']).sort();
+			var uniqAdvertisersSorted = Array.from(allData['UniqAdvertiser']).sort();
+			var uniqYearsSorted = Array.from(allData['UniqYear']).sort();
+			
+			// prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder)
+			var defaultCountries = [['Australia'], ['Brazil'], ['Colombia'], ['Mexico']];
+			var defaultAdvertisers = [['COLGATE'], ['UNILEVER'], ['JOHNSON & JOHNSON']];
+			country_filter = new AutoComplete('country_filter', prepareFilterConfig(uniqCountriesSorted, defaultCountries, 5, 'Countries'));
+			advertiser_filter = new AutoComplete('advertiser_filter', prepareFilterConfig(uniqAdvertisersSorted, defaultAdvertisers, 4, 'Advertisers'));
+			year_filter = new AutoComplete('year_filter', prepareFilterConfig(uniqYearsSorted, [['2017']], 1, 'Year'));
+		}); // end of getJSON
+       </script>
+   </body>
+</html>
