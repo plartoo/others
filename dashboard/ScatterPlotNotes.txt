@@ -8,6 +8,12 @@
 // autocomplete: http://autocompletejs.com/examples#3000
 // autocomplete: https://demos.telerik.com/kendo-ui/autocomplete/index
 // Flask CORS: https://stackoverflow.com/questions/22181384/javascript-no-access-control-allow-origin-header-is-present-on-the-requested
+// Log function: https://stackoverflow.com/q/846221/1330974
+function logposition(value) {
+   // set minv, ... like above
+   // ...
+   return (Math.log(value)-minv) / scale + minp;
+}
 
 
 // SQL Server Pivot: https://stackoverflow.com/a/27532568/1330974
