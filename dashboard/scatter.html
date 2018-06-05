@@ -134,7 +134,7 @@
 			//*/
 		});
 
-		var allRelevantSpends = [1];
+		var allRelevantSpends = [1]; // TODO: here, this may cause problem in logarithmic scale
 		function prepareData(country, advertisers, relevantYearData) {
 			var relevantData = [];
 			allRelevantSpends = [1];
@@ -240,16 +240,6 @@
 						orient: 'vertical',//'horizontal',
 					},
 					//*/
-					/*
-					dataZoom: [ // Not very useful here
-						{
-							type: 'slider',
-							start: 1,
-							end: 35,
-						},
-					],
-					*/
-					// TODO: allow screenshot and data viewer
 			};// End of option
 
 			countriesSelected.forEach(function(country,i) {
@@ -406,7 +396,6 @@
 		var countriesSelected;
 		var advertisersSelected;
 		var yearSelected;
-		var chartOptions;
 		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_by_country_advertiser";
 		$.getJSON(uploadedDataURL, function (rawData) {
 			allData = organizeData(rawData);
