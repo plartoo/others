@@ -88,7 +88,7 @@ def run_sql(sql):
 QUERIES = {
     'full_data': queries.hierarchy_table,
     'spend_by_country_advertiser': queries.spend_by_country_advertiser,
-    'spend_by_country_advertiser_brand': queries.spend_by_country_advertiser_brand,
+    'spend_by_country_advertiser_brand': queries.spend_by_country_advertiser_subbrand,#queries.spend_by_country_advertiser_brand,
 }
 
 app = Flask(__name__)

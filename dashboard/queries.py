@@ -44,3 +44,13 @@ SELECT [Period]
       ,[SumOfSpend]
   FROM {}.[DFID065658_SampleDataForDashboard_Spend_By_Brand]
 """.format(DATABASE)
+
+spend_by_country_advertiser_subbrand = """
+SELECT [Period]
+      ,[Region]
+      ,[Country]
+      ,[Advertiser]
+      ,[Subbrand] AS [Brand]
+      ,[SumOfSpend]
+  FROM {}.[DFID065658_SampleDataForDashboard_Spend_By_Subbrand]
+""".format(DATABASE)
