@@ -31,34 +31,39 @@
 		<div class="container-fluid d-flex h-100 flex-column vh-100">
 			<div class="row">
 				<div class="col choose-plot">
-				<strong class="mb-2">Add/remove COUNTRIES (max: 5), ADVERTISERS (max 4), YEAR (max 1), and plot location below. Then, click 'load plot'.</strong>
+				<strong class="mb-2">Select COUNTRY (max: 1), YEAR (max: 1), and ADVERTISERS (max: 4). Then click 'load plot' to plot the stacked charts below.</strong>
 					<div class="row">
-					  <div id="country-filter" class="col-3">
-					  </div>				
-					  <div id="advertiser-filter" class="col-4">
-					  </div>				
-					  <div id="year-filter" class="col-2">
-					  </div>				
-					  <div class="col-2">
+					  <div id="year-filter" class="col-2"></div>
+					  <div id="country-filter" class="col-2"></div>
+					  <div id="advertiser-filter" class="col-6"></div>
+					  <!--div class="col-2">
 						<select class="custom-select">
-						  <option>Choose plot</option>
+						  <option>Choose the plot location</option>
 						  <option value="1">1. Top-left</option>
 						  <option value="2">2. Top-right</option>
 						  <option value="3">3. Bottom-left</option>
 						  <option value="4">4. Bottom-right</option>
 						</select>
-					  </div>
+					  </div-->
 					  <div class="col-1">
-						<button class="btn btn-primary">Load plot</button>
+						<button id="load_plot" class="btn btn-primary btn-lg">Load plot</button>
 					  </div>
 					</div>
 				</div>
 			</div>
 			<div class="row flex-fill d-flex justify-content-start">
-				<div class="col-6 bordered">1 of 4</div>
-				<div class="col-6 bordered">2 of 4</div>
-				<div class="col-6 bordered">3 of 4</div>
-				<div class="col-6 bordered">4 of 4</div>
+				<div class="col-6 bordered">1 of 4
+                    <div id="container-0"></div>
+                </div>
+				<div class="col-6 bordered">2 of 4
+                    <div id="container-1"></div>
+                </div>
+				<div class="col-6 bordered">3 of 4
+                    <div id="container-2"></div>
+                </div>
+				<div class="col-6 bordered">4 of 4
+                    <div id="container-3"></div>
+                </div>
 			</div>
 		</div>
 		<script  src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -97,17 +102,16 @@
 		  */
 		};
 
-		function getFirstNVals(availableOptions, n) {
-			var vals = new Array();
-			availableOptions.forEach(function(v, i) {
-			// NOTE: there is a bug in the AutoComplete JS library.
-			// If we don't subtract '1' from maxSelectionAllowed, it still allows one more extra than what we want.
-				if (i < (n-1)) { 
-					vals.push([v]);
-				}
-			}); // TODO: ask SO why this function is ran many times even though I only called 'prepareFilterConfig' twice		
-		}
-		
+		function generateMonths(year) {
+		    var monthStr = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+		    var yyyymmdd = [];
+		    for (var i=0; i < 12; i++){
+		        yyyymmdd.push(String(year) + '-' + monthStr[i] + '-01');
+
+            }
+            return yyyymmdd;
+        }
+
 		function prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder) {
 			var vals = initVals;
 			//var vals = getFirstNVals(availableOptions, maxSelectionAllowed);
@@ -123,35 +127,56 @@
 			}
 		} // end prepareFilterConfig()
 
-
-		var dom = document.getElementById("container-1");
-		var myChart; //= echarts.init(dom);
+		var doms = [
+		    document.getElementById("container-0"),
+		    document.getElementById("container-1"),
+            document.getElementById("container-2"),
+            document.getElementById("container-3"),
+        ];
+		var myCharts = []
 		var curOption = null;
-		
+		var countrySelected;
+		var advertisersSelected;
+		var yearSelected;
 		$('#load_plot').on('click', function() {
-			if (myChart !== undefined) {
-				myChart.dispose(); // REF: https://ecomfe.github.io/echarts-doc/public/en/api.html#echartsInstance
+            if (myCharts.length != 0) {
+                myCharts.forEach(function (c){
+                    c.dispose(); // REF: https://ecomfe.github.io/echarts-doc/public/en/api.html#echartsInstance
+                });
 			}
+			/*
+			// When I had the idea of letting user chose where to put the plots
 			var v = $("#select-options").find("option:selected").val();
 			$('#container-parent-'+v+' span').text('hahaha');
-			/*
-			console.log("Loading the plot");
-			countriesSelected = country_filter.getValue().map(x => x[0].value);
+			*/
+			countrySelected = country_filter.getValue().map(x => x[0].value);
 			advertisersSelected = advertiser_filter.getValue().map(x => x[0].value);
 			yearSelected = year_filter.getValue().map(x => x[0].value);
 			if (yearSelected.length == 0) {
 				alert('Please select a YEAR');
 				return;
 			}
-
-			///* TODO: temporarily commented out; need to put back in
-			myChart = echarts.init(dom, null, {renderer: 'canvas'}); // REF: https://ecomfe.github.io/echarts-doc/public/en/tutorial.html#Render%20by%20Canvas%20or%20SVG
-			myChart.showLoading();
-			myChart.setOption(curOption = createOptions(advertisersSelected, countriesSelected, yearSelected, allData['Data'][yearSelected]));
-			myChart.hideLoading();
-			//*/
+			if ((yearSelected.length > 1) || (countrySelected.length > 1)) {
+				alert('You can only select one YEAR and one COUNTRY at a time for stacked chart');
+				return;
+			}
+			console.log(advertisersSelected[0] + countrySelected + String(yearSelected));
+			curOption = createOptions(advertisersSelected[0], countrySelected,
+                                    yearSelected, allData['Data'][yearSelected]);
+            /*
+			advertisersSelected.forEach(function(advertiser,i){
+			    // REF: https://ecomfe.github.io/echarts-doc/public/en/tutorial.html#Render%20by%20Canvas%20or%20SVG
+			    var curChart = echarts.init(doms[i], null, {renderer: 'canvas'});
+			    curChart.showLoading();
+			    curChart.setOption(curOption = createOptions(advertiser, countrySelected,
+                                    yearSelected, allData['Data'][yearSelected]));
+			    curChart.hideLoading();
+			    myCharts.push(curChart);
+            });
+            */
 		});
 
+        /*
 		var allRelevantSpends = [1];
 		function prepareData(country, advertisers, relevantYearData) {
 			var relevantData = [];
@@ -172,215 +197,127 @@
 			});
 			return relevantData;
 		}
-		
-		function createOptions(advertisersSelected, countriesSelected, yearSelected, relevantYearData) {
-			var option = { // REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=doc-example/scatter-tutorial-dataZoom-1
-					title: [],
-					singleAxis: [],
-					series: [],
-					tooltip: { 
-						position: 'top',
-						formatter: function (params) {
-							return 'Spend: $' + Math.round(params.value[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-									+ '<br># of Brands: ' + params.value[2];
-						}
-					},
-					/*
-					// Note: useless because our x-Axis is categorical 
-					dataZoom: [{ // REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-large&theme=light
-						type: 'inside'
-					}, {
-						type: 'slider'
-					}],
-					*/
-					toolbox: {
-						feature: {
-							dataView: { // TODO: update this to present data in a more CSV way: https://ecomfe.github.io/echarts-doc/public/en/option.html#toolbox.feature.dataView.optionToContent
-									show: true, 
-									readOnly: false,
-									title: 'View Data',
-							},
-							saveAsImage: {
-									show: true,
-									name: 'Size of Relevant Investment and # of Brands Supported',
-									title: 'Save as Image (PNG)',
-							},
-							dataZoom: {
-									title: {
-										zoom: 'Area zooming',
-										back: 'Restore area zooming',
-									},
-									// TODO: we may need to go back to this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-punchCard
-									show: false,
-									yAxisIndex: false,
-							},
-							restore: {
-									show: true,
-									title: 'Restore configuration',
-							},							
-							magicType: {
-									show: false, 
-									type: ['line', 'bar', 'stack', 'tiled'],
-									title: {
-										line: 'For line charts',
-										bar: 'For bar charts',
-										stack: 'For stacked charts',
-										tiled: 'For tiled charts',
-									}									
-							},
-							brush: { //https://ecomfe.github.io/echarts-doc/public/en/option.html#brush.id
-									show: false,
-									type: ['lineX','clear'],
-									title: {
-										rect: 'Rectangle selection',
-										polygon: 'Polygon selection',
-										lineX: 'Horizontal selection',
-										lineY: 'Vertical selection',
-										keep: 'Keep previous selection',
-										clear: 'Clear selection',									
-									}									
-							},
-						}
-					},
-					///*
-					// TODO: allow multiple year selection
-					legend: { // https://ecomfe.github.io/echarts-doc/public/en/option.html#legend
-						data: [yearSelected[0]],//['2013','2014','2015','2016','2017','2018'],
-						selectedMode: 'single',
-						type: 'scroll',
-						//top: 0,
-						// align: 'right', // 'icon => label' vs. 'label => icon'
-						//padding: [0,0,10,0], //up, right, down, left; bad to use here
-						bottom: 30,
-						itemGap: 5,
-						backgroundColor: 'rgb(243,243,243)',
-						borderRadius: 5,
-						orient: 'vertical',//'horizontal',
-					},
-					//*/
-					/*
-					dataZoom: [ // Not very useful here
-						{
-							type: 'slider',
-							start: 1,
-							end: 35,
-						},
-					],
-					*/
-					// TODO: allow screenshot and data viewer
-			};// End of option
+		*/
 
-			countriesSelected.forEach(function(country,i) {
-				// REF: Choose from here: https://getbootstrap.com/docs/4.0/utilities/colors/#background-color
-				var colorPalette = ['#c23531', '#2f4554', '#007bff', '#ca8622', '#6e7074', '#61a0a8', '#546570', '#749f83'];
-				option.title.push({
-					/* the ones below are from Treemap; here, we are shifting title to the left side of the axis, so irrelevant here
-					// REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=treemap-obama
-					top: 5,
-					left: 'center',
-					text: 'Size of Relevant Investment and # of Brands Supported',
-					subtext: '',
-					backgroundColor: 'rgb(243,243,243)',
-					borderRadius: [5, 5, 0, 0],
-					*/
-					textBaseline: 'middle',
-					top: (i + 0.5) * 100 / 7 + '%',
-					text: country.split(' ').join('\n'),
-				});
+        function getRelevantYearCountryAdvertiserData(advertiser, country, yearSpecificData) {
+            var uniqBrands = new Set();
+		    var d =  {
+                'data': [],
+			};
+		    yearSpecificData.forEach(function(row,i){
+		        if ((row['Advertiser'] == advertiser) && (row['Country'] == country)) {
+		            uniqBrands.add(row['Brand']);
+		            d['data'].push(row);
+                }
+            });
+		    d['UniqBrandsForThisAdvertiser'] = Array.from(uniqBrands).sort();
+		    return d;
+        }
 
-				option.singleAxis.push({ // we MUST define 'singleAxis' for each country
-					left: 150,
-					type: 'category',
-					boundaryGap: false,
-					data: advertisersSelected,
-					top: (i * 100 / 7 + 5) + '%',
-					height: (100 / 7 - 10) + '%',
-					axisLabel: {
-						//interval: 2,
-						//rotate: -90,
-					},
-				});
+        var relevantYearCountryAdvertiserData;
+		function createOptions(advertiserSelected, countrySelected, yearSelected, relevantYearData) {
+		    var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+            var yyyymmdd = generateMonths(yearSelected);
+            relevantYearCountryAdvertiserData = getRelevantYearCountryAdvertiserData(advertiserSelected,
+                                                                                            countrySelected,
+                                                                                            relevantYearData);
+            var UniqBrandsForThisAdvertiser = relevantYearCountryAdvertiserData['UniqBrandsForThisAdvertiser'];
+		    // REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=bar-y-category-stack
+			var option = {
+                title: {
+                    text: 'Gross media spend by Brands in ' + yearSelected[0] + ' by ' + advertiserSelected + ' (in \'000 USD)',
+                },
+                tooltip : {
+                    trigger: 'axis',
+                    axisPointer : {
+                        type : 'shadow',
+                    }
+                },
+                legend: {
+                    data: UniqBrandsForThisAdvertiser,
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis:  {
+                    type: 'category',
+                    data: monthNames,
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [], // this is where the data goes
+                toolbox: {
+                    feature: {
+                        dataView: { // TODO: update this to present data in a more CSV way: https://ecomfe.github.io/echarts-doc/public/en/option.html#toolbox.feature.dataView.optionToContent
+                                show: true,
+                                readOnly: false,
+                                title: 'View Data',
+                        },
+                        saveAsImage: {
+                                show: true,
+                                name: 'Size of Relevant Investment and # of Brands Supported',
+                                title: 'Save as Image (PNG)',
+                        },
+                        dataZoom: {
+                                title: {
+                                    zoom: 'Area zooming',
+                                    back: 'Restore area zooming',
+                                },
+                                // TODO: we may need to go back to this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-punchCard
+                                show: true,
+                                yAxisIndex: false,
+                        },
+                        restore: {
+                                show: true,
+                                title: 'Restore configuration',
+                        },
+                        magicType: {
+                                show: true,
+                                type: ['line', 'bar', 'stack', 'tiled'],
+                                title: {
+                                    line: 'For line charts',
+                                    bar: 'For bar charts',
+                                    stack: 'For stacked charts',
+                                    tiled: 'For tiled charts',
+                                }
+                        },
+                        brush: { //https://ecomfe.github.io/echarts-doc/public/en/option.html#brush.id
+                                show: false,
+                                type: ['lineX','clear'],
+                                title: {
+                                    rect: 'Rectangle selection',
+                                    polygon: 'Polygon selection',
+                                    lineX: 'Horizontal selection',
+                                    lineY: 'Vertical selection',
+                                    keep: 'Keep previous selection',
+                                    clear: 'Clear selection',
+                                }
+                        },
+                    }
+                },
+			};// End of default option configuration
 
+			UniqBrandsForThisAdvertiser.forEach(function(brand,i) {
+                // REF: Choose from here: https://getbootstrap.com/docs/4.0/utilities/colors/#background-color
+                //var colorPalette = ['#c23531', '#2f4554', '#007bff', '#ca8622', '#6e7074', '#61a0a8', '#546570', '#749f83'];
 				option.series.push({
-					name: yearSelected,
-					singleAxisIndex: i,
-					coordinateSystem: 'singleAxis',
-					type: 'scatter',
-					top: 80,
 					//color: colorPalette[i % colorPalette.length], // rotate from color palette of my choice
-					/*
-					markPoint : { // Marking min and max approach didn't work: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-weight
-						data : [
-							{type : 'max', name: 'FFFFFFF'},
-							{type : 'min', name: 'YYYY'}
-						]
-					},
-					*/
-					itemStyle: {
-						normal: {
-								//color:'#fff', // bubble's color
-								label:{
-									textStyle:{
-												fontWeight:'bold',
-												fontSize:13,
-												//color: '#fff',
-											},
-									show:true,
-									textBorderColor: '#fff',
-									textBorderWidth: 0.3,
-									position: 'inside',
-									formatter: '{@[2]}', // REF: https://stackoverflow.com/a/38604295/1330974
-							}
-						}
-					},
-					data: prepareData(country, advertisersSelected, relevantYearData),
-					symbolSize: function (dataItem) {
-					
-						//return (30 * dataItem[1])/median(allRelevantSpends); // Not that great
-						//return (30 * dataItem[1])/Math.min.apply(null, removeSmallest(allRelevantSpends));
-						return (25 * dataItem[1])/10000000;
-						//return (0.5 * dataItem[1])/100000000;
-					}
+					name: brand,
+					type: 'bar',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'insideRight'
+                        }
+                    },
+					data: [],// TODO: divide spend by 1000; prepareData(country, advertisersSelected, relevantYearData),
 				});
 			});
-
-			/* I tried, but got 'singleAxis' should be specified error. 
-			//I think we need to create [[all options for 2013], [all options for 2014],...] 
-			//and I'm not even sure if EChart would accept that, so decided not to risk it 
-			// for now given the time constraint.
-			relevantYearData.UniqPeriod.forEach(function(y,i) {
-				option.series.push({
-					// itemStyle, label, tooltip
-					name: y,
-					singleAxisIndex: i,
-					coordinateSystem: 'singleAxis',
-					type: 'scatter',
-					top: 80,
-					itemStyle: {
-						normal: {
-								//color:'#fff', // bubble's color
-								label:{
-									textStyle:{
-												fontWeight:'bold',
-												fontSize:13,
-												//color: '#fff',
-											},
-									show:true,
-									textBorderColor: '#fff',
-									textBorderWidth: 0.3,
-									position: 'inside',
-									formatter: '{@[1]}', // REF: https://stackoverflow.com/a/38604295/1330974
-							}
-						}
-					},
-
-					data: [],
-					symbolSize: function (dataItem) {
-						return dataItem[1] * 5;
-					}
-				});
-			});*/
-			
 			return option;// end of ChartOption
 		}
 
@@ -424,13 +361,9 @@
 		}
 
 		var allData;
+		var year_filter;
 		var country_filter;
 		var advertiser_filter;
-		var year_filter;
-		var countriesSelected;
-		var advertisersSelected;
-		var yearSelected;
-		var chartOptions;
 		var uploadedDataURL = "http://localhost:5000/get_data?qtype=spend_by_country_advertiser_brand";
 		$.getJSON(uploadedDataURL, function (rawData) {
 			allData = organizeData(rawData);
@@ -438,12 +371,13 @@
 			// set autocomplete filters for Country and Advertiser picking
 			var uniqCountriesSorted = Array.from(allData['UniqCountry']).sort();
 			var uniqAdvertisersSorted = Array.from(allData['UniqAdvertiser']).sort();
-			var UniqYearsSorted = Array.from(allData['UniqYear']).sort();
+			var uniqYearsSorted = Array.from(allData['UniqYear']).sort();
 			
 			// prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder)
-			var defaultCountries = [['Australia'], ['Brazil'], ['Colombia'], ['Mexico']];
-			var defaultAdvertisers = [['COLGATE'], ['UNILEVER'], ['JOHNSON & JOHNSON']];
-			year_filter = new AutoComplete('year-filter', prepareFilterConfig(UniqYearsSorted, [['2017']], 1, 'Year'));
+			var defaultCountries = [['Colombia']];
+			var defaultAdvertisers = [['COLGATE'], ['UNILEVER'], ['GSK']];
+
+			year_filter = new AutoComplete('year-filter', prepareFilterConfig(uniqYearsSorted.map(x => x.toString()), [['2017']], 1, 'Year'));
 			country_filter = new AutoComplete('country-filter', prepareFilterConfig(uniqCountriesSorted, defaultCountries, 1, 'Countries'));
 			advertiser_filter = new AutoComplete('advertiser-filter', prepareFilterConfig(uniqAdvertisersSorted, defaultAdvertisers, 4, 'Advertisers'));
 		}); // end of getJSON
