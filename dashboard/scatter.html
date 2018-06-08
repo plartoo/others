@@ -43,43 +43,19 @@
 		  return arr.filter((e) => {return e != min});
 		}		
 
-		function difference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
+		function setDifference(a1, a2) { // REF: https://stackoverflow.com/a/30288946/1330974
 		  var a2Set = new Set(a2);
-		  return a1.filter(function(x) { return !a2Set.has(x); });
+		  return new Set([...a1].filter(x => !a2.has(x)));
 		}
 
-		function symmetricDifference(a1, a2) { // Does NOT work, but interesting. REF: https://stackoverflow.com/a/30288946/1330974
-		  return difference(a1, a2).concat(difference(a2, a1));
-		}
-		
 		var onChange = function(newValue, oldValue) {
-		  /* TODO: 
-		  console.log('Search bar updated.');
-		  console.log('Old Value');
-		  console.log(JSON.stringify(oldValue));
-		  console.log('New Value');
-		  console.log(JSON.stringify(newValue));
-		  console.log('***********');
-
-		  console.log(JSON.stringify(this.lists));
-		  this.lists.options.options = [{optionHTML: "Argentina", tokenHTML: "Argentina", value: "Argentina"}];
-		  if (newValue.length > oldValue.length){
-			// we should remove the difference between the newValue - oldValue
-			var diff = difference(newValue, oldValue);
-			console.log('Added value');
-			console.log(JSON.stringify(diff));
-			var diff = symmetricDifference(oldValue, newValue);
-			console.log(JSON.stringify(diff));
-		  } else {
-			var diff = difference(oldValue, newValue);
-			console.log('Removed value');
-			console.log(JSON.stringify(diff));
-			var diff = symmetricDifference(newValue, oldValue);
-			console.log(JSON.stringify(diff));
-			// we should add the difference between oldValue - newValue to option like below
-			// widget.addOption('options', diff); // HERE, we need to know how to get widget
-		  }
-		  */
+            var curListName = this.placeholderHTML;
+            // I don't like using tertiary statement like this, but this looks a bit tidier here..
+            var allAvailableOptions = (curListName == advertiserPlaceholder) ? uniqAdvertisersSorted : ((curListName == countryPlaceholder) ? uniqCountriesSorted: uniqYearsSorted);
+            var diff = setDifference(new Set(allAvailableOptions.map(x => x.value)), new Set(newValue.map(x => x[0].value)));
+            this.lists.options.options = [];
+            diff.forEach(x => this.lists.options.options.push({'optionHTML':x, 'tokenHTML':x, 'value':x}));
+            console.log('***********');
 		};
 
 		function getFirstNVals(availableOptions, n) {
@@ -103,11 +79,11 @@
 				onChange: onChange, // TODO: Forget about this now. I want us to NOT show the ones that are already in the list
 				initialValue: vals,
 				lists: {
+				    //matchOptions: matchOptions,
 					options: availableOptions,
 			  }
 			}
 		} // end prepareFilterConfig()
-
 
 		var dom = document.getElementById("container");
 		var myChart; //= echarts.init(dom);
@@ -407,6 +383,12 @@
 		var country_filter;
 		var advertiser_filter;
 		var year_filter;
+		var uniqCountriesSorted;
+		var uniqAdvertisersSorted;
+		var uniqYearsSorted;
+		var countryPlaceholder = 'Countries';
+		var advertiserPlaceholder = 'Advertisers';
+		var yearPlaceholder = 'Year';
 		var countriesSelected;
 		var advertisersSelected;
 		var yearSelected;
@@ -415,16 +397,16 @@
 			allData = organizeData(rawData);
 			
 			// set autocomplete filters for Country and Advertiser picking
-			var uniqCountriesSorted = Array.from(allData['UniqCountry']).sort();
-			var uniqAdvertisersSorted = Array.from(allData['UniqAdvertiser']).sort();
-			var uniqYearsSorted = Array.from(allData['UniqYear']).sort();
+			uniqCountriesSorted = Array.from(allData['UniqCountry']).sort();
+			uniqAdvertisersSorted = Array.from(allData['UniqAdvertiser']).sort();
+			uniqYearsSorted = Array.from(allData['UniqYear']).sort();
 			
 			// prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder)
 			var defaultCountries = [['Australia'], ['Brazil'], ['Colombia'], ['Mexico']];
 			var defaultAdvertisers = [['COLGATE'], ['UNILEVER'], ['JOHNSON & JOHNSON']];
-			country_filter = new AutoComplete('country_filter', prepareFilterConfig(uniqCountriesSorted, defaultCountries, 5, 'Countries'));
-			advertiser_filter = new AutoComplete('advertiser_filter', prepareFilterConfig(uniqAdvertisersSorted, defaultAdvertisers, 4, 'Advertisers'));
-			year_filter = new AutoComplete('year_filter', prepareFilterConfig(uniqYearsSorted, [['2017']], 1, 'Year'));
+			country_filter = new AutoComplete('country_filter', prepareFilterConfig(uniqCountriesSorted, defaultCountries, 5, countryPlaceholder));
+			advertiser_filter = new AutoComplete('advertiser_filter', prepareFilterConfig(uniqAdvertisersSorted, defaultAdvertisers, 4, advertiserPlaceholder));
+			year_filter = new AutoComplete('year_filter', prepareFilterConfig(uniqYearsSorted, [['2017']], 1, yearPlaceholder));
 		}); // end of getJSON
        </script>
    </body>
