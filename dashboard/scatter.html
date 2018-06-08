@@ -76,7 +76,7 @@
 			return {
 				maxTokenGroups: maxSelectionAllowed,
 				placeholderHTML: placeholder,
-				onChange: onChange, // TODO: Forget about this now. I want us to NOT show the ones that are already in the list
+				onChange: onChange,
 				initialValue: vals,
 				lists: {
 				    //matchOptions: matchOptions,
@@ -102,12 +102,10 @@
 				return;
 			}
 
-			///* TODO: temporarily commented out; need to put back in
 			myChart = echarts.init(dom, null, {renderer: 'canvas'}); // REF: https://ecomfe.github.io/echarts-doc/public/en/tutorial.html#Render%20by%20Canvas%20or%20SVG
 			myChart.showLoading();
 			myChart.setOption(curOption = createOptions(advertisersSelected, countriesSelected, yearSelected, allData['Data'][yearSelected]));
 			myChart.hideLoading();
-			//*/
 		});
 
 		var allRelevantSpends = [1]; // TODO: here, this may cause problem in logarithmic scale
