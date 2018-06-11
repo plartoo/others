@@ -1,0 +1,15 @@
+	
+Need abbreviation of these Rg, Fl, etc. from Edgar (collect two or three words characters)
+
+g930
+h351.2
+n/a
+:
+&
+7
+remove '(' and ')'
+20/20
+words with only two characters or less
+
+(residential
+consumer)

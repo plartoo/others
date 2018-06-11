@@ -29,7 +29,7 @@ class SymSpell():
             Defaults to 1, values below zero are also mapped to 1. Consider setting a higher value if your
             corpus contains mistakes.
     """
-    def __init__(self, max_dictionary_edit_distance=3, prefix_length=7, count_threshold=1):
+    def __init__(self, max_dictionary_edit_distance=3, prefix_length=7, count_threshold=2):
         self._distance_algorithm = 'damerau'
         self._max_length = 0
         self._deletes = None
@@ -639,112 +639,75 @@ class SuggestionItem():
         self._term = term
 
 
-## main
-
 import time
+import json
 import pdb
 
 if __name__ == "__main__":
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     dict_dir = 'dictionaries'
     eng_dict = 'english.txt'
+    combined_dict = 'combined.txt'
     mappings = 'datamart_mappings_utf16.txt'
     encoding = 'utf-16'
 
     symspell = SymSpell()
 
-    start_time = time.time()
-    print("Creating dictionary from:", os.path.join(cur_dir, dict_dir, mappings))
-    symspell.create_dictionary(os.path.join(cur_dir, dict_dir, mappings), encoding)
-    run_time = time.time() - start_time
-    print('%.2f seconds to create the dictionary' % run_time)
-    # 78530 words in datamart_mappings_utf16.txt
-    k = list(symspell._words.keys())
-    print(len(k))
+    # Note: The following is what I did to combine the original dictionary that came with SymSpell and our own dictionary
+    # start_time = time.time()
+    # print("Creating dictionary from:", os.path.join(cur_dir, dict_dir, mappings))
+    # symspell.create_dictionary(os.path.join(cur_dir, dict_dir, mappings), encoding)
+    # run_time = time.time() - start_time
+    # print('%.2f seconds to create the dictionary' % run_time)
+    # # 78530 words in datamart_mappings_utf16.txt
+    # k = list(symspell._words.keys())
+    # print(len(k))
+    #
+    # start_time = time.time()
+    # print("Loading dictionary from:", os.path.join(cur_dir, dict_dir, eng_dict))
+    # symspell.load_dictionary(os.path.join(cur_dir, dict_dir, eng_dict), 'ansi')
+    # run_time = time.time() - start_time
+    # print('%.2f seconds to load the dictionary' % run_time)
+    # # 82765 words in English dict
+    # k = list(symspell._words.keys())
+    # print(len(k))
+    #
+    # symspell.purge_below_threshold_words() # per recommendation
+    #
+    # start_time = time.time()
+    # print("Writing merged mapping file as:", os.path.join(cur_dir, dict_dir, combined_dict))
+    # symspell.write_dictionary(os.path.join(cur_dir, dict_dir, combined_dict))
+    # run_time = time.time() - start_time
+    # print('%.2f seconds to load the dictionary' % run_time)
+    # print('-----\n')
+
 
     start_time = time.time()
-    print("Loading dictionary from:", os.path.join(cur_dir, dict_dir, eng_dict))
-    symspell.load_dictionary(os.path.join(cur_dir, dict_dir, eng_dict), 'ansi')
+    print("Loading dictionary from:", os.path.join(cur_dir, dict_dir, combined_dict))
+    symspell.load_dictionary(os.path.join(cur_dir, dict_dir, combined_dict), encoding)
     run_time = time.time() - start_time
     print('%.2f seconds to load the dictionary' % run_time)
-    # 82765 words in English dict
-    k = list(symspell._words.keys())
-    print(len(k))
+    # TODO: make sure this does NOT affect negatively to the accuracy
+    symspell.purge_below_threshold_words()
 
-    symspell.purge_below_threshold_words() # per recommendation
+    while True:
+        word_in = input('Enter your input (or enter to exit): ')
+        if len(word_in) == 0:
+            print
+            "goodbye"
+            break
+        start_time = time.time()
+        print
+        suggestions = symspell.lookup_compound(word_in, 2)
+        # suggestions = symspell.lookup(word_in, 1, 3)
+        run_time = time.time() - start_time
+        print
+        '-----'
+        for w in suggestions:
+            print(w.term, '\tdistance =>', w.distance, '\tcount =>', w.count)
+        '%.5f seconds to run' % run_time
+        print
+        '-----'
+        print
+        " "
 
-    start_time = time.time()
-    print("Writing merged mapping file as:", os.path.join(cur_dir, dict_dir, 'combined.txt'))
-    symspell.write_dictionary(os.path.join(cur_dir, dict_dir, 'combined.txt'))
-    run_time = time.time() - start_time
-    print('%.2f seconds to load the dictionary' % run_time)
-    print('-----\n')
-
-
-    # while True:
-    #     word_in = raw_input('Enter your input (or enter to exit): ')
-    #     if len(word_in) == 0:
-    #         print
-    #         "goodbye"
-    #         break
-    #     start_time = time.time()
-    #     print
-    #     get_suggestions(word_in)
-    #     run_time = time.time() - start_time
-    #     print
-    #     '-----'
-    #     print
-    #     '%.5f seconds to run' % run_time
-    #     print
-    #     '-----'
-    #     print
-    #     " "
-
-    # def load_dictionary(self, corpus):
-    #     """Loads dictionary from :param:`corpus` file.
-    #     File should contain space-separated word-count pairs one at a line.
-    #     Args:
-    #         corpus (str): Path to corpus file.
-    #     """
-    #     if os.path.exists(corpus):
-    #         with open(corpus, 'r') as f:
-    #             for line in f:
-    #                 key, count = line.split()
-    #                 count = int(count)
-    #                 self._create_dictionary_entry(key, count)
-    #
-    #     if self._deletes is None:
-    #         self._deletes = dict()
-    #
-    # def create_dictionary(self, corpus):
-    #     """Creates dictionary from :param:`corpus` file.
-    #     Note:
-    #         Words are not preprocessed in any way. It is your duty to provide appropriate corpus. Also
-    #             keep in mind that the distance used to generate index is specified at initialization. Consider
-    #             doing a purge of below threshold words afterwards.
-    #     Args:
-    #         corpus (str): Path to corpus file.
-    #     """
-    #     if os.path.exists(corpus):
-    #         with open(corpus, 'r') as f:
-    #             for line in f:
-    #                 for key in line.split():
-    #                     self._create_dictionary_entry(key, 1)
-    #
-    #     if self._deletes is None:
-    #         self._deletes = dict()
-    #
-    # def write_dictionary(self, outfile):
-    #     """
-    #     Writes everything loaded in the current dictionary to a txt file.
-    #
-    #     :param outfile: Path and file name of the output txt file
-    #     """
-    #     if os.path.isdir(os.path.dirname(outfile)):
-    #         with open(outfile, 'w') as f:
-    #             for word, count in self._words.items():
-    #                 f.write(' '.join([word,count]))
-    #     else:
-    #         sys.exit("Make sure output file's path is valid")
-    #
-    # def purge_below_threshold_words(self):
