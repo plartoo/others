@@ -282,7 +282,8 @@
 					data: prepareData(country, advertisersSelected, relevantYearData),
 					symbolSize: function (dataItem) {
 					
-                        return logposition(dataItem[1]);
+                        return 20+(90*(1.0*dataItem[1])/100000000);
+                        //return logposition(dataItem[1]);
  						//return (25 * dataItem[1])/10000000; // This one works the best
 						//return (30 * dataItem[1])/median(allRelevantSpends); // Not that great
 						//return (30 * dataItem[1])/Math.min.apply(null, removeSmallest(allRelevantSpends));
