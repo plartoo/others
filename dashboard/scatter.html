@@ -28,6 +28,17 @@
 		<script src="js/echarts-4.1.0.js"></script>
 		<script type="text/javascript">
 
+		function getFirstNVals(availableOptions, n) {
+			var vals = new Array();
+			availableOptions.forEach(function(v, i) {
+			// NOTE: there is a bug in the AutoComplete JS library.
+			// If we don't subtract '1' from maxSelectionAllowed, it still allows one more extra than what we want.
+				if (i < (n-1)) {
+					vals.push([v]);
+				}
+			}); // TODO: ask SO why this function is ran many times even though I only called 'prepareFilterConfig' twice
+		}
+
 		function median(values) { //REF: https://gist.github.com/caseyjustus/1166258
 			values.sort(function(a,b) {return a - b;});
 			var half = Math.floor(values.length/2);
@@ -58,17 +69,6 @@
             console.log('***********');
 		};
 
-		function getFirstNVals(availableOptions, n) {
-			var vals = new Array();
-			availableOptions.forEach(function(v, i) {
-			// NOTE: there is a bug in the AutoComplete JS library.
-			// If we don't subtract '1' from maxSelectionAllowed, it still allows one more extra than what we want.
-				if (i < (n-1)) { 
-					vals.push([v]);
-				}
-			}); // TODO: ask SO why this function is ran many times even though I only called 'prepareFilterConfig' twice		
-		}
-		
 		function prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder) {
 			var vals = initVals;
 			//var vals = getFirstNVals(availableOptions, maxSelectionAllowed);
@@ -108,7 +108,7 @@
 			myChart.hideLoading();
 		});
 
-		var allRelevantSpends = [1]; // TODO: here, this may cause problem in logarithmic scale
+		var allRelevantSpends = [1];
 		function prepareData(country, advertisers, relevantYearData) {
 			var relevantData = [];
 			allRelevantSpends = [1];
@@ -151,7 +151,8 @@
 					*/
 					toolbox: {
 						feature: {
-							dataView: { // TODO: update this to present data in a more CSV way: https://ecomfe.github.io/echarts-doc/public/en/option.html#toolbox.feature.dataView.optionToContent
+						    // TODO: update this to present data in a more CSV way: https://ecomfe.github.io/echarts-doc/public/en/option.html#toolbox.feature.dataView.optionToContent
+							dataView: {
 									show: true, 
 									readOnly: false,
 									title: 'View Data',
@@ -198,7 +199,6 @@
 							},
 						}
 					},
-					///*
 					// TODO: allow multiple year selection
 					legend: { // https://ecomfe.github.io/echarts-doc/public/en/option.html#legend
 						data: [yearSelected[0]],//['2013','2014','2015','2016','2017','2018'],
@@ -213,7 +213,6 @@
 						borderRadius: 5,
 						orient: 'vertical',//'horizontal',
 					},
-					//*/
 			};// End of option
 
 			countriesSelected.forEach(function(country,i) {
