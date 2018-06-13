@@ -74,31 +74,6 @@
 		
 		var onChange = function(newValue, oldValue) {
 		  /* TODO: 
-		  console.log('Search bar updated.');
-		  console.log('Old Value');
-		  console.log(JSON.stringify(oldValue));
-		  console.log('New Value');
-		  console.log(JSON.stringify(newValue));
-		  console.log('***********');
-
-		  console.log(JSON.stringify(this.lists));
-		  this.lists.options.options = [{optionHTML: "Argentina", tokenHTML: "Argentina", value: "Argentina"}];
-		  if (newValue.length > oldValue.length){
-			// we should remove the difference between the newValue - oldValue
-			var diff = difference(newValue, oldValue);
-			console.log('Added value');
-			console.log(JSON.stringify(diff));
-			var diff = symmetricDifference(oldValue, newValue);
-			console.log(JSON.stringify(diff));
-		  } else {
-			var diff = difference(oldValue, newValue);
-			console.log('Removed value');
-			console.log(JSON.stringify(diff));
-			var diff = symmetricDifference(newValue, oldValue);
-			console.log(JSON.stringify(diff));
-			// we should add the difference between oldValue - newValue to option like below
-			// widget.addOption('options', diff); // HERE, we need to know how to get widget
-		  }
 		  */
 		};
 
@@ -114,7 +89,6 @@
 
 		function prepareFilterConfig(availableOptions, initVals, maxSelectionAllowed, placeholder) {
 			var vals = initVals;
-			//var vals = getFirstNVals(availableOptions, maxSelectionAllowed);
 
 			return {
 				maxTokenGroups: maxSelectionAllowed,
@@ -157,7 +131,7 @@
 				return;
 			}
 			if ((yearSelected.length > 1) || (countrySelected.length > 1)) {
-				alert('You can only select one YEAR and one COUNTRY at a time for stacked chart');
+				alert('You can only select one YEAR and one COUNTRY at a time for this visualization');
 				return;
 			}
 			console.log(advertisersSelected[0] + countrySelected + String(yearSelected));
@@ -176,38 +150,23 @@
             */
 		});
 
-        /*
-		var allRelevantSpends = [1];
-		function prepareData(country, advertisers, relevantYearData) {
-			var relevantData = [];
-			allRelevantSpends = [1];
-			advertisers.forEach(function(advertiser, i) {
-				var foundAdvertiser = false;
-				relevantYearData.forEach(function(row, j) {
-					if ((row['Country'] == country) && (row['Advertiser'] == advertiser)) {
-						foundAdvertiser = true;
-						allRelevantSpends.push(row['SumOfSpend']); // to find average/max/min spend of all selected countries and advertisers
-						relevantData.push([row['Advertiser'], row['SumOfSpend'], row['UniqBrandCount']]);
-					}
-				});
-				
-				if (!foundAdvertiser) {//(relevantData.length == 0) {
-					relevantData.push([advertiser, 0, 0]);
-				}
-			});
-			return relevantData;
-		}
-		*/
-
-        function getRelevantYearCountryAdvertiserData(advertiser, country, yearSpecificData) {
+        function getRelevantYearCountryAdvertiserData(advertiser, country, yearSpecificData, yearMonthLabels) {
             var uniqBrands = new Set();
 		    var d =  {
-                'data': [],
+                'data': {},//[],
 			};
 		    yearSpecificData.forEach(function(row,i){
 		        if ((row['Advertiser'] == advertiser) && (row['Country'] == country)) {
 		            uniqBrands.add(row['Brand']);
-		            d['data'].push(row);
+		            if (!(row['Brand'] in d['data'])) {
+		                d['data'][row['Brand']] = {};
+		                // initialize with defaults
+                        yearMonthLabels.forEach(function(yml){
+                            d['data'][row['Brand']][yml] = 0.0;
+                        });
+                    }
+                    // now fill in the corresponding value from the raw data
+                    d['data'][row['Brand']][row['Period']] = row['SumOfSpend'];
                 }
             });
 		    d['UniqBrandsForThisAdvertiser'] = Array.from(uniqBrands).sort();
@@ -217,10 +176,11 @@
         var relevantYearCountryAdvertiserData;
 		function createOptions(advertiserSelected, countrySelected, yearSelected, relevantYearData) {
 		    var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-            var yyyymmdd = generateMonths(yearSelected);
+            var yearMonthLabels = generateMonths(yearSelected);
             relevantYearCountryAdvertiserData = getRelevantYearCountryAdvertiserData(advertiserSelected,
-                                                                                            countrySelected,
-                                                                                            relevantYearData);
+                                                                                        countrySelected,
+                                                                                        relevantYearData,
+                                                                                        yearMonthLabels);
             var UniqBrandsForThisAdvertiser = relevantYearCountryAdvertiserData['UniqBrandsForThisAdvertiser'];
 		    // REF: https://ecomfe.github.io/echarts-examples/public/editor.html?c=bar-y-category-stack
 			var option = {
@@ -252,7 +212,7 @@
                 series: [], // this is where the data goes
                 toolbox: {
                     feature: {
-                        dataView: { // TODO: update this to present data in a more CSV way: https://ecomfe.github.io/echarts-doc/public/en/option.html#toolbox.feature.dataView.optionToContent
+                        dataView: {
                                 show: true,
                                 readOnly: false,
                                 title: 'View Data',
@@ -267,7 +227,6 @@
                                     zoom: 'Area zooming',
                                     back: 'Restore area zooming',
                                 },
-                                // TODO: we may need to go back to this: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-punchCard
                                 show: true,
                                 yAxisIndex: false,
                         },
@@ -315,10 +274,23 @@
                             position: 'insideRight'
                         }
                     },
-					data: [],// TODO: divide spend by 1000; prepareData(country, advertisersSelected, relevantYearData),
+                    // TODO: divide spend by 1000; prepareData(country, advertisersSelected, relevantYearData),
+					data: getBrandRelatedSpendSeriesForRelevantYearMonths(relevantYearCountryAdvertiserData['data'],
+                                                                            brand, yearMonthLabels, 1000),
 				});
 			});
 			return option;// end of ChartOption
+		}
+
+		function getBrandRelatedSpendSeriesForRelevantYearMonths(relevantData, brand,
+                                                                 yearMonthLabels, divisor) {
+		    var spendSeries = [];
+            console.log(brand);
+		    yearMonthLabels.forEach(function(yml){
+		        console.log(yml);
+		        spendSeries.push((relevantData[brand][yml]*1.0)/divisor);
+            });
+		    return spendSeries;
 		}
 
 		function organizeData(allData){ // allData is the JSON output from pandas with (orient='records') format
