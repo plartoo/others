@@ -649,11 +649,12 @@ if __name__ == "__main__":
     eng_dict = 'english.txt'
     combined_dict = 'combined.txt'
     mappings = 'datamart_mappings_utf16.txt'
+    map_dict = 'mapdict.txt'
     encoding = 'utf-16'
 
     symspell = SymSpell()
 
-    # Note: The following is what I did to combine the original dictionary that came with SymSpell and our own dictionary
+    # # Note: The following is what I did to combine the original dictionary that came with SymSpell and our own dictionary
     # start_time = time.time()
     # print("Creating dictionary from:", os.path.join(cur_dir, dict_dir, mappings))
     # symspell.create_dictionary(os.path.join(cur_dir, dict_dir, mappings), encoding)
@@ -662,7 +663,7 @@ if __name__ == "__main__":
     # # 78530 words in datamart_mappings_utf16.txt
     # k = list(symspell._words.keys())
     # print(len(k))
-    #
+
     # start_time = time.time()
     # print("Loading dictionary from:", os.path.join(cur_dir, dict_dir, eng_dict))
     # symspell.load_dictionary(os.path.join(cur_dir, dict_dir, eng_dict), 'ansi')
@@ -671,25 +672,49 @@ if __name__ == "__main__":
     # # 82765 words in English dict
     # k = list(symspell._words.keys())
     # print(len(k))
-    #
-    # symspell.purge_below_threshold_words() # per recommendation
-    #
+
     # start_time = time.time()
-    # print("Writing merged mapping file as:", os.path.join(cur_dir, dict_dir, combined_dict))
+    # print("Writing merged mapping file as:", os.path.join(cur_dir, dict_dir, map_dict))
     # symspell.write_dictionary(os.path.join(cur_dir, dict_dir, combined_dict))
     # run_time = time.time() - start_time
     # print('%.2f seconds to load the dictionary' % run_time)
     # print('-----\n')
 
 
+    # Note: Only load our mappings and create dictionary file out of them
     start_time = time.time()
-    print("Loading dictionary from:", os.path.join(cur_dir, dict_dir, combined_dict))
-    symspell.load_dictionary(os.path.join(cur_dir, dict_dir, combined_dict), encoding)
+    print("Creating dictionary from:", os.path.join(cur_dir, dict_dir, mappings))
+    symspell.create_dictionary(os.path.join(cur_dir, dict_dir, mappings), encoding)
+    run_time = time.time() - start_time
+    print('%.2f seconds to create the dictionary' % run_time)
+    # 78530 words in datamart_mappings_utf16.txt
+    k = list(symspell._words.keys())
+    print(len(k))
+
+    start_time = time.time()
+    print("Writing merged mapping file as:", os.path.join(cur_dir, dict_dir, map_dict))
+    symspell.write_dictionary(os.path.join(cur_dir, dict_dir, map_dict))
     run_time = time.time() - start_time
     print('%.2f seconds to load the dictionary' % run_time)
-    # TODO: make sure this does NOT affect negatively to the accuracy
-    symspell.purge_below_threshold_words()
+    print('-----\n')
 
+
+    # start_time = time.time()
+    # print("Loading dictionary from:", os.path.join(cur_dir, dict_dir, combined_dict))
+    # symspell.load_dictionary(os.path.join(cur_dir, dict_dir, combined_dict), encoding)
+    # run_time = time.time() - start_time
+    # print('%.2f seconds to load the dictionary' % run_time)
+    # # TODO: make sure this does NOT affect negatively to the accuracy
+    #
+    # start_time = time.time()
+    # print("Loading dictionary from:", os.path.join(cur_dir, dict_dir, map_dict))
+    # symspell.load_dictionary(os.path.join(cur_dir, dict_dir, map_dict), encoding)
+    # run_time = time.time() - start_time
+    # print('%.2f seconds to load the dictionary' % run_time)
+    # # TODO: make sure this does NOT affect negatively to the accuracy
+
+
+    symspell.purge_below_threshold_words()
     while True:
         word_in = input('Enter your input (or enter to exit): ')
         if len(word_in) == 0:
@@ -698,7 +723,7 @@ if __name__ == "__main__":
             break
         start_time = time.time()
         print
-        suggestions = symspell.lookup_compound(word_in, 2)
+        suggestions = symspell.lookup_compound(word_in, 4)
         # suggestions = symspell.lookup(word_in, 1, 3)
         run_time = time.time() - start_time
         print

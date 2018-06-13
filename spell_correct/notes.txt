@@ -13,3 +13,223 @@ words with only two characters or less
 
 (residential
 consumer)
+
+
+
+
+SELECT  A.GM_COUNTRY_NAME
+       ,A.GM_ADVERTISER_NAME
+       ,A.GM_SECTOR_NAME
+       ,A.GM_SUBSECTOR_NAME
+       ,A.GM_CATEGORY_NAME
+       ,A.GM_BRAND_NAME
+       ,A.GM_PRODUCT_NAME
+       ,A.CP_SUBCATEGORY_ID
+       ,A.CP_SUBCATEGORY_NAME
+       ,A.CP_VARIANT_ID_1PH
+       ,A.cp_variant_name
+FROM DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A
+WHERE 
+        A.GM_COUNTRY_ID IN (
+            113
+            ,110
+            ,114
+            ,101
+            ,100
+            ,102
+            ,109
+            ,117
+            ,115
+            ,119
+            ,111
+            ,118
+            ,116
+            ,106
+            ,108
+            ,103
+            ,104
+            --,112
+            )
+    ORDER BY GM_COUNTRY_ID
+    ,A.GM_ADVERTISER_NAME
+    ,A.GM_SECTOR_NAME
+    ,A.GM_SUBSECTOR_NAME
+    ,A.GM_CATEGORY_NAME
+    ,A.GM_BRAND_NAME
+	
+	
+	
+	
+looked for distinct items in each column:
+select distinct 
+   --A.GM_COUNTRY_NAME--25
+   --,A.GM_ADVERTISER_NAME --36029
+   --,A.GM_SECTOR_NAME --588
+   --,A.GM_SUBSECTOR_NAME --657
+   --,A.GM_CATEGORY_NAME -- 3093
+   --,A.GM_BRAND_NAME
+   --,A.GM_PRODUCT_NAME -- 85250
+   --,A.CP_SUBCATEGORY_ID --68
+   -- A.CP_SUBCATEGORY_NAME -- of course, 68
+   --,A.CP_VARIANT_ID_1PH --3989
+   --,A.cp_variant_name -- of course, 3989
+FROM DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A
+ORDER BY 1
+
+select 
+       MAX(LEN(A.GM_ADVERTISER_NAME)) --50
+       ,MAX(LEN(A.GM_SECTOR_NAME)) --84
+       ,MAX(LEN(A.GM_SUBSECTOR_NAME)) --50
+       ,MAX(LEN(A.GM_CATEGORY_NAME)) -- 94
+       ,MAX(LEN(A.GM_BRAND_NAME)) -- 70
+       ,MAX(LEN(A.GM_PRODUCT_NAME)) -- 122
+       ,MAX(LEN(A.CP_SUBCATEGORY_ID)) --3
+       ,MAX(LEN(A.CP_SUBCATEGORY_NAME)) -- 26
+       ,MAX(LEN(A.CP_VARIANT_ID_1PH)) --8
+       ,MAX(LEN(A.cp_variant_name)) -- 40
+FROM DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A -- total: 547 chars
+
+select 
+	count(*) -- 128,223
+FROM DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A 
+
+Sector, Subsector, Category, Brand, Product Name (remove all n/a with space)
+100, 100
+
+NNN
+http://www.andreykurenkov.com/writing/ai/organizing-my-emails-with-a-neural-net/
+https://github.com/keras-team/keras
+http://www.andreykurenkov.com/writing/ai/a-brief-history-of-neural-nets-and-deep-learning/
+https://blog.yellowant.com/tensorflow-js-a-practical-guide-2ed58327c455
+https://youtu.be/SV-cgdobtTA
+https://medium.com/@datamonsters/artificial-neural-networks-in-natural-language-processing-bcf62aa9151a
+
+
+
+SELECT  A.GM_COUNTRY_NAME
+       ,A.GM_ADVERTISER_NAME
+       ,A.GM_SECTOR_NAME
+       ,A.GM_SUBSECTOR_NAME
+       ,A.GM_CATEGORY_NAME
+       ,A.GM_BRAND_NAME
+       ,A.GM_PRODUCT_NAME
+       ,A.CP_SUBCATEGORY_ID
+       ,A.CP_SUBCATEGORY_NAME
+       ,A.CP_VARIANT_ID_1PH
+       ,A.cp_variant_name
+FROM [DM_1219_ColgateGlobal].DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A
+WHERE 
+        A.GM_COUNTRY_ID IN (
+            113
+            ,110
+            ,114
+            ,101
+            ,100
+            ,102
+            ,109
+            ,117
+            ,115
+            ,119
+            ,111
+            ,118
+            ,116
+            ,106
+            ,108
+            ,103
+            ,104
+            --,112
+            )
+    ORDER BY GM_COUNTRY_ID
+    ,A.GM_ADVERTISER_NAME
+    ,A.GM_SECTOR_NAME
+    ,A.GM_SUBSECTOR_NAME
+    ,A.GM_CATEGORY_NAME
+
+
+	select 
+       MAX(LEN(A.GM_ADVERTISER_NAME)) --50
+       ,MAX(LEN(A.GM_SECTOR_NAME)) --84
+       ,MAX(LEN(A.GM_SUBSECTOR_NAME)) --50
+       ,MAX(LEN(A.GM_CATEGORY_NAME)) -- 94
+       ,MAX(LEN(A.GM_BRAND_NAME)) -- 70
+       ,MAX(LEN(A.GM_PRODUCT_NAME)) -- 122
+       ,MAX(LEN(A.CP_SUBCATEGORY_ID)) --3
+       ,MAX(LEN(A.CP_SUBCATEGORY_NAME)) -- 26
+       ,MAX(LEN(A.CP_VARIANT_ID_1PH)) --8
+       ,MAX(LEN(A.cp_variant_name)) -- 40
+FROM [DM_1219_ColgateGlobal].DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A -- total: 547 chars
+
+	select 
+	count(*) -- 128,223
+FROM [DM_1219_ColgateGlobal].DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A 
+
+
+
+SELECT  A.GM_COUNTRY_NAME
+       ,A.GM_ADVERTISER_NAME
+       ,A.GM_SECTOR_NAME
+       ,A.GM_SUBSECTOR_NAME
+       ,A.GM_CATEGORY_NAME
+       ,A.GM_BRAND_NAME
+       ,A.GM_PRODUCT_NAME
+       ,A.CP_SUBCATEGORY_ID
+       ,A.CP_SUBCATEGORY_NAME
+       ,A.CP_VARIANT_ID_1PH
+       ,A.cp_variant_name
+FROM [DM_1219_ColgateGlobal].DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A
+WHERE 
+        A.GM_COUNTRY_ID IN (
+            113
+            ,110
+            ,114
+            ,101
+            ,100
+            ,102
+            ,109
+            ,117
+            ,115
+            ,119
+            ,111
+            ,118
+            ,116
+            ,106
+            ,108
+            ,103
+            ,104
+            )
+    ORDER BY GM_COUNTRY_ID
+    ,A.GM_ADVERTISER_NAME
+    ,A.GM_SECTOR_NAME
+    ,A.GM_SUBSECTOR_NAME
+    ,A.GM_CATEGORY_NAME
+
+
+
+
+
+'fruco conc celebra fruc' returns distnace => 0, but it actually should be 'fruco conc celebra fruco'
+'min d sald prv' returns distance => 2, but it actually should be 'min d salud pav' ('MIN.DE SALUD,CAMPAÑA PREV.VIH')
+
+select *
+FROM [DM_1219_ColgateGlobal].DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A
+WHERE 
+A.GM_PRODUCT_NAME like '%fruco conc celebra fruc%'
+OR
+A.cp_variant_name like '%fruco conc celebra fruc%'
+ORDER BY 1,2
+
+select *
+FROM [DM_1219_ColgateGlobal].DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A
+WHERE 
+A.GM_PRODUCT_NAME like '%fat tee%'
+OR
+A.cp_variant_name like '%fat tee%'
+ORDER BY 1,2
+
+select *
+FROM [DM_1219_ColgateGlobal].DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A
+WHERE 
+A.GM_PRODUCT_NAME like '%colgate whitening tooth%'
+OR
+A.cp_variant_name like '%colgate whitening tooth%'
+ORDER BY 1,2
