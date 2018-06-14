@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="css/autocomplete-0.3.css" />
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+		<style>
+		.custom-select-lg {
+			border: 2px solid #ccc;
+			height: 52px;
+			padding: 0 0 0 15px;
+			font-size: 125%;
+			width: 290px;
+		}
+		.vh-100 {
+		  min-height: 100vh;
+		}
+
+		.choose-plot {
+		  padding-top: 15px;
+		  padding-bottom: 15px;
+		}
+
+		.bordered {
+		  border: 1px solid #ccc;
+		  border-radius: 10px;
+		}
+		</style>
+	</head>
+	<body>
+		<div class="container-fluid d-flex h-100 flex-column vh-100">
+			<div class="row">
+				<div class="col choose-plot">
+				<strong class="mb-2">Instruction here</strong>
+					<div class="row">
+					  <div class="col-1">
+						<button id="load_plot" class="btn btn-primary btn-lg">Load plot</button>
+					  </div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row flex-fill d-flex justify-content-start">
+				<div class="col-6 bordered">1 of 4
+                    <div id="container-0" style="height: 100%;"></div>
+                </div>
+				<div class="col-6 bordered">2 of 4
+                    <div id="container-1" style="height: 100%;"></div>
+                </div>
+				<div class="col-6 bordered">3 of 4
+                    <div id="container-2" style="height: 100%;"></div>
+                </div>
+				<div class="col-6 bordered">4 of 4
+                    <div id="container-3" style="height: 100%;"></div>
+                </div>
+			</div>
+		</div>
+
+		<script  src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js" integrity="sha384-u/bQvRA/1bobcXlcEYpsEdFVK/vJs3+T+nXLsBYJthmdBuavHvAW6UsmqO2Gd/F9" crossorigin="anonymous"></script>
+		<script src="js/echarts-4.1.0.js"></script>
+		<script type="text/javascript">
+
+		var doms = [
+		    document.getElementById("container-0"),
+		    document.getElementById("container-1"),
+            document.getElementById("container-2"),
+            document.getElementById("container-3"),
+        ];
+		var myCharts = [];
+		var myOption = {
+            tooltip : {
+                trigger: 'axis',
+                axisPointer : {
+                    type : 'shadow'
+                }
+            },
+            legend: {
+                data: ['Max White', 'Active Salt','Cibaca','MCP','Sensitive']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis:  {
+                type: 'category',
+                data: ['January','February','March','April','May','June','July']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: 'Max White',
+                    type: 'bar',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'insideRight'
+                        }
+                    },
+                    data: [320, 302, 301, 334, 390, 330, 320]
+                },
+                {
+                    name: 'Active Salt',
+                    type: 'bar',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'insideRight'
+                        }
+                    },
+                    data: [120, 132, 101, 134, 90, 230, 210]
+                },
+                {
+                    name: 'Cibaca',
+                    type: 'bar',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'insideRight'
+                        }
+                    },
+                    data: [220, 182, 191, 234, 290, 330, 310]
+                },
+                {
+                    name: 'MCP',
+                    type: 'bar',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'insideRight'
+                        }
+                    },
+                    data: [150, 212, 201, 154, 190, 330, 410]
+                },
+                {
+                    name: 'Sensitive',
+                    type: 'bar',
+                    stack: 'a',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'insideRight'
+                        }
+                    },
+                    data: [820, 832, 901, 934, 1290, 1330, 1320]
+                }
+            ]
+        }; //myOption ends
+		$('#load_plot').on('click', function() {
+            if (myCharts.length != 0) {
+                myCharts.forEach(function (c) {
+                    c.dispose();
+                });
+            }
+            doms.forEach(function(ele){
+                var curChart = echarts.init(ele, null, {renderer: 'canvas'});
+                curChart.showLoading();
+                curChart.setOption(curOption = myOption);
+                curChart.hideLoading();
+                console.log("done loading");
+                myCharts.push(curChart);
+
+            });
+		});
+       </script>
+   </body>
+</html>
