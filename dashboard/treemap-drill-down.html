@@ -93,8 +93,8 @@ $.getJSON(uploadedDataURL, function (rawData) {
 	
     myChart.setOption(option = {
         title: {
-            text: 'ECharts blah blah blah',
-            subtext: '2016/04',
+            text: 'Treemap prototype',
+            subtext: '2018-05-22',
             left: 'leafDepth'
         },
 		tooltip: {
@@ -139,7 +139,7 @@ $.getJSON(uploadedDataURL, function (rawData) {
 			leafDepth: 2, // this is what turns on the drill down mode
 			label: {
 					show: true,
-					formatter: '{b}:\nbC => {@[1]};\nvalue: {@[0]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
+					formatter: '{b}:\nUnique Brands => {@[1]};\nInvestment $: {@[0]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
 					// roam: //false, zoom, pan, true,
 			},
 			// do NOT add upperLabel here; it looks a bit messy in output visual; but adding this here includes topline boundary for each region, country
@@ -198,10 +198,10 @@ $.getJSON(uploadedDataURL, function (rawData) {
 		// data should be more like {'2017': [{},{},{}...], '2016': [{},{},{}...], '2015': [{},{},{}...]}
 		data: [
 				{ 
-					name: 'Region1',
+					name: 'LATM',
 					children: [
 						{
-							name: 'Region1-Country1',//we can add other stuff like this: '\nhaha', 
+							name: 'Colombia',//we can add other stuff like this: '\nhaha',
 							value: [1000,8], // we can define dimensions like here: https://ecomfe.github.io/echarts-doc/public/en/option.html#dataset.dimensions
 							/*
 							// we can add label like below in each data item level; it allows us to use '{@brand}', but is a bit less computationally efficient because of the need to structure the data items like this
@@ -211,46 +211,46 @@ $.getJSON(uploadedDataURL, function (rawData) {
 							},
 							*/
 							 children: [
-								{ name: 'Region1-Country1-Brand1', value: [200,2],
+								{ name: 'Cibaca', value: [200,2],
 									label: { // For now, this is the only way I know how to show what I want in Brand level nodes (i.e. remove Brand counts)
 											show: true,
 											formatter: '{b}'//'{b}: {@[0]}', // {a} = 'Root', {b} = 'Region1-Country1', {c} = value, {@[1]} = second item in the value array
 									},
 								},
-								{ name: 'Region1-Country1-Brand2', value: 500 },
-								{ name: 'Region1-Country1-Brand3', value: 300 },
+								{ name: 'Maxwhite', value: 500 },
+								{ name: 'Active Salt', value: 300 },
 							 ]
 						},
 						{
-							 name: 'Region1-Country2', 
+							 name: 'Panama',
 							 value: [500,5], 
 							 children: [
-								{ name: 'Region1-Country2-Brand1', value: 100 },
-								{ name: 'Region1-Country2-Brand2', value: 200 },
-								{ name: 'Region1-Country2-Brand3', value: 200 },
+								{ name: 'MCP', value: 100 },
+								{ name: 'Sensitive', value: 200 },
+								{ name: 'Simply White', value: 200 },
 							 ]
 						},
 					]
 				},
 				{ 
-					name: 'Region2',
+					name: 'APAC',
 					children: [
 						{
-							 name: 'Region2-Country1', 
+							 name: 'China',
 							 value: [600,11], // total of all brands in that country combined for that period
 							 children: [
-								{ name: 'Region2-Country1-Brand1', value: 150 },
-								{ name: 'Region2-Country1-Brand2', value: 150 },
-								{ name: 'Region2-Country1-Brand3', value: 300 },
+								{ name: 'Max Fresh', value: 150 },
+								{ name: 'Total', value: 150 },
+								{ name: 'Sensodyne', value: 300 },
 							 ]
 						},
 						{
-							 name: 'Region2-Country2', 
+							 name: 'Singapore',
 							 value: [500,12], 
 							 children: [
-								{ name: 'Region2-Country2-Brand1', value: 100 },
-								{ name: 'Region2-Country2-Brand2', value: 200 },
-								{ name: 'Region2-Country2-Brand3', value: 200 },
+								{ name: 'Close-Up', value: 100 },
+								{ name: 'Pepsodent', value: 200 },
+								{ name: 'Total', value: 200 },
 							 ]
 						},
 					]
