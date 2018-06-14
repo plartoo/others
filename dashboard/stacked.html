@@ -22,9 +22,13 @@
 		}
 
 		.bordered {
-		  border: 1px solid #ccc;
-		  border-radius: 10px;
-		}
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            /*height: 120vh;*/ /*This works too, but opted to go with more specificity .col-6.bordered > div*/
+        }
+        .col-6.bordered > div {
+            height: 50vh;
+        }
 		</style>
 	</head>
 	<body>
@@ -46,16 +50,16 @@
 
 			<div class="row flex-fill d-flex justify-content-start">
 				<div class="col-6 bordered">1 of 4
-                    <div id="container-0" style="height: 100%;"></div>
+                    <div id="container-0"></div>
                 </div>
 				<div class="col-6 bordered">2 of 4
-                    <div id="container-1" style="height: 100%;"></div>
+                    <div id="container-1"></div>
                 </div>
 				<div class="col-6 bordered">3 of 4
-                    <div id="container-2" style="height: 100%;"></div>
+                    <div id="container-2"></div>
                 </div>
 				<div class="col-6 bordered">4 of 4
-                    <div id="container-3" style="height: 100%;"></div>
+                    <div id="container-3"></div>
                 </div>
 			</div>
 		</div>
@@ -185,19 +189,23 @@
                     }
                 },
                 legend: {
+                    top: '10%',
+                    left: '10%',
                     data: UniqBrandsForThisAdvertiser,
                 },
                 grid: {
-                    left: '3%',
+                    left: '5%',
                     right: '4%',
                     bottom: '3%',
                     containLabel: true
                 },
                 xAxis:  {
                     type: 'category',
-                    data: yearMonthLabels,//monthNames,
+                    data: monthNames,//yearMonthLabels,
                 },
                 yAxis: {
+                    name : "Investment ('000 USD)",
+
                     type: 'value'
                 },
                 series: [], // this is where the data goes
@@ -277,7 +285,9 @@
                                                                  yearMonthLabels, divisor) {
 		    var spendSeries = [];
 		    yearMonthLabels.forEach(function(yml){
-		        spendSeries.push(Math.round((relevantData[brand][yml]*1.0)/divisor));
+		        var investment = Math.round((relevantData[brand][yml]*1.0)/divisor);
+		        if (investment == 0) { investment = '';}
+		        spendSeries.push(investment);
             });
 		    return spendSeries;
 		}
