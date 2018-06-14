@@ -31,41 +31,35 @@
 		<div class="container-fluid d-flex h-100 flex-column vh-100">
 			<div class="row">
 				<div class="col choose-plot">
-				<strong class="mb-2">Select COUNTRY (max: 1), YEAR (max: 1), and ADVERTISERS (max: 4). Then click 'load plot' to plot the stacked charts below.</strong>
+				<strong class="mb-2">Select YEAR (max: 1), COUNTRY (max: 1), and ADVERTISERS (max: 4). Then click 'load plot' to plot the stacked charts below.</strong>
 					<div class="row">
 					  <div id="year-filter" class="col-2"></div>
 					  <div id="country-filter" class="col-2"></div>
 					  <div id="advertiser-filter" class="col-6"></div>
-					  <!--div class="col-2">
-						<select class="custom-select">
-						  <option>Choose the plot location</option>
-						  <option value="1">1. Top-left</option>
-						  <option value="2">2. Top-right</option>
-						  <option value="3">3. Bottom-left</option>
-						  <option value="4">4. Bottom-right</option>
-						</select>
-					  </div-->
 					  <div class="col-1">
 						<button id="load_plot" class="btn btn-primary btn-lg">Load plot</button>
 					  </div>
 					</div>
 				</div>
 			</div>
+
+
 			<div class="row flex-fill d-flex justify-content-start">
 				<div class="col-6 bordered">1 of 4
-                    <div id="container-0"></div>
+                    <div id="container-0" style="height: 100%;"></div>
                 </div>
 				<div class="col-6 bordered">2 of 4
-                    <div id="container-1"></div>
+                    <div id="container-1" style="height: 100%;"></div>
                 </div>
 				<div class="col-6 bordered">3 of 4
-                    <div id="container-2"></div>
+                    <div id="container-2" style="height: 100%;"></div>
                 </div>
 				<div class="col-6 bordered">4 of 4
-                    <div id="container-3"></div>
+                    <div id="container-3" style="height: 100%;"></div>
                 </div>
 			</div>
 		</div>
+
 		<script  src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js" integrity="sha384-u/bQvRA/1bobcXlcEYpsEdFVK/vJs3+T+nXLsBYJthmdBuavHvAW6UsmqO2Gd/F9" crossorigin="anonymous"></script>
 		<script src="js/autocomplete-0.3.0.min.js"></script>
@@ -112,17 +106,14 @@
 		var countrySelected;
 		var advertisersSelected;
 		var yearSelected;
+
 		$('#load_plot').on('click', function() {
             if (myCharts.length != 0) {
-                myCharts.forEach(function (c){
-                    c.dispose(); // REF: https://ecomfe.github.io/echarts-doc/public/en/api.html#echartsInstance
+                myCharts.forEach(function (chart){
+                    chart.dispose(); // REF: https://ecomfe.github.io/echarts-doc/public/en/api.html#echartsInstance
                 });
 			}
-			/*
-			// When I had the idea of letting user chose where to put the plots
-			var v = $("#select-options").find("option:selected").val();
-			$('#container-parent-'+v+' span').text('hahaha');
-			*/
+
 			countrySelected = country_filter.getValue().map(x => x[0].value);
 			advertisersSelected = advertiser_filter.getValue().map(x => x[0].value);
 			yearSelected = year_filter.getValue().map(x => x[0].value);
@@ -135,19 +126,19 @@
 				return;
 			}
 			console.log(advertisersSelected[0] + countrySelected + String(yearSelected));
+			/*
 			curOption = createOptions(advertisersSelected[0], countrySelected,
                                     yearSelected, allData['Data'][yearSelected]);
-            /*
+            */
 			advertisersSelected.forEach(function(advertiser,i){
-			    // REF: https://ecomfe.github.io/echarts-doc/public/en/tutorial.html#Render%20by%20Canvas%20or%20SVG
 			    var curChart = echarts.init(doms[i], null, {renderer: 'canvas'});
 			    curChart.showLoading();
 			    curChart.setOption(curOption = createOptions(advertiser, countrySelected,
                                     yearSelected, allData['Data'][yearSelected]));
 			    curChart.hideLoading();
 			    myCharts.push(curChart);
+			    console.log("done loading");
             });
-            */
 		});
 
         function getRelevantYearCountryAdvertiserData(advertiser, country, yearSpecificData, yearMonthLabels) {
@@ -204,7 +195,7 @@
                 },
                 xAxis:  {
                     type: 'category',
-                    data: monthNames,
+                    data: yearMonthLabels,//monthNames,
                 },
                 yAxis: {
                     type: 'value'
@@ -285,10 +276,8 @@
 		function getBrandRelatedSpendSeriesForRelevantYearMonths(relevantData, brand,
                                                                  yearMonthLabels, divisor) {
 		    var spendSeries = [];
-            console.log(brand);
 		    yearMonthLabels.forEach(function(yml){
-		        console.log(yml);
-		        spendSeries.push((relevantData[brand][yml]*1.0)/divisor);
+		        spendSeries.push(Math.round((relevantData[brand][yml]*1.0)/divisor));
             });
 		    return spendSeries;
 		}
