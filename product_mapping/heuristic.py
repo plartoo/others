@@ -19,7 +19,9 @@ import queries
 QUERIES = {
     'all_mappings': queries.all_mappings,
 }
-
+THRESHOLD = 0.5
+AMBIGUOUS = 'too many similar possibilities. Manual mapping needed.'\
+    #('Too many similar possibilities. Manual mapping needed.', (None, None))
 
 def run_sql(sql):
     conn = pyodbc.connect(account_info.DM_1219)
@@ -108,13 +110,47 @@ def build_column_specific_table(data, fields):
 
 
 def get_suggestions(word_cnt_t1, words_in):
-    subcat_cnt = defaultdict(int)
+    subcat_cnt_by_word = defaultdict(list)
     words = tokenize(words_in)
     for w in words:
         if w in word_cnt_t1:
-            for k,v in word_cnt_t1[w].items():
-                subcat_cnt[k] += v
-    return subcat_cnt
+            for cat,cnt in word_cnt_t1[w].items():
+                subcat_cnt_by_word[cat].append({w: cnt})
+
+    temp = {a: (sum(list(i.values())[0] for i in b), b) for a, b in subcat_cnt_by_word.items()}
+    subcat_cnt_by_word = sorted(temp.items(), key=lambda x: x[-1][0], reverse=True)
+    return subcat_cnt_by_word
+
+
+def have_same_count(suggestions):
+    distinct_cnts = set([i[-1][0] for i in suggestions])
+    if len(distinct_cnts) < 2:
+        return True
+    return False
+
+
+def get_helpful_words(sorted_suggestions):
+    """
+    Only use this method for words that are longer than length = 2
+    """
+    value_words = [] # words that are not noise--for lack of better naming...
+    if have_same_count(sorted_suggestions):
+        return value_words
+
+    noise_cnt_tbl = defaultdict(int)
+    for s in sorted_suggestions:
+        # count number of times this word appears in predicted subcats
+        for word_cnt in s[-1][-1]: # {'total':25}
+            key = list(word_cnt.keys())[0]
+            noise_cnt_tbl[key] += 1
+
+    total = len(sorted_suggestions)
+    for w,c in noise_cnt_tbl.items():
+        if (c/total) <= THRESHOLD:
+            value_words.append(w)
+
+    return value_words
+
 
 
 if __name__ == '__main__':
@@ -148,12 +184,12 @@ if __name__ == '__main__':
     if args.l:
         word_cnt_tbl = load_data_from_json(word_count_file) #json.loads(load_data_from_pickle(word_count_file))
     else:
-        query_name = 'all_mappings'
-        print('Loading data from remote database using query:', QUERIES[query_name])
-        mapping_data = json.loads(get_data_from_query(query_name))
-
         SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
                    'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
+        query_name = 'all_mappings'
+
+        print('Loading data from remote database using query:', QUERIES[query_name])
+        mapping_data = json.loads(get_data_from_query(query_name))
         word_cnt_tbl = build_total_word_cnt_table(mapping_data, SIGNALS)
         # word_cnt_tbl = build_column_specific_table(mapping_data, SIGNALS)
         write_data_to_json(word_cnt_tbl, word_count_file)
@@ -166,10 +202,19 @@ if __name__ == '__main__':
             break
 
         suggestions = get_suggestions(word_cnt_tbl, words_in)
-        print(suggestions)
+        if len(suggestions) > 2:
+            hw = get_helpful_words(suggestions)
+            if len(hw) > 0:
+                print("Getting enhanced suggestions...")
+                suggestions = get_suggestions(word_cnt_tbl, ' '.join(hw))
+            else:
+                print("'", words_in, "' has ", AMBIGUOUS, "\n")
+                continue
+
         print("<-----Suggestions sorted by frequency-----")
-        for k in sorted(suggestions, key=suggestions.get, reverse=True):
-            print(k,"",suggestions[k])
+        for s in suggestions:
+            print(s[0],"",s[-1][0],"==>", s[-1][1])
         print("----->\n")
+
     # 'CP_SUBCATEGORY_NAME' => 'CP_SUBCATEGORY_ID'
     # 'CP_VARIANT_NAME' => 'CP_VARIANT_ID_1PH'
