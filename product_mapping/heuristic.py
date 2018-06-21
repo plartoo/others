@@ -18,10 +18,17 @@ import queries
 
 QUERIES = {
     'all_mappings': queries.all_mappings,
+    'unmapped_items': queries.unmapped_items,
 }
+SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
+           'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
+OUTPUT_DIR = 'local_cache'
+WORD_COUNT_FILE = 'word_count_table.json'
 THRESHOLD = 0.5
+NOT_ENOUGH_WORDS = 'Not enough input words in raw data to predict reliably. Manual mapping needed.'
+NO_SUGGESTIONS = 'No suggestion returned. Manual mapping needed.'
 AMBIGUOUS = 'too many similar possibilities. Manual mapping needed.'\
-    #('Too many similar possibilities. Manual mapping needed.', (None, None))
+
 
 def run_sql(sql):
     conn = pyodbc.connect(account_info.DM_1219)
@@ -133,9 +140,9 @@ def get_helpful_words(sorted_suggestions):
     """
     Only use this method for words that are longer than length = 2
     """
-    value_words = [] # words that are not noise--for lack of better naming...
+    helpful_words = [] # words that are not noise--for lack of better naming...
     if have_same_count(sorted_suggestions):
-        return value_words
+        return helpful_words
 
     noise_cnt_tbl = defaultdict(int)
     for s in sorted_suggestions:
@@ -147,28 +154,23 @@ def get_helpful_words(sorted_suggestions):
     total = len(sorted_suggestions)
     for w,c in noise_cnt_tbl.items():
         if (c/total) <= THRESHOLD:
-            value_words.append(w)
+            helpful_words.append(w)
 
-    return value_words
-
+    return helpful_words
 
 
 if __name__ == '__main__':
-    OUTPUT_DIR = 'pickled_data'
-    WORD_COUNT_FILE = 'word_count_table.json'
-
     cur_dir_path = os.path.dirname(os.path.realpath(__file__))
     output_dir = os.path.join(cur_dir_path, OUTPUT_DIR)
     word_count_file = os.path.join(output_dir, WORD_COUNT_FILE)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # REF: https://stackoverflow.com/a/30493366
     desc = '''
-    Guess mappings based on heuristic of previously mapped items.
-    To generate serialized mapping data in a local folder (for faster load),
-    please use '-s' as flag.  
-    To load data from local file (faster) approach, set '-l' flag.
+    Guess mappings based on heuristic of previously mapped items and
+    allow user to interactively try them out.
+    To use reference table for mappping from the local cache file 
+    (for faster speed), use '-l' flag.
     For more detail, please use '-h' flag to read the help/manual.
     '''
     parser = argparse.ArgumentParser(description=desc)
@@ -184,10 +186,7 @@ if __name__ == '__main__':
     if args.l:
         word_cnt_tbl = load_data_from_json(word_count_file) #json.loads(load_data_from_pickle(word_count_file))
     else:
-        SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
-                   'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
         query_name = 'all_mappings'
-
         print('Loading data from remote database using query:', QUERIES[query_name])
         mapping_data = json.loads(get_data_from_query(query_name))
         word_cnt_tbl = build_total_word_cnt_table(mapping_data, SIGNALS)
