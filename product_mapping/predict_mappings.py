@@ -13,8 +13,8 @@ import heuristic
 INPUT_DIR = 'input'
 OUTPUT_DIR = 'output'
 EXCLUDED_WORDS = {'N/A'}
-INPUT_SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME', 'GM_CATEGORY_NAME',
-                 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
+INPUT_SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
+                 'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
 
 if __name__ == '__main__':
     desc = '''
@@ -74,11 +74,11 @@ if __name__ == '__main__':
         output_file = os.path.join(output_dir, ('database_pull' + '-' + cur_date + '.xlsx'))
         query_name = 'unmapped_items'
         print('Pulling input data from remote database using query:', heuristic.QUERIES[query_name])
-        input_data = json.loads(heuristic.get_data_from_query(query_name))
+        input_data = heuristic.get_data_from_query(query_name)
     else:
-        # maybe support other file extensions in the future
         pass
 
+    input_data = json.loads(input_data)
     output_data = []
     for input_row in input_data:
         print("\n------------")
@@ -86,7 +86,8 @@ if __name__ == '__main__':
         print(input_row)
         uniq_input_words = set()
         for sig in INPUT_SIGNALS:
-            uniq_input_words.add(input_row[sig])
+            if input_row[sig] is not None:
+                uniq_input_words.add(input_row[sig])
 
         uniq_input_words = list(uniq_input_words - EXCLUDED_WORDS)
         if len(uniq_input_words) == 0:

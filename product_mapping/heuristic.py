@@ -24,7 +24,7 @@ SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
            'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
 OUTPUT_DIR = 'local_cache'
 WORD_COUNT_FILE = 'word_count_table.json'
-THRESHOLD = 0.5
+THRESHOLD = 0.8
 NOT_ENOUGH_WORDS = 'Not enough input words in raw data to predict reliably. Manual mapping needed.'
 NO_SUGGESTIONS = 'No suggestion returned. Manual mapping needed.'
 AMBIGUOUS = 'too many similar possibilities. Manual mapping needed.'\
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     parser.add_argument('-l',
                         default=0,
                         type=int,
-                        help="If '1', this will USE the local cache file of the word count table named, '"
+                        help="If '1', this will USE the LOCAL CACHE FILE  of the word count table named, '"
                              + WORD_COUNT_FILE
                              + "', which is expected to be placed in a local directory named, '"
                              + OUTPUT_DIR + ".'")
@@ -201,6 +201,10 @@ if __name__ == '__main__':
             break
 
         suggestions = get_suggestions(word_cnt_tbl, words_in)
+        print("<-----Suggestions sorted by frequency-----")
+        for s in suggestions:
+            print(s[0],"",s[-1][0],"==>", s[-1][1])
+        print("----->\n")
         if len(suggestions) > 2:
             hw = get_helpful_words(suggestions)
             if len(hw) > 0:
@@ -210,7 +214,7 @@ if __name__ == '__main__':
                 print("'", words_in, "' has ", AMBIGUOUS, "\n")
                 continue
 
-        print("<-----Suggestions sorted by frequency-----")
+        print("<-----Enhanced suggestions sorted by frequency-----")
         for s in suggestions:
             print(s[0],"",s[-1][0],"==>", s[-1][1])
         print("----->\n")
