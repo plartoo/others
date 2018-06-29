@@ -11,8 +11,11 @@
 </head>
 <body>
 <input type="file" id="csv-file" name="files"/>
-</body>
-<script>
+<div id="response1"></div>
+<div id="response2"></div>
+<script src="naivebayes.js"></script>
+<script src="bundle.js"></script>
+<!--script>
     // REF: https://www.joyofdata.de/blog/parsing-local-csv-file-with-javascript-papa-parse/
     // http://archive.is/ySSC8
     var data;
@@ -30,6 +33,6 @@
     $(document).ready(function(){
         $("#csv-file").change(handleFileSelect);
     });
-</script>
-
+</script-->
+</body>
 </html>
