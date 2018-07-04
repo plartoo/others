@@ -1,6 +1,29 @@
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
 import pdb
+"""
+Description:
+This is a word-count-weighted approach similar to bag-of-words but without TFIDF.
+To explain differently, this simple heuristic-based approach builds a dictionary
+of word counts based on the raw data. Then given an input string, it chops it up
+into unique words (thus, bag of words); find their association to each target mapping
+in the aforementioned dictionary; add them up; and return the mapping with maximum
+count.
+
+For example, suppose the input string is 'Dial Kids : Hair & Body Wash'. 
+This heuristic-based approach will look for ['dial', 'kids', 'hair', 'body', 'wash']
+in the dictionary of word counts build on the raw (training) data. Suppose, the 
+word count dictionary is as follows: 
+{'dial' => {'body wash' => 10, 'shampoo' => 2}, 'kids' => {'baby assoceries' => 5},
+'hair' => {'shampoo' => 10, 'body wash' => 2}, 'body' => {'body wash' => 10},
+'wash' => {'detergent' => 20, 'cleaners' => 5, 'body wash' => 4} }
+ 
+Then after adding up the count of target mappings, we get {'body wash' => 26, 
+'shampoo' => 12, 'baby assoceries' => 5, 'detergent' => 20, 'cleaners' => 5}.
+As a result, 'body wash' is assigned as the final target mapping for 
+'Dial Kids : Hair & Body Wash'.
+
+Note: this naive approach is NOT supposed to be used in production. I implemented
+this to show that even a simple heuristic like this can get us to up to 50% accuracy.
+"""
 
 import argparse
 import json
@@ -19,9 +42,12 @@ import queries
 QUERIES = {
     'all_mappings': queries.all_mappings,
     'unmapped_items': queries.unmapped_items,
+    'mapped_items': queries.mapped_items,
 }
 SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
            'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
+EXCLUDED_WORDS = {'N/A'}
+
 OUTPUT_DIR = 'local_cache'
 WORD_COUNT_FILE = 'word_count_table.json'
 THRESHOLD = 0.8
@@ -33,6 +59,10 @@ AMBIGUOUS = 'too many similar possibilities. Manual mapping needed.'\
 def run_sql(sql):
     conn = pyodbc.connect(account_info.DM_1219)
     return pd.read_sql(sql, conn)
+
+
+def get_dataframe_from_query(query_name):
+    return run_sql(QUERIES[query_name])
 
 
 def get_data_from_query(query_name):
@@ -94,6 +124,7 @@ def build_total_word_cnt_table(data, fields):
 
 
 def build_column_specific_table(data, fields):
+    # I ended up not using this because we don't need to further split dict by column
     word_count = defaultdict(int)
     for r in data:
         sub_cat = r['CP_SUBCATEGORY_NAME'] #TODO: refactor
