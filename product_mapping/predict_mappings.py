@@ -12,7 +12,6 @@ import heuristic
 
 INPUT_DIR = 'input'
 OUTPUT_DIR = 'output'
-EXCLUDED_WORDS = {'N/A'}
 INPUT_SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
                  'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
 
@@ -89,7 +88,7 @@ if __name__ == '__main__':
             if input_row[sig] is not None:
                 uniq_input_words.add(input_row[sig])
 
-        uniq_input_words = list(uniq_input_words - EXCLUDED_WORDS)
+        uniq_input_words = list(uniq_input_words - heuristic.EXCLUDED_WORDS)
         if len(uniq_input_words) == 0:
             input_row['CP_SUBCATEGORY_NAME'] = heuristic.NOT_ENOUGH_WORDS
         else:
