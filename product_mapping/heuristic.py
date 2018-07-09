@@ -46,6 +46,7 @@ QUERIES = {
 }
 SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
            'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
+TARGET_CATEGORY = 'CP_SUBCATEGORY_NAME'
 EXCLUDED_WORDS = {'N/A'}
 
 OUTPUT_DIR = 'local_cache'
@@ -103,15 +104,16 @@ def tokenize(s):
     return re.sub('[^0-9a-zA-Z\s]+', '', s).lower().split()
 
 
+# TODO: rename to 'build_total_word_cnt_table_from_json'
 def build_total_word_cnt_table(data, fields):
     word_count = defaultdict(int)
-    for r in data:
-        sub_cat = r['CP_SUBCATEGORY_NAME'] #TODO: refactor
+    for row in data:
+        sub_cat = row[TARGET_CATEGORY]
         if sub_cat is None:
             continue
         else:
             for f in fields:
-                words = tokenize(r[f])
+                words = tokenize(row[f])
                 for w in words:
                     if w in word_count:
                         if sub_cat in word_count[w]:
@@ -120,6 +122,30 @@ def build_total_word_cnt_table(data, fields):
                             word_count[w][sub_cat] = 1
                     else:
                         word_count[w] = {sub_cat: 1}
+    return word_count
+
+
+# TODO: refactor to combine this with the one above
+def build_total_word_cnt_table_from_dataframe(data, fields):
+    word_count = defaultdict(int)
+    for i, row in data.iterrows():
+        sub_cat = row[TARGET_CATEGORY]
+        if sub_cat is None:
+            continue
+        else:
+            combined_words = []
+            for f in fields:
+                combined_words.append(row[f])
+
+            words = tokenize(' '.join(combined_words))
+            for w in words:
+                if w in word_count:
+                    if sub_cat in word_count[w]:
+                        word_count[w][sub_cat] += 1
+                    else:
+                        word_count[w][sub_cat] = 1
+                else:
+                    word_count[w] = {sub_cat: 1}
     return word_count
 
 
@@ -158,6 +184,18 @@ def get_suggestions(word_cnt_t1, words_in):
     temp = {a: (sum(list(i.values())[0] for i in b), b) for a, b in subcat_cnt_by_word.items()}
     subcat_cnt_by_word = sorted(temp.items(), key=lambda x: x[-1][0], reverse=True)
     return subcat_cnt_by_word
+
+
+def get_enhanced_suggestion(word_cnt_tbl, words_in):
+    suggestions = get_suggestions(word_cnt_tbl, words_in)
+    if len(suggestions) > 2:
+        hw = get_helpful_words(suggestions)
+        if len(hw) > 0:
+            # print("Getting enhanced suggestions...")
+            suggestions = get_suggestions(word_cnt_tbl, ' '.join(hw))[0]
+        else:
+            return {'label': AMBIGUOUS, 'count': -1}
+    return {'label': suggestions[0], 'count': suggestions[-1][0]}
 
 
 def have_same_count(suggestions):

@@ -2,6 +2,7 @@ import pdb
 
 import json
 import os
+import random
 import sys
 
 import pandas as pd
@@ -12,8 +13,9 @@ import heuristic
 INPUT_DIR = 'input'
 OUTPUT_DIR = 'output'
 EXCLUDED_WORDS = {'N/A'}
-INPUT_SIGNALS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
+INPUT_CATEGORIES = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
                  'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME']
+TARGET_CATEGORY = 'CP_SUBCATEGORY_NAME'
 TEST_ITERATIONS = 100
 
 if __name__ == '__main__':
@@ -22,15 +24,26 @@ if __name__ == '__main__':
     df = heuristic.get_dataframe_from_query(query_name)
 
     for i in range(TEST_ITERATIONS):
-        x_train, x_test, y_train, y_test = train_test_split(df['Consumer_complaint_narrative'],
-                                                            df['Product'],
+        input_cols = INPUT_CATEGORIES + [TARGET_CATEGORY]
+        x_train, x_test, y_train, y_test = train_test_split(df[input_cols],
+                                                            df[TARGET_CATEGORY],
                                                             test_size=0.2,
-                                                            random_state=0)
-        pdb.set_trace()
-        print('haha')
+                                                            random_state=random.randint(0,10*TEST_ITERATIONS))
 
-    mapping_data = json.loads(heuristic.get_data_from_query(query_name))
-    word_cnt_tbl = heuristic.build_total_word_cnt_table(mapping_data, heuristic.SIGNALS)
+        word_cnt_tbl = heuristic.build_total_word_cnt_table_from_dataframe(x_train, INPUT_CATEGORIES)
+        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Dry Idea : Solid Antiperspirant'))
+        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Henkel : Misc Merchandise'))
+        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Renuzit Aromatherapy Collection Air Freshener & Renuzit Farm Fresh Air Freshener : Combo'))
+        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Schwarzkopf : General Promotion - Hair Care Products'))
+        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Dial For Men Odor Armor : Body Wash & Bar Soap'))
+        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Purex Crystals : Fabric Softener Crystals'))
+        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Got 2B Glued : Hair Spray'))
+
+        pdb.set_trace()
+        print(x_train.iloc[0])
+        print(y_train.iloc[0])
+
+    # mapping_data = json.loads(heuristic.get_data_from_query(query_name))
 
     # if args.f:
     #     input_file = os.path.join(input_dir, args.f)
