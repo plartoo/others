@@ -99,7 +99,7 @@ def load_data_from_json(file):
 
 
 def tokenize(s):
-    # 1. replace commas with spaces (must come first)
+    # 1. replace commas with spaces (must come first before step 2 below) for cases like 'ROLDA,GEL,(INT)'
     # 2. removes non-alphanumeric and double-or-more space characters;
     # and turn the str into lowercase
     # Note: alternatively, we can do simple thing like this r'\w+' instead
@@ -126,7 +126,6 @@ def build_total_word_cnt_table(data, fields):
                         word_count[w] = {sub_cat: 1}
     return word_count
 
-# 'ROLDA,GEL,(INT)'
 
 def combine_columns(pandas_row, col_names):
     combined_words = []
