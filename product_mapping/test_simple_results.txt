@@ -1,0 +1,523 @@
+Loading data from remote database using query: 
+SELECT
+GM_GLOBAL_PRODUCT_ID
+,GM_COUNTRY_ID
+,GM_COUNTRY_NAME
+,GM_ADVERTISER_NAME
+,GM_SECTOR_NAME
+,GM_SUBSECTOR_NAME
+,GM_CATEGORY_NAME
+,GM_BRAND_NAME
+,GM_PRODUCT_NAME
+,SOS_PRODUCT
+,CP_SUBCATEGORY_ID
+,CP_SUBCATEGORY_NAME
+,CP_VARIANT_ID_1PH
+,CP_BRAND_ID
+,CP_BRAND_NAME
+,LAST_MAPPED_BY
+FROM [DM_1219_ColgateGlobal].[dbo].GM_CP_MASTER_PRODUCT_MAPPING AS A
+WHERE A.CP_SUBCATEGORY_NAME IS NOT NULL
+
+
+====
+total: 29466
+	hit_cnt: 13805 	miss_cnt: 15661
+	all_signal_hit_cnt: 18483 	all_signal_miss_cnt: 10983
+
+====
+total: 58932
+	hit_cnt: 27496 	miss_cnt: 31436
+	all_signal_hit_cnt: 36951 	all_signal_miss_cnt: 21981
+
+====
+total: 88398
+	hit_cnt: 41253 	miss_cnt: 47145
+	all_signal_hit_cnt: 55579 	all_signal_miss_cnt: 32819
+
+====
+total: 117864
+	hit_cnt: 54989 	miss_cnt: 62875
+	all_signal_hit_cnt: 74178 	all_signal_miss_cnt: 43686
+
+====
+total: 147330
+	hit_cnt: 68775 	miss_cnt: 78555
+	all_signal_hit_cnt: 92915 	all_signal_miss_cnt: 54415
+
+====
+total: 176796
+	hit_cnt: 82582 	miss_cnt: 94214
+	all_signal_hit_cnt: 111339 	all_signal_miss_cnt: 65457
+
+====
+total: 206262
+	hit_cnt: 96432 	miss_cnt: 109830
+	all_signal_hit_cnt: 129810 	all_signal_miss_cnt: 76452
+
+====
+total: 235728
+	hit_cnt: 110272 	miss_cnt: 125456
+	all_signal_hit_cnt: 148408 	all_signal_miss_cnt: 87320
+
+====
+total: 265194
+	hit_cnt: 124079 	miss_cnt: 141115
+	all_signal_hit_cnt: 166931 	all_signal_miss_cnt: 98263
+
+====
+total: 294660
+	hit_cnt: 137851 	miss_cnt: 156809
+	all_signal_hit_cnt: 185577 	all_signal_miss_cnt: 109083
+
+====
+total: 324126
+	hit_cnt: 151634 	miss_cnt: 172492
+	all_signal_hit_cnt: 204279 	all_signal_miss_cnt: 119847
+
+====
+total: 353592
+	hit_cnt: 165273 	miss_cnt: 188319
+	all_signal_hit_cnt: 222890 	all_signal_miss_cnt: 130702
+
+====
+total: 383058
+	hit_cnt: 179015 	miss_cnt: 204043
+	all_signal_hit_cnt: 241469 	all_signal_miss_cnt: 141589
+
+====
+total: 412524
+	hit_cnt: 192772 	miss_cnt: 219752
+	all_signal_hit_cnt: 260067 	all_signal_miss_cnt: 152457
+
+====
+total: 441990
+	hit_cnt: 206507 	miss_cnt: 235483
+	all_signal_hit_cnt: 278586 	all_signal_miss_cnt: 163404
+
+====
+total: 471456
+	hit_cnt: 220186 	miss_cnt: 251270
+	all_signal_hit_cnt: 297155 	all_signal_miss_cnt: 174301
+
+====
+total: 500922
+	hit_cnt: 233995 	miss_cnt: 266927
+	all_signal_hit_cnt: 315701 	all_signal_miss_cnt: 185221
+
+====
+total: 530388
+	hit_cnt: 247674 	miss_cnt: 282714
+	all_signal_hit_cnt: 334270 	all_signal_miss_cnt: 196118
+
+====
+total: 559854
+	hit_cnt: 261375 	miss_cnt: 298479
+	all_signal_hit_cnt: 352891 	all_signal_miss_cnt: 206963
+
+====
+total: 589320
+	hit_cnt: 275107 	miss_cnt: 314213
+	all_signal_hit_cnt: 371517 	all_signal_miss_cnt: 217803
+
+====
+total: 618786
+	hit_cnt: 288891 	miss_cnt: 329895
+	all_signal_hit_cnt: 390297 	all_signal_miss_cnt: 228489
+
+====
+total: 648252
+	hit_cnt: 302695 	miss_cnt: 345557
+	all_signal_hit_cnt: 408809 	all_signal_miss_cnt: 239443
+
+====
+total: 677718
+	hit_cnt: 316387 	miss_cnt: 361331
+	all_signal_hit_cnt: 427254 	all_signal_miss_cnt: 250464
+
+====
+total: 707184
+	hit_cnt: 329992 	miss_cnt: 377192
+	all_signal_hit_cnt: 445850 	all_signal_miss_cnt: 261334
+
+====
+total: 736650
+	hit_cnt: 343680 	miss_cnt: 392970
+	all_signal_hit_cnt: 464353 	all_signal_miss_cnt: 272297
+
+====
+total: 766116
+	hit_cnt: 357432 	miss_cnt: 408684
+	all_signal_hit_cnt: 483166 	all_signal_miss_cnt: 282950
+
+====
+total: 795582
+	hit_cnt: 371327 	miss_cnt: 424255
+	all_signal_hit_cnt: 501636 	all_signal_miss_cnt: 293946
+
+====
+total: 825048
+	hit_cnt: 385042 	miss_cnt: 440006
+	all_signal_hit_cnt: 520254 	all_signal_miss_cnt: 304794
+
+====
+total: 854514
+	hit_cnt: 398909 	miss_cnt: 455605
+	all_signal_hit_cnt: 538768 	all_signal_miss_cnt: 315746
+
+====
+total: 883980
+	hit_cnt: 412824 	miss_cnt: 471156
+	all_signal_hit_cnt: 557377 	all_signal_miss_cnt: 326603
+
+====
+total: 913446
+	hit_cnt: 426494 	miss_cnt: 486952
+	all_signal_hit_cnt: 575759 	all_signal_miss_cnt: 337687
+
+====
+total: 942912
+	hit_cnt: 440221 	miss_cnt: 502691
+	all_signal_hit_cnt: 594313 	all_signal_miss_cnt: 348599
+
+====
+total: 972378
+	hit_cnt: 454087 	miss_cnt: 518291
+	all_signal_hit_cnt: 612897 	all_signal_miss_cnt: 359481
+
+====
+total: 1001844
+	hit_cnt: 467941 	miss_cnt: 533903
+	all_signal_hit_cnt: 631564 	all_signal_miss_cnt: 370280
+
+====
+total: 1031310
+	hit_cnt: 481744 	miss_cnt: 549566
+	all_signal_hit_cnt: 649988 	all_signal_miss_cnt: 381322
+
+====
+total: 1060776
+	hit_cnt: 495549 	miss_cnt: 565227
+	all_signal_hit_cnt: 668544 	all_signal_miss_cnt: 392232
+
+====
+total: 1090242
+	hit_cnt: 509275 	miss_cnt: 580967
+	all_signal_hit_cnt: 686878 	all_signal_miss_cnt: 403364
+
+====
+total: 1119708
+	hit_cnt: 523040 	miss_cnt: 596668
+	all_signal_hit_cnt: 705630 	all_signal_miss_cnt: 414078
+
+====
+total: 1149174
+	hit_cnt: 536662 	miss_cnt: 612512
+	all_signal_hit_cnt: 724084 	all_signal_miss_cnt: 425090
+
+====
+total: 1178640
+	hit_cnt: 550385 	miss_cnt: 628255
+	all_signal_hit_cnt: 742791 	all_signal_miss_cnt: 435849
+
+====
+total: 1208106
+	hit_cnt: 564266 	miss_cnt: 643840
+	all_signal_hit_cnt: 761279 	all_signal_miss_cnt: 446827
+
+====
+total: 1237572
+	hit_cnt: 578123 	miss_cnt: 659449
+	all_signal_hit_cnt: 779797 	all_signal_miss_cnt: 457775
+
+====
+total: 1267038
+	hit_cnt: 592004 	miss_cnt: 675034
+	all_signal_hit_cnt: 798425 	all_signal_miss_cnt: 468613
+
+====
+total: 1296504
+	hit_cnt: 605782 	miss_cnt: 690722
+	all_signal_hit_cnt: 817037 	all_signal_miss_cnt: 479467
+
+====
+total: 1325970
+	hit_cnt: 619665 	miss_cnt: 706305
+	all_signal_hit_cnt: 835600 	all_signal_miss_cnt: 490370
+
+====
+total: 1355436
+	hit_cnt: 633574 	miss_cnt: 721862
+	all_signal_hit_cnt: 854380 	all_signal_miss_cnt: 501056
+
+====
+total: 1384902
+	hit_cnt: 647295 	miss_cnt: 737607
+	all_signal_hit_cnt: 872904 	all_signal_miss_cnt: 511998
+
+====
+total: 1414368
+	hit_cnt: 660995 	miss_cnt: 753373
+	all_signal_hit_cnt: 891321 	all_signal_miss_cnt: 523047
+
+====
+total: 1443834
+	hit_cnt: 674751 	miss_cnt: 769083
+	all_signal_hit_cnt: 909740 	all_signal_miss_cnt: 534094
+
+====
+total: 1473300
+	hit_cnt: 688538 	miss_cnt: 784762
+	all_signal_hit_cnt: 928373 	all_signal_miss_cnt: 544927
+
+====
+total: 1502766
+	hit_cnt: 702202 	miss_cnt: 800564
+	all_signal_hit_cnt: 946828 	all_signal_miss_cnt: 555938
+
+====
+total: 1532232
+	hit_cnt: 715928 	miss_cnt: 816304
+	all_signal_hit_cnt: 965371 	all_signal_miss_cnt: 566861
+
+====
+total: 1561698
+	hit_cnt: 729649 	miss_cnt: 832049
+	all_signal_hit_cnt: 983903 	all_signal_miss_cnt: 577795
+
+====
+total: 1591164
+	hit_cnt: 743236 	miss_cnt: 847928
+	all_signal_hit_cnt: 1002689 	all_signal_miss_cnt: 588475
+
+====
+total: 1620630
+	hit_cnt: 757080 	miss_cnt: 863550
+	all_signal_hit_cnt: 1021201 	all_signal_miss_cnt: 599429
+
+====
+total: 1650096
+	hit_cnt: 771007 	miss_cnt: 879089
+	all_signal_hit_cnt: 1039626 	all_signal_miss_cnt: 610470
+
+====
+total: 1679562
+	hit_cnt: 784770 	miss_cnt: 894792
+	all_signal_hit_cnt: 1058185 	all_signal_miss_cnt: 621377
+
+====
+total: 1709028
+	hit_cnt: 798458 	miss_cnt: 910570
+	all_signal_hit_cnt: 1076688 	all_signal_miss_cnt: 632340
+
+====
+total: 1738494
+	hit_cnt: 812312 	miss_cnt: 926182
+	all_signal_hit_cnt: 1095185 	all_signal_miss_cnt: 643309
+
+====
+total: 1767960
+	hit_cnt: 826322 	miss_cnt: 941638
+	all_signal_hit_cnt: 1113706 	all_signal_miss_cnt: 654254
+
+====
+total: 1797426
+	hit_cnt: 840216 	miss_cnt: 957210
+	all_signal_hit_cnt: 1132381 	all_signal_miss_cnt: 665045
+
+====
+total: 1826892
+	hit_cnt: 854009 	miss_cnt: 972883
+	all_signal_hit_cnt: 1151107 	all_signal_miss_cnt: 675785
+
+====
+total: 1856358
+	hit_cnt: 867950 	miss_cnt: 988408
+	all_signal_hit_cnt: 1169840 	all_signal_miss_cnt: 686518
+
+====
+total: 1885824
+	hit_cnt: 881709 	miss_cnt: 1004115
+	all_signal_hit_cnt: 1188363 	all_signal_miss_cnt: 697461
+
+====
+total: 1915290
+	hit_cnt: 895467 	miss_cnt: 1019823
+	all_signal_hit_cnt: 1207005 	all_signal_miss_cnt: 708285
+
+====
+total: 1944756
+	hit_cnt: 909393 	miss_cnt: 1035363
+	all_signal_hit_cnt: 1225636 	all_signal_miss_cnt: 719120
+
+====
+total: 1974222
+	hit_cnt: 923175 	miss_cnt: 1051047
+	all_signal_hit_cnt: 1244070 	all_signal_miss_cnt: 730152
+
+====
+total: 2003688
+	hit_cnt: 936874 	miss_cnt: 1066814
+	all_signal_hit_cnt: 1262563 	all_signal_miss_cnt: 741125
+
+====
+total: 2033154
+	hit_cnt: 950547 	miss_cnt: 1082607
+	all_signal_hit_cnt: 1281108 	all_signal_miss_cnt: 752046
+
+====
+total: 2062620
+	hit_cnt: 964337 	miss_cnt: 1098283
+	all_signal_hit_cnt: 1299666 	all_signal_miss_cnt: 762954
+
+====
+total: 2092086
+	hit_cnt: 978150 	miss_cnt: 1113936
+	all_signal_hit_cnt: 1318131 	all_signal_miss_cnt: 773955
+
+====
+total: 2121552
+	hit_cnt: 991879 	miss_cnt: 1129673
+	all_signal_hit_cnt: 1336550 	all_signal_miss_cnt: 785002
+
+====
+total: 2151018
+	hit_cnt: 1005608 	miss_cnt: 1145410
+	all_signal_hit_cnt: 1354980 	all_signal_miss_cnt: 796038
+
+====
+total: 2180484
+	hit_cnt: 1019352 	miss_cnt: 1161132
+	all_signal_hit_cnt: 1373393 	all_signal_miss_cnt: 807091
+
+====
+total: 2209950
+	hit_cnt: 1033102 	miss_cnt: 1176848
+	all_signal_hit_cnt: 1391859 	all_signal_miss_cnt: 818091
+
+====
+total: 2239416
+	hit_cnt: 1046885 	miss_cnt: 1192531
+	all_signal_hit_cnt: 1410217 	all_signal_miss_cnt: 829199
+
+====
+total: 2268882
+	hit_cnt: 1060592 	miss_cnt: 1208290
+	all_signal_hit_cnt: 1428899 	all_signal_miss_cnt: 839983
+
+====
+total: 2298348
+	hit_cnt: 1074201 	miss_cnt: 1224147
+	all_signal_hit_cnt: 1447346 	all_signal_miss_cnt: 851002
+
+====
+total: 2327814
+	hit_cnt: 1087860 	miss_cnt: 1239954
+	all_signal_hit_cnt: 1465656 	all_signal_miss_cnt: 862158
+
+====
+total: 2357280
+	hit_cnt: 1101586 	miss_cnt: 1255694
+	all_signal_hit_cnt: 1484188 	all_signal_miss_cnt: 873092
+
+====
+total: 2386746
+	hit_cnt: 1115349 	miss_cnt: 1271397
+	all_signal_hit_cnt: 1503021 	all_signal_miss_cnt: 883725
+
+====
+total: 2416212
+	hit_cnt: 1129065 	miss_cnt: 1287147
+	all_signal_hit_cnt: 1521656 	all_signal_miss_cnt: 894556
+
+====
+total: 2445678
+	hit_cnt: 1142660 	miss_cnt: 1303018
+	all_signal_hit_cnt: 1540162 	all_signal_miss_cnt: 905516
+
+====
+total: 2475144
+	hit_cnt: 1156420 	miss_cnt: 1318724
+	all_signal_hit_cnt: 1558800 	all_signal_miss_cnt: 916344
+
+====
+total: 2504610
+	hit_cnt: 1170203 	miss_cnt: 1334407
+	all_signal_hit_cnt: 1577158 	all_signal_miss_cnt: 927452
+
+====
+total: 2534076
+	hit_cnt: 1183897 	miss_cnt: 1350179
+	all_signal_hit_cnt: 1595746 	all_signal_miss_cnt: 938330
+
+====
+total: 2563542
+	hit_cnt: 1197725 	miss_cnt: 1365817
+	all_signal_hit_cnt: 1614267 	all_signal_miss_cnt: 949275
+
+====
+total: 2593008
+	hit_cnt: 1211521 	miss_cnt: 1381487
+	all_signal_hit_cnt: 1633147 	all_signal_miss_cnt: 959861
+
+====
+total: 2622474
+	hit_cnt: 1225304 	miss_cnt: 1397170
+	all_signal_hit_cnt: 1651854 	all_signal_miss_cnt: 970620
+
+====
+total: 2651940
+	hit_cnt: 1239074 	miss_cnt: 1412866
+	all_signal_hit_cnt: 1670628 	all_signal_miss_cnt: 981312
+
+====
+total: 2681406
+	hit_cnt: 1252831 	miss_cnt: 1428575
+	all_signal_hit_cnt: 1689226 	all_signal_miss_cnt: 992180
+
+====
+total: 2710872
+	hit_cnt: 1266485 	miss_cnt: 1444387
+	all_signal_hit_cnt: 1707909 	all_signal_miss_cnt: 1002963
+
+====
+total: 2740338
+	hit_cnt: 1280389 	miss_cnt: 1459949
+	all_signal_hit_cnt: 1726593 	all_signal_miss_cnt: 1013745
+
+====
+total: 2769804
+	hit_cnt: 1294022 	miss_cnt: 1475782
+	all_signal_hit_cnt: 1745184 	all_signal_miss_cnt: 1024620
+
+====
+total: 2799270
+	hit_cnt: 1307829 	miss_cnt: 1491441
+	all_signal_hit_cnt: 1763608 	all_signal_miss_cnt: 1035662
+
+====
+total: 2828736
+	hit_cnt: 1321683 	miss_cnt: 1507053
+	all_signal_hit_cnt: 1782100 	all_signal_miss_cnt: 1046636
+
+====
+total: 2858202
+	hit_cnt: 1335428 	miss_cnt: 1522774
+	all_signal_hit_cnt: 1800574 	all_signal_miss_cnt: 1057628
+
+====
+total: 2887668
+	hit_cnt: 1349054 	miss_cnt: 1538614
+	all_signal_hit_cnt: 1819046 	all_signal_miss_cnt: 1068622
+
+====
+total: 2917134
+	hit_cnt: 1362860 	miss_cnt: 1554274
+	all_signal_hit_cnt: 1837657 	all_signal_miss_cnt: 1079477
+
+====
+total: 2946600
+	hit_cnt: 1376700 	miss_cnt: 1569900
+	all_signal_hit_cnt: 1856340 	all_signal_miss_cnt: 1090260
+
+	Conclusion: using all_signal is better. And the average performance is: ~63% hit rate
