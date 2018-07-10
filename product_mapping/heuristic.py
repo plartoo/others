@@ -99,9 +99,11 @@ def load_data_from_json(file):
 
 
 def tokenize(s):
-    # removes non-alphanumeric and space characters; and turn the str into lowercase
-    # Or we can do simple thing like this r'\w+' instead
-    return re.sub('[^0-9a-zA-Z\s]+', '', s).lower().split()
+    # 1. replace commas with spaces (must come first)
+    # 2. removes non-alphanumeric and double-or-more space characters;
+    # and turn the str into lowercase
+    # Note: alternatively, we can do simple thing like this r'\w+' instead
+    return re.sub('[^0-9a-zA-Z\s]+', '', re.sub('[,]+', ' ', s)).lower().split()
 
 
 # TODO: rename to 'build_total_word_cnt_table_from_json'
@@ -124,6 +126,14 @@ def build_total_word_cnt_table(data, fields):
                         word_count[w] = {sub_cat: 1}
     return word_count
 
+# 'ROLDA,GEL,(INT)'
+
+def combine_columns(pandas_row, col_names):
+    combined_words = []
+    for f in col_names:
+        combined_words.append(pandas_row[f])
+    return ' '.join(combined_words)
+
 
 # TODO: refactor to combine this with the one above
 def build_total_word_cnt_table_from_dataframe(data, fields):
@@ -133,11 +143,7 @@ def build_total_word_cnt_table_from_dataframe(data, fields):
         if sub_cat is None:
             continue
         else:
-            combined_words = []
-            for f in fields:
-                combined_words.append(row[f])
-
-            words = tokenize(' '.join(combined_words))
+            words = tokenize(combine_columns(row, fields))
             for w in words:
                 if w in word_count:
                     if sub_cat in word_count[w]:
@@ -146,30 +152,6 @@ def build_total_word_cnt_table_from_dataframe(data, fields):
                         word_count[w][sub_cat] = 1
                 else:
                     word_count[w] = {sub_cat: 1}
-    return word_count
-
-
-def build_column_specific_table(data, fields):
-    # I ended up not using this because we don't need to further split dict by column
-    word_count = defaultdict(int)
-    for r in data:
-        sub_cat = r['CP_SUBCATEGORY_NAME'] #TODO: refactor
-        if sub_cat is None:
-            continue
-        else:
-            for f in fields:
-                words = tokenize(r[f])
-                for w in words:
-                    if w in word_count:
-                        if f in word_count[w]:
-                            if sub_cat in word_count[w][f]:
-                                word_count[w][f][sub_cat] += 1
-                            else:
-                                word_count[w][f][sub_cat] = 1
-                        else:
-                            word_count[w][f] = {sub_cat: 1}
-                    else:
-                        word_count[w] = {f: {sub_cat: 1}}
     return word_count
 
 
@@ -188,6 +170,9 @@ def get_suggestions(word_cnt_t1, words_in):
 
 def get_enhanced_suggestion(word_cnt_tbl, words_in):
     suggestions = get_suggestions(word_cnt_tbl, words_in)
+    if not suggestions:
+        return {'label': NO_SUGGESTIONS, 'count': -1}
+
     if len(suggestions) > 2:
         hw = get_helpful_words(suggestions)
         if len(hw) > 0:
@@ -195,7 +180,15 @@ def get_enhanced_suggestion(word_cnt_tbl, words_in):
             suggestions = get_suggestions(word_cnt_tbl, ' '.join(hw))[0]
         else:
             return {'label': AMBIGUOUS, 'count': -1}
+
     return {'label': suggestions[0], 'count': suggestions[-1][0]}
+
+    # try:
+    #     test = {'label': suggestions[0], 'count': suggestions[-1][0]}
+    # except:
+    #     pdb.set_trace()
+    #     return {'label': 'haha', 'count': 0}
+    # return test
 
 
 def have_same_count(suggestions):

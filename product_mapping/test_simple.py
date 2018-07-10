@@ -1,11 +1,10 @@
 import pdb
-
-import json
-import os
+"""
+Description: 
+A quick script to test the accuracy of (simple word-count-based) heuristic approach.
+"""
 import random
-import sys
 
-import pandas as pd
 from sklearn.model_selection import train_test_split
 
 import heuristic
@@ -18,11 +17,21 @@ INPUT_CATEGORIES = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
 TARGET_CATEGORY = 'CP_SUBCATEGORY_NAME'
 TEST_ITERATIONS = 100
 
+def is_correct(word_cnt_tbl, input_words, row):
+    predicted = heuristic.get_enhanced_suggestion(word_cnt_tbl, input_words)['label']
+    actual = row.CP_SUBCATEGORY_NAME
+    return predicted == actual
+
 if __name__ == '__main__':
     query_name = 'mapped_items'
     print('Loading data from remote database using query:', heuristic.QUERIES[query_name])
     df = heuristic.get_dataframe_from_query(query_name)
 
+    total_cnt = 0
+    hit_cnt = 0
+    miss_cnt = 0
+    all_signal_hit_cnt = 0
+    all_signal_miss_cnt = 0
     for i in range(TEST_ITERATIONS):
         input_cols = INPUT_CATEGORIES + [TARGET_CATEGORY]
         x_train, x_test, y_train, y_test = train_test_split(df[input_cols],
@@ -31,78 +40,22 @@ if __name__ == '__main__':
                                                             random_state=random.randint(0,10*TEST_ITERATIONS))
 
         word_cnt_tbl = heuristic.build_total_word_cnt_table_from_dataframe(x_train, INPUT_CATEGORIES)
-        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Dry Idea : Solid Antiperspirant'))
-        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Henkel : Misc Merchandise'))
-        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Renuzit Aromatherapy Collection Air Freshener & Renuzit Farm Fresh Air Freshener : Combo'))
-        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Schwarzkopf : General Promotion - Hair Care Products'))
-        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Dial For Men Odor Armor : Body Wash & Bar Soap'))
-        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Purex Crystals : Fabric Softener Crystals'))
-        print(heuristic.get_enhanced_suggestion(word_cnt_tbl, 'Got 2B Glued : Hair Spray'))
+        for i, row in x_test.iterrows():
+            total_cnt += 1
 
-        pdb.set_trace()
-        print(x_train.iloc[0])
-        print(y_train.iloc[0])
+            # use just product_name as input signal
+            if is_correct(word_cnt_tbl, row.GM_PRODUCT_NAME, row):
+                hit_cnt += 1
+            else:
+                miss_cnt += 1
 
-    # mapping_data = json.loads(heuristic.get_data_from_query(query_name))
+            # now let's try to use all signals as input
+            input_words = heuristic.combine_columns(row, INPUT_CATEGORIES)
+            if is_correct(word_cnt_tbl, input_words, row):
+                all_signal_hit_cnt += 1
+            else:
+                all_signal_miss_cnt += 1
 
-    # if args.f:
-    #     input_file = os.path.join(input_dir, args.f)
-    #     filename, file_extension = os.path.splitext(args.f)
-    #     if file_extension == '.csv':
-    #         output_file = os.path.join(output_dir, (args.f + '-' + cur_date + '.csv'))
-    #         output_in_csv = True
-    #         df = pd.read_csv(input_file, index_col=False)
-    #     elif file_extension == '.xlsx':
-    #         output_file = os.path.join(output_dir, (args.f + '-' + cur_date + '.xlsx'))
-    #         df = pd.read_excel(input_file, index_col=False)
-    #     else:
-    #         print("The file format (extension) is not supported. Only CSV and XLSX as input file will work.")
-    #         sys.exit()
-    #     input_data = df.to_json(orient='records')
-    # elif args.d:
-    #     output_file = os.path.join(output_dir, ('database_pull' + '-' + cur_date + '.xlsx'))
-    #     query_name = 'unmapped_items'
-    #     print('Pulling input data from remote database using query:', heuristic.QUERIES[query_name])
-    #     input_data = heuristic.get_data_from_query(query_name)
-    # else:
-    #     pass
-    #
-    # input_data = json.loads(input_data)
-    # output_data = []
-    # for input_row in input_data:
-    #     print("\n------------")
-    #     print("Current row:")
-    #     print(input_row)
-    #     uniq_input_words = set()
-    #     for sig in INPUT_SIGNALS:
-    #         if input_row[sig] is not None:
-    #             uniq_input_words.add(input_row[sig])
-    #
-    #     uniq_input_words = list(uniq_input_words - EXCLUDED_WORDS)
-    #     if len(uniq_input_words) == 0:
-    #         input_row['CP_SUBCATEGORY_NAME'] = heuristic.NOT_ENOUGH_WORDS
-    #     else:
-    #         suggestions = heuristic.get_suggestions(word_cnt_tbl, ' '.join(uniq_input_words))
-    #         if len(suggestions) > 2:
-    #             # if a lot of suggestions were returned originally, try to filter out noisy words
-    #             helpful_words = heuristic.get_helpful_words(suggestions)
-    #             if len(helpful_words) > 0:
-    #                 print("\nGot enhanced suggestions:")
-    #                 suggestions = heuristic.get_suggestions(word_cnt_tbl, ' '.join(helpful_words))
-    #             else:
-    #                 suggestions = [(heuristic.AMBIGUOUS,)]
-    #
-    #         print(suggestions)
-    #         print("------------\n")
-    #         input_row['CP_SUBCATEGORY_NAME'] = suggestions[0][0] if len(suggestions) > 0 else heuristic.NO_SUGGESTIONS
-    #
-    #     output_data.append(input_row)
-    #
-    # cols = list(output_data[0].keys())
-    # df = pd.DataFrame.from_dict(output_data)
-    # if output_in_csv:
-    #     df.to_csv(output_file, index=False, columns=cols)
-    # else:
-    #     df.to_excel(output_file, index=False, columns=cols)
-    # print("Output written in:", output_file)
-    # print("Program successfully finished.\n")
+        print("\n====\ntotal:",total_cnt)
+        print("\thit_cnt:",hit_cnt,"\tmiss_cnt:",miss_cnt)
+        print("\tall_signal_hit_cnt:", all_signal_hit_cnt, "\tall_signal_miss_cnt:", all_signal_miss_cnt)
