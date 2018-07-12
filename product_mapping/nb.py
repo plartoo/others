@@ -9,6 +9,9 @@ import pdb
 # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
 # ToDo: Neural net https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/
 
+# Tensor Flow: http://www.riptutorial.com/tensorflow/example/30750/math-behind-1d-convolution-with-advanced-examples-in-tf
+
+
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
