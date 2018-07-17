@@ -7,7 +7,6 @@ import pdb
 # http://archive.is/l3pqr
 # https://web.archive.org/web/20180629014044/https://towardsdatascience.com/multi-class-text-classification-with-scikit-learn-12f1e60e0a9f?gi=5faf6b6cc8a8
 # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
-# ToDo: Neural net https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/
 
 # Tensor Flow: http://www.riptutorial.com/tensorflow/example/30750/math-behind-1d-convolution-with-advanced-examples-in-tf
 
