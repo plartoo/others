@@ -127,14 +127,14 @@ features = tfidf_vectorizer.fit_transform(dfx)
 
 dfy = df[['CP_SUBCATEGORY_NAME']]
 dfy.columns = ['CP_SUBCATEGORY_NAME'] # assign column name
-dfy = dfy.copy() # to avoid getting 'SettingWIthCopyWarning' REF: https://stackoverflow.com/q/12555323
+dfy = dfy.copy() # to avoid getting 'SettingWIthCopyWarning'
 dfy['category_id'] =  dfy['CP_SUBCATEGORY_NAME'].factorize()[0]
 category_id_df = dfy[['CP_SUBCATEGORY_NAME', 'category_id']].drop_duplicates().sort_values('category_id')
 category_to_id = dict(category_id_df.values)
 id_to_category = dict(category_id_df[['category_id', 'CP_SUBCATEGORY_NAME']].values)
 labels = dfy.category_id
 
-model = LinearSVC() # REF: http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
+model = LinearSVC() # API Reference: http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
 X_train, X_test, y_train, y_test, indices_train, indices_test = train_test_split(features,
                                                                                  labels,
                                                                                  df.index,
@@ -142,6 +142,11 @@ X_train, X_test, y_train, y_test, indices_train, indices_test = train_test_split
                                                                                  random_state=0)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
+
+# here is where magic happens
+predict_svc('Dettol Liquid Soap Dist', model, tfidf_vectorizer, id_to_category)
+predict_svc('D262.0 Solid & Roll-On Deodorants & Antiperspirants', model, tfidf_vectorizer, id_to_category)
+
 
 # cnt_vect = CountVectorizer()
 # x_train_counts = cnt_vect.fit_transform(X_train)
