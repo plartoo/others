@@ -12,17 +12,17 @@ For example, suppose the input string is 'Dial Kids : Hair & Body Wash'.
 This heuristic-based approach will look for ['dial', 'kids', 'hair', 'body', 'wash']
 in the dictionary of word counts build on the raw (training) data. Suppose, the 
 word count dictionary is as follows: 
-{'dial' => {'body wash' => 10, 'shampoo' => 2}, 'kids' => {'baby assoceries' => 5},
+{'dial' => {'body wash' => 10, 'shampoo' => 2}, 'kids' => {'baby accessories' => 5},
 'hair' => {'shampoo' => 10, 'body wash' => 2}, 'body' => {'body wash' => 10},
 'wash' => {'detergent' => 20, 'cleaners' => 5, 'body wash' => 4} }
  
 Then after adding up the count of target mappings, we get {'body wash' => 26, 
-'shampoo' => 12, 'baby assoceries' => 5, 'detergent' => 20, 'cleaners' => 5}.
+'shampoo' => 12, 'baby accessories' => 5, 'detergent' => 20, 'cleaners' => 5}.
 As a result, 'body wash' is assigned as the final target mapping for 
 'Dial Kids : Hair & Body Wash'.
 
 Note: this naive approach is NOT supposed to be used in production. I implemented
-this to show that even a simple heuristic like this can get us to up to 50% accuracy.
+this to show that even a simple heuristic like this can get us to up to 60% accuracy.
 """
 
 import argparse
@@ -262,10 +262,10 @@ if __name__ == '__main__':
             break
 
         suggestions = get_suggestions(word_cnt_tbl, words_in)
-        print("<-----Suggestions sorted by frequency-----")
+        print("\n<-----Suggestions sorted by frequency----->")
         for s in suggestions:
             print(s[0],"",s[-1][0],"==>", s[-1][1])
-        print("----->\n")
+        print("<--------------->\n\n\n\n\n\n")
         if len(suggestions) > 2:
             hw = get_helpful_words(suggestions)
             if len(hw) > 0:
