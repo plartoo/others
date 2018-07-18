@@ -13,6 +13,7 @@ scipy = "*"
 matplotlib = "*"
 seaborn = "*"
 keras = "*"
+"h5py" = "*"
 
 [dev-packages]
 
