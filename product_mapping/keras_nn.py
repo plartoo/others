@@ -6,9 +6,11 @@ from keras.layers import Dense
 from keras.models import model_from_json
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.utils import np_utils
+from keras.optimizers import SGD
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import LabelEncoder
+
 
 
 ## define baseline model
@@ -49,13 +51,19 @@ encoded_Y = encoder.transform(Y)
 # convert integers to dummy variables (i.e. one hot encoded)
 dummy_y = np_utils.to_categorical(encoded_Y)
 
+pdb.set_trace()
 # create model
 model = Sequential()
 model.add(Dense(100, input_dim=X_len, activation='relu')) # TODO: change NN layer config
 model.add(Dense(Y_cnt, activation='softmax'))
 # Compile model
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(X, Y, epochs=150, batch_size=10000, verbose=1)
+sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+model.compile(loss='categorical_crossentropy',
+              # optimizer='adam', # 35% accuracy
+                optimizer=sgd,
+              metrics=['accuracy'])
+model.fit(X, dummy_y, epochs=100, batch_size=10000, verbose=1) # 35% accuracy one
+score = model.evaluate(x_test, y_test, batch_size=128)
 
 # serialize model to JSON
 model_json = model.to_json()
