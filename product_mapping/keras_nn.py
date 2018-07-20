@@ -104,6 +104,7 @@ model.compile(loss='categorical_crossentropy',
               # adamax with Xlen, Xlen+Xlen, Xlen, softplus gets 58% at 100ep and has potential to go a bit higher
               # adamax with Xlen+Xlen, Xlen+Xlen, Xlen, softplus gets 65% at 100ep
               # adamax with Xlen+Xlen, Xlen+Xlen, Xlen+Xlen, softplus gets 66% at 100ep
+                # adamax with Xlen+Xlen, Xlen+Xlen, Xlen+Xlen, softplus gets 64% at 100ep WITH batch size 100
 
               metrics=['accuracy'])
 # REF: https://machinelearningmastery.com/evaluate-performance-deep-learning-models-keras/
