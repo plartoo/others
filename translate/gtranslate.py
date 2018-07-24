@@ -5,22 +5,56 @@ import re
 import pandas as pd
 import pdb
 
-
 # REF: https://stackoverflow.com/q/37667671
 # REF: https://web.archive.org/web/20180513001508/https://ctrlq.org/code/19909-google-translate-api
 # REF: https://web.archive.org/web/20180513001611/https://ctrlq.org/code/19899-google-translate-languages
 
+# Language list: https://www.microsoft.com/en-us/translator/languages.aspx
+# Main translator: https://www.microsoft.com/en-us/translator/translatorapi.aspx
+# We need to look up the language labels (such as 'es', 'en' by trying out the widget here: https://www.bing.com/widget/translator and catching the URL live using Chrome's developer tool
+# Note: EU's eTranslation service is not good for texts shorter than 30 characters, so we cannot apply that
+# https://ec.europa.eu/info/resources-partners/machine-translation-public-administrations-etranslation_en
+# We maybe able to use that to upload the whole mapping document and get it translated
+# text = 'Ya hemos mirado la configuración en el panel de control como Miguel nos explicó pero el  problema  sigue existiendo'
+# print('Source text:', text)
+# print('Translated text:', translate(text, 'es', 'en'))
+
+
 def translate(text, source_language, target_language):
     error_msg = 'Translation error'
-    base_url= 'https://translate.googleapis.com/translate_a/single?client=gtx&dt=t'
-    source_lang= '&sl=' + source_language
-    target_lang= '&tl=' + target_language
-    text= '&q=' + text
-    url = base_url + source_lang + target_lang + text
+
+    # Using Microsoft Bing's Translate API
+    base_url_1 = 'https://api.microsofttranslator.com/v2/ajax.svc/TranslateArray?appId='
+    app_id = quote('"') + 'TIzUkShc-PwdtTGuWT6dBOmttItmhca2MXmdccZow2N4*' + quote('"')
+    base_url_2 = '&texts=['
+    text = quote('"') + quote(text) + quote('"')
+    base_url_3 = ']&from='
+    source_lang = quote('"') + source_language + quote('"')
+    base_url_4 = '&to='
+    target_lang = quote('"') + target_language + quote('"')
+    base_url_5 = '&oncomplete=_mstc5&onerror=_mste5'
+    url = base_url_1 + app_id + base_url_2 + text + base_url_3 + source_lang + base_url_4 + target_lang + base_url_5
+
+    # # Google's Translation API (no longer works)
+    # base_url= 'https://translate.googleapis.com/translate_a/single?client=gtx&dt=t'
+    # source_lang= '&sl=' + source_language
+    # target_lang= '&tl=' + target_language
+    # text= '&q=' + text
+    # url = base_url + source_lang + target_lang + text
+
     rq = requests.get(url)
     if rq.status_code == 200:
-        translated_text = json.load(io.StringIO(rq.text))
-        return translated_text[0][0][0]
+        ## Use following with Microsoft API
+        regex = re.search(r'.*\((\[\{.*\}\])\)', rq.text)
+        if regex:
+            translated = json.load(io.StringIO(regex[1]))
+            return translated[0]['TranslatedText']
+        else:
+            return rq.text
+
+        ## Use following with Google API
+        # translated_text = json.load(io.StringIO(rq.text))
+        # return translated_text[0][0][0]
     return error_msg
 
 
