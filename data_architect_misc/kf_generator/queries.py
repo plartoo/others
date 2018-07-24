@@ -106,21 +106,50 @@ def get_fact_query(country_metadata):
     #     [Local Currency], [Spend Local], [Spend USD], [TRP], [Normalized TRP], [Insertions],[Impressions]
     # FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@COUNTRY_KEY]
     # """
-    fact_query_APAC = """
-    SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim],
-        [Daypart Dim], [Network Dim], [Month/Year] AS [Month Year], [Country] AS [Country ID], 
-        [Local Currency], 
-        CAST([Spend Local] AS DECIMAL(18,2)) AS [Spend Local], 
-        CAST([Spend USD] AS INT) AS [Spend USD], 
-        CAST([TRP] AS DECIMAL(38,2)) AS [TRP], 
-        CAST([Normalized TRP] AS DECIMAL(38,2)) AS [Normalized TRP], 
-        CAST([Insertions] AS INT) AS [Insertions], 
-        CAST([Impressions]  AS DECIMAL(38,2)) AS [Impressions] 
-    FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@COUNTRY_KEY]    
-    """
+
+    #Added due to we are migrating APAC countries to 1219 Database
+    if country_metadata['country_key'] == 'THA':
+        fact_query_APAC_on1219DB = """
+             SELECT [Geography Dim]
+                  ,[Product Dim]
+                  ,[Media Dim]
+                  ,[Demographic Dim]
+                  ,[Creative Dim]
+                  ,[Daypart Dim]
+                  ,[Network Dim]
+                  ,[Month Year]
+                  ,[Country]
+                  ,[Local Currency]
+                  ,[Spend Local]
+                  ,[Spend USD]
+                  ,[TRP]
+                  ,[Normalized TRP]
+                  ,[Insertions]
+                  ,[Impressions]
+              FROM [DM_1219_ColgateGlobal].[dbo].[V_Transaction_Data_APAC] A
+              INNER JOIN [dbo].[CP_DIM_COUNTRY] B ON A.Country = B.CP_COUNTRY_ID
+              WHERE B.COUNTRY_KEY = '@COUNTRY_KEY'
+                """
+    else:
+        fact_query_APAC = """        
+            SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim],
+                [Daypart Dim], [Network Dim], [Month/Year] AS [Month Year], [Country] AS [Country ID],
+                [Local Currency],
+                CAST([Spend Local] AS DECIMAL(18,2)) AS [Spend Local],
+                CAST([Spend USD] AS INT) AS [Spend USD],
+                CAST([TRP] AS DECIMAL(38,2)) AS [TRP],
+                CAST([Normalized TRP] AS DECIMAL(38,2)) AS [Normalized TRP],
+                CAST([Insertions] AS INT) AS [Insertions],
+                CAST([Impressions]  AS DECIMAL(38,2)) AS [Impressions]
+            FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@COUNTRY_KEY]
+            """
+
 
     output_file = 'MED_KF_'
-    if country_metadata['division_text'] == 'Asia':
+    if country_metadata['division_text'] == 'Asia' and country_metadata['country_key'] == 'THA':
+        query = fact_query_APAC_on1219DB.replace('@COUNTRY_KEY', str(country_metadata['country_key']))
+        output_file += str(country_metadata['country_key'])
+    elif country_metadata['division_text'] == 'Asia':
         query = fact_query_APAC.replace('@COUNTRY_KEY', str(country_metadata['country_key']))
         output_file += str(country_metadata['country_key'])
     else:
