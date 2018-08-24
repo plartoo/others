@@ -107,14 +107,11 @@ if __name__ == '__main__':
 
     unmapped_subcategories_q += " AND GM_COUNTRY_NAME='" + args.c + "'"
     print('Loading mapped subcategories from remote database using query:', mapped_subcategories_q)
-    # mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) #TODO: uncomment this
-    mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
+    mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
+    # if you want to save the existing mappings locally (on your computer, uncomment this line and comment out the line above
+    # mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
     print('Loading unmapped subcategories for', args.c, 'from remote database using query:', unmapped_subcategories_q)
     unmapped_subcats_df = get_dataframe_from_query(unmapped_subcategories_q)
-    # subcat_names_and_ids_df = get_dataframe_from_query(distinct_subcat_name_and_id_q)
-    # subcat_names_and_ids = dict(zip(subcat_names_and_ids_df.CP_SUBCATEGORY_NAME, subcat_names_and_ids_df.CP_SUBCATEGORY_ID))
-    # subcat_names_and_ids = dict(
-    #     zip(subcat_names_and_ids_df.CP_SUBCATEGORY_NAME.str.lower(), subcat_names_and_ids_df.CP_SUBCATEGORY_ID))
 
     tfidf_vectorizer = TfidfVectorizer(
         sublinear_tf=True,  # TODO: we can remove this if log scale doesn't work out
@@ -135,15 +132,13 @@ if __name__ == '__main__':
             + mapped_subcats_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
             + mapped_subcats_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize))\
         .apply(' '.join)
-    # df_x = pd.DataFrame(mapped_subcats_df[FEATURE_COLUMNS].apply(lambda x: ' '.join(tokenize( str(x) )), axis=1), columns='x')
-    # df_x = pd.DataFrame(mapped_subcats_df[FEATURE_COLUMNS].apply(lambda x:  ' '.join(x), axis=1).apply(tokenize), columns=['Col'])
     print('concat ends', str(datetime.datetime.utcnow()))
 
     df_y = pd.DataFrame(mapped_subcats_df, columns=[TARGET_NAME_COLUMN])
     features = tfidf_vectorizer.fit_transform(df_x)
     df_y[TARGET_ID_COLUMN] = df_y[TARGET_NAME_COLUMN].factorize()[0] # assign id labels
     subcat_name_to_id_df = df_y[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].drop_duplicates().sort_values(TARGET_ID_COLUMN)
-    subcat_name_to_id_ref_table = dict(subcat_name_to_id_df[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].values) #dict(subcat_names_and_ids_df[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].values)
+    subcat_name_to_id_ref_table = dict(subcat_name_to_id_df[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].values)
     label_id_to_subcat_name = dict(subcat_name_to_id_df[[TARGET_ID_COLUMN, TARGET_NAME_COLUMN]].values)
     labels = df_y[[TARGET_ID_COLUMN]]
 
@@ -155,7 +150,6 @@ if __name__ == '__main__':
                                                                                      random_state=0)
     print('fitting starts', str(datetime.datetime.utcnow()))
     model.fit(x_train, y_train.values.reshape(-1,)) # https://stackoverflow.com/q/34165731/1330974
-    #y_pred = model.predict(x_test)
     print('fitting ends', str(datetime.datetime.utcnow()))
 
     cols = COLUMNS_FOR_APAC if apac_country else COLUMNS_FOR_ALL_OTHERS
@@ -166,7 +160,6 @@ if __name__ == '__main__':
                                               model,
                                               tfidf_vectorizer,
                                               label_id_to_subcat_name)
-        # print(predicted_subcat)
         row_headers = row.to_dict().keys()
         vals = [row[c] if c in row_headers else '' for c in cols.keys()]
         vals_with_raw_col_names = dict(zip(cols.keys(), vals))
@@ -181,6 +174,7 @@ if __name__ == '__main__':
             vals_with_adjusted_col_names['Comments'] = 'mapped by Multinomial Naive Bayes algorithm'
         else:
             # this is for non-APAC countries
+            vals_with_adjusted_col_names = dict((cols[k], vals_with_raw_col_names[k]) for (k, v) in cols.items())
             vals_with_adjusted_col_names['CP_SUBCATEGORY_NAME'] = predicted_subcat
             vals_with_adjusted_col_names['CP_SUBCATEGORY_ID'] = subcat_name_to_id_ref_table[predicted_subcat]
             vals_with_adjusted_col_names['MAPPING_PROCESS_TYPE'] = 'New_Product_Mapping'
