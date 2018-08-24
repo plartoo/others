@@ -108,7 +108,7 @@ def get_fact_query(country_metadata):
     # """
 
     #Added due to we are migrating APAC countries to 1219 Database
-    if country_metadata['country_key'] == 'THA':
+    if country_metadata['country_key'] in ['THA', 'IRP', 'SGP', 'HKG', 'IDN', 'MAL', 'PHI', 'TWN', 'VTN']:
         fact_query_APAC_on1219DB = """
              SELECT [Geography Dim]
                   ,[Product Dim]
@@ -123,7 +123,7 @@ def get_fact_query(country_metadata):
                   ,[Spend Local]
                   ,[Spend USD]
                   ,[TRP]
-                  ,[Normalized TRP]
+                  ,[Normalized TRP] 
                   ,[Insertions]
                   ,[Impressions]
               FROM [DM_1219_ColgateGlobal].[dbo].[V_Transaction_Data_APAC] A
@@ -146,7 +146,7 @@ def get_fact_query(country_metadata):
 
 
     output_file = 'MED_KF_'
-    if country_metadata['division_text'] == 'Asia' and country_metadata['country_key'] == 'THA':
+    if country_metadata['division_text'] == 'Asia' and (country_metadata['country_key'] in ['THA', 'IRP', 'SGP', 'HKG', 'IDN', 'MAL', 'PHI', 'TWN', 'VTN']):
         query = fact_query_APAC_on1219DB.replace('@COUNTRY_KEY', str(country_metadata['country_key']))
         output_file += str(country_metadata['country_key'])
     elif country_metadata['division_text'] == 'Asia':
