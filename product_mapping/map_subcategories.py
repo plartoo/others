@@ -76,10 +76,10 @@ COLUMNS_FOR_ALL_OTHERS = {
 }
 
 
-def predict_using_svc(str, model, vectorizer, category_dict):
+def predict_using_svc(str, model, vectorizer, id_to_name_dict):
     vectorized_str = vectorizer.transform([str])
     predicted_cat_id = model.predict(vectorized_str)[0]
-    return category_dict[predicted_cat_id]
+    return id_to_name_dict[predicted_cat_id]
 
 
 def combine_feature_columns_to_one_long_str(row_from_df):
@@ -107,9 +107,9 @@ if __name__ == '__main__':
 
     unmapped_subcategories_q += " AND GM_COUNTRY_NAME='" + args.c + "'"
     print('Loading mapped subcategories from remote database using query:', mapped_subcategories_q)
-    mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
+    # mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
     # if you want to save the existing mappings locally (on your computer, uncomment this line and comment out the line above
-    # mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
+    mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
     print('Loading unmapped subcategories for', args.c, 'from remote database using query:', unmapped_subcategories_q)
     unmapped_subcats_df = get_dataframe_from_query(unmapped_subcategories_q)
 
@@ -121,8 +121,7 @@ if __name__ == '__main__':
         ngram_range=(1, 2),
         stop_words='english'
     )
-    import datetime
-    print('concat starts', str(datetime.datetime.utcnow()))
+    print('concat starts', time.asctime())#str(datetime.datetime.utcnow()))
     # TODO: creating df_x could become a computational bottleneck; need to find a more efficient way to do it like
     # what I used to do below?
     df_x = (mapped_subcats_df['GM_ADVERTISER_NAME'].astype('str').apply(tokenize)
@@ -132,7 +131,11 @@ if __name__ == '__main__':
             + mapped_subcats_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
             + mapped_subcats_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize))\
         .apply(' '.join)
-    print('concat ends', str(datetime.datetime.utcnow()))
+    # The line below works similar to above, but it is a bit slower because we need to make sure
+    # each column is converted to str(). The upside of this approach is that it is more aligned with
+    # functional style programming.
+    # df_x = pd.DataFrame(mapped_subcats_df[FEATURE_COLUMNS].apply(lambda x:  ' '.join(str(x)), axis=1).apply(tokenize), columns=['Col'])
+    print('concat ends', time.asctime()) #str(datetime.datetime.utcnow()))
 
     df_y = pd.DataFrame(mapped_subcats_df, columns=[TARGET_NAME_COLUMN])
     features = tfidf_vectorizer.fit_transform(df_x)
@@ -148,9 +151,9 @@ if __name__ == '__main__':
                                                                                      mapped_subcats_df.index,
                                                                                      test_size=0,#0.33,
                                                                                      random_state=0)
-    print('fitting starts', str(datetime.datetime.utcnow()))
+    print('fitting starts', time.asctime()) # str(datetime.datetime.utcnow()))
     model.fit(x_train, y_train.values.reshape(-1,)) # https://stackoverflow.com/q/34165731/1330974
-    print('fitting ends', str(datetime.datetime.utcnow()))
+    print('fitting ends', time.asctime()) # str(datetime.datetime.utcnow()))
 
     cols = COLUMNS_FOR_APAC if apac_country else COLUMNS_FOR_ALL_OTHERS
     mapped_df = pd.DataFrame(columns=cols.values(), index=None)
