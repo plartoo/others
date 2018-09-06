@@ -7,14 +7,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 
-from mapping_utils import run_sql, get_dataframe_from_query, tokenize
-from queries import mapped_subcategories_q, unmapped_subcategories_q, distinct_subcat_name_and_id_q
+from mapping_utils import get_dataframe_from_query, tokenize
+from queries import mapped_variants_q, unmapped_subcategories_q
 
 DESC = '''
 This program guesses variant names column based on multinomial naive bayes approach.
 To find out how to run, use '-h' flag. Usage example:
 >> python map_variants.py -i <file_that_has_subcategories_mapped.csv> -c "UNITED STATES"
 '''
+INPUT_DIR = 'input'
 OUTPUT_DIR = 'output'
 OUTPUT_FILE = ''.join(['mapped_variants_', str(int(time.time())), '.csv'])
 FEATURE_COLUMNS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
@@ -114,15 +115,17 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    print('Loading mapped subcategories from remote database using query:', mapped_subcategories_q)
-    # if you want to save the existing mappings locally (on your computer, uncomment this line and comment out the line above
-    # mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
-    mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
+    print('Loading mapped variant names from remote database using query:', mapped_variants_q)
+    # if you want to save the existing mappings locally (on your computer, uncomment this line
+    # and comment out the line above mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
+    mapped_variants_df = get_dataframe_from_query(mapped_variants_q) # TODO: uncomment this
+    mapped_variants_df.to_csv(path_or_buf='mapped_variants.csv', header=True, index=False)
 
     # TODO: load data from the input CSV file
-    print('Loading unmapped subcategories for', args.c, 'from remote database using query:', unmapped_subcategories_q)
-    unmapped_subcategories_q += " AND GM_COUNTRY_NAME='" + args.c + "'"
-    unmapped_subcats_df = get_dataframe_from_query(unmapped_subcategories_q)
+    print('Loading unmapped variants for', args.c, 'from local file named:', args.i)
+    input_file = os.path.join(cur_dir_path, INPUT_DIR, args.i)
+    mapped_subcats_df = pd.read_csv(input_file , dtype=str, sep=',')
+    unmapped_variants_df = get_dataframe_from_query(unmapped_subcategories_q)
 
     tfidf_vectorizer = TfidfVectorizer(
         sublinear_tf=True,  # TODO: we can remove this if log scale doesn't work out
@@ -132,71 +135,70 @@ if __name__ == '__main__':
         ngram_range=(1, 2),
         stop_words='english'
     )
-    print('concat starts', time.asctime())#str(datetime.datetime.utcnow()))
+    print('concat starts', time.asctime())
     # TODO: creating df_x could become a computational bottleneck; need to find a more efficient way to do it like
     # what I used to do below?
-    import pdb
-    pdb.set_trace()
-    df_x = (mapped_subcats_df['GM_ADVERTISER_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['GM_SECTOR_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['GM_SUBSECTOR_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['GM_CATEGORY_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['CP_SUBCATEGORY_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['CP_BRAND_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['CP_SUBBRAND_NAME'].astype('str').apply(tokenize))\
+    # import pdb
+    # pdb.set_trace()
+    df_x = (mapped_variants_df['GM_ADVERTISER_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['GM_SECTOR_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['GM_SUBSECTOR_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['GM_CATEGORY_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['CP_SUBCATEGORY_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['CP_BRAND_NAME'].astype('str').apply(tokenize)
+            + mapped_variants_df['CP_SUBBRAND_NAME'].astype('str').apply(tokenize))\
         .apply(' '.join)
     # The line below works just as well as the above, but it is a bit slower because we need to make sure
     # each column is converted to str(). The upside of this approach is that it is more functional style programming.
     # df_x = pd.DataFrame(mapped_subcats_df[FEATURE_COLUMNS].apply(lambda x:  ' '.join(str(x)), axis=1).apply(tokenize), columns=['Col'])
-    print('concat ends', time.asctime()) #str(datetime.datetime.utcnow()))
+    print('concat ends', time.asctime())
 
-    df_y = pd.DataFrame(mapped_subcats_df, columns=[TARGET_NAME_COLUMN])
+    df_y = pd.DataFrame(mapped_variants_df, columns=[TARGET_NAME_COLUMN])
     features = tfidf_vectorizer.fit_transform(df_x)
     df_y[TARGET_ID_COLUMN] = df_y[TARGET_NAME_COLUMN].factorize()[0] # assign id labels
-    subcat_name_to_id_df = df_y[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].drop_duplicates().sort_values(TARGET_ID_COLUMN)
-    subcat_name_to_id_ref_table = dict(subcat_name_to_id_df[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].values)
-    label_id_to_subcat_name = dict(subcat_name_to_id_df[[TARGET_ID_COLUMN, TARGET_NAME_COLUMN]].values)
+    variant_name_to_id_df = df_y[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].drop_duplicates().sort_values(TARGET_ID_COLUMN)
+    variant_name_to_id_ref_table = dict(variant_name_to_id_df[[TARGET_NAME_COLUMN, TARGET_ID_COLUMN]].values)
+    label_id_to_subcat_name = dict(variant_name_to_id_df[[TARGET_ID_COLUMN, TARGET_NAME_COLUMN]].values)
     labels = df_y[[TARGET_ID_COLUMN]]
 
     model = LinearSVC()
     x_train, x_test, y_train, y_test, indices_train, indices_test = train_test_split(features,
                                                                                      labels,
-                                                                                     mapped_subcats_df.index,
-                                                                                     test_size=0,#0.33,
+                                                                                     mapped_variants_df.index,
+                                                                                     test_size=0,  #0.33,
                                                                                      random_state=0)
-    print('fitting starts', time.asctime()) # str(datetime.datetime.utcnow()))
+    print('fitting starts', time.asctime())
     model.fit(x_train, y_train.values.reshape(-1,)) # https://stackoverflow.com/q/34165731/1330974
-    print('fitting ends', time.asctime()) # str(datetime.datetime.utcnow()))
+    print('fitting ends', time.asctime())
 
     cols = COLUMNS_FOR_APAC if apac_country else COLUMNS_FOR_ALL_OTHERS
     mapped_df = pd.DataFrame(columns=cols.values(), index=None)
-    for idx, row in unmapped_subcats_df.iterrows():
+    for idx, row in unmapped_variants_df.iterrows():
         input_str = combine_feature_columns_to_one_long_str(row)
-        predicted_subcat = predict_using_svc(input_str,
-                                              model,
-                                              tfidf_vectorizer,
-                                              label_id_to_subcat_name)
+        predicted_variant_name = predict_using_svc(input_str,
+                                                   model,
+                                                   tfidf_vectorizer,
+                                                   label_id_to_subcat_name)
         row_headers = row.to_dict().keys()
         vals = [row[c] if c in row_headers else '' for c in cols.keys()]
         vals_with_raw_col_names = dict(zip(cols.keys(), vals))
+        vals_with_adjusted_col_names = dict((cols[k], vals_with_raw_col_names[k]) for (k, v) in cols.items())
 
         if apac_country:
             # TODO: remove this silly stuff as soon as Jholman merged APAC system to our main DB
-            vals_with_adjusted_col_names = dict((cols[k], vals_with_raw_col_names[k]) for (k,v) in cols.items())
-            vals_with_adjusted_col_names['Global_Subcategory Name'] = predicted_subcat
-            vals_with_adjusted_col_names['Global_Subcategory ID'] = subcat_name_to_id_ref_table[predicted_subcat]
             vals_with_adjusted_col_names['Included'] = '2' if row.SOS_PRODUCT else '1'
+            vals_with_adjusted_col_names['Global_Subcategory ID'] = variant_name_to_id_ref_table[predicted_variant_name]
+            vals_with_adjusted_col_names['Global_Subcategory Name'] = predicted_variant_name
             vals_with_adjusted_col_names['ExceptionStatus'] = 'New'
             vals_with_adjusted_col_names['Comments'] = 'mapped by Multinomial Naive Bayes algorithm'
         else:
             # this is for non-APAC countries
-            vals_with_adjusted_col_names = dict((cols[k], vals_with_raw_col_names[k]) for (k, v) in cols.items())
-            vals_with_adjusted_col_names['CP_SUBCATEGORY_NAME'] = predicted_subcat
-            vals_with_adjusted_col_names['CP_SUBCATEGORY_ID'] = subcat_name_to_id_ref_table[predicted_subcat]
             vals_with_adjusted_col_names['MAPPING_PROCESS_TYPE'] = 'New_Product_Mapping'
+            vals_with_adjusted_col_names[TARGET_ID_COLUMN] = variant_name_to_id_ref_table[predicted_variant_name]
+            vals_with_adjusted_col_names[TARGET_NAME_COLUMN] = predicted_variant_name
             vals_with_adjusted_col_names['LAST_MAPPED_BY'] = 'mapped by Multinomial Naive Bayes algorithm'
 
         mapped_df.loc[len(mapped_df)] = vals_with_adjusted_col_names

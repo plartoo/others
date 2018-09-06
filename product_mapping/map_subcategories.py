@@ -7,8 +7,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 
-from mapping_utils import run_sql, get_dataframe_from_query, tokenize
-from queries import mapped_subcategories_q, unmapped_subcategories_q, distinct_subcat_name_and_id_q
+from mapping_utils import get_dataframe_from_query, tokenize
+from queries import mapped_subcategories_q, unmapped_subcategories_q
 
 DESC = '''
 This program guesses subcategory column based on multinomial naive bayes approach. 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         ngram_range=(1, 2),
         stop_words='english'
     )
-    print('concat starts', time.asctime())#str(datetime.datetime.utcnow()))
+    print('concat starts', time.asctime())
     # TODO: creating df_x could become a computational bottleneck; need to find a more efficient way to do it like
     # what I used to do below?
     df_x = (mapped_subcats_df['GM_ADVERTISER_NAME'].astype('str').apply(tokenize)
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     # each column is converted to str(). The upside of this approach is that it is more aligned with
     # functional style programming.
     # df_x = pd.DataFrame(mapped_subcats_df[FEATURE_COLUMNS].apply(lambda x:  ' '.join(str(x)), axis=1).apply(tokenize), columns=['Col'])
-    print('concat ends', time.asctime()) #str(datetime.datetime.utcnow()))
+    print('concat ends', time.asctime())
 
     df_y = pd.DataFrame(mapped_subcats_df, columns=[TARGET_NAME_COLUMN])
     features = tfidf_vectorizer.fit_transform(df_x)
@@ -151,9 +151,9 @@ if __name__ == '__main__':
                                                                                      mapped_subcats_df.index,
                                                                                      test_size=0,#0.33,
                                                                                      random_state=0)
-    print('fitting starts', time.asctime()) # str(datetime.datetime.utcnow()))
+    print('fitting starts', time.asctime())
     model.fit(x_train, y_train.values.reshape(-1,)) # https://stackoverflow.com/q/34165731/1330974
-    print('fitting ends', time.asctime()) # str(datetime.datetime.utcnow()))
+    print('fitting ends', time.asctime())
 
     cols = COLUMNS_FOR_APAC if apac_country else COLUMNS_FOR_ALL_OTHERS
     mapped_df = pd.DataFrame(columns=cols.values(), index=None)
@@ -166,21 +166,20 @@ if __name__ == '__main__':
         row_headers = row.to_dict().keys()
         vals = [row[c] if c in row_headers else '' for c in cols.keys()]
         vals_with_raw_col_names = dict(zip(cols.keys(), vals))
+        vals_with_adjusted_col_names = dict((cols[k], vals_with_raw_col_names[k]) for (k, v) in cols.items())
 
         if apac_country:
             # TODO: remove this silly stuff as soon as Jholman merged APAC system to our main DB
-            vals_with_adjusted_col_names = dict((cols[k], vals_with_raw_col_names[k]) for (k,v) in cols.items())
-            vals_with_adjusted_col_names['Global_Subcategory Name'] = predicted_subcat
-            vals_with_adjusted_col_names['Global_Subcategory ID'] = subcat_name_to_id_ref_table[predicted_subcat]
             vals_with_adjusted_col_names['Included'] = '2' if row.SOS_PRODUCT else '1'
+            vals_with_adjusted_col_names['Global_Subcategory ID'] = subcat_name_to_id_ref_table[predicted_subcat]
+            vals_with_adjusted_col_names['Global_Subcategory Name'] = predicted_subcat
             vals_with_adjusted_col_names['ExceptionStatus'] = 'New'
             vals_with_adjusted_col_names['Comments'] = 'mapped by Multinomial Naive Bayes algorithm'
         else:
             # this is for non-APAC countries
-            vals_with_adjusted_col_names = dict((cols[k], vals_with_raw_col_names[k]) for (k, v) in cols.items())
-            vals_with_adjusted_col_names['CP_SUBCATEGORY_NAME'] = predicted_subcat
-            vals_with_adjusted_col_names['CP_SUBCATEGORY_ID'] = subcat_name_to_id_ref_table[predicted_subcat]
             vals_with_adjusted_col_names['MAPPING_PROCESS_TYPE'] = 'New_Product_Mapping'
+            vals_with_adjusted_col_names[TARGET_ID_COLUMN] = subcat_name_to_id_ref_table[predicted_subcat]
+            vals_with_adjusted_col_names[TARGET_NAME_COLUMN] = predicted_subcat
             vals_with_adjusted_col_names['LAST_MAPPED_BY'] = 'mapped by Multinomial Naive Bayes algorithm'
 
         mapped_df.loc[len(mapped_df)] = vals_with_adjusted_col_names
