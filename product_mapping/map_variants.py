@@ -13,7 +13,7 @@ from queries import mapped_subcategories_q, unmapped_subcategories_q, distinct_s
 DESC = '''
 This program guesses variant names column based on multinomial naive bayes approach.
 To find out how to run, use '-h' flag. Usage example:
->> python map_variants.py -f <file_that_has_subcategories_mapped.csv>
+>> python map_variants.py -i <file_that_has_subcategories_mapped.csv> -c "UNITED STATES"
 '''
 OUTPUT_DIR = 'output'
 OUTPUT_FILE = ''.join(['mapped_variants_', str(int(time.time())), '.csv'])
@@ -81,8 +81,8 @@ COLUMNS_FOR_ALL_OTHERS = {
 
 def predict_using_svc(str, model, vectorizer, id_to_name_dict):
     vectorized_str = vectorizer.transform([str])
-    predicted_cat_id = model.predict(vectorized_str)[0]
-    return id_to_name_dict[predicted_cat_id]
+    predicted_id = model.predict(vectorized_str)[0]
+    return id_to_name_dict[predicted_id]
 
 
 def combine_feature_columns_to_one_long_str(row_from_df):
@@ -93,11 +93,17 @@ def combine_feature_columns_to_one_long_str(row_from_df):
 if __name__ == '__main__':
     apac_country = False
     parser = argparse.ArgumentParser(description=DESC)
-    parser.add_argument('-c',
+    parser.add_argument('-c', # TODO: remove this when we have migrated and merged the APAC process with the primary flow
                         required=True,
                         type=str,
                         help="(Required) Enter the FULL name of the country as seen under [GM_COUNTRY_NAME] column in "
                              "the GM_CP_MASTER_PRODUCT_MAPPING table. E.g., python map_subcategories.py -c \"UNITED STATES\"")
+    parser.add_argument('-i',
+                        required=True,
+                        type=str,
+                        help="(Required) Enter the FULL name of the input file, which must be placed in the folder "
+                             "named 'input' and must contain data with mapped subcategories. "
+                             "E.g., python map_variants.py -i mapped_subcats.csv")
     args = parser.parse_args()
     if args.c in APAC_COUNTRIES: # TODO: remove this when we have migrated all APAC countries into main database
         apac_country = True
@@ -108,12 +114,14 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    unmapped_subcategories_q += " AND GM_COUNTRY_NAME='" + args.c + "'"
     print('Loading mapped subcategories from remote database using query:', mapped_subcategories_q)
-    # mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
     # if you want to save the existing mappings locally (on your computer, uncomment this line and comment out the line above
-    mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
+    # mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
+    mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
+
+    # TODO: load data from the input CSV file
     print('Loading unmapped subcategories for', args.c, 'from remote database using query:', unmapped_subcategories_q)
+    unmapped_subcategories_q += " AND GM_COUNTRY_NAME='" + args.c + "'"
     unmapped_subcats_df = get_dataframe_from_query(unmapped_subcategories_q)
 
     tfidf_vectorizer = TfidfVectorizer(
@@ -134,7 +142,11 @@ if __name__ == '__main__':
             + mapped_subcats_df['GM_SUBSECTOR_NAME'].astype('str').apply(tokenize)
             + mapped_subcats_df['GM_CATEGORY_NAME'].astype('str').apply(tokenize)
             + mapped_subcats_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize))\
+            + mapped_subcats_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize)
+            + mapped_subcats_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize)
+            + mapped_subcats_df['CP_SUBCATEGORY_NAME'].astype('str').apply(tokenize)
+            + mapped_subcats_df['CP_BRAND_NAME'].astype('str').apply(tokenize)
+            + mapped_subcats_df['CP_SUBBRAND_NAME'].astype('str').apply(tokenize))\
         .apply(' '.join)
     # The line below works just as well as the above, but it is a bit slower because we need to make sure
     # each column is converted to str(). The upside of this approach is that it is more functional style programming.
