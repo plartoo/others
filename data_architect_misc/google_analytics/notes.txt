@@ -1,0 +1,23 @@
+How to build Python Service Application:
+https://developers.google.com/analytics/devguides/reporting/core/v4/quickstart/service-py
+
+service-accnt-1@sylvan-repeater-216115.iam.gserviceaccount.com
+Unique ID: 117759410655720479045
+
+Add users: https://support.google.com/analytics/answer/1009702
+
+
+Dimensions and Metrics explorer:
+https://developers.google.com/analytics/devguides/reporting/core/dimsmets
+
+Standard query params:
+https://developers.google.com/analytics/devguides/reporting/core/v4/parameters
+
+Explanation of hierarchy of organization of GA templates: 
+https://support.google.com/analytics/answer/1009618
+
+Creating/adding/removing users:
+https://support.google.com/analytics/answer/1009702
+
+Create Crednetials for Services: https://console.developers.google.com/apis/credentials?showWizardSurvey=true&project=sylvan-repeater-216115
+Follow this guide: https://developers.google.com/analytics/devguides/reporting/core/v4/quickstart/service-py
