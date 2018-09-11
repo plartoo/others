@@ -29,6 +29,7 @@ EXCLUDED_WORDS = {'N/A', 'na', 'N', 'A', 'n', 'a'}
 
 # TODO: extend this list; then remove this when we have migrated all APAC countries into main database
 APAC_COUNTRIES = ['INDIA', 'SINGAPORE', 'THAILAND']
+
 COLUMNS_FOR_APAC = {
        'Included': 'Included'# if SOS_PRODUCT = 0, then 1; if SOS_PRODUCT = 1, then 2
       ,'CategoryType': 'CategoryType' # leave blank
@@ -54,6 +55,7 @@ COLUMNS_FOR_APAC = {
       ,'GM_COUNTRY_ID': 'GM_COUNTRY_ID'
       ,'GM_COUNTRY_NAME': 'GM_COUNTRY_NAME'
 }
+
 COLUMNS_FOR_ALL_OTHERS = {
     'MAPPING_PROCESS_TYPE': 'MAPPING_PROCESS_TYPE'  # 'New_Product_Mapping'
     , 'GM_GLOBAL_PRODUCT_ID': 'GM_GLOBAL_PRODUCT_ID'
