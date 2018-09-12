@@ -121,13 +121,12 @@ if __name__ == '__main__':
     # if you want to save the existing mappings locally (on your computer, uncomment this line
     # and comment out the line above mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
     mapped_variants_df = get_dataframe_from_query(mapped_variants_q) # TODO: uncomment this
-    mapped_variants_df.to_csv(path_or_buf='mapped_variants.csv', header=True, index=False)
+    mapped_variants_df.to_csv(path_or_buf='mapped_variants.csv', header=True, index=False) # TODO: comment this out
 
     # TODO: load data from the input CSV file
     print('Loading unmapped variants for', args.c, 'from local file named:', args.i)
     input_file = os.path.join(cur_dir_path, INPUT_DIR, args.i)
-    mapped_subcats_df = pd.read_csv(input_file , dtype=str, sep=',')
-    unmapped_variants_df = get_dataframe_from_query(unmapped_subcategories_q)
+    unmapped_variants_df = pd.read_csv(input_file , dtype=str, sep=',')
 
     tfidf_vectorizer = TfidfVectorizer(
         sublinear_tf=True,  # TODO: we can remove this if log scale doesn't work out
@@ -173,6 +172,8 @@ if __name__ == '__main__':
                                                                                      test_size=0,  #0.33,
                                                                                      random_state=0)
     print('fitting starts', time.asctime())
+    # import pdb
+    # pdb.set_trace()
     model.fit(x_train, y_train.values.reshape(-1,)) # https://stackoverflow.com/q/34165731/1330974
     print('fitting ends', time.asctime())
 

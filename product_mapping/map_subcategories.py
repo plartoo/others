@@ -107,9 +107,10 @@ if __name__ == '__main__':
 
     unmapped_subcategories_q += " AND GM_COUNTRY_NAME='" + args.c + "'"
     print('Loading mapped subcategories from remote database using query:', mapped_subcategories_q)
-    # mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
+    mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
     # if you want to save the existing mappings locally (on your computer, uncomment this line and comment out the line above
-    mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
+    # mapped_subcats_df.to_csv(path_or_buf='mapped_subcats.csv', header=True, index=False)
+    # mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
     print('Loading unmapped subcategories for', args.c, 'from remote database using query:', unmapped_subcategories_q)
     unmapped_subcats_df = get_dataframe_from_query(unmapped_subcategories_q)
 
