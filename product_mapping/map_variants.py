@@ -147,7 +147,7 @@ if __name__ == '__main__':
             + mapped_variants_df['GM_CATEGORY_NAME'].astype('str').apply(tokenize)
             + mapped_variants_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
             + mapped_variants_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize)
-            + mapped_variants_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize)
+            # + mapped_variants_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize) # we don't use that because it is inferred from cp_subcat
             + mapped_variants_df['CP_SUBCATEGORY_NAME'].astype('str').apply(tokenize)
             + mapped_variants_df['CP_BRAND_NAME'].astype('str').apply(tokenize)
             + mapped_variants_df['CP_SUBBRAND_NAME'].astype('str').apply(tokenize))\
