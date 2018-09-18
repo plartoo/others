@@ -20,8 +20,10 @@ OUTPUT_DIR = 'output'
 OUTPUT_FILE = ''.join(['mapped_variants_', str(int(time.time())), '.csv'])
 FEATURE_COLUMNS = ['GM_ADVERTISER_NAME', 'GM_SECTOR_NAME', 'GM_SUBSECTOR_NAME',
                    'GM_CATEGORY_NAME', 'GM_BRAND_NAME', 'GM_PRODUCT_NAME',
-                   'CP_CATEGORY_NAME', 'CP_SUBCATEGORY_NAME', 'CP_BRAND_NAME',
-                   'CP_SUBBRAND_NAME']
+                   #'CP_CATEGORY_NAME',
+                   'CP_SUBCATEGORY_NAME', 'CP_BRAND_NAME',
+                   # 'CP_SUBBRAND_NAME'
+                   ]
 TARGET_NAME_COLUMN = 'CP_VARIANT_NAME'
 TARGET_ID_COLUMN = 'CP_VARIANT_ID_1PH'
 
@@ -89,8 +91,9 @@ def predict_using_svc(str, model, vectorizer, id_to_name_dict):
 
 
 def combine_feature_columns_to_one_long_str(row_from_df):
-    combined_str_tokens = tokenize(' '.join(row_from_df[f] for f in FEATURE_COLUMNS))
-    return ' '.join([t for t in combined_str_tokens if t not in EXCLUDED_WORDS])
+    combined_str_from_columns = ' '.join(str(row_from_df[f]) for f in FEATURE_COLUMNS)
+    cleaned_str_tokens = tokenize(combined_str_from_columns)
+    return ' '.join([t for t in cleaned_str_tokens if t not in EXCLUDED_WORDS])
 
 
 if __name__ == '__main__':
@@ -150,6 +153,7 @@ if __name__ == '__main__':
             # + mapped_variants_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize) # we don't use that because it is inferred from cp_subcat
             + mapped_variants_df['CP_SUBCATEGORY_NAME'].astype('str').apply(tokenize)
             + mapped_variants_df['CP_BRAND_NAME'].astype('str').apply(tokenize)
+            # we have 'subbrand' in the training set, but in the template that our team is using to feed as input, we don't have that
             + mapped_variants_df['CP_SUBBRAND_NAME'].astype('str').apply(tokenize))\
         .apply(' '.join)
     # The line below works just as well as the above, but it is a bit slower because we need to make sure
