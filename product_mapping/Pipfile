@@ -14,6 +14,7 @@ matplotlib = "*"
 seaborn = "*"
 keras = "*"
 "h5py" = "*"
+openpyxl = "*"
 
 [dev-packages]
 
