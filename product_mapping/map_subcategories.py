@@ -19,6 +19,12 @@ if __name__ == '__main__':
                         type=str,
                         help="(Required) Enter the FULL name of the country as seen under [GM_COUNTRY_NAME] column in "
                              "the GM_CP_MASTER_PRODUCT_MAPPING table. E.g., python map_subcategories.py -c \"UNITED STATES\"")
+    parser.add_argument('-m',
+                        required=False,
+                        type=str,
+                        help="(Required) Enter the FULL name (including path) of the model file, "
+                             "which contains the model previously (the more recent, the better) trained."
+                             "E.g., python map_subcategories.py -m .\output\model_linear_svc_variants_20180920.sav")
     parser.add_argument('-t',
                         required=False,
                         type=str,
@@ -28,6 +34,13 @@ if __name__ == '__main__':
     apac_country = False
     if args.c in APAC_COUNTRIES: # TODO: remove this when we have migrated all APAC countries into main database
         apac_country = True
+        TARGET_NAME_COLUMN = 'Global_Subcategory Name'
+        TARGET_ID_COLUMN = 'Global_Subcategory ID'
+
+    cur_dir_path = os.path.dirname(os.path.realpath(__file__))
+    output_dir = os.path.join(cur_dir_path, OUTPUT_DIR)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     print('Loading mapped subcategories from remote database using query:', mapped_subcategories_q, '\n')
     mapped_subcats_df = get_dataframe_from_query(mapped_subcategories_q) # TODO: uncomment this
@@ -38,7 +51,8 @@ if __name__ == '__main__':
     # mapped_subcats_df = pd.read_csv('mapped_subcats.csv', dtype=str, sep='\t')
 
     unmapped_subcategories_q += " AND GM_COUNTRY_NAME='" + args.c + "'"
-    print('Loading unmapped subcategories for', args.c, 'from remote database using query:', unmapped_subcategories_q)
+    print('Loading unmapped subcategories for', args.c,
+          'from remote database using query:', unmapped_subcategories_q, '\n')
     unmapped_subcats_df = get_dataframe_from_query(unmapped_subcategories_q)
     unmapped_subcats_df['SOS_PRODUCT'] = unmapped_subcats_df['SOS_PRODUCT'].astype(int)
 
@@ -49,7 +63,7 @@ if __name__ == '__main__':
             + mapped_subcats_df['GM_SUBSECTOR_NAME'].astype('str').apply(tokenize)
             + mapped_subcats_df['GM_CATEGORY_NAME'].astype('str').apply(tokenize)
             + mapped_subcats_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
-            + mapped_subcats_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize))\
+            + mapped_subcats_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize)) \
         .apply(' '.join)
     # The line below works similar to above, but it is a bit slower because we need to make sure
     # each column is converted to str(). The upside of this approach is that it is more aligned with
@@ -68,7 +82,13 @@ if __name__ == '__main__':
         ngram_range=(1, 2),
         stop_words='english'
     )
-    model = fit_linear_svc_model(tfidf_vectorizer.fit_transform(df_x), label_df[[LABEL_ID_COLUMN]])
+    if args.m:
+        tfidf_vectorizer.fit_transform(df_x) # we must do this to make vectorizer ready
+        model = load_model(args.m)
+    else:
+        model = fit_linear_svc_model(tfidf_vectorizer.fit_transform(df_x), label_df[[LABEL_ID_COLUMN]])
+        write_model(model, os.path.join(output_dir,
+                                        ''.join(['model_linear_svc_subcats_', time.strftime('%Y%m%d'), '.sav'])))
 
     raw_col_names = RAW_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS
     final_col_names = FINAL_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS # all other shares the same keys and vals
@@ -79,24 +99,16 @@ if __name__ == '__main__':
                                                   model,
                                                   tfidf_vectorizer,
                                                   label_id_to_subcat_name)
+        predicted_subcat_id =  subcat_name_to_subcat_id_ref_table[predicted_subcat_name]
+
         row_headers = row.to_dict().keys()
         vals_of_interest = [row[c] if c in row_headers else '' for c in raw_col_names]
         vals_with_adjusted_col_names = dict(zip(final_col_names, vals_of_interest))
 
-        if apac_country: # TODO: remove this silly stuff as soon as Jholman merged APAC system to our main DB
-            vals_with_adjusted_col_names['Included'] = '2' if row.SOS_PRODUCT else '1'
-            vals_with_adjusted_col_names['Global_Subcategory ID'] = subcat_name_to_subcat_id_ref_table[predicted_subcat_name]
-            vals_with_adjusted_col_names['Global_Subcategory Name'] = predicted_subcat_name
-            vals_with_adjusted_col_names['ExceptionStatus'] = 'New'
-            vals_with_adjusted_col_names['Comments'] = 'mapped by Multinomial Naive Bayes algorithm'
-        else:
-            # this is for non-APAC countries
-            vals_with_adjusted_col_names['MAPPING_PROCESS_TYPE'] = 'New_Product_Mapping'
-            vals_with_adjusted_col_names[TARGET_ID_COLUMN] = subcat_name_to_subcat_id_ref_table[predicted_subcat_name]
-            vals_with_adjusted_col_names[TARGET_NAME_COLUMN] = predicted_subcat_name
-            vals_with_adjusted_col_names['LAST_MAPPED_BY'] = 'mapped by Multinomial Naive Bayes algorithm'
-
-        mapped_df.loc[len(mapped_df)] = vals_with_adjusted_col_names # adding row by row...
+        mapped_df.loc[len(mapped_df)] = prepare_row_content(row, raw_col_names, final_col_names,
+                                                            predicted_subcat_name, predicted_subcat_id,
+                                                            TARGET_NAME_COLUMN, TARGET_ID_COLUMN,
+                                                            apac_country)
 
     write_to_file(mapped_df, 'mapped_subcategories_', args.t)
 

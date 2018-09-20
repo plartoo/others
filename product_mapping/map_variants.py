@@ -24,21 +24,29 @@ if __name__ == '__main__':
                         type=str,
                         help="(Required) Enter the FULL name of the country as seen under [GM_COUNTRY_NAME] column in "
                              "the GM_CP_MASTER_PRODUCT_MAPPING table. E.g., python map_subcategories.py -c \"UNITED STATES\"")
-    parser.add_argument('-t',
-                        required=False,
-                        type=str,
-                        help="(Optional) Set this flag to '1' if the output file should be in TSV format. Default is xlsx.")
     parser.add_argument('-i',
                         required=True,
                         type=str,
                         help="(Required) Enter the FULL name of the input file, which must be placed in the folder "
                              "named 'input' and must contain data with mapped subcategories. "
-                             "E.g., python map_variants.py -i mapped_subcats.csv")
+                             "E.g., python map_variants.py -i unmapped_variants.csv")
+    parser.add_argument('-m',
+                        required=False,
+                        type=str,
+                        help="(Required) Enter the FULL name (including path) of the model file, "
+                             "which contains the model previously (the more recent, the better) trained."
+                             "E.g., python map_variants.py -m .\output\model_linear_svc_variants_20180920.sav")
+    parser.add_argument('-t',
+                        required=False,
+                        type=str,
+                        help="(Optional) Set this flag to '1' if the output file should be in TSV format. Default is xlsx.")
     args = parser.parse_args()
 
     apac_country = False
     if args.c in APAC_COUNTRIES: # TODO: remove this when we have migrated all APAC countries into main database
         apac_country = True
+        TARGET_NAME_COLUMN = 'Global_Variant Name'
+        TARGET_ID_COLUMN = 'Global_Variant ID'
 
     cur_dir_path = os.path.dirname(os.path.realpath(__file__))
     output_dir = os.path.join(cur_dir_path, OUTPUT_DIR)
@@ -48,7 +56,7 @@ if __name__ == '__main__':
     print('Loading mapped variant names from remote database using query:', mapped_variants_q)
     mapped_variants_df = get_dataframe_from_query(mapped_variants_q)
 
-    print('Loading unmapped variants for', args.c, 'from local file named:', args.i)
+    print('Loading unmapped variants for', args.c, 'from local file named:', args.i, '\n')
     input_file = os.path.join(cur_dir_path, INPUT_DIR, args.i)
     if input_file.lower().endswith('.csv'):
         unmapped_variants_df = pd.read_csv(input_file , dtype=str, sep=',')
@@ -81,7 +89,13 @@ if __name__ == '__main__':
         ngram_range=(1, 2),
         stop_words='english'
     )
-    model = fit_linear_svc_model(tfidf_vectorizer.fit_transform(df_x), label_df[[LABEL_ID_COLUMN]])
+    if args.m:
+        tfidf_vectorizer.fit_transform(df_x) # we must do this to make vectorizer ready
+        model = load_model(args.m)
+    else:
+        model = fit_linear_svc_model(tfidf_vectorizer.fit_transform(df_x), label_df[[LABEL_ID_COLUMN]])
+        write_model(model, os.path.join(output_dir,
+                                        ''.join(['model_linear_svc_variants_', time.strftime('%Y%m%d'), '.sav'])))
 
     raw_col_names = RAW_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS
     final_col_names = FINAL_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS # all other shares the same keys and vals
@@ -92,24 +106,16 @@ if __name__ == '__main__':
                                                    model,
                                                    tfidf_vectorizer,
                                                    label_id_to_variant_name)
+        predicted_variant_id =  variant_name_to_variant_id_ref_table[predicted_variant_name]
+
         row_headers = row.to_dict().keys()
         vals_of_interest = [row[c] if c in row_headers else '' for c in raw_col_names]
         vals_with_adjusted_col_names = dict(zip(final_col_names, vals_of_interest))
 
-        if apac_country:
-            # TODO: remove this silly stuff as soon as Jholman merged APAC system to our main DB
-            vals_with_adjusted_col_names['Included'] = '2' if row.SOS_PRODUCT else '1'
-            vals_with_adjusted_col_names['Global_Subcategory ID'] = variant_name_to_variant_id_ref_table[predicted_variant_name]
-            vals_with_adjusted_col_names['Global_Subcategory Name'] = predicted_variant_name
-            vals_with_adjusted_col_names['ExceptionStatus'] = 'New'
-            vals_with_adjusted_col_names['Comments'] = 'mapped by Multinomial Naive Bayes algorithm'
-        else:
-            # this is for non-APAC countries
-            vals_with_adjusted_col_names['MAPPING_PROCESS_TYPE'] = 'New_Product_Mapping'
-            vals_with_adjusted_col_names[TARGET_ID_COLUMN] = variant_name_to_variant_id_ref_table[predicted_variant_name]
-            vals_with_adjusted_col_names[TARGET_NAME_COLUMN] = predicted_variant_name
-            vals_with_adjusted_col_names['LAST_MAPPED_BY'] = 'mapped by Multinomial Naive Bayes algorithm'
-
-        mapped_df.loc[len(mapped_df)] = vals_with_adjusted_col_names
+        mapped_df.loc[len(mapped_df)] = prepare_row_content(row, raw_col_names, final_col_names,
+                                                            predicted_variant_name, predicted_variant_id,
+                                                            TARGET_NAME_COLUMN, TARGET_ID_COLUMN,
+                                                            apac_country)
 
     write_to_file(mapped_df, 'mapped_variants_', args.t)
+

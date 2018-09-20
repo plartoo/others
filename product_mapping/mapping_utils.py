@@ -1,5 +1,6 @@
 import argparse
 import os
+import pickle
 import re
 import time
 
@@ -9,6 +10,7 @@ import pyodbc
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
+from sklearn.externals import joblib
 
 import account_info
 
@@ -115,10 +117,10 @@ def tokenize(s):
     return re.sub('[^0-9a-zA-Z\s]+', '', re.sub('[,//]+', ' ', s)).lower().split()
 
 
-def predict_using_svc(str, model, vectorizer, id_to_name_dict):
-    vectorized_str = vectorizer.transform([str])
+def predict_using_svc(input_str, model, vectorizer, id_to_name_dict):
+    vectorized_str = vectorizer.transform([input_str])
     predicted_cat_id = model.predict(vectorized_str)[0]
-    print(predicted_cat_id, ':', id_to_name_dict[predicted_cat_id])
+    print("Predicted =>", predicted_cat_id, ':', id_to_name_dict[predicted_cat_id])
     return id_to_name_dict[predicted_cat_id]
 
 
@@ -171,3 +173,37 @@ def write_to_file(output_df, output_file, tsv=None):
         output_df.to_excel(writer, index=False)
         writer.save()
     print('Finished guessing the mappings. Results written to', output_file)
+
+
+def prepare_row_content(pd_row, raw_col_names, final_col_names,
+                        predicted_target_name, predicted_target_id,
+                        target_name_col, target_id_col,
+                        apac_flag):
+    # TODO: this method can be removed when we finished merging APAC to main ETL flow
+    row_headers = pd_row.to_dict().keys()
+    vals_of_interest = [pd_row[c] if c in row_headers else '' for c in raw_col_names]
+    vals_with_final_col_names = dict(zip(final_col_names, vals_of_interest))
+    vals_with_final_col_names[target_name_col] = predicted_target_name
+    vals_with_final_col_names[target_id_col] = predicted_target_id
+
+    if apac_flag:
+        vals_with_final_col_names['Included'] = '2' if pd_row.SOS_PRODUCT else '1'
+        vals_with_final_col_names['ExceptionStatus'] = 'New'
+        vals_with_final_col_names['Comments'] = 'mapped by Multinomial Naive Bayes algorithm'
+    else:
+        # this is for non-APAC countries
+        vals_with_final_col_names['MAPPING_PROCESS_TYPE'] = 'New_Product_Mapping'
+        vals_with_final_col_names['LAST_MAPPED_BY'] = 'mapped by Multinomial Naive Bayes algorithm'
+
+    return vals_with_final_col_names
+
+
+def write_model(model, file_name):
+    joblib.dump(model, file_name)
+    print("Writing model to this file:", file_name)
+
+
+def load_model(file_name):
+    print("Loading model from this file:", file_name)
+    return joblib.load(file_name)
+
