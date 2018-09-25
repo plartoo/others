@@ -108,7 +108,7 @@ def get_fact_query(country_metadata):
     # """
 
     #Added due to we are migrating APAC countries to 1219 Database
-    if country_metadata['country_key'] in ['THA', 'IRP', 'SGP', 'HKG', 'IDN', 'MAL', 'PHI', 'TWN', 'VTN']:
+    if country_metadata['country_key'] in ['THA', 'IRP', 'SGP', 'HKG', 'IDN', 'MAL', 'PHI', 'TWN']:
         fact_query_APAC_on1219DB = """
              SELECT [Geography Dim]
                   ,[Product Dim]
@@ -129,7 +129,27 @@ def get_fact_query(country_metadata):
               FROM [DM_1219_ColgateGlobal].[dbo].[V_Transaction_Data_APAC] A
               INNER JOIN [dbo].[CP_DIM_COUNTRY] B ON A.Country = B.CP_COUNTRY_ID
               WHERE B.COUNTRY_KEY = '@COUNTRY_KEY'
-                """
+              """
+    elif country_metadata['country_key'] == 'VTN':
+        fact_query_APAC_vietnam = """
+            SELECT [Geography Dim]
+                  ,[Product Dim]
+                  ,[Media Dim]
+                  ,[Demographic Dim]
+                  ,[Creative Dim]
+                  ,[Daypart Dim]
+                  ,[Network Dim]
+                  ,[Month Year]
+                  ,[Country]
+                  ,[Local Currency]
+                  ,[Spend Local]
+                  ,[Spend USD]
+                  ,[TRP]
+                  ,[Normalized TRP]
+                  ,[Insertions]
+                  ,[Impressions]
+            FROM [DM_1219_ColgateGlobal].[dbo].[V_Transaction_Data_APAC_VTN]
+            """
     else:
         fact_query_APAC = """        
             SELECT	[Geography Dim], [Product Dim], [Media Dim], [Demographic Dim], [Creative Dim],
@@ -144,16 +164,15 @@ def get_fact_query(country_metadata):
             FROM [DM_1035_ColgateAPACCompetitive].[dbo].[MED_KF_@COUNTRY_KEY]
             """
 
-
     output_file = 'MED_KF_'
-    if country_metadata['division_text'] == 'Asia' and (country_metadata['country_key'] in ['THA', 'IRP', 'SGP', 'HKG', 'IDN', 'MAL', 'PHI', 'TWN', 'VTN']):
+    if country_metadata['division_text'] == 'Asia' and (country_metadata['country_key'] in ['THA', 'IRP', 'SGP', 'HKG', 'IDN', 'MAL', 'PHI', 'TWN']):
         query = fact_query_APAC_on1219DB.replace('@COUNTRY_KEY', str(country_metadata['country_key']))
-        output_file += str(country_metadata['country_key'])
+    elif country_metadata['division_text'] == 'Asia' and (country_metadata['country_key'] == 'VTN'):
+        query = fact_query_APAC_vietnam
     elif country_metadata['division_text'] == 'Asia':
         query = fact_query_APAC.replace('@COUNTRY_KEY', str(country_metadata['country_key']))
-        output_file += str(country_metadata['country_key'])
     else:
         query = fact_query_non_APAC.replace('@CP_COUNTRY_ID', str(country_metadata['cp_country_id']))
-        output_file += str(country_metadata['country_key'])
 
-    return {'query': query, 'output_file_basename': output_file}
+    return {'query': query,
+            'output_file_basename': output_file + str(country_metadata['country_key'])}
