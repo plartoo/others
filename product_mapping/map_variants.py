@@ -1,5 +1,5 @@
 from mapping_utils import *
-from queries import mapped_variants_q
+from queries import mapped_nonsos_variants_q, mapped_sos_variants_q
 
 DESC = '''
 This program guesses variant names column based on multinomial naive bayes approach.
@@ -53,69 +53,76 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    print('Loading mapped variant names from remote database using query:', mapped_variants_q)
-    mapped_variants_df = get_dataframe_from_query(mapped_variants_q)
-
-    print('Loading unmapped variants for', args.c, 'from local file named:', args.i, '\n')
-    input_file = os.path.join(cur_dir_path, INPUT_DIR, args.i)
-    if input_file.lower().endswith('.csv'):
-        unmapped_variants_df = pd.read_csv(input_file , dtype=str, sep=',')
-    else:
-        unmapped_variants_df = pd.read_excel(input_file)
-
-    print('Concatenating and cleaning column data starts:', time.asctime())
-    df_x = (mapped_variants_df['GM_ADVERTISER_NAME'].astype('str').apply(tokenize)
-            + mapped_variants_df['GM_SECTOR_NAME'].astype('str').apply(tokenize)
-            + mapped_variants_df['GM_SUBSECTOR_NAME'].astype('str').apply(tokenize)
-            + mapped_variants_df['GM_CATEGORY_NAME'].astype('str').apply(tokenize)
-            + mapped_variants_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
-            + mapped_variants_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize)
-            # + mapped_variants_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize) # we don't use that because it is inferred from cp_subcat
-            + mapped_variants_df['CP_SUBCATEGORY_NAME'].astype('str').apply(tokenize)
-            + mapped_variants_df['CP_BRAND_NAME'].astype('str').apply(tokenize)
-            # we have 'subbrand' in the training set, but in the template that our team is using to feed as input, we don't have that
-            + mapped_variants_df['CP_SUBBRAND_NAME'].astype('str').apply(tokenize))\
-        .apply(' '.join)
-    print('Concatenating and cleaning column data ends:', time.asctime())
-
-    label_df, label_id_to_variant_name, variant_name_to_variant_id_ref_table = prepare_label_data(mapped_variants_df,
-                                                                                                  TARGET_NAME_COLUMN,
-                                                                                                  TARGET_ID_COLUMN)
-    tfidf_vectorizer = TfidfVectorizer(
-        sublinear_tf=True,  # TODO: we can remove this if log scale doesn't work out
-        min_df=1,
-        norm='l2', # L2 norm
-        encoding='utf-8',
-        ngram_range=(1, 2),
-        stop_words='english'
-    )
-    if args.m:
-        tfidf_vectorizer.fit_transform(df_x) # we must do this to make vectorizer ready
-        model = load_model(args.m)
-    else:
-        model = fit_linear_svc_model(tfidf_vectorizer.fit_transform(df_x), label_df[[LABEL_ID_COLUMN]])
-        write_model(model, os.path.join(output_dir,
-                                        ''.join(['model_linear_svc_variants_', time.strftime('%Y%m%d'), '.sav'])))
 
     raw_col_names = RAW_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS
-    final_col_names = FINAL_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS # all other shares the same keys and vals
+    # all other shares the same keys and vals
+    final_col_names = FINAL_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS
     mapped_df = pd.DataFrame(columns=final_col_names, index=None)
-    for idx, row in unmapped_variants_df.iterrows():
-        input_str = combine_feature_columns_to_one_long_str(row, FEATURE_COLUMNS)
-        predicted_variant_name = predict_using_svc(input_str,
-                                                   model,
-                                                   tfidf_vectorizer,
-                                                   label_id_to_variant_name)
-        predicted_variant_id =  variant_name_to_variant_id_ref_table[predicted_variant_name]
 
-        row_headers = row.to_dict().keys()
-        vals_of_interest = [row[c] if c in row_headers else '' for c in raw_col_names]
-        vals_with_adjusted_col_names = dict(zip(final_col_names, vals_of_interest))
+    queries = [(mapped_sos_variants_q, 1), (mapped_nonsos_variants_q, 0)]
+    for q in queries:
+        print('Loading variant names from remote database using query:', q[0])
+        mapped_variants_df = get_dataframe_from_query(q[0])
 
-        mapped_df.loc[len(mapped_df)] = prepare_row_content(row, raw_col_names, final_col_names,
-                                                            predicted_variant_name, predicted_variant_id,
-                                                            TARGET_NAME_COLUMN, TARGET_ID_COLUMN,
-                                                            apac_country)
+        print('Loading unmapped variants for', args.c, 'from local file named:', args.i, '\n')
+        input_file = os.path.join(cur_dir_path, INPUT_DIR, args.i)
+        if input_file.lower().endswith('.csv'):
+            unmapped_variants_df = pd.read_csv(input_file , dtype=str, sep=',')
+        else:
+            unmapped_variants_df = pd.read_excel(input_file)
+
+        print('Concatenating and cleaning column data starts:', time.asctime())
+        df_x = (mapped_variants_df['GM_ADVERTISER_NAME'].astype('str').apply(tokenize)
+                + mapped_variants_df['GM_SECTOR_NAME'].astype('str').apply(tokenize)
+                + mapped_variants_df['GM_SUBSECTOR_NAME'].astype('str').apply(tokenize)
+                + mapped_variants_df['GM_CATEGORY_NAME'].astype('str').apply(tokenize)
+                + mapped_variants_df['GM_BRAND_NAME'].astype('str').apply(tokenize)
+                + mapped_variants_df['GM_PRODUCT_NAME'].astype('str').apply(tokenize)
+                # + mapped_variants_df['CP_CATEGORY_NAME'].astype('str').apply(tokenize) # we don't use that because it is inferred from cp_subcat
+                + mapped_variants_df['CP_SUBCATEGORY_NAME'].astype('str').apply(tokenize)
+                + mapped_variants_df['CP_BRAND_NAME'].astype('str').apply(tokenize)
+                # we have 'subbrand' in the training set, but in the template that our team is using to feed as input, we don't have that
+                + mapped_variants_df['CP_SUBBRAND_NAME'].astype('str').apply(tokenize))\
+            .apply(' '.join)
+        print('Concatenating and cleaning column data ends:', time.asctime())
+
+        label_df, label_id_to_variant_name, variant_name_to_variant_id_ref_table = prepare_label_data(mapped_variants_df,
+                                                                                                      TARGET_NAME_COLUMN,
+                                                                                                      TARGET_ID_COLUMN)
+        tfidf_vectorizer = TfidfVectorizer(
+            sublinear_tf=True,  # TODO: we can remove this if log scale doesn't work out
+            min_df=1,
+            norm='l2', # L2 norm
+            encoding='utf-8',
+            ngram_range=(1, 2),
+            stop_words='english'
+        )
+        if args.m:
+            tfidf_vectorizer.fit_transform(df_x) # we must do this to make vectorizer ready
+            model = load_model(args.m)
+        else:
+            model = fit_linear_svc_model(tfidf_vectorizer.fit_transform(df_x), label_df[[LABEL_ID_COLUMN]])
+            write_model(model, os.path.join(output_dir,
+                                            ''.join(['model_linear_svc_variants_', time.strftime('%Y%m%d'), '.sav'])))
+
+        # We'll iterate on items with relevant SOS_PRODUCT flag for each query
+        unmapped_variants_df = unmapped_variants_df[unmapped_variants_df.SOS_PRODUCT == q[1]]
+        for idx, row in unmapped_variants_df.iterrows():
+            input_str = combine_feature_columns_to_one_long_str(row, FEATURE_COLUMNS)
+            predicted_variant_name = predict_using_svc(input_str,
+                                                       model,
+                                                       tfidf_vectorizer,
+                                                       label_id_to_variant_name)
+            predicted_variant_id =  variant_name_to_variant_id_ref_table[predicted_variant_name]
+
+            row_headers = row.to_dict().keys()
+            vals_of_interest = [row[c] if c in row_headers else '' for c in raw_col_names]
+            vals_with_adjusted_col_names = dict(zip(final_col_names, vals_of_interest))
+
+            mapped_df.loc[len(mapped_df)] = prepare_row_content(row, raw_col_names, final_col_names,
+                                                                predicted_variant_name, predicted_variant_id,
+                                                                TARGET_NAME_COLUMN, TARGET_ID_COLUMN,
+                                                                apac_country)
 
     write_to_file(mapped_df, 'mapped_variants_', args.t)
 

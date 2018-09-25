@@ -120,7 +120,7 @@ def tokenize(s):
 def predict_using_svc(input_str, model, vectorizer, id_to_name_dict):
     vectorized_str = vectorizer.transform([input_str])
     predicted_cat_id = model.predict(vectorized_str)[0]
-    print("Predicted =>", predicted_cat_id, ':', id_to_name_dict[predicted_cat_id])
+    # print("Predicted =>", predicted_cat_id, ':', id_to_name_dict[predicted_cat_id])
     return id_to_name_dict[predicted_cat_id]
 
 
