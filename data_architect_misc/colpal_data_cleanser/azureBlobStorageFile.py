@@ -8,7 +8,8 @@ import ssl
 
 def copy_azure_files(self):
     # https://stackoverflow.com/questions/32500935/python-how-to-move-or-copy-azure-blob-from-one-container-to-another
-    blob_service = BlobService(account_name='account_name', account_key='account_key')
+    blob_service = BlockBlobService(account_name='wmdatarfcolgate',account_key='ww2KsXz/Jz29XztHWshmgg1o+Cd8PffTzNcKAumCjiO/VG7j2EhFGk5iezEkpizvY1NHgCTp06CHtcDcd1bh3A==')
+
     blob_name = 'test_1534532726.json'
     copy_from_container = 'colgate-palmolive'
     copy_to_container = 'colgate-palmolive/Test'
