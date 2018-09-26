@@ -89,6 +89,8 @@ select
        ,MAX(LEN(A.cp_variant_name)) -- 40
 FROM DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A -- total: 547 chars
 
+50+84+50+94+70+122+3+26+8+40 = 547 chars (say it's 600 chars)
+
 select 
 	count(*) -- 128,223
 FROM DBO.GM_CP_MASTER_PRODUCT_MAPPING AS A 
