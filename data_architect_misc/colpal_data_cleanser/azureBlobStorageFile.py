@@ -21,7 +21,8 @@ def copy_azure_files(self):
 
     # for move the file use this line
     blob_service.delete_blob(copy_from_container, blob_name)
-    print("Finished copying blob")
+    print("Finished copying the blob from:", copy_from_container, " to", copy_to_container)
+
 
 
 
