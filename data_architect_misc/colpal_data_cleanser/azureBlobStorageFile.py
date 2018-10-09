@@ -42,8 +42,8 @@ for blob in generator:
 
 copy_azure_files()
 
-#
-#
+
+
 # url='http://data.groupm.com/api/SavedQuery/a9c450ab-9bb1-4368-9035-c746cba52363?applicationtype=DataMarketplace_API&useremail=phyo.thiha%40groupm.com&applicationtoken=ea55447a-bd17-404c-8539-87ecba7e72d1'
 # req = urllib.request.Request(url)
 # result=urllib.request.urlopen(req)
