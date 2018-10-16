@@ -1,13 +1,19 @@
 {
   "__comment": "data_types allowed are 'str','float', 'int', 'date'",
-  "skip_header_rows": 0,
-  "skip_footer_rows": 0,
+  "top_rows_to_skip": 0,
+  "bottom_rows_to_skip": 0,
+  "replace_commas_with_decimal_for_numbers": false,
+
   "column_cleaning_rules":
     [
       {
         "raw_column_name": "",
         "processed_column_name": "Sector",
-        "expected_data_type": "str"
+        "expected_data_type": "str",
+        "expected_value": "N/A",
+        "__or_set_value_to": "N/A",
+        "__null_allowed": false,
+        "__if_null_or_blank": "N/A"
       },
       {
         "raw_column_name": "",
@@ -18,7 +24,7 @@
         "raw_column_name": "",
         "processed_column_name": "Advertiser",
         "expected_data_type": "str",
-        "null_allowed": false
+        "__ignore_row_if_null": true
       },
       {
         "raw_column_name": "",
@@ -44,12 +50,13 @@
         "raw_column_name": "",
         "processed_column_name": "Submedia1",
         "expected_data_type": "str",
-        "if_null": "N/A"
+        "if_null_or_blank": "N/A"
       },
       {
         "raw_column_name": "",
         "processed_column_name": "Submedia2",
-        "expected_data_type": "str"
+        "expected_data_type": "str",
+        "if_null_or_blank": "N/A"
       },
       {
         "raw_column_name": "",

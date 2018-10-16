@@ -22,9 +22,36 @@ To find out how to run, use '-h' flag. Usage example:
 '''
 
 CHUNK_SIZE = 100000 # 100k chunks
-## TODO: replace ',' with '.'
+## ***TODO: replace ',' with '.'
+# get extension
 ## remove headers and footers if any
+# skip rows
+# skip footers
+
+# if XLSX
+# read sheet by sheet
+# if CSV
+# read file in chunk
+
+# get headers
+
 ## pivot
+
+def check_data_against_rules(df, rules):
+    replace_commas = rules['replace_commas_with_decimal_for_numbers']
+
+    # [DM_1219_ColgateGlobal].[STG].[Data_Cleansing_Rule]
+    # TODO: upper, ltrim, rtrim
+    # Setting the whole column such as 'SUBMEDIA_1' or 'SUBMEDIA_2' as 'N/A' regardless of the condition
+    # Delete rows that were loaded with null values for advertiser and local_spend (1. mark as delete if condition met)
+    # Setting DAYPART = 'N/A' for records with a media type other than Radio or Television (2. if condition in one column is met, then apply something to another column)
+    # Set TOTAL_DURATION = 0 for records having 'PRESS' as media type (see #2)
+    # Delete records having a investment = 0 and Rating = 0 (3. mark as delete if condition in TWO columns is met)
+    # Set spot_length = Total_Duration Field Spot_Length (4. Copy value from one column to another)
+    # Replace all the NULL and empty values with N/A OR 0 Field SECTOR => ("default_value": "N/A" or "0")
+
+    pass
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=DESC)
@@ -38,31 +65,39 @@ if __name__ == '__main__':
     config = load_config(args.c)
     extn = get_file_extension(args.i)
 
-    # REF: https://stackoverflow.com/q/14262433
-    if extn == 'xlsx':
-        # REF: https://stackoverflow.com/a/44549301
-        xlsx = pd.read_excel(args.i, sheetname=None)
-        # read sheet by sheet as df and pass them onto the function
-        sheets = xlsx.sheet_names
+    leading_rows_to_skip = 5 #config['top_rows_to_skip']
+    footer_rows_to_skip = 0 #config['bottom_rows_to_skip']
 
-        for sheet in xlsx.
-        pass
-    elif extn == 'csv':
-        #read chunk by chunk as df and pass them onto the function
-        pass
+    # REF: https://stackoverflow.com/q/14262433
+    if extn == '.xlsx':
+        # REF: https://stackoverflow.com/a/44549301
+        xlsx = pd.read_excel(args.i, sheet_name=None,
+                             skiprows=leading_rows_to_skip,
+                             skipfooter=footer_rows_to_skip)
+        for sheet_name, cur_df in xlsx.items():
+            # read sheet by sheet as df and pass them onto the function
+            pdb.set_trace()
+            # df.to_dict(orient='records')
+            pass
+
+    elif extn == '.csv':
+        if footer_rows_to_skip > 0:
+            # Pandas doesn't allow skipping footers if we process things in
+            # chunk, so we handle this special case here
+            cur_df = pd.read_csv(args.i,
+                                 skiprows=leading_rows_to_skip,
+                                 skipfooter=footer_rows_to_skip)
+            pdb.set_trace()
+        else:
+            # otherwise, read by chunk and do further processing
+            for cur_df in pd.read_csv(args.i, chunksize=CHUNK_SIZE,
+                                      skiprows=leading_rows_to_skip):
+                pdb.set_trace()
+                pass
     else:
-        print("Raw data file extension type is not supported.")
+        print("Raw data file type is not supported.")
         exit(1)
 
-    df = pd.read
-    # get extension
-    # if XLSX
-    # read sheet by sheet
-    # if CSV
-    # read file in chunk
-    # get headers
-    # skip rows
-    #
-    # skip footers
-    pdb.set_trace()
+
+    # pdb.set_trace()
     print("Finished cleaning data.")
