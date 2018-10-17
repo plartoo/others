@@ -1,12 +1,13 @@
 import pdb
 
 import argparse
+import os
+import sys
 
 import pandas as pd
 
 from file_utils import get_file_extension
 from data_cleaning_utils import load_config
-
 
 DESC = '''
 This program cleans raw data files according to the rules set forth in the JSON configuration file.
@@ -18,7 +19,10 @@ what is specified in the config file.
 The output of this script is a TSV file with the raw data cleaned per config specification.
 
 To find out how to run, use '-h' flag. Usage example:
->> python clean_data.py -i <raw_data_file.xlsx> -c <config_file.json>
+>> python clean_data.py -i <raw_data_file.xlsx> -c <folder_where cleaning_config.py exists>
+
+Specifically,
+>> python clean_data.py -c .\configs\nic -i .\input\csv_test_with_blank_headers.csv
 '''
 
 CHUNK_SIZE = 100000 # 100k chunks
@@ -42,6 +46,7 @@ def check_data_against_rules(df, rules):
 
     # [DM_1219_ColgateGlobal].[STG].[Data_Cleansing_Rule]
     # TODO: upper, ltrim, rtrim
+    # "replace_commas_with_decimal_for_numbers": false,
     # Setting the whole column such as 'SUBMEDIA_1' or 'SUBMEDIA_2' as 'N/A' regardless of the condition
     # Delete rows that were loaded with null values for advertiser and local_spend (1. mark as delete if condition met)
     # Setting DAYPART = 'N/A' for records with a media type other than Radio or Television (2. if condition in one column is met, then apply something to another column)
@@ -49,31 +54,35 @@ def check_data_against_rules(df, rules):
     # Delete records having a investment = 0 and Rating = 0 (3. mark as delete if condition in TWO columns is met)
     # Set spot_length = Total_Duration Field Spot_Length (4. Copy value from one column to another)
     # Replace all the NULL and empty values with N/A OR 0 Field SECTOR => ("default_value": "N/A" or "0")
-
     pass
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=DESC)
     parser.add_argument('-c', required=True, type=str,
-                        help="(Required) Full path and name of the JSON configuration file. "
-                             "E.g., python clean_data.py -c .\configs\data_cleaning_config.json -i ...")
+                        help="(Required) (Full or relative) Path to the configuration file (which must be named 'config.py'). "
+                             "E.g., python clean_data.py -c .\configs\nicaguara -i ...")
     parser.add_argument('-i', required=True, type=str,
-                        help="(Required) FULL path and name of the input file. "
-                             "E.g., python clean_data.py -i .\input\data_cleaning_config.json -c ...")
+                        help="(Required) (Full or relative) path AND name of the input data file. "
+                             "E.g., python clean_data.py -i .\input\data.csv -c ...")
     args = parser.parse_args()
-    config = load_config(args.c)
-    extn = get_file_extension(args.i)
 
-    leading_rows_to_skip = 5 #config['top_rows_to_skip']
-    footer_rows_to_skip = 0 #config['bottom_rows_to_skip']
-
+    # Dynamically load the config file
+    # REF: https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
+    # Other ways to import custom modules
+    # REF: https://docs.python.org/3/library/importlib.html
+    if (not args.c) or (not os.path.isdir(args.c)):
+        sys.exit("You must provide a valid path to the configuration file")
+    sys.path.append(args.c)
+    import cleaning_config as cc
+    pdb.set_trace()
     # REF: https://stackoverflow.com/q/14262433
+    extn = get_file_extension(args.i)
     if extn == '.xlsx':
         # REF: https://stackoverflow.com/a/44549301
         xlsx = pd.read_excel(args.i, sheet_name=None,
-                             skiprows=leading_rows_to_skip,
-                             skipfooter=footer_rows_to_skip)
+                             skiprows=cc.LEADING_ROWS_TO_SKIP,
+                             skipfooter=cc.BOTTOM_ROWS_TO_SKIP)
         for sheet_name, cur_df in xlsx.items():
             # read sheet by sheet as df and pass them onto the function
             pdb.set_trace()
@@ -81,17 +90,17 @@ if __name__ == '__main__':
             pass
 
     elif extn == '.csv':
-        if footer_rows_to_skip > 0:
+        if cc.BOTTOM_ROWS_TO_SKIP > 0:
             # Pandas doesn't allow skipping footers if we process things in
             # chunk, so we handle this special case here
             cur_df = pd.read_csv(args.i,
-                                 skiprows=leading_rows_to_skip,
-                                 skipfooter=footer_rows_to_skip)
+                                 skiprows=cc.LEADING_ROWS_TO_SKIP,
+                                 skipfooter=cc.BOTTOM_ROWS_TO_SKIP)
             pdb.set_trace()
         else:
             # otherwise, read by chunk and do further processing
             for cur_df in pd.read_csv(args.i, chunksize=CHUNK_SIZE,
-                                      skiprows=leading_rows_to_skip):
+                                      skiprows=cc.LEADING_ROWS_TO_SKIP):
                 pdb.set_trace()
                 pass
     else:

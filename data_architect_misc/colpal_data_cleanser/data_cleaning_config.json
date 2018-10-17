@@ -2,8 +2,9 @@
   "__comment": "data_types allowed are 'str','float', 'int', 'date'",
   "top_rows_to_skip": 0,
   "bottom_rows_to_skip": 0,
-  "replace_commas_with_decimal_for_numbers": false,
-
+  "rules": [
+    "mapping":
+  ]
   "column_cleaning_rules":
     [
       {
