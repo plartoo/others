@@ -1,0 +1,21 @@
+1. update your pip so that it can pull latest libraries
+python -m pip install --upgrade pip
+
+2. install pyarmor
+pip install pyarmor
+
+3. install pyinstaller (to package the code as an exe file, you need this; otherwise, don't install)
+pip install pyinstaller
+
+4. run pyarmor to obfuscate your code
+pyarmor obfuscate <script.py> (dependencies will automatically be included as long as they are in the same folder)
+pyarmor obfuscate /path/to/code/<script.py>
+the output (obfuscated) code will be in the \dist folder. You can zip that whole 'dist' folder and send that to the user. Or read #5
+
+5. 
+then if you want to pack it in the installer (requires pyinstaller) as an exe file:
+pyarmor pack dist\<script.py>
+
+That will create another \dist folder inside the original obfuscated code folder (see step#4 above). If you look into that, you'll see
+an exe file is created. Zip the whole subfolder (\dist\dist) and send it to the user.
+
