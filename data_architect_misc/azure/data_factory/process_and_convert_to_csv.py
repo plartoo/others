@@ -103,7 +103,7 @@ def main():
                                              #'sheetName': '',
                                              'skipHeaderRow': '0',
                                              'skipTrailingRow': '0',
-                                             'additionalProcessingCode': '4_Python_Code/countries/india/*.py',
+                                             'additionalProcessingCode': '4_Python_Code/countries/India/*.py',
                                              }
                                         }
                      }
@@ -111,6 +111,7 @@ def main():
     # 2a. get 'Extended Properties' passed from Azure Data Factory task
     read_activity = open('activity.json').read()
     json_activity = json.loads(read_activity)
+    #"""
     container_name = json_activity['typeProperties']['extendedProperties']['sourceContainer']
     path_to_source_blob_file = json_activity['typeProperties']['extendedProperties']['excelSourcePath']
     source_blob_file_name_or_pattern = json_activity['typeProperties']['extendedProperties']['fileName']
@@ -152,6 +153,8 @@ def main():
                                                blob.name, local_python_file_name_with_path)
             additional_processing_code_downloaded.append(local_python_file_name_with_path)
 
+    print("\nAdditional processing code files downloaded")
+    print(additional_processing_code_downloaded) ##
     # 5. if desired (matching) content in the blob is found
     for blob in blob_content_generator:
         if fnmatch.fnmatch(blob.name, blob_file_name_with_path):
@@ -175,6 +178,7 @@ def main():
             #     print("Choose this as active sheet:", sheet_name)
 
             if additional_processing_code_downloaded:
+
                 # 7a. if we are told to load additional processing code, we load it here
                 # Note: we can do dynamic loading here later based on file names like
                 # this: https://stackoverflow.com/a/1057765
