@@ -1,5 +1,6 @@
 import fnmatch
 import json
+import importlib
 import os
 import shutil
 import sys
@@ -28,7 +29,8 @@ def append_new_sys_path(dir_name):
     new_sys_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_name)
     if new_sys_path not in sys.path:
         sys.path.append(new_sys_path)
-        print("\nNew sys path appended:\n", sys.path, "\n")
+        print("\nNew sys path appended:", new_sys_path)
+        print("Current sys path is:\n", sys.path, "\n")
 
 
 def join_path_and_file_name(path, file_name, separator=os.sep):
@@ -95,15 +97,15 @@ def main():
     # The JSON below is only for testing on your laptop; on production environment, we'll use step 2a. instead
     json_activity = {'typeProperties': {'extendedProperties':
                                             {'sourceContainer': 'colgate-palmolive',
-                                             'excelSourcePath': 'Test/Input',
+                                             'excelSourcePath': 'Test/Input',#'0_Raw_Data/India/0_Raw_Files', #
                                              'fileName': 'IRP_N_ALL_*.xlsx',
-                                             'uploadPath': 'Test/Output',
-                                             'excelArchivePath': 'Test/Archive',
+                                             'uploadPath': 'Test/Output',#'0_Raw_Data/India/1_Cleaned_Files_To_Upload', #
+                                             'excelArchivePath': 'Test/Archive',#'0_Raw_Data/India/0_Raw_Files/Archive',#
                                              'outputFileDelimiter': '|',
                                              #'sheetName': '',
                                              'skipHeaderRow': '0',
                                              'skipTrailingRow': '0',
-                                             'additionalProcessingCode': '4_Python_Code/countries/India/*.py',
+                                             'additionalProcessingCode': '4_Python_Code/Countries/India/process_data*.py',#'4_Python_Code/Countries/India/process_data_IRP.py',
                                              }
                                         }
                      }
@@ -144,17 +146,21 @@ def main():
                                                        separator='/')
 
     # 4. if there's additional processing code, download them to local directory
-    additional_processing_code_downloaded = []
+    custom_processing_module = None
     for blob in blob_content_generator:
         if (additional_processing_code is not None) and fnmatch.fnmatch(blob.name, additional_processing_code):
             blob_file_name = extract_file_name(blob.name)
             local_python_file_name_with_path = get_local_path_for_downloaded_blob_file(local_dir_name, blob_file_name)
             download_blob_file_to_local_folder(block_blob_service, container_name,
                                                blob.name, local_python_file_name_with_path)
-            additional_processing_code_downloaded.append(local_python_file_name_with_path)
+            print("\nFound matching code file at:", blob.name,
+                  "\nand downloaded it to:", local_python_file_name_with_path)
 
-    print("\nAdditional processing code files downloaded")
-    print(additional_processing_code_downloaded) ##
+            file_name_without_extension = os.path.splitext(blob_file_name)[0]
+            print("Imported this module:", file_name_without_extension)
+            # REF: https://stackoverflow.com/a/54956419
+            custom_processing_module = importlib.import_module(os.path.join(file_name_without_extension))
+
     # 5. if desired (matching) content in the blob is found
     for blob in blob_content_generator:
         if fnmatch.fnmatch(blob.name, blob_file_name_with_path):
@@ -177,15 +183,9 @@ def main():
             #     # sheet_name = wb.active.title
             #     print("Choose this as active sheet:", sheet_name)
 
-            if additional_processing_code_downloaded:
-
-                # 7a. if we are told to load additional processing code, we load it here
-                # Note: we can do dynamic loading here later based on file names like
-                # this: https://stackoverflow.com/a/1057765
-                # or this: https://stackoverflow.com/a/20753073
-                # but for now, we will start with something simple
-                import process_data as pcd
-                df = pcd.process_data(local_excel_file_name_with_path)
+            if custom_processing_module is not None:
+                # 7a. if we have additional processing module loaded, we use it here
+                df = custom_processing_module.process_data(local_excel_file_name_with_path)
             else:
                 # 7b. if no custom processing is required, simply read from the local Excel file
                 df = read_excel_file(local_excel_file_name_with_path,
