@@ -1,7 +1,7 @@
 from lxml import html
 import csv
 
-f = open(r'C:\Users\lacheephyo\Desktop\nn.html')
+f = open(r'C:\Users\phyo.thiha\Desktop\others\random_stuff\parse_local_html\nn.html')
 tree = html.fromstring(f.read())
 accnts = tree.xpath('//td[@class="ComboOption"]/text()')
 
