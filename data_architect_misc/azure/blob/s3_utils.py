@@ -26,10 +26,11 @@ def list_file_names(folder):
 
 
 def download_from_s3(s3_source_path_and_file_str, dest_path_and_file_str):
+    # Download file: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-example-download-file.html
     s3 = resource('s3', aws_access_key_id=S3_ACCESS_KEY, aws_secret_access_key=S3_SECRET_KEY)
     try:
         s3.Bucket(S3_BUCKET).download_file(s3_source_path_and_file_str, dest_path_and_file_str)
-        print("\nDownloaded:", s3_source_path_and_file_str, "and placed it here:", dest_path_and_file_str)
+        print("\nDownloaded s3 source:", s3_source_path_and_file_str, "\nand placed it here:", dest_path_and_file_str)
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
             print("The object does not exist.")
