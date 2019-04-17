@@ -3,7 +3,7 @@ import os
 from boto3 import client, resource
 import botocore
 
-from account_info import *
+from s3_account_info import *
 
 
 def list_key_names(folder):

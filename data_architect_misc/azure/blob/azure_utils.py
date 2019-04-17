@@ -2,7 +2,7 @@ import os
 
 from azure.storage.blob import BlockBlobService
 
-from account_info import *
+from azure_account_info import *
 
 
 def list_blob_names(container_name, dir="", delimiter=""):

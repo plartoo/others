@@ -6,8 +6,6 @@ import s3_utils
 import azure_utils
 import azure_file_utils
 
-from account_info import *
-
 
 def list_file_names(list_of_file_names_with_path):
     return list(map(os.path.basename, list_of_file_names_with_path))
