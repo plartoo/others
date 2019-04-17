@@ -114,7 +114,7 @@ def getUnreadMails(server, user, password, subject, filename, outputdir):
     except NoUnreadEmailFound:
         log('Found {0} unread messages with Subject "{1}"'.format(len(items), subject))
         sys.exit()
-    except Exception, e:
+    except Exception as e:
         log("Attachment could not be downloaded" + " " + str(e))
 
 
@@ -126,7 +126,7 @@ def markAsArchive(m, emailid):
             m.uid('STORE', emailid, '+FLAGS', '(\Deleted)')
             m.expunge()
             log("Downloaded attachment moved to Archive folder successfully")
-    except Exception, e:
+    except Exception as e:
         log(str(e))
 
 def log(logstr):
@@ -135,7 +135,7 @@ def log(logstr):
     return
 
 if len (sys.argv) != 2 :
-    print "Usage: local_to_s3_config.py <config.ini>"
+    print("Usage: email_attachment_to_local.py <config.ini>")
     sys.exit (1)
 else:
     getUnreadMails(SMTPServer, UserName, Password, Subject, FileName, LocalPath)
