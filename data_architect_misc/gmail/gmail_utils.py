@@ -10,7 +10,7 @@ from google.auth.transport.requests import Request
 
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
 
 
 def get_service(token_file_with_path, cred_file_with_path):
@@ -175,3 +175,60 @@ def get_mime_msg_body_str(mime_msg):
     else:
         body = ''.join([body, mime_msg.get_payload()])
     return body
+
+
+def modify_message(service, user_id, msg_id, msg_labels):
+    """
+    Modify the Labels on the given Message.
+    Args:
+        service: Authorized Gmail API service instance.
+        user_id: User's email address. The special value "me"
+                can be used to indicate the authenticated user.
+        msg_id: The id of the message required.
+        msg_labels: The change in labels.
+
+    Returns:
+        Modified message, containing updated labelIds, id and threadId.
+    """
+    try:
+        message = service.users().messages().modify(userId=user_id, id=msg_id,
+                                                    body=msg_labels).execute()
+        label_ids = message['labelIds']
+        print('Message ID: %s - now with Label IDs %s' % (msg_id, label_ids))
+    except errors.HttpError as error:
+        print('An error occurred: %s' % error)
+
+
+def remove_unread_message_label():
+    """
+    Create object to update labels.
+    REF: https://developers.google.com/gmail/api/guides/labels
+
+    Returns:
+        A label update object.
+    """
+    return {'removeLabelIds': ['UNREAD'], 'addLabelIds': []}
+
+
+def mark_as_read(service, user_id, msg_id):
+    """
+    Mark the message as 'READ' (by removing 'UNREAD' label).
+    """
+    modify_message(service, user_id, msg_id, remove_unread_message_label())
+
+
+def trash_message(service, user_id, msg_id):
+    """
+    Send the message to Trash.
+    REF: https://developers.google.com/gmail/api/v1/reference/users/messages/trash
+    Args:
+        service: Authorized Gmail API service instance.
+        user_id: User's email address. The special value "me"
+                can be used to indicate the authenticated user.
+        msg_id: The id of the message required.
+    """
+    try:
+        service.users().messages().trash(userId=user_id, id=msg_id).execute()
+        print('Message ID: %s - is deleted' % msg_id)
+    except errors.HttpError as error:
+        print('An error occurred: %s' % error)
