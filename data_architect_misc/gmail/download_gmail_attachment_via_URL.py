@@ -9,7 +9,8 @@ downloaded into Azure Batch node).
 
 Note: This script is intended to be run in a node of Azure Batch process.
 '*_account_info' files are removed from this repo for obvious reason.
-Please create one for gmail, 
+Please create your own specific account info files for azure and gmail
+before using this script.
 """
 
 from datetime import datetime
