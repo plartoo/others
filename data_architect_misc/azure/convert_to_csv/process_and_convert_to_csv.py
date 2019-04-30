@@ -14,7 +14,7 @@ from azure.storage.blob import BlockBlobService
 
 
 STORAGE_ACCOUNT_NAME = 'usprogrammatic'
-STORAGE_ACCOUNT_KEY = 'AgM5wVbFszZeF2zXHpzQTcZb+JNQoK7yWQ2gGT+Jzfx9XhQ9rzL7UY9TckF2nibSpRTi904390IVnmFa0aPL7w=='
+STORAGE_ACCOUNT_KEY = ''
 OUTPUT_FILE_TYPE = '.txt' # Note: Never change this. We agreed to always output txt file
 
 SHEET_NAME = 0 # 'None' to convert all sheets in the Excel file
