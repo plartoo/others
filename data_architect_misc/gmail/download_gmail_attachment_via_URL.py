@@ -19,7 +19,6 @@ import os
 import requests
 import re
 import shutil
-import sys
 import uuid
 
 import usprogrammatic_gmail_account_info
@@ -86,8 +85,8 @@ def main():
     preceding_str = json_activity['typeProperties']['extendedProperties']['preceding_str']
 
     # 2b. Fetch emails (Gmails) that meet the criteria based on the 'query'
-    token_file_with_path = file_and_sys_utils.get_full_path('usprogrammatic_token.pickle')
-    cred_file_with_path = file_and_sys_utils.get_full_path('usprogrammatic_credentials.json')
+    token_file_with_path = file_and_sys_utils.get_full_path(usprogrammatic_gmail_account_info.TOKEN_FILE)
+    cred_file_with_path = file_and_sys_utils.get_full_path(usprogrammatic_gmail_account_info.CREDENTIAL_FILE)
     service = gmail_utils.get_service(token_file_with_path, cred_file_with_path)
     user_id = 'me'
     q = json_activity['typeProperties']['extendedProperties']['query']
@@ -119,9 +118,8 @@ def main():
                                                                              local_file_name,
                                                                              separator='/')
         azure_utils.upload_from_local_to_blob(blob_container, output_file, dest_blob_path_and_name)
-
-    print("\nSuccessfully downloaded TTD data from the URL within the email to local folder:", output_file)
-    print("and uploaded that local file to blob location:", dest_blob_path_and_name)
+        print("\nSuccessfully downloaded TTD data from the URL within the email to local folder:", output_file)
+        print("and uploaded that local file to blob location:", dest_blob_path_and_name)
 
     # 4. delete local files (including credentials) and the code folder downloaded temporarily from Azure
     try:
