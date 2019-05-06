@@ -120,7 +120,8 @@ def main():
                                                                              separator='/')
         azure_utils.upload_from_local_to_blob(blob_container, output_file, dest_blob_path_and_name)
 
-    print("\nSuccessfully downloaded TTD data from the URL within the email")
+    print("\nSuccessfully downloaded TTD data from the URL within the email to local folder:", output_file)
+    print("and uploaded that local file to blob location:", dest_blob_path_and_name)
 
     # 4. delete local files (including credentials) and the code folder downloaded temporarily from Azure
     try:
