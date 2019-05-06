@@ -12,9 +12,9 @@ import zipfile
 import pandas as pd
 from azure.storage.blob import BlockBlobService
 
+import azure_account_info
 
-STORAGE_ACCOUNT_NAME = 'usprogrammatic'
-STORAGE_ACCOUNT_KEY = ''
+
 OUTPUT_FILE_TYPE = '.txt' # Note: Never change this. We agreed to always output txt file
 
 SHEET_NAME = 0 # 'None' to convert all sheets in the Excel file
@@ -105,7 +105,7 @@ def main():
     # The JSON below is only for testing on your laptop; on production environment, we'll use step 2a. instead
     json_activity = {'typeProperties': {'extendedProperties':
                                             {'source_container': 'pacing-report', # required
-                                             'source_file_path': 'ttd', # required
+                                             'source_file_path': 'ttd/downloaded_xlsx', # required
                                              'file_name': '*.xlsx', # optional
                                              'upload_path': 'ttd/converted_txt', # required
                                              'archive_path': 'ttd/archive_xlsx', # required
@@ -149,7 +149,8 @@ def main():
     print("Input parameters received:\n", json_activity)
 
     # 3. connect to blob
-    block_blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
+    block_blob_service = BlockBlobService(account_name=azure_account_info.STORAGE_ACCOUNT_NAME,
+                                          account_key=azure_account_info.STORAGE_ACCOUNT_KEY)
     blob_content_generator = block_blob_service.list_blobs(container_name, prefix=path_to_source_blob_file)
     blob_file_name_with_path = join_path_and_file_name(path_to_source_blob_file,
                                                        source_blob_file_name_or_pattern,
@@ -171,9 +172,11 @@ def main():
             # REF: https://stackoverflow.com/a/54956419
             custom_processing_module = importlib.import_module(os.path.join(file_name_without_extension))
 
+
     # 5. if desired (matching) content in the blob is found
     for blob in blob_content_generator:
         if fnmatch.fnmatch(blob.name, blob_file_name_with_path):
+            print("\n===>Processing:", blob.name)
             blob_file_name = extract_file_name(blob.name)
             local_excel_file_name_with_path = os.path.join(local_dir_name, blob_file_name)
             local_csv_file_name = ''.join([os.path.splitext(blob_file_name)[0], OUTPUT_FILE_TYPE])
@@ -210,7 +213,7 @@ def main():
             block_blob_service.copy_blob(container_name,
                                          archive_blob_path_and_name,
                                          source_blob_url)
-            print("Copied source blob to archive blob location:", archive_blob_path_and_name)
+            print("Copied source blob:", source_blob_url, "\nto archive blob location:", archive_blob_path_and_name)
 
             # 11. delete the old (source) blob
             block_blob_service.delete_blob(container_name, blob.name)
