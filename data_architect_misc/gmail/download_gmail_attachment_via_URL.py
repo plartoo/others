@@ -63,7 +63,7 @@ def main():
                 'extendedProperties':
                     {
                         'blob_container': 'pacing-report', # required
-                        'blob_upload_path': 'ttd', # required
+                        'blob_upload_path': 'ttd/downloaded_xlsx', # required
                         'query':'in:inbox subject:Colgate Programmatic Phyo GroupM Redfuse newer_than:1d', # required
                         'file_type':'.xlsx', # required
                         'preceding_str':'clicking the link below', # optional
