@@ -14,7 +14,7 @@ import account_info
 PROD_OR_SANDBOX = 'PROD'#'Sandbox'
 PRODUCTION_BASE_URL = 'https://api.developer.nielsen.com'
 SANDBOX_BASE_URL = 'https://api.sandbox.nielsen.com'
-TOKEN_ENDPOINT = 'watch/oauth/token'
+OAUTH_TOKEN_ENDPOINT = 'watch/oauth/token'
 
 
 def _append_backslash(list_of_paths):
@@ -27,7 +27,8 @@ def _url(*url_paths):
         full_url = _append_backslash([PRODUCTION_BASE_URL] + [i for i in url_paths])
     else:
         full_url = _append_backslash([SANDBOX_BASE_URL] + [i for i in url_paths])
-    return reduce(urljoin, full_url)
+    # Note: we need to strip the last '/' because Nielsen API wouldn't work with that
+    return reduce(urljoin, full_url).strip('/')
 
 
 def add_request_body(url, req_body):
@@ -42,30 +43,19 @@ def add_request_body(url, req_body):
 def get_token():
     request_body = {
         'grant_type': 'password',
-        'username': USERNAME,
-        'password': PWD
+        'username': account_info.USERNAME,
+        'password': account_info.PWD
     }
-    #request_body = ''.join(['grant_type=password&username=', USERNAME, '&password=', PWD])
     request_headers = {
-        'Authorization': ''.join(['Basic ', SECRET_KEY]),
+        'Authorization': ''.join(['Basic ', account_info.SECRET_KEY]),
         'Content-Type': 'application/x-www-form-urlencoded;charset="UTF-8"'
     }
-    # url = add_request_body(_url(TOKEN_ENDPOINT),request_body)
-    # response1 = requests.post(url, headers=request_headers)
-    # response2 = requests.post(_url(TOKEN_ENDPOINT), json=request_body, headers=request_headers)
-    # req = add_request_body(_url(TOKEN_ENDPOINT),request_body)
-    url = _url(TOKEN_ENDPOINT)
-
+    url = _url(OAUTH_TOKEN_ENDPOINT)
     print(url)
     print(request_body)
     print(request_headers)
     # rsp = requests.post(url, params=json.dumps(request_body), headers=request_headers)
-    # rsp = requests.post(url, data=json.dumps(request_body), headers=request_headers)
-    rsp = requests.post(url, headers=request_headers, json=request_body)
-    # rsp = requests.post(url, data=json.dumps(request_body), headers=request_headers)
+    rsp = requests.post(url, headers=request_headers, data=request_body)
     print(rsp.text)
-    # pdb.set_trace()
-    #print(response1.json())
-    #print(response2.json())
     print('haha')
 get_token()
