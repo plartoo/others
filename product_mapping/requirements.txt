@@ -1,3 +1,5 @@
+# not exactly a requirements.txt file but the required files to run modules in this repo
+
 {
     "_meta": {
         "hash": {
@@ -361,3 +363,4 @@
     },
     "develop": {}
 }
+
