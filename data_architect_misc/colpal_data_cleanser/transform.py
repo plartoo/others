@@ -19,10 +19,10 @@ what is specified in the config file.
 The output of this script is a TSV file with the raw data cleaned per config specification.
 
 To find out how to run, use '-h' flag. Usage example:
->> python clean_data.py -i <raw_data_file.xlsx> -c <folder_where cleaning_config.py exists>
+>> python transform.py -i <raw_data_file.xlsx> -c <folder_where transform_configs.py exists>
 
 Specifically,
->> python clean_data.py -c .\configs\nic -i .\input\csv_test_with_blank_headers.csv
+>> python transform.py -c .\configs\nic -i .\input\csv_test_with_blank_headers.csv
 '''
 
 CHUNK_SIZE = 100000 # 100k chunks
@@ -61,10 +61,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=DESC)
     parser.add_argument('-c', required=True, type=str,
                         help="(Required) (Full or relative) Path to the configuration file (which must be named 'config.py'). "
-                             "E.g., python clean_data.py -c .\configs\nicaguara -i ...")
+                             "E.g., python transform.py -c .\configs\nicaguara -i ...")
     parser.add_argument('-i', required=True, type=str,
                         help="(Required) (Full or relative) path AND name of the input data file. "
-                             "E.g., python clean_data.py -i .\input\data.csv -c ...")
+                             "E.g., python transform.py -i .\input\data.csv -c ...")
     args = parser.parse_args()
 
     # Dynamically load the config file

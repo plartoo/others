@@ -35,6 +35,8 @@ df = pd.DataFrame(data)
 print("Original Dataframe:\n")
 print(df)
 
+# https://thispointer.com/pandas-apply-apply-a-function-to-each-row-column-in-dataframe/
+# https://stackoverflow.com/q/36213383
 # REF: http://jonathansoma.com/lede/foundations/classes/pandas%20columns%20and%20functions/apply-a-function-to-every-row-in-a-pandas-dataframe/
 df['sal-rate'] = df['sal-rate'].apply(remove_dollar)
 print("\n>===Applied to one column=========\n")

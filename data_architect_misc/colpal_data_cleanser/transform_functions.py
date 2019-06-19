@@ -11,3 +11,8 @@ def load_config(config_file):
 
 def print_config():
     pass
+
+def remove_dollars(data_row):
+
+
+    def multiply_by_thousand()
