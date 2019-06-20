@@ -1,0 +1,22 @@
+[
+  {
+    "input_file_path": "# optional; we can default this",
+    "input_file_name": "# file name pattern like 'China_*.xlsx' is okay",
+    "sheet_index": "# optional; we can default 0 for this",
+    "leading_rows_to_skip": 0,
+    "trailing_rows_to_skip": 0,
+    "indexes_of_columns_to_drop": [],
+    "names_of_columns_to_drop": [],
+    "functions_to_apply_to_columns": {
+      "column1": [],
+      "column2": []
+    },
+    "functions_to_apply_to_rows": [],
+    "column_rename_mappings": {
+      "column1": "column1_new_name"
+    },
+    "output_file_path": "watote\test # we can create a default. we must check if it exists. if not, create one",
+    "new_columns_to_add": [{"new_column": ["rules_used_to_populate_this_column"]}],
+    "qa": "??? # data type verification etc."
+  }
+]

@@ -6,24 +6,9 @@ import sys
 
 import pandas as pd
 
+import transform_utils
 from file_utils import get_file_extension
-from data_cleaning_utils import load_config
 
-DESC = '''
-This program cleans raw data files according to the rules set forth in the JSON configuration file.
-Specifically, it will take only the raw columns speficied in the JSON config file, and rename them
-to the processed (final) column names.  While doing so, it'll make sure that the data types, the 
-format/string pattern and null replacements etc. in every row of the raw data are according to 
-what is specified in the config file.
-
-The output of this script is a TSV file with the raw data cleaned per config specification.
-
-To find out how to run, use '-h' flag. Usage example:
->> python transform.py -i <raw_data_file.xlsx> -c <folder_where transform_configs.py exists>
-
-Specifically,
->> python transform.py -c .\configs\nic -i .\input\csv_test_with_blank_headers.csv
-'''
 
 CHUNK_SIZE = 100000 # 100k chunks
 ## ***TODO: replace ',' with '.'
@@ -58,55 +43,53 @@ def check_data_against_rules(df, rules):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=DESC)
+    # 1. Process arguments passed into the program
+    parser = argparse.ArgumentParser(description=transform_utils.DESC)
     parser.add_argument('-c', required=True, type=str,
-                        help="(Required) (Full or relative) Path to the configuration file (which must be named 'config.py'). "
-                             "E.g., python transform.py -c .\configs\nicaguara -i ...")
-    parser.add_argument('-i', required=True, type=str,
-                        help="(Required) (Full or relative) path AND name of the input data file. "
-                             "E.g., python transform.py -i .\input\data.csv -c ...")
+                        help=transform_utils.HELP)
     args = parser.parse_args()
 
-    # Dynamically load the config file
-    # REF: https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
-    # Other ways to import custom modules
-    # REF: https://docs.python.org/3/library/importlib.html
-    if (not args.c) or (not os.path.isdir(args.c)):
-        sys.exit("You must provide a valid path to the configuration file")
-    sys.path.append(args.c)
-    import cleaning_config as cc
+    # 2. Load JSON configuration file
+    if (not args.c) or (not os.path.exists(args.c)):
+        sys.exit(transform_utils.CONFIG_FILE_ERROR)
+    config = transform_utils.load_config(args.c)
+
+
+
+
     pdb.set_trace()
-    # REF: https://stackoverflow.com/q/14262433
-    extn = get_file_extension(args.i)
-    if extn == '.xlsx':
-        # REF: https://stackoverflow.com/a/44549301
-        xlsx = pd.read_excel(args.i, sheet_name=None,
-                             skiprows=cc.LEADING_ROWS_TO_SKIP,
-                             skipfooter=cc.BOTTOM_ROWS_TO_SKIP)
-        for sheet_name, cur_df in xlsx.items():
-            # read sheet by sheet as df and pass them onto the function
-            pdb.set_trace()
-            # df.to_dict(orient='records')
-            pass
-
-    elif extn == '.csv':
-        if cc.BOTTOM_ROWS_TO_SKIP > 0:
-            # Pandas doesn't allow skipping footers if we process things in
-            # chunk, so we handle this special case here
-            cur_df = pd.read_csv(args.i,
-                                 skiprows=cc.LEADING_ROWS_TO_SKIP,
-                                 skipfooter=cc.BOTTOM_ROWS_TO_SKIP)
-            pdb.set_trace()
-        else:
-            # otherwise, read by chunk and do further processing
-            for cur_df in pd.read_csv(args.i, chunksize=CHUNK_SIZE,
-                                      skiprows=cc.LEADING_ROWS_TO_SKIP):
-                pdb.set_trace()
-                pass
-    else:
-        print("Raw data file type is not supported.")
-        exit(1)
-
-
-    # pdb.set_trace()
     print("Finished cleaning data.")
+
+    # # REF: https://stackoverflow.com/q/14262433
+    # extn = get_file_extension(args.i)
+    # if extn == '.xlsx':
+    #     # REF: https://stackoverflow.com/a/44549301
+    #     xlsx = pd.read_excel(args.i, sheet_name=None,
+    #                          skiprows=cc.LEADING_ROWS_TO_SKIP,
+    #                          skipfooter=cc.BOTTOM_ROWS_TO_SKIP)
+    #     for sheet_name, cur_df in xlsx.items():
+    #         # read sheet by sheet as df and pass them onto the function
+    #         pdb.set_trace()
+    #         # df.to_dict(orient='records')
+    #         pass
+    #
+    # elif extn == '.csv':
+    #     if cc.BOTTOM_ROWS_TO_SKIP > 0:
+    #         # Pandas doesn't allow skipping footers if we process things in
+    #         # chunk, so we handle this special case here
+    #         cur_df = pd.read_csv(args.i,
+    #                              skiprows=cc.LEADING_ROWS_TO_SKIP,
+    #                              skipfooter=cc.BOTTOM_ROWS_TO_SKIP)
+    #         pdb.set_trace()
+    #     else:
+    #         # otherwise, read by chunk and do further processing
+    #         for cur_df in pd.read_csv(args.i, chunksize=CHUNK_SIZE,
+    #                                   skiprows=cc.LEADING_ROWS_TO_SKIP):
+    #             pdb.set_trace()
+    #             pass
+    # else:
+    #     print("Raw data file type is not supported.")
+    #     exit(1)
+    #
+    #
+

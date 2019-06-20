@@ -1,4 +1,4 @@
-transform_configs = [
+configs = [
     {
         'input_file_path': '', # optional; we can default this
         'input_file_name': '', # pattern is okay

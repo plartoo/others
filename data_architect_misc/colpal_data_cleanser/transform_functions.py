@@ -1,18 +1,19 @@
-import pdb
 
-import json
+class TransformFunctions(object):
 
-import account_info
-
-# https://web.archive.org/web/20181002170353/https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
-def load_config(config_file):
-    with open(config_file, 'r') as f:
-        return json.load(f)
-
-def print_config():
-    pass
-
-def remove_dollars(data_row):
+    """
+    ALL transform functions must be written as part of this class.
+    getattr(obj, function_name)(*args, **kwargs)
+    REF: https://stackoverflow.com/a/2203479
+         https://stackoverflow.com/a/6322114
+    """
+    def _trim_space(cell_str):
+        return str(cell_str).strip()
 
 
-    def multiply_by_thousand()
+    def remove_dollars(data_row):
+        pass
+
+
+    def multiply_by_thousand():
+        pass
