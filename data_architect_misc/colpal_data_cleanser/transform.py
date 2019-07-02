@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 
+import xlrd
 import pandas as pd
 
 import transform_utils
@@ -52,13 +53,38 @@ if __name__ == '__main__':
     # 2. Load JSON configuration file
     if (not args.c) or (not os.path.exists(args.c)):
         sys.exit(transform_utils.CONFIG_FILE_ERROR)
-    config = transform_utils.load_config(args.c)
+
+    for config in transform_utils.load_config(args.c):
+        input_file = os.path.join(config['input_file_path'], config['input_file_name'])
+        if os.path.exists(input_file):
+            # "sheet_index_or_name": "# optional; we can default 0 for this",
+            # "leading_rows_to_skip": 0,
+            # "trailing_rows_to_skip": 0,
+            # "input_csv_file_encoding": "",
+            # "input_csv_file_delimiter": "",
+            # "columns_to_use": [],
+            # TODO: only if the file is Excel
+            sheet = transform_utils.get_sheet_index_or_name(config)
+
+            leading_rows = transform_utils.get_value_from_dict(
+                                    config,
+                                    transform_utils.DEFAULT_LABEL_LEADING_ROWS_TO_SKIP,
+                                    transform_utils.DEFAULT_VALUE_LEADING_ROWS_TO_SKIP)
+            trailing_rows = transform_utils.get_value_from_dict(
+                                    config,
+                                    transform_utils.DEFAULT_LABEL_TRAILING_ROWS_TO_SKIP,
+                                    transform_utils.DEFAULT_VALUE_TRAILING_ROWS_TO_SKIP)
 
 
 
 
-    pdb.set_trace()
-    print("Finished cleaning data.")
+            # df = pd.read_excel(input_file,sheet_name=sheet)
+            pdb.set_trace()
+            print('haha')
+        #     df = transform_utils.get_data_frame()
+        #
+        # pdb.set_trace()
+        # print("Finished cleaning data.")
 
     # # REF: https://stackoverflow.com/q/14262433
     # extn = get_file_extension(args.i)
