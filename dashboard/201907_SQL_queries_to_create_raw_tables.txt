@@ -1,0 +1,70 @@
+SELECT TOP (1000) [TRANSACTION_ID]
+      ,[GM_GLOBAL_PRODUCT_ID]
+      ,[CP_COUNTRY_ID]
+      ,[GEOGRAPHY_DIM]
+      ,[PRODUCT_DIM]
+      ,[MEDIA_DIM]
+      ,[DEMOGRAPHIC_DIM]
+      ,[CREATIVE_DIM]
+      ,[MONTH]
+      ,[YEAR]
+      ,[SPEND_LOCAL]
+      ,[TRP]
+      ,[NORMALIZED_TRP]
+      ,[INSERTIONS]
+      ,[IMPRESSIONS]
+      ,[LOCAL_CURRENCY_CODE]
+      ,[ADD_DATE]
+      ,[NETWORK_DIM]
+      ,[DAYPART_DIM]
+  FROM [dbo].[CP_FACT_MEDIA_METRICS_MONTHLY_1PH] -- Table with all Facts for all countries; usp_insert_cp_fact_media_metrics_monthly is the stored procedure that produces this table
+
+  
+==>  gm_cp_master_product_mapping will provide me with advertiser name; it can also be used to join with 
+	[dbo].[CP_FACT_MEDIA_METRICS_MONTHLY_1PH] to get all information I need
+	usp_insert_cp_fact_media_metrics_monthly is a stored procedure that will show how
+	
+==>  cp_dim_country has region info
+	
+
+  
+/****** Script I used to recreate the tables needed for the custom dashboard on July 9, 2019 ******/
+SELECT
+	  b.[HUB_TEXT] as [Region]
+	  ,[Country]
+      ,[Year]
+      ,[Month]
+	  ,datefromparts([Year], [Month], '01') as [Period]
+      ,[Advertiser]
+      ,[Category]
+      ,[Subcategory]
+      ,[Brand]
+      ,[Subbrand]
+      ,[Product]
+      ,[Media]
+      ,[Local_Spend]
+	INTO [VIZ].[Phyo_Custom_Dashboard_Data_Raw_20190709_Do_Not_Delete_Without_Permission]
+  FROM [VIZ].[Colgate_Dashboard_Table_Test] a
+  INNER JOIN [dbo].[CP_DIM_COUNTRY] b
+  ON LOWER(a.[Country]) = LOWER(b.[COUNTRY_NAME])
+
+
+    SELECT CONVERT(VARCHAR,[Year]) AS [YEAR]
+		, [Region]
+		, [Country]
+		, [Advertiser]
+		, [Brand]
+		, SUM([Local_Spend]) AS [SumOfSpend]
+		, COUNT(DISTINCT [Region]) AS UniqRegionCount -- 0:07 secs 
+		, COUNT(DISTINCT [Country]) AS UniqCountryCount -- 0:23 secs
+		, COUNT(DISTINCT [Advertiser]) AS UniqAdvertiserCount -- 2:29 mins
+		, COUNT(DISTINCT [Brand]) AS UniqBrandCount -- 4:30 mins
+INTO [VIZ].[Phyo_Custom_Dashboard_Data_Hierarchy_20190709_Do_Not_Delete_Without_Permission]
+FROM [VIZ].[Phyo_Custom_Dashboard_Data_Raw_20190709_Do_Not_Delete_Without_Permission]
+GROUP BY GROUPING SETS ( (),
+						 ([Year]),
+                         ([Year], [Region]),
+                         ([Year], [Region], [Country]), 
+                         ([Year], [Region], [Country], [Advertiser]),
+                         ([Year], [Region], [Country], [Advertiser], [Brand])
+                        );

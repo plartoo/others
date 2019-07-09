@@ -1,4 +1,4 @@
-DATABASE = "[DM_1219_ColgateGlobal].[dbo]"
+DATABASE = "[WM_RF_DB_Colgate].[VIZ]"
 
 hierarchy_table = """
 SELECT [Year]
@@ -11,7 +11,7 @@ SELECT [Year]
       ,[UniqRegionCount]
       ,[UniqCountryCount]
       ,[UniqAdvertiserCount]
-  FROM {}.[DFID065658_SampleDataForDashboard_Hierarchy]
+  FROM {}.[Phyo_Custom_Dashboard_Data_Hierarchy_20190709_Do_Not_Delete_Without_Permission]
   ORDER BY 1,2,3,4,5
 """.format(DATABASE)
 
@@ -22,7 +22,7 @@ SELECT [Year]
       ,[Advertiser]
       ,[SumOfSpend]
       ,[UniqBrandCount]
-  FROM {}.[DFID065658_SampleDataForDashboard_Hierarchy]
+  FROM {}.[Phyo_Custom_Dashboard_Data_Hierarchy_20190709_Do_Not_Delete_Without_Permission]
   WHERE
   [YEAR] IS NOT NULL
   AND
