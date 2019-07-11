@@ -14,6 +14,12 @@ import re
 import zipfile
 import pandas as pd
 
+# # This is for June (monthly) data that we downloaded as one-off instance
+# def get_account_id_and_name(zip_file_name):
+#     account_id = re.findall(r'(\d+)', zip_file_name)[0]
+#     account_name = zip_file_name.split('(')[0].strip()
+#     return account_id, account_name
+
 
 def get_account_id_and_name(zip_file_name):
     account_id = re.findall(r'_(\d+)\-', zip_file_name)[0]
