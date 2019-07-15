@@ -134,7 +134,9 @@
 					title: [],
 					singleAxis: [],
 					series: [],
-					tooltip: { 
+					tooltip: {
+					    show: true,
+                        alwaysShowContent: true,
 						position: 'top',
 						formatter: function (params) {
 							return 'Spend: $' + Math.round(params.value[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -252,6 +254,16 @@
 					coordinateSystem: 'singleAxis',
 					type: 'scatter',
 					top: 80,
+                    label: {
+					  show: true,
+                      position: 'top',
+                        color: '#000000',
+						formatter: function (params) {
+							return 'Spend: $' + Math.round(params.value[1]).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+									+ '<br># of Brands: ' + params.value[2];
+						}
+
+                    },
 					//color: colorPalette[i % colorPalette.length], // rotate from color palette of my choice
 					/*
 					markPoint : { // Marking min and max approach didn't work: https://ecomfe.github.io/echarts-examples/public/editor.html?c=scatter-weight
