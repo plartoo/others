@@ -60,18 +60,20 @@ if __name__ == '__main__':
         if not os.path.exists(input_file):
             sys.exit(' '.join([transform_utils.FILE_NOT_EXIST_ERROR, input_file]))
 
-        # "input_csv_file_encoding": "",
-        # "input_csv_file_delimiter": "",
         cols_to_use = transform_utils.get_list_of_columns_to_use(config)
         leading_rows = transform_utils.get_leading_rows_to_skip(config)
         trailing_rows = transform_utils.get_trailing_rows_to_skip(config)
 
-        # TODO: only if the file is Excel
-        sheet = transform_utils.get_sheet_index_or_name(config)
-
-        # TODO: only if the file is CSV
-        encoding = transform_utils.get_csv_encoding(config)
-
+        if transform_utils.is_excel_file(input_file):
+            sheet = transform_utils.get_sheet_index_or_name(config)
+        elif transform_utils.is_csv_file(input_file):
+            encoding = transform_utils.get_csv_encoding(config)
+            input_csv_delimiter = transform_utils.get_csv_delimiter(config)
+        else:
+            sys.exit(' '.join([
+                    transform_utils.FILE_TYPE_NOT_RECOGNIZED_ERROR,
+                    input_file
+            ]))
 
 
 
@@ -116,4 +118,5 @@ if __name__ == '__main__':
     #     exit(1)
     #
     #
+
 
