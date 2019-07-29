@@ -106,7 +106,7 @@ def main():
     json_activity = {'typeProperties': {'extendedProperties':
                                             {'source_container': 'pacing-report', # required
                                              'source_file_path': 'sizmek', # required
-                                             #'file_name': '*.xlsx', # optional
+                                             'file_name': '*.zip', # optional; default is 'sizmek/date-of-today.zip'
                                              'upload_path': 'sizmek/unzipped', # required
                                              'zip_archive_path': 'sizmek/zip_archive', # required
                                              #'sheet_name': '0', # optional
@@ -174,6 +174,7 @@ def main():
     # 5. if desired (matching) content in the blob is found
     for blob in blob_content_generator:
         if fnmatch.fnmatch(blob.name, blob_file_name_with_path):
+            print("Found file to process named:", blob.name)
             blob_file_name = extract_file_name(blob.name)
             local_zip_file_name_with_path = os.path.join(local_dir_name, blob_file_name)
             dest_folder_for_unzipped_files = os.path.join(local_dir_name, local_unzipped_dir_name)
