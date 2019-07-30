@@ -149,8 +149,8 @@ def main():
     print("Input parameters received:\n", json_activity)
 
     # 3. connect to blob
-    block_blob_service = BlockBlobService(account_name=azure_account_info.STORAGE_ACCOUNT_NAME,
-                                          account_key=azure_account_info.STORAGE_ACCOUNT_KEY)
+    block_blob_service = BlockBlobService(account_name=azure_account_info.BLOB_STORAGE_ACCOUNT_NAME,
+                                          account_key=azure_account_info.BLOB_STORAGE_ACCOUNT_KEY)
     blob_content_generator = block_blob_service.list_blobs(container_name, prefix=path_to_source_blob_file)
     blob_file_name_with_path = join_path_and_file_name(path_to_source_blob_file,
                                                        source_blob_file_name_or_pattern,
