@@ -157,13 +157,13 @@ def get_file_extension(file_name):
     return os.path.splitext(file_name)[1]
 
 
-def is_excel_file(file_name_with_path):
+def is_excel(file_name_with_path):
     file_extension = get_file_extension(extract_file_name(file_name_with_path))
     return ((EXCEL_FILE_EXTENSION_NEW == file_extension.lower()) or
             (EXCEL_FILE_EXTENSION_OLD == file_extension.lower()))
 
 
-def is_csv_file(file_name_with_path):
+def is_csv(file_name_with_path):
     file_extension = get_file_extension(extract_file_name(file_name_with_path))
     return CSV_FILE_EXTENSION == file_extension.lower()
 
@@ -174,6 +174,7 @@ def get_csv_encoding(config):
                 config,
                 KEY_CSV_ENCODING,
                 VALUE_CSV_ENCODING)
+
 
 def get_csv_delimiter(config):
     pass

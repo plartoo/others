@@ -64,9 +64,9 @@ if __name__ == '__main__':
         leading_rows = transform_utils.get_leading_rows_to_skip(config)
         trailing_rows = transform_utils.get_trailing_rows_to_skip(config)
 
-        if transform_utils.is_excel_file(input_file):
+        if transform_utils.is_excel(input_file):
             sheet = transform_utils.get_sheet_index_or_name(config)
-        elif transform_utils.is_csv_file(input_file):
+        elif transform_utils.is_csv(input_file):
             encoding = transform_utils.get_csv_encoding(config)
             input_csv_delimiter = transform_utils.get_csv_delimiter(config)
         else:
@@ -74,8 +74,6 @@ if __name__ == '__main__':
                     transform_utils.FILE_TYPE_NOT_RECOGNIZED_ERROR,
                     input_file
             ]))
-
-
 
 
         # df = pd.read_excel(input_file,sheet_name=sheet)
@@ -86,6 +84,9 @@ if __name__ == '__main__':
         # pdb.set_trace()
         # print("Finished cleaning data.")
 
+    # REF: reduce memory use Pandas: https://towardsdatascience.com/why-and-how-to-use-pandas-with-large-data-9594dda2ea4c
+    #https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+    # REF: pandas snippets: https://jeffdelaney.me/blog/useful-snippets-in-pandas/
     # # REF: https://stackoverflow.com/q/14262433
     # extn = get_file_extension(args.i)
     # if extn == '.xlsx':
