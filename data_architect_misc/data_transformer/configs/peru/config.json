@@ -2,41 +2,43 @@
   {
     "__comment__": "Update the fields that has value set to 'required' below. The others are optional.",
 
-    "input_file_path": "./input/peru/",
-    "input_file_name": "PER_N_ALL_ALL_MMU_20190501_20190531_20190617_JD.xlsx",
+    "input_folder_path": "./input/peru/",
+    "input_file_name_or_pattern": "*.xlsx",
+    "output_folder_path": "./output/peru/",
+    "output_file_name_prefix": "peru_",
+
+    "column_header_row_index": "#If header row exists, define where to pick it",
+    "custom_column_headers": "#If header row doesn't exist, define which ones to apply",
+
+    "list_of_column_names_to_use": [],
+    "list_of_column_indexes_to_use": [],
+    "column_rename_mappings": {
+      "column1_old_name": "#column1_new_name"
+    },
+
+    "starting_row_index_of_data": 0,
+    "trailing_rows_to_skip": 0,
 
     "sheet_index_to_use": 0,
     "sheet_name_to_use": "",
 
-    "list_of_column_indexes_to_use": [],
-    "list_of_column_names_to_use": [],
-    "column_rename_mappings": {
-      "column1": "column1_new_name"
-    },
-
-    "leading_rows_to_skip": 0,
-    "trailing_rows_to_skip": 0,
-
     "input_csv_file_encoding": "",
     "input_csv_file_delimiter": "",
+    "output_file_encoding": "#optional",
+    "output_file_delimiter": "#",
 
     "functions_to_apply_to_data_frame": {
-
+      "maybe we don't need this": "#maybe we don't need this"
     },
 
     "functions_to_apply_to_columns": {
-      "column1": [],
-      "column2": [],
-      "__comment__": "Like convert to float"
+      "column1": ["Like convert to float"],
+      "column2": []
     },
 
-    "functions_to_apply_to_rows": [],
-    "__comment__": "Like if column 1 is null, ignore row",
-
+    "functions_to_apply_to_rows": ["Like if column 1 is null, ignore row"],
     "new_columns_to_add": [{"new_column": ["rules_used_to_populate_this_column"]}],
-    "output_file_path": "watote\test # we can create a default. we must check if it exists. if not, create one",
-    "output_file_encoding": "#optional",
-    "output_file_delimiter": "",
+
     "qa": "??? # data type verification etc."
   }
 ]

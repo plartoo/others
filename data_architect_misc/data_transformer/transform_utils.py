@@ -1,8 +1,14 @@
 import pdb
 
 import json
+import pathlib
 import os
 import sys
+
+KEY_INPUT_FOLDER_PATH = 'input_folder_path'
+KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
+KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
+KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 
 KEY_SHEET_NAME = 'sheet_name_to_use'
 KEY_SHEET_INDEX = 'sheet_index_to_use'
@@ -14,8 +20,11 @@ KEY_COLUMN_INDEXES_TO_USE = 'list_of_column_indexes_to_use'
 VALUE_COLUMNS_TO_USE_DEFAULT = None
 
 KEY_LEADING_ROWS_TO_SKIP = 'leading_rows_to_skip'
+KEY_STARTING_ROW_INDEX = 'starting_row_index_of_data'
 KEY_TRAILING_ROWS_TO_SKIP = 'trailing_rows_to_skip'
-VALUE_ROWS_TO_SKIP_DEFAULT = 0
+VALUE_LEADING_ROWS_TO_SKIP_DEFAULT = 0
+VALUE_STARTING_ROW_INDEX_DEFAULT = 0
+VALUE_TRAILING_ROWS_TO_SKIP_DEFAULT = 0
 
 KEY_CSV_ENCODING = 'input_csv_file_encoding'
 VALUE_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
@@ -23,6 +32,9 @@ VALUE_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
 CSV_FILE_EXTENSION = '.csv'
 EXCEL_FILE_EXTENSION_OLD = '.xls'
 EXCEL_FILE_EXTENSION_NEW = '.xlsx'
+
+ROWS_PER_CHUNK = 500000
+ROWS_PER_FILE = 1500000
 
 USAGE = """\nUsage example:
         >> python transform.py -c .\configs\china\config.json"""
@@ -38,7 +50,9 @@ E.g., python transform.py -c .\configs\china\config.json"""
 CONFIG_FILE_ERROR = """ERROR: You must provide a valid path 
 AND name of the JSON configuration file. """ + USAGE
 
-FILE_NOT_EXIST_ERROR = "ERROR: this file does not exist:"
+FILE_NOT_FOUND_ERROR = "ERROR: file(s) not found:"
+
+FOLDER_NOT_FOUND_ERROR = "ERROR: folder(s) not found:"
 
 FILE_TYPE_NOT_RECOGNIZED_ERROR = """ERROR: program does not know how to 
 process this type of file extension for input file:"""
@@ -77,12 +91,6 @@ a list (of *all* strings or *all* integers) for their corresponding values"""
 #     return df
 
 
-def load_config(config_file):
-    # REF: https://web.archive.org/web/20181002170353/https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
-    with open(config_file, 'r') as f:
-        return json.load(f)
-
-
 def get_value_from_dict(dict, key, default_value):
     if dict.get(key) is None:
         return default_value
@@ -90,6 +98,33 @@ def get_value_from_dict(dict, key, default_value):
         return default_value
     else:
         return dict.get(key)
+
+
+def load_config(config_file):
+    # REF: https://web.archive.org/web/20181002170353/https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
+    with open(config_file, 'r') as f:
+        return json.load(f)
+
+
+def get_input_files(config):
+    fn = os.path.join(config[KEY_INPUT_FOLDER_PATH],
+                      config[KEY_INPUT_FILE_NAME_OR_PATTERN])
+    # REF: https://stackoverflow.com/a/41447012/1330974
+    input_files = [str(f.absolute()) for f in pathlib.Path().glob(fn)]
+
+    if not input_files:
+        sys.exit(' '.join([FILE_NOT_FOUND_ERROR, fn]))
+    return input_files
+
+
+def get_output_file_prefix(config):
+    if not os.path.exists(config[KEY_OUTPUT_FOLDER_PATH]):
+        os.makedirs(config[KEY_OUTPUT_FOLDER_PATH])
+        print("\nNote: new folder created for output files =>",
+              config[KEY_OUTPUT_FOLDER_PATH])
+
+    return os.path.join(config[KEY_OUTPUT_FOLDER_PATH],
+                               config[KEY_OUTPUT_FILE_PREFIX])
 
 
 def get_sheet_index_or_name(config):
@@ -135,18 +170,26 @@ def get_list_of_columns_to_use(config):
     return list_of_columns_to_use
 
 
+# TODO: decide if to remove this function
 def get_leading_rows_to_skip(config):
     return get_value_from_dict(
                 config,
                 KEY_LEADING_ROWS_TO_SKIP,
-                VALUE_ROWS_TO_SKIP_DEFAULT)
+                VALUE_LEADING_ROWS_TO_SKIP_DEFAULT)
+
+
+def get_starting_row_index(config):
+    return get_value_from_dict(
+                config,
+                KEY_STARTING_ROW_INDEX,
+                VALUE_STARTING_ROW_INDEX_DEFAULT)
 
 
 def get_trailing_rows_to_skip(config):
     return get_value_from_dict(
                 config,
                 KEY_TRAILING_ROWS_TO_SKIP,
-                VALUE_ROWS_TO_SKIP_DEFAULT)
+                VALUE_TRAILING_ROWS_TO_SKIP_DEFAULT)
 
 
 def extract_file_name(file_path_and_name):

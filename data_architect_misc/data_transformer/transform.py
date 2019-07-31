@@ -56,11 +56,14 @@ if __name__ == '__main__':
 
     # 3. Iterate through each transform procedure
     for config in transform_utils.load_config(args.c):
-        input_file = os.path.join(config['input_file_path'], config['input_file_name'])
-        if not os.path.exists(input_file):
-            sys.exit(' '.join([transform_utils.FILE_NOT_EXIST_ERROR, input_file]))
+        input_files = transform_utils.get_input_files(config)
+        output_file_prefix = transform_utils.get_
 
+
+
+        # TODO: get column header row index or custom column headers to use
         cols_to_use = transform_utils.get_list_of_columns_to_use(config)
+        # TODO: get column rename mappings
         leading_rows = transform_utils.get_leading_rows_to_skip(config)
         trailing_rows = transform_utils.get_trailing_rows_to_skip(config)
 
@@ -76,13 +79,23 @@ if __name__ == '__main__':
             ]))
 
 
+
+        # 1. Read data in chunk (skipping x top rows; capturing header)
+        # 2. For each chunk
+        #   apply original column names to the chunk
+        #   choose only columns to use
+        #   rename columns if necessary
+        #   apply functions (add columns, etc.)
         # df = pd.read_excel(input_file,sheet_name=sheet)
         pdb.set_trace()
         print('haha')
         #     df = transform_utils.get_data_frame()
         #
-        # pdb.set_trace()
-        # print("Finished cleaning data.")
+        # For CSV,
+        # how to read the header row
+        # df1 = pd.read_csv('test.csv',skiprows=3,nrows=1)
+        # how to read the rest of data frames
+        # df1 = pd.read_csv('test.csv',header=None,skiprows=rows_to_skip+header_row_if_any)
 
     # REF: reduce memory use Pandas: https://towardsdatascience.com/why-and-how-to-use-pandas-with-large-data-9594dda2ea4c
     #https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
