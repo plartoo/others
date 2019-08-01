@@ -5,10 +5,19 @@ import pathlib
 import os
 import sys
 
+import transform_errors
+
+
+ROWS_PER_CHUNK = 500000
+ROWS_PER_FILE = 1500000
+
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
 KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
+
+KEY_COLUMN_HEADER_ROW_INDEX = "column_header_row_index"
+KEY_CUSTOM_COLUMN_HEADER = "custom_column_headers"
 
 KEY_SHEET_NAME = 'sheet_name_to_use'
 KEY_SHEET_INDEX = 'sheet_index_to_use'
@@ -33,9 +42,6 @@ CSV_FILE_EXTENSION = '.csv'
 EXCEL_FILE_EXTENSION_OLD = '.xls'
 EXCEL_FILE_EXTENSION_NEW = '.xlsx'
 
-ROWS_PER_CHUNK = 500000
-ROWS_PER_FILE = 1500000
-
 USAGE = """\nUsage example:
         >> python transform.py -c .\configs\china\config.json"""
 
@@ -47,34 +53,7 @@ DESC = """This program transform raw data files according to the
 HELP = """[Required] Configuration file (with full/relative path).
 E.g., python transform.py -c .\configs\china\config.json"""
 
-CONFIG_FILE_ERROR = """ERROR: You must provide a valid path 
-AND name of the JSON configuration file. """ + USAGE
 
-FILE_NOT_FOUND_ERROR = "ERROR: file(s) not found:"
-
-FOLDER_NOT_FOUND_ERROR = "ERROR: folder(s) not found:"
-
-FILE_TYPE_NOT_RECOGNIZED_ERROR = """ERROR: program does not know how to 
-process this type of file extension for input file:"""
-
-SHEET_KEYS_ERROR = """ERROR: You can provide EITHER """ \
-                   + KEY_SHEET_NAME + """ OR """ \
-                   + KEY_SHEET_INDEX \
-                   + """in the JSON configuration file. Not both. 
-                   If you don't provide either, the program will 
-                   default to the first sheet in the file."""
-
-COLUMNS_TO_USE_KEYS_ERROR = """ERROR: You can provide EITHER """ \
-                   + KEY_COLUMN_NAMES_TO_USE + """ OR """ \
-                   + KEY_COLUMN_INDEXES_TO_USE \
-                   + """in the JSON configuration file. Not both. 
-                   If you don't provide either, the program will 
-                   parse ALL columns in the file."""
-
-COLUMNS_TO_USE_TYPE_ERROR = """ERROR: For '""" + KEY_COLUMN_NAMES_TO_USE
-+ """' and '""" + KEY_COLUMN_INDEXES_TO_USE + """' keys in JSON 
-configuration file, you must provide either 'None' OR 
-a list (of *all* strings or *all* integers) for their corresponding values"""
 
 # TODO: write generate_config_json function below
 # TODO: document methods
@@ -113,7 +92,7 @@ def get_input_files(config):
     input_files = [str(f.absolute()) for f in pathlib.Path().glob(fn)]
 
     if not input_files:
-        sys.exit(' '.join([FILE_NOT_FOUND_ERROR, fn]))
+        raise transform_errors.FileNotFound(fn)
     return input_files
 
 
@@ -124,32 +103,23 @@ def get_output_file_prefix(config):
               config[KEY_OUTPUT_FOLDER_PATH])
 
     return os.path.join(config[KEY_OUTPUT_FOLDER_PATH],
-                               config[KEY_OUTPUT_FILE_PREFIX])
+                        config[KEY_OUTPUT_FILE_PREFIX])
 
 
-def get_sheet_index_or_name(config):
-    if (KEY_SHEET_NAME in config) and (KEY_SHEET_INDEX in config):
-        sys.exit(SHEET_KEYS_ERROR)
-
-    if KEY_SHEET_NAME in config:
-        return str(
-                    get_value_from_dict(
-                        config,
-                        KEY_SHEET_NAME,
-                        VALUE_SHEET_NAME_DEFAULT)
-        )
-    else:
-        return int(
-                    get_value_from_dict(
-                        config,
-                        KEY_SHEET_INDEX,
-                        VALUE_SHEET_INDEX_DEFAULT)
-        )
+def get_column_names_from_input_file(input_files, config):
+    # KEY_COLUMN_HEADER_ROW_INDEX = "column_header_row_index"
+    # KEY_CUSTOM_COLUMN_HEADER = "custom_column_headers"
+    if (KEY_COLUMN_HEADER_ROW_INDEX in config) and (KEY_CUSTOM_COLUMN_HEADER in config):
+        pass
 
 
-def get_list_of_columns_to_use(config):
+# TODO: implementing now
+def get_columns_to_use(config):
+    KEY_COLUMN_NAMES_TO_USE = 'list_of_column_names_to_use'
+    KEY_COLUMN_INDEXES_TO_USE = 'list_of_column_indexes_to_use'
     if (KEY_COLUMN_NAMES_TO_USE in config) and (KEY_COLUMN_INDEXES_TO_USE in config):
-        sys.exit(COLUMNS_TO_USE_KEYS_ERROR)
+        raise transform_errors.RedundantJSONKeyError(KEY_COLUMN_NAMES_TO_USE,
+                                                     KEY_COLUMN_INDEXES_TO_USE)
 
     if KEY_COLUMN_NAMES_TO_USE in config:
         list_of_columns_to_use = get_value_from_dict(
@@ -162,8 +132,8 @@ def get_list_of_columns_to_use(config):
                                     KEY_COLUMN_INDEXES_TO_USE,
                                     VALUE_COLUMNS_TO_USE_DEFAULT)
 
-    # make sure the returned value is either None OR a list
-    if list_of_columns_to_use is not VALUE_COLUMNS_TO_USE_DEFAULT:
+    # assert that the returned value is either None OR list
+    if not list_of_columns_to_use:
         if not isinstance(list_of_columns_to_use, list):
             sys.exit(COLUMNS_TO_USE_TYPE_ERROR)
 
@@ -190,6 +160,27 @@ def get_trailing_rows_to_skip(config):
                 config,
                 KEY_TRAILING_ROWS_TO_SKIP,
                 VALUE_TRAILING_ROWS_TO_SKIP_DEFAULT)
+
+
+def get_sheet_index_or_name(config):
+    if (KEY_SHEET_NAME in config) and (KEY_SHEET_INDEX in config):
+        raise transform_errors.RedundantJSONKeyError(KEY_SHEET_NAME,
+                                                     KEY_SHEET_INDEX)
+
+    if KEY_SHEET_NAME in config:
+        return str(
+                    get_value_from_dict(
+                        config,
+                        KEY_SHEET_NAME,
+                        VALUE_SHEET_NAME_DEFAULT)
+        )
+    else:
+        return int(
+                    get_value_from_dict(
+                        config,
+                        KEY_SHEET_INDEX,
+                        VALUE_SHEET_INDEX_DEFAULT)
+        )
 
 
 def extract_file_name(file_path_and_name):

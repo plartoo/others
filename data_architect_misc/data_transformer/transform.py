@@ -7,6 +7,7 @@ import sys
 import xlrd
 import pandas as pd
 
+import transform_errors
 import transform_utils
 from file_utils import get_file_extension
 
@@ -52,17 +53,17 @@ if __name__ == '__main__':
 
     # 2. Load JSON configuration file
     if (not args.c) or (not os.path.exists(args.c)):
-        sys.exit(transform_utils.CONFIG_FILE_ERROR)
+        raise transform_errors.ConfigFileError
 
     # 3. Iterate through each transform procedure
     for config in transform_utils.load_config(args.c):
         input_files = transform_utils.get_input_files(config)
-        output_file_prefix = transform_utils.get_
+        output_file_prefix = transform_utils.get_output_file_prefix(config)
 
 
 
         # TODO: get column header row index or custom column headers to use
-        cols_to_use = transform_utils.get_list_of_columns_to_use(config)
+        cols_to_use = transform_utils.get_columns_to_use(config)
         # TODO: get column rename mappings
         leading_rows = transform_utils.get_leading_rows_to_skip(config)
         trailing_rows = transform_utils.get_trailing_rows_to_skip(config)
@@ -73,10 +74,7 @@ if __name__ == '__main__':
             encoding = transform_utils.get_csv_encoding(config)
             input_csv_delimiter = transform_utils.get_csv_delimiter(config)
         else:
-            sys.exit(' '.join([
-                    transform_utils.FILE_TYPE_NOT_RECOGNIZED_ERROR,
-                    input_file
-            ]))
+            raise transform_errors.InvalidFileType
 
 
 
@@ -101,6 +99,8 @@ if __name__ == '__main__':
     #https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
     # REF: pandas snippets: https://jeffdelaney.me/blog/useful-snippets-in-pandas/
     # # REF: https://stackoverflow.com/q/14262433
+    # Drop columns
+    # https://cmdlinetips.com/2018/04/how-to-drop-one-or-more-columns-in-pandas-dataframe/
     # extn = get_file_extension(args.i)
     # if extn == '.xlsx':
     #     # REF: https://stackoverflow.com/a/44549301
