@@ -10,6 +10,8 @@
     "column_header_row_index": "#If header row exists, define where to pick it",
     "custom_column_headers": "#If header row doesn't exist, define which ones to apply",
 
+    "rows_to_read_per_iteration": "#optional",
+
     "list_of_column_names_to_use": [],
     "list_of_column_indexes_to_use": [],
     "column_rename_mappings": {
@@ -26,6 +28,7 @@
     "input_csv_file_delimiter": "",
     "output_file_encoding": "#optional",
     "output_file_delimiter": "#optional",
+    "number_of_rows_in_each_output_file": "#optional",
 
     "functions_to_apply_to_data_frame": {
       "maybe we don't need this": "#maybe we don't need this"
