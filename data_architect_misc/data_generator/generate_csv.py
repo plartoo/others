@@ -6,7 +6,7 @@ Python script to generate CSV data file, which can be used for testing, with
 specified data type and row numbers.
 
 Usage:
->> python generate_csv.py   -t 'int_id(start,step),ascii_str(min,max),float(min,max),int(min,max)'
+>> python generate_csv.py   -t 'int_id(1,1),ascii_str(8,15),double(0.5,3.0),integer(-10,10)'
                             -r 5000000
                             -d '|' 
                             -o 'output.csv'
@@ -22,17 +22,17 @@ t   -   (required) comma-separated list of data types that will be generated for
         ascii_str(min,max)  -   string with random ASCII characters of length between min and max length.
                                 E.g., ascii_str(3,4) would generate str sequence of ['ABC','AZDE','QDS',...]
         utf8_str(min,max)   -   same as 'ascii_str' above, but generates UTF-8 characters.
-        float(min,max)      -   random float numbers between min and max.
+        double(min,max)     -   random float (aka double) numbers between min and max.
         numeric(precision, scale)   -   random decimal number with total number of digits equal to 
                                         'precision' and decimals equalling 'scale'.
                                         E.g., numeric(10,2) will yield something like '12345678.90'
-        int(min,max)                -   random integer numbers between min and max.
+        integer(min,max)            -   random integer numbers between min and max.
         date(start,end)             -   random date between start and end in STRING format.
                                         E.g., date('2018-01-01','2018-12-31') would generate random dates
                                         between Jan 1, 2018 and Dec 31, 2018 (both inclusive) 
                                         in ISO 8601-compliant format ('YYYY-MM-DD').
-        datetime(start,end)         -   random date time between start and end in STRING format. 
-                                        Similar to 'date(start,end)', datetime(2018-01-01','2018-12-31') 
+        date_time(start,end)        -   random date time between start and end in STRING format.
+                                        Similar to 'date(start,end)', date_time(2018-01-01','2018-12-31')
                                         would generate random date and time between 
                                         Jan 1, 2018 and Dec 31, 2018 (both inclusive)
                                         in this ISO 8601-compliant format ('YYYY-MM-DDTHH:MM:SS').
@@ -43,7 +43,7 @@ t   -   (required) comma-separated list of data types that will be generated for
                                               E.g., cat(1,'dog') will return either 1 or 'dog' as data.
         Note: If input parameters for the above data types aren't given, the program will use the default
         ranges/values defined as CONSTANTs in the code. In other words, one can call this program like below:
-        >> python generate_csv.py -r 50000000 -d '|' -t 'int_id(),str_ids(),float(),....'
+        >> python generate_csv.py -r 50000000 -d '|' -t 'int_id(),str_ids(),double(),....'
         
 r   - (optional) number of rows to be generated in the output CSV file. Default is 500K rows.
 d   - (optional) delimiter to be used in the output CSV file. Default is '|'.
@@ -61,6 +61,7 @@ import argparse
 import csv
 from datetime import datetime
 from decimal import *
+from functools import partial
 import random
 import re
 import string
@@ -134,10 +135,12 @@ def utf8_str(min=STR_LENGTH, max=STR_LENGTH):
     return ''.join(random.choice(UTF8_CHARS) for i in range(str_length))
 
 
-def float(min=MIN_NUM, max=MAX_NUM):
+def double(min=MIN_NUM, max=MAX_NUM):
     """
-    Generates random float number between min and max (min <= N <= max).
+    Generates random float (double) number between min and max (min <= N <= max).
     REF: http://web.archive.org/web/20190804005156/https://pynative.com/python-get-random-float-numbers/
+    Note: We can go as high as max value in 'sys.float_info', but decided to keep this
+    smaller to align with integer's min and max value.
     """
     return random.uniform(min, max)
 
@@ -153,7 +156,7 @@ def numeric(precision=PRECISION, scale=SCALE):
     return Decimal(10**exponent) * Decimal(random.random())
 
 
-def int(min=MIN_NUM, max=MAX_NUM):
+def integer(min=MIN_NUM, max=MAX_NUM):
     """
     Generates random integer between min and max (min <= N <= max).
     REF: https://stackoverflow.com/a/7604981
@@ -195,9 +198,9 @@ def _get_random_datetime(start, end):
     return datetime(date.year, date.month, date.day, h, m, s)
 
 
-def datetime(start=START_DATE, end=END_DATE):
+def date_time(start=START_DATE, end=END_DATE):
     """
-    Generates random date value between start and end datetime (inclusive)
+    Generates random date and time value between start and end (inclusive)
     in 'YYYY-MM-DDTHH:MM:SS' (ISO 8601) format. For example, '2018-08-04T21:02:05'
     """
     return _get_random_datetime(start, end).strftime(DATETIME_FORMAT)
@@ -213,30 +216,99 @@ def categorical(values=CATEGORICAL_VALUES):
     return random.choice(values)
 
 
+def _parse_data_type_definitions(input_str):
+    """
+    Parse comma-separated data type string (input) into a list of
+    individual data type definitions (removing empty strings).
+    E.g., For test string,
+    "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) ,
+    double (1.5 , 5.6 ), numeric ( 10, 4 ),integer(-5 , 5000),
+    date('2018-01-01','2019-12-12'),date_time('2018-01-01','2019-12-12'),
+    categorical('blah','1',2, 3)"
+    this function returns ['int_id(start,step)', 'str_id(min,max)',' ascii_str( min, max)',....].
+    See https://regexr.com/4indg for live example.
+
+    Note: r'[,\s]?(.*?\(.*?\))[,\s]?' # r',?(.*?\(.*?\)),?'
+    Two regex patterns above are good as well, but sometimes include extra commas
+    with each split unit, so decided to use the pattern below, which produces slightly
+    cleaner splits.
+    """
+    return list(filter(None, re.split(r'(.*?\(.*?\))[,\s]?', input_str)))
+
+
+def _get_data_type_name_and_parameter(input_str):
+    """Splits individual data type definition with parameters into
+    data type name and parameters. For example, for input string
+    ' , double (min , max )', this function returns ('double', 'min , max ')
+    """
+    return re.findall(r'(.*?)\((.*?)\)', input_str)
+
+
+def _remove_non_word_chars(input_str):
+    """Removes space character, commas, etc."""
+    return re.sub(r'\W*?', '', input_str)
+
+
+def _get_parameters(param_str):
+    if not param_str.strip():
+        # if empty string like 'int_id()' case
+        return None
+    else:
+        return [i.strip() for i in d[1].split(',')]
+
+
+def _prepare_partial(data_type, params):
+    """
+    Build and return partial function out of the data_type string
+    and associated parameters. These partial functions will be called
+    when we generate CSV rows.
+    """
+    if data_type == 'categorical':
+        return None # TODO: change parameters
+    elif data_type in ['date_time', 'date']:
+        return None # TODO: change parameters
+    elif data_type == 'double':
+        return None # TODO: change parameters
+    elif data_type in ['int_id', 'str_id', 'ascii_str', 'utf8_str', 'numeric', 'integer']:
+        return {
+            'int_id': None, # TODO: change parameters
+            'str_id': None, # TODO: change parameters
+            'ascii_str': None, # TODO: change parameters
+            'utf8_str': None, # TODO: change parameters
+            'numeric': None, # TODO: change parameters
+            'integer': partial(integer, 2, 5)
+        }[data_type]
+    else:
+        sys.exit("ERROR: data type '", data_type, "' is not supported.")
+
+
 if __name__ == '__main__':
     # 1. Process arguments passed into the program
     DESC = "This script generates CSV file based on specification. Try '-h' " \
-           "to learn how to use"
-    ROW_HELP = "(optional) Number of rows to be generated in the output CSV file. " \
-               "Default is " +  ROW_NUM + " rows."
+           "to learn the usage."
+    ROW_HELP = ''.join(["(optional) Number of rows to be generated "
+                        "in the output CSV file. Default is ",
+                        str(ROW_NUM) , " rows."])
     DELIMITER_HELP = "(optional) Delimiter to be used in the output CSV file. Default is '|'."
     OUTPUT_FILE_HELP = "(optional) Output file name. Default would be of format " \
                        "'<YYYYMMDDHHMMSS_numOfRows>.csv'"
-    QUOTING_HELP = "(optional) Define much quote would be put for columns in CSV file. " \
-                   "Allowed options are: 'min', 'all', 'nonnumeric' and 'none'." \
-                   "Default is 'min', which is equivalent to Python's csv.QUOTE_MINIMAL."
-    COLUMN_HELP = "(optional) Define custom column headers using comma-separated list like " \
-                  "'ID,columnA,columnB,columnC,columnD,...' etc. " \
+    QUOTING_HELP = "(optional) Define how much quote would be wraped around each " \
+                   "cell in CSV file. Allowed options are: 'min', 'all', 'nonnumeric' " \
+                   "and 'none'. Default is 'min', which is equivalent to Python's " \
+                   "csv.QUOTE_MINIMAL."
+    COLUMN_HELP = "(optional) Define custom column headers using comma-separated " \
+                  "list like 'ID,columnA,columnB,columnC,columnD,...' etc. " \
                   "If not provided, program will default to column names with format" \
                   "like this: '<datatypeOfColumn>_<columnIndex>,...'. Specifically, " \
                   "the default column names will look like this: " \
                   "'int_0, str_id_1, date_3, ....'"
-    DATA_TYPE_HELP = "(required) Define data types for each column using comma-separated list like " \
-                    "'int_id(start,step),ascii_str(min,max),float(min,max),int(min,max)'." \
-                    "The allowed data types are: 'id', 'str_id', 'ascii_str', 'utf8_str', " \
-                    "'float', 'numeric', 'int', 'date', 'datetime' and 'categorical'." \
-                    "Please read the comment at beginning of Python script, 'generate_csv.py', " \
-                    "to understand more detail about these data types and parameters needed."
+    DATA_TYPE_HELP = "(required) Define data types for each column using comma-separated " \
+                     "list like 'int_id(start,step),ascii_str(min,max),double(min,max)," \
+                     "integer(min,max)'. The allowed data types are: 'id', 'str_id', " \
+                     "'ascii_str', 'utf8_str', 'double', 'numeric', 'int', 'date', " \
+                     "'date_time' and 'categorical'. Please read the comment at the " \
+                     "beginning of Python script, 'generate_csv.py', to understand " \
+                     "more detail about these data types and parameters needed."
 
     parser = argparse.ArgumentParser(description=DESC)
     parser.add_argument('-r', required=False, type=int,
@@ -257,26 +329,33 @@ if __name__ == '__main__':
                         help=DATA_TYPE_HELP)
     args = parser.parse_args()
 
-    cur_datetime = datetime.now().strftime('%Y%m%d%H%M%S')
-
     # 2. prepare necessary parameters before generating data for CSV file
     rows = args.r
     delimiter = args.d
-    output_file = ''.join([cur_datetime,'_',rows,'.csv']) if (not args.o) else args.o
     quoting = QUOTE_OPTIONS[args.q]
+    cur_datetime = datetime.now().strftime('%Y%m%d%H%M%S')
+    output_file = ''.join([cur_datetime,'_',str(rows),'.csv']) if (not args.o) else args.o
 
-    ## Test string:
-    ## int_id(start,step),str_id(min,max), ascii_str( min, max),utf8_str(min,max) , float (min , max ),numeric( precision, scale ),int(min , max),date(start,end),datetime(start, end),categorical('blah','1',2, 3)
-    ## r'[,\s]?(.*?\(.*?\))[,\s]?' # r',?(.*?\(.*?\)),?'
-    # Note: two regex patterns above are good as well, but sometimes include extra commas
-    # with each split unit, so decided to use the pattern below, which produces slightly
-    # cleaner splits
-    re_each_data_type = r'(.*?\(.*?\))[,\s]?'
-    data_types = list(filter(None, re.split(re_each_data_type, args.t)))
-    re_data_type_and_params = r'(.*?)\((.*?)\)' # https://regexr.com/4indg
+    print('\nRows:', rows)
+    print('Delimiter:', delimiter)
+    print('Quoting:', args.q)
+    print('Output File:', output_file, "\n")
 
-    # Python regex tutorial:
-    # REF: http://web.archive.org/web/20190806021129/https://www.guru99.com/python-regular-expressions-complete-tutorial.html
-    pdb.set_trace()
-    print("ha")
+    column_data_types = []
+    for s in _parse_data_type_definitions(args.t):
+        for d in _get_data_type_name_and_parameter(s):
+            data_type = _remove_non_word_chars(d[0])
+            try:
+                params = _get_parameters(d[1])
+            except:
+                sys.exit("ERROR: Parising this input data type=>", s,
+                         ". Try 'python generate_csv.py -h' "
+                         "to learn the correct usage.")
+            print("=>", data_type, "\t", params)
+            column_data_types.append(_prepare_partial(data_type, params))
+
+    # pdb.set_trace()
+    print('aha')
     # check if column headers names is eqv in size to that of data types
+# TODO: test
+# "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01','2019-12-12'), categorical('blah','1',2, 3)"
