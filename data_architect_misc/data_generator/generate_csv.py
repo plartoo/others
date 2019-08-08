@@ -147,8 +147,8 @@ def double(min=MIN_NUM, max=MAX_NUM):
 
 def numeric(precision=PRECISION, scale=SCALE):
     """
-    Generates random decimal numbers with total digits equalling 'precision'
-    and decimal scale equalling 'scale'.
+    Generates random decimal numbers with total digits equaling 'precision'
+    and decimal scale equaling 'scale'.
     E.g., numeric(11,4) would yield '8211753.5117'
     """
     getcontext().prec = precision
@@ -251,18 +251,35 @@ def _remove_non_word_chars(input_str):
 
 def _get_parameters(param_str):
     if not param_str.strip():
-        # if empty string like 'int_id()' case
-        return None
+        # if empty string like 'int_id()' as input
+        return []
     else:
         return [i.strip() for i in d[1].split(',')]
 
 
-def _prepare_partial(data_type, params):
+def _convert_params(params):
+    pass
+
+
+def _make_partial(data_type, params):
     """
     Build and return partial function out of the data_type string
     and associated parameters. These partial functions will be called
     when we generate CSV rows.
     """
+    if not params:
+        {
+            'categorical': categorical,
+            'date_time': date_time,
+            'date': date,
+            'double': double,
+            'int_id': int_id,
+            'str_id': str_id,
+            'ascii_str': ascii_str,
+            'utf8_str': utf8_str,
+            'numeric': numeric,
+            'integer': integer
+        }
     if data_type == 'categorical':
         return None # TODO: change parameters
     elif data_type in ['date_time', 'date']:
@@ -283,7 +300,7 @@ def _prepare_partial(data_type, params):
 
 
 if __name__ == '__main__':
-    # 1. Process arguments passed into the program
+    # constants for descriptions and instructions
     DESC = "This script generates CSV file based on specification. Try '-h' " \
            "to learn the usage."
     ROW_HELP = ''.join(["(optional) Number of rows to be generated "
@@ -310,6 +327,21 @@ if __name__ == '__main__':
                      "beginning of Python script, 'generate_csv.py', to understand " \
                      "more detail about these data types and parameters needed."
 
+    # random data generator functions for different data types
+    FUNCS = {
+            'categorical': categorical,
+            'date_time': date_time,
+            'date': date,
+            'double': double,
+            'int_id': int_id,
+            'str_id': str_id,
+            'ascii_str': ascii_str,
+            'utf8_str': utf8_str,
+            'numeric': numeric,
+            'integer': integer
+        }
+
+    # 1. acquire command line arguments
     parser = argparse.ArgumentParser(description=DESC)
     parser.add_argument('-r', required=False, type=int,
                         default=ROW_NUM,
@@ -318,7 +350,6 @@ if __name__ == '__main__':
                         default=DELIMITER,
                         help=DELIMITER_HELP)
     parser.add_argument('-o', required=False, type=str,
-                        # default=,
                         help=OUTPUT_FILE_HELP)
     parser.add_argument('-q', required=False, type=str,
                         default='min',
@@ -329,19 +360,20 @@ if __name__ == '__main__':
                         help=DATA_TYPE_HELP)
     args = parser.parse_args()
 
-    # 2. prepare necessary parameters before generating data for CSV file
+    # 2. prepare necessary parameters to generate data for CSV file
     rows = args.r
     delimiter = args.d
     quoting = QUOTE_OPTIONS[args.q]
     cur_datetime = datetime.now().strftime('%Y%m%d%H%M%S')
     output_file = ''.join([cur_datetime,'_',str(rows),'.csv']) if (not args.o) else args.o
 
+    # 3. print input params to stdout for sanity check
     print('\nRows:', rows)
     print('Delimiter:', delimiter)
     print('Quoting:', args.q)
     print('Output File:', output_file, "\n")
 
-    column_data_types = []
+    column_funcs = []
     for s in _parse_data_type_definitions(args.t):
         for d in _get_data_type_name_and_parameter(s):
             data_type = _remove_non_word_chars(d[0])
@@ -351,8 +383,15 @@ if __name__ == '__main__':
                 sys.exit("ERROR: Parising this input data type=>", s,
                          ". Try 'python generate_csv.py -h' "
                          "to learn the correct usage.")
+
             print("=>", data_type, "\t", params)
-            column_data_types.append(_prepare_partial(data_type, params))
+            column_funcs.append(_make_partial(data_type, params))
+            # if not params:
+            #     # prepare functions with default values
+            #     column_funcs.append((FUNCS[data_type],)
+            # else:
+            #     # prepare functions with parameters per user's input
+            #     column_funcs.append(FUNCS[data_type](_convert_params(params)))
 
     # pdb.set_trace()
     print('aha')
