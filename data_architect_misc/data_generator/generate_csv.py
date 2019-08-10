@@ -36,11 +36,12 @@ t   -   (required) comma-separated list of data types that will be generated for
                                         would generate random date and time between 
                                         Jan 1, 2018 and Dec 31, 2018 (both inclusive)
                                         in this ISO 8601-compliant format ('YYYY-MM-DDTHH:MM:SS').
-                                        E.g., date('2018-01-01','2018-12-31') might yield
+                                        E.g., date_time('2018-01-01','2018-12-31') might yield
                                         '2018-08-04T21:03:23'.
         categorical(comma-separated values) - random categorical values that are chosen from
                                               comma-separated values provided.
-                                              E.g., cat(1,'dog') will return either 1 or 'dog' as data.
+                                              E.g., cat(1,'dog',"dino") will return
+                                              either 1 or 'dog' as data.
         Note: If input parameters for the above data types aren't given, the program will use the default
         ranges/values defined as CONSTANTs in the code. In other words, one can call this program like below:
         >> python generate_csv.py -r 50000000 -d '|' -t 'int_id(),str_ids(),double(),....'
@@ -192,9 +193,9 @@ def date(start=START_DATE, end=END_DATE):
 def _get_random_datetime(start, end):
     """Helper function that returns datetime object with both date and time values."""
     date = _get_random_date(start, end)
-    h = _get_random_int_between(0, 24)
-    m = _get_random_int_between(0, 60)
-    s = _get_random_int_between(0, 60)
+    h = _get_random_int_between(0, 23)
+    m = _get_random_int_between(0, 59)
+    s = _get_random_int_between(0, 59)
     return datetime(date.year, date.month, date.day, h, m, s)
 
 
@@ -209,7 +210,7 @@ def date_time(start=START_DATE, end=END_DATE):
 def categorical(values=CATEGORICAL_VALUES):
     """
     Chooses one of the comma-separated values provided as input.
-    For example, categorical(1,'dog','dino') will return one of
+    For example, categorical(1,'dog',"dino") will return one of
     the three values from 1, 'dog' and 'dino' at random.
     REF: http://web.archive.org/save/https://pynative.com/python-random-choice/
     """
@@ -239,7 +240,8 @@ def _parse_data_type_definitions(input_str):
 def _get_data_type_name_and_parameter(input_str):
     """Splits individual data type definition with parameters into
     data type name and parameters. For example, for input string
-    ' , double (min , max )', this function returns ('double', 'min , max ')
+    ' , double (min , max )', this function returns the tuple
+    ('double', 'min , max ').
     """
     return re.findall(r'(.*?)\((.*?)\)', input_str)
 
@@ -254,47 +256,96 @@ def _get_parameters(param_str):
         # if empty string like 'int_id()' as input
         return []
     else:
-        return [i.strip() for i in d[1].split(',')]
+        return [i.strip() for i in param_str.split(',')]
+        # return [i.strip() for i in d[1].split(',')]
 
 
 def _convert_params(params):
     pass
 
 
-def _make_partial(data_type, params):
+def _starts_with_quotes(s):
+    # returns true if string starts with single or double quotes
+    return not (not re.match(r'^[\'"]', s, re.M))
+
+
+def _ends_with_quotes(s):
+    # returns true if string ends with single or double quotes
+    return not (not re.match(r'.*[\'"]$', s, re.M))
+
+
+def _remove_start_and_end_quotes(s):
+    return re.sub(r'[\'"]$', '', re.sub(r'^[\'"]', '', s))
+
+
+def _parse_mixed_params(params):
+    """parse mixed list of params including str's, ints and floats"""
+    processed = []
+    for p in [i.strip() for i in params]:
+        if _starts_with_quotes(p) and _ends_with_quotes(p):
+            # if in quotes, assume the value is of str type
+            processed.append(_remove_start_and_end_quotes(p))
+        else:
+            # if not in quotes, it could be either decimal or int
+            try:
+                processed.append(int(p))
+            except ValueError:
+                try:
+                    processed.append(float(p))
+                except ValueError:
+                    processed.append(p)
+            except:
+                sys.exit("ERROR: parsing mixed param =>",
+                         p, " has caused error.")
+    return processed
+
+
+def _parse_date_and_date_time_params(params):
+    processed = []
+    for t in [i.strip() for i in params]:
+        if _starts_with_quotes(t) and _ends_with_quotes(t):
+            # if in quotes, assume the value is of str type
+            processed.append(_remove_start_and_end_quotes(t))
+        else:
+            processed.append(t)
+    return processed
+
+
+def _parse_double_params(params):
+    return [float(i.strip()) for i in params]
+
+
+def _parse_integer_params(params):
+    return [int(i.strip()) for i in params]
+
+
+#column_funcs.append(_make_partial(data_type, params))
+def _make_partial(funcs, data_type, params):
     """
     Build and return partial function out of the data_type string
     and associated parameters. These partial functions will be called
     when we generate CSV rows.
     """
     if not params:
-        {
-            'categorical': categorical,
-            'date_time': date_time,
-            'date': date,
-            'double': double,
-            'int_id': int_id,
-            'str_id': str_id,
-            'ascii_str': ascii_str,
-            'utf8_str': utf8_str,
-            'numeric': numeric,
-            'integer': integer
-        }
+        # if no parameters were provided, go with defaults
+        return partial(funcs[data_type])
+
     if data_type == 'categorical':
-        return None # TODO: change parameters
+        print("parsed params:", _parse_mixed_params(params))
+        return partial(funcs[data_type],
+                       _parse_mixed_params(params))
     elif data_type in ['date_time', 'date']:
-        return None # TODO: change parameters
+        p = _parse_mixed_params(params)
+        print("parsed params:", str(p))
+        return partial(funcs[data_type], p[0], p[1])
     elif data_type == 'double':
-        return None # TODO: change parameters
+        p = _parse_double_params(params)
+        print("parsed params:", str(p))
+        return partial(funcs[data_type], p[0], p[1])
     elif data_type in ['int_id', 'str_id', 'ascii_str', 'utf8_str', 'numeric', 'integer']:
-        return {
-            'int_id': None, # TODO: change parameters
-            'str_id': None, # TODO: change parameters
-            'ascii_str': None, # TODO: change parameters
-            'utf8_str': None, # TODO: change parameters
-            'numeric': None, # TODO: change parameters
-            'integer': partial(integer, 2, 5)
-        }[data_type]
+        p = _parse_integer_params(params)
+        print("parsed params:", str(p))
+        return partial(funcs[data_type], p[0], p[1])
     else:
         sys.exit("ERROR: data type '", data_type, "' is not supported.")
 
@@ -373,28 +424,47 @@ if __name__ == '__main__':
     print('Quoting:', args.q)
     print('Output File:', output_file, "\n")
 
-    column_funcs = []
+    generator_funcs = []
+    default_column_names = []
+    i = 1
     for s in _parse_data_type_definitions(args.t):
-        for d in _get_data_type_name_and_parameter(s):
-            data_type = _remove_non_word_chars(d[0])
+        for dp in _get_data_type_name_and_parameter(s):
+            data_type = _remove_non_word_chars(dp[0])
             try:
-                params = _get_parameters(d[1])
+                params = _get_parameters(dp[1])
             except:
                 sys.exit("ERROR: Parising this input data type=>", s,
                          ". Try 'python generate_csv.py -h' "
                          "to learn the correct usage.")
 
             print("=>", data_type, "\t", params)
-            column_funcs.append(_make_partial(data_type, params))
-            # if not params:
-            #     # prepare functions with default values
-            #     column_funcs.append((FUNCS[data_type],)
-            # else:
-            #     # prepare functions with parameters per user's input
-            #     column_funcs.append(FUNCS[data_type](_convert_params(params)))
+            # 4. create partial functions to generate random data for each column
+            generator_funcs.append(_make_partial(FUNCS, data_type, params))
+            print("=====\n\n")
+            # 5. create default column names in case user doesn't provide them
+            param_str = '_'.join([p.strip("'").strip('"') for p in params])
+            default_column_names.append('_'.join([data_type, param_str, str(i)]))
+            i += 1
 
-    # pdb.set_trace()
-    print('aha')
-    # check if column headers names is eqv in size to that of data types
-# TODO: test
-# "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01','2019-12-12'), categorical('blah','1',2, 3)"
+    # 6. now check and see if user provided column names of his/her choice
+    if not args.c:
+        col_names = default_column_names
+    else:
+        user_provided_col_names = args.c.split(',')
+        if len(user_provided_col_names) != len(generator_funcs):
+            sys.exit("ERROR: if you provide custom column names, you must "
+                     "provide enough of these names to cover all data columns")
+        else:
+            col_names = user_provided_col_names
+    pdb.set_trace()
+    j = 0
+    with open(output_file, 'w', newline='', encoding='utf-8') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=delimiter, quoting=quoting)
+        csv_writer.writerow(col_names)
+        while j < rows:
+            csv_writer.writerow([f() for f in generator_funcs])
+            j += 1
+
+
+    print('Data written in CSV file:', output_file)
+#python generate_csv.py -t "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01',"2019-12-12"), categorical("blah",'1',2, 3)"
