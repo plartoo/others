@@ -12,6 +12,7 @@ Usage:
                             -o 'output.csv'
                             -c 'ID,columnA,columnB,columnC,columnD' 
                             -q 'min'
+
 Flags:
 t   -   (required) comma-separated list of data types that will be generated for each column. 
         Syntax is as follows:
@@ -67,6 +68,7 @@ import random
 import re
 import string
 import sys
+import types
 import uuid
 
 ## Constants (default values) used in data types for random data generation
@@ -342,7 +344,11 @@ def _make_partial(funcs, data_type, params):
         p = _parse_double_params(params)
         print("parsed params:", str(p))
         return partial(funcs[data_type], p[0], p[1])
-    elif data_type in ['int_id', 'str_id', 'ascii_str', 'utf8_str', 'numeric', 'integer']:
+    elif data_type == 'int_id':
+        p = _parse_integer_params(params)
+        print("parsed params:", str(p))
+        return funcs[data_type](p[0], p[1])
+    elif data_type in ['str_id', 'ascii_str', 'utf8_str', 'numeric', 'integer']:
         p = _parse_integer_params(params)
         print("parsed params:", str(p))
         return partial(funcs[data_type], p[0], p[1])
@@ -456,15 +462,19 @@ if __name__ == '__main__':
                      "provide enough of these names to cover all data columns")
         else:
             col_names = user_provided_col_names
-    pdb.set_trace()
+
+    # 7. generate random values row by row and write them into CSV file
     j = 0
     with open(output_file, 'w', newline='', encoding='utf-8') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=delimiter, quoting=quoting)
         csv_writer.writerow(col_names)
         while j < rows:
-            csv_writer.writerow([f() for f in generator_funcs])
+            csv_writer.writerow([next(f) if isinstance(f, types.GeneratorType)
+                                 else f() for f in generator_funcs])
             j += 1
-
+            print("Printed line number:", j, end='\r')
 
     print('Data written in CSV file:', output_file)
-#python generate_csv.py -t "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01',"2019-12-12"), categorical("blah",'1',2, 3)"
+
+# Note: To test inputs for flag 't', try this:
+# python generate_csv.py -t "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01',"2019-12-12"), categorical("blah",'1',2, 3)"
