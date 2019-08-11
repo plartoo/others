@@ -1,6 +1,6 @@
 """
 Author: Phyo Thiha
-Last Modified: August 4, 2019
+Last Modified: August 10, 2019
 Description:
 Python script to generate CSV data file, which can be used for testing, with 
 specified data type and row numbers.
@@ -41,7 +41,7 @@ t   -   (required) comma-separated list of data types that will be generated for
                                         '2018-08-04T21:03:23'.
         categorical(comma-separated values) - random categorical values that are chosen from
                                               comma-separated values provided.
-                                              E.g., cat(1,'dog',"dino") will return
+                                              E.g., categorical(1,'dog',"dino") will return
                                               either 1 or 'dog' as data.
         Note: If input parameters for the above data types aren't given, the program will use the default
         ranges/values defined as CONSTANTs in the code. In other words, one can call this program like below:
@@ -57,8 +57,10 @@ q   - (optional) quoting option. Valid options are: 'min','all','nonnumeric','no
        corresponding to Python CSV library's default values defined here:
        https://docs.python.org/3/library/csv.html#csv.QUOTE_ALL
        Default is 'min' (i.e. csv.QUOTE_MINIMAL)
+v   - (optional) If set to '1', the program will print more info to stdout about
+       what it is doing. If set to '0', the program will print only essential
+       information.
 """
-import pdb
 import argparse
 import csv
 from datetime import datetime
@@ -71,7 +73,10 @@ import sys
 import types
 import uuid
 
-## Constants (default values) used in data types for random data generation
+## Global variable to set verbosity of stdout
+verbose = 1
+
+## Constants (default values) used to generate random data
 ID_START = 0
 ID_STEP = 1
 
@@ -91,7 +96,7 @@ DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 CATEGORICAL_VALUES = ['TRUE', 'FALSE']
 
-## Constants for output CSV file
+## Other constants such as row number in CSV output file, quoting level, etc.
 ROW_NUM = 50000
 DELIMITER =  '|'
 QUOTE_OPTIONS = {'min': csv.QUOTE_MINIMAL,
@@ -254,16 +259,12 @@ def _remove_non_word_chars(input_str):
 
 
 def _get_parameters(param_str):
+    """Split parameters, if any, in a string into a list."""
     if not param_str.strip():
         # if empty string like 'int_id()' as input
         return []
     else:
         return [i.strip() for i in param_str.split(',')]
-        # return [i.strip() for i in d[1].split(',')]
-
-
-def _convert_params(params):
-    pass
 
 
 def _starts_with_quotes(s):
@@ -281,7 +282,7 @@ def _remove_start_and_end_quotes(s):
 
 
 def _parse_mixed_params(params):
-    """parse mixed list of params including str's, ints and floats"""
+    """Parse mixed list of params including str's, ints and floats"""
     processed = []
     for p in [i.strip() for i in params]:
         if _starts_with_quotes(p) and _ends_with_quotes(p):
@@ -321,7 +322,6 @@ def _parse_integer_params(params):
     return [int(i.strip()) for i in params]
 
 
-#column_funcs.append(_make_partial(data_type, params))
 def _make_partial(funcs, data_type, params):
     """
     Build and return partial function out of the data_type string
@@ -333,30 +333,39 @@ def _make_partial(funcs, data_type, params):
         return partial(funcs[data_type])
 
     if data_type == 'categorical':
-        print("parsed params:", _parse_mixed_params(params))
-        return partial(funcs[data_type],
-                       _parse_mixed_params(params))
+        p = _parse_mixed_params(params)
+        v_print("\n=> Data type:", data_type, "\tParsed params:", p, "\n")
+        # in categorical case, we return immediately because its params are different
+        return partial(funcs[data_type], p)
     elif data_type in ['date_time', 'date']:
         p = _parse_mixed_params(params)
-        print("parsed params:", str(p))
-        return partial(funcs[data_type], p[0], p[1])
     elif data_type == 'double':
         p = _parse_double_params(params)
-        print("parsed params:", str(p))
-        return partial(funcs[data_type], p[0], p[1])
     elif data_type == 'int_id':
         p = _parse_integer_params(params)
-        print("parsed params:", str(p))
+        # in int_id case, we return a generator function instead of a partial
         return funcs[data_type](p[0], p[1])
     elif data_type in ['str_id', 'ascii_str', 'utf8_str', 'numeric', 'integer']:
         p = _parse_integer_params(params)
-        print("parsed params:", str(p))
-        return partial(funcs[data_type], p[0], p[1])
     else:
         sys.exit("ERROR: data type '", data_type, "' is not supported.")
 
+    v_print("\n=> Data type:", data_type, "\tParsed params:", str(p))
+    return partial(funcs[data_type], p[0], p[1])
 
-if __name__ == '__main__':
+
+def v_print(*a, **k):
+    """
+    Extend python's print function to allow for verbose argument.
+    REF: https://stackoverflow.com/a/5980173
+    """
+    if verbose:
+        print(*a, **k)
+    else:
+        lambda *a, **k: None
+
+
+def main():
     # constants for descriptions and instructions
     DESC = "This script generates CSV file based on specification. Try '-h' " \
            "to learn the usage."
@@ -376,6 +385,9 @@ if __name__ == '__main__':
                   "like this: '<datatypeOfColumn>_<columnIndex>,...'. Specifically, " \
                   "the default column names will look like this: " \
                   "'int_0, str_id_1, date_3, ....'"
+    VERBOSE_HELP = "(optional) If set to '1', the program will print more info to stdout" \
+                   "about what it is doing. If set to '0', the program will print only " \
+                   "essential information."
     DATA_TYPE_HELP = "(required) Define data types for each column using comma-separated " \
                      "list like 'int_id(start,step),ascii_str(min,max),double(min,max)," \
                      "integer(min,max)'. The allowed data types are: 'id', 'str_id', " \
@@ -399,6 +411,7 @@ if __name__ == '__main__':
         }
 
     # 1. acquire command line arguments
+    global verbose
     parser = argparse.ArgumentParser(description=DESC)
     parser.add_argument('-r', required=False, type=int,
                         default=ROW_NUM,
@@ -413,6 +426,9 @@ if __name__ == '__main__':
                         help=QUOTING_HELP)
     parser.add_argument('-c', required=False, type=str,
                         help=COLUMN_HELP)
+    parser.add_argument('-v', required=False, type=int,
+                        default=verbose,
+                        help=VERBOSE_HELP)
     parser.add_argument('-t', required=True, type=str,
                         help=DATA_TYPE_HELP)
     args = parser.parse_args()
@@ -421,15 +437,11 @@ if __name__ == '__main__':
     rows = args.r
     delimiter = args.d
     quoting = QUOTE_OPTIONS[args.q]
+    verbose = args.v
     cur_datetime = datetime.now().strftime('%Y%m%d%H%M%S')
     output_file = ''.join([cur_datetime,'_',str(rows),'.csv']) if (not args.o) else args.o
 
-    # 3. print input params to stdout for sanity check
-    print('\nRows:', rows)
-    print('Delimiter:', delimiter)
-    print('Quoting:', args.q)
-    print('Output File:', output_file, "\n")
-
+    # 3. parse input string from user and start creating def's for data generation
     generator_funcs = []
     default_column_names = []
     i = 1
@@ -443,10 +455,8 @@ if __name__ == '__main__':
                          ". Try 'python generate_csv.py -h' "
                          "to learn the correct usage.")
 
-            print("=>", data_type, "\t", params)
             # 4. create partial functions to generate random data for each column
             generator_funcs.append(_make_partial(FUNCS, data_type, params))
-            print("=====\n\n")
             # 5. create default column names in case user doesn't provide them
             param_str = '_'.join([p.strip("'").strip('"') for p in params])
             default_column_names.append('_'.join([data_type, param_str, str(i)]))
@@ -472,9 +482,16 @@ if __name__ == '__main__':
             csv_writer.writerow([next(f) if isinstance(f, types.GeneratorType)
                                  else f() for f in generator_funcs])
             j += 1
-            print("Printed line number:", j, end='\r')
+            v_print("Printed line number:", j, end='\r')
 
-    print('Data written in CSV file:', output_file)
+    # 8. print input params to stdout for sanity check
+    print("\n\nNumber of rows to print:", rows)
+    print("Delimiter used:", delimiter)
+    print("Quoting:", args.q)
+    print("Data written to file:", output_file)
 
-# Note: To test inputs for flag 't', try this:
-# python generate_csv.py -t "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01',"2019-12-12"), categorical("blah",'1',2, 3)"
+
+if __name__ == '__main__':
+    # Note: To test inputs for flag 't', try this:
+    # python generate_csv.py -t "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01',"2019-12-12"), categorical("blah",'1',2, 3)"
+    main()
