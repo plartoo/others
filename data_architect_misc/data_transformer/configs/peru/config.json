@@ -4,30 +4,33 @@
 
     "input_folder_path": "./input/peru/",
     "input_file_name_or_pattern": "*.xlsx",
+
     "output_folder_path": "./output/peru/",
     "output_file_name_prefix": "peru_",
 
-    "column_header_row_index": "#If header row exists, define where to pick it",
-    "custom_column_headers": "#If header row doesn't exist, define which ones to apply",
-
-    "rows_to_read_per_iteration": "#optional",
+    "sheet_index_to_use": 0,
+    "sheet_name_to_use": "",
 
     "list_of_column_names_to_use": [],
     "list_of_column_indexes_to_use": [],
     "column_rename_mappings": {
-      "column1_old_name": "#column1_new_name"
+      "column1_old_name": "(optional)#column1_new_name"
     },
-
-    "starting_row_index_of_data": 0,
-    "trailing_rows_to_skip": 0,
-
-    "sheet_index_to_use": 0,
-    "sheet_name_to_use": "",
 
     "input_csv_file_encoding": "",
     "input_csv_file_delimiter": "",
     "output_file_encoding": "#optional",
     "output_file_delimiter": "#optional",
+
+
+    "column_header_row_number": "(required)#If header row exists, define where to pick it",
+    "custom_column_headers": "(optional)#If header row doesn't exist, define which ones to apply",
+
+
+    "starting_row_index_of_data": 0,
+    "trailing_rows_to_skip": 0,
+
+    "max_rows_to_read_each_iteration": "#optional",
     "number_of_rows_in_each_output_file": "#optional",
 
     "functions_to_apply_to_data_frame": {

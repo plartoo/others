@@ -53,12 +53,25 @@ if __name__ == '__main__':
 
     # 2. Load JSON configuration file
     if (not args.c) or (not os.path.exists(args.c)):
-        raise transform_errors.ConfigFileError
+        raise transform_errors.ConfigFileError()
 
     # 3. Iterate through each transform procedure
     for config in transform_utils.load_config(args.c):
+        # TODO: an idea to entertain here is to see if we should check
+        # the correctness of JSON config keys and data types here.
+        # Doing so will help us avoid tedious checking of input
+        # correctness in individual functions like 'get_columns_to_use'.
         input_files = transform_utils.get_input_files(config)
         output_file_prefix = transform_utils.get_output_file_prefix(config)
+
+        for input_file in input_files:
+            if transform_utils.is_excel(input_file):
+                sheet = transform_utils.get_sheet_index_or_name(config)
+            elif transform_utils.is_csv(input_file):
+                encoding = transform_utils.get_csv_encoding(config)
+                input_csv_delimiter = transform_utils.get_csv_delimiter(config)
+            else:
+                raise transform_errors.InvalidFileType(input_file)
 
 
 
@@ -68,13 +81,6 @@ if __name__ == '__main__':
         leading_rows = transform_utils.get_leading_rows_to_skip(config)
         trailing_rows = transform_utils.get_trailing_rows_to_skip(config)
 
-        if transform_utils.is_excel(input_file):
-            sheet = transform_utils.get_sheet_index_or_name(config)
-        elif transform_utils.is_csv(input_file):
-            encoding = transform_utils.get_csv_encoding(config)
-            input_csv_delimiter = transform_utils.get_csv_delimiter(config)
-        else:
-            raise transform_errors.InvalidFileType
 
 
 
