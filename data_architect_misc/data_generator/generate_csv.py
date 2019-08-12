@@ -63,7 +63,7 @@ v   - (optional) If set to '1', the program will print more info to stdout about
 """
 import argparse
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import *
 from functools import partial
 import random
@@ -175,18 +175,35 @@ def integer(min=MIN_NUM, max=MAX_NUM):
     return random.randint(min, max)
 
 
-def _get_random_int_between(n1, n2):
-    return random.randint(min(n1, n2), max(n1, n2))
+def _memoize(f):
+    """Helper function to help memoize result from _get_random_date."""
+    cached_result = {}
+    def helper(start, end):
+        k = ''.join([start, end])
+        if k not in cached_result:
+            cached_result[k] = f(start, end)
+        return cached_result[k]
+    return helper
+
+
+@_memoize
+def _get_dates_between_range(start, end):
+    """
+    Helper function to list all possible dates between start date and
+    end date.
+    Note: This function will be memoized (meaning, it'll be called
+    only once for a specific date range) so that we can avoid
+    computing dates between the same date range again and again.
+    """
+    start_date = datetime.strptime(start, DATE_FORMAT)
+    end_date = datetime.strptime(end, DATE_FORMAT)
+    delta = end_date - start_date
+    return [start_date + timedelta(days=i) for i in range(delta.days + 1)]
 
 
 def _get_random_date(start, end):
-    """Helper function that returns datetime object with date value."""
-    start_date = datetime.strptime(start, DATE_FORMAT)
-    end_date = datetime.strptime(end, DATE_FORMAT)
-    y = _get_random_int_between(start_date.year, end_date.year)
-    m = _get_random_int_between(start_date.month, end_date.month)
-    d = _get_random_int_between(start_date.day, end_date.day)
-    return datetime(y, m, d)
+    """Helper function that returns datetime object with date value only (no time info included)."""
+    return random.choice(_get_dates_between_range(start, end))
 
 
 def date(start=START_DATE, end=END_DATE):
@@ -195,6 +212,10 @@ def date(start=START_DATE, end=END_DATE):
     in 'YYYY-MM-DD' (ISO 8601) format. For example, '2018-08-04'
     """
     return _get_random_date(start, end).strftime(DATE_FORMAT)
+
+
+def _get_random_int_between(n1, n2):
+    return random.randint(min(n1, n2), max(n1, n2))
 
 
 def _get_random_datetime(start, end):
@@ -390,9 +411,9 @@ def main():
                    "essential information."
     DATA_TYPE_HELP = "(required) Define data types for each column using comma-separated " \
                      "list like 'int_id(start,step),ascii_str(min,max),double(min,max)," \
-                     "integer(min,max)'. The allowed data types are: 'id', 'str_id', " \
-                     "'ascii_str', 'utf8_str', 'double', 'numeric', 'int', 'date', " \
-                     "'date_time' and 'categorical'. Please read the comment at the " \
+                     "integer(min,max)'. The allowed data types are: 'int_id', 'str_id', " \
+                     "'ascii_str', 'utf8_str', 'double', 'numeric', 'integer', 'date', " \
+                     "'date_time' and 'categorical'. Please read detail comments at the " \
                      "beginning of Python script, 'generate_csv.py', to understand " \
                      "more detail about these data types and parameters needed."
 
