@@ -61,6 +61,7 @@ if __name__ == '__main__':
         # the correctness of JSON config keys and data types here.
         # Doing so will help us avoid tedious checking of input
         # correctness in individual functions like 'get_columns_to_use'.
+        transform_utils.validate_configurations(config)
         input_files = transform_utils.get_input_files(config)
         output_file_prefix = transform_utils.get_output_file_prefix(config)
 

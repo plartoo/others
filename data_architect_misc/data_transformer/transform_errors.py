@@ -30,7 +30,20 @@ class InvalidFileType(TransformError):
                         self.file_name])
 
 
-class RedundantJSONKeyError(TransformError):
+
+class RequiredKeyNotFoundInConfigFile(TransformError):
+    """
+    Raised when config file does not have required key.
+    """
+    def __init__(self, key_name):
+        self.key_name = key_name
+
+    def __str__(self):
+        return ' '.join(["Please make sure to include and provide value for this "
+                         "required key in JSON config file:", self.key_name])
+
+
+class MutuallyExclusiveKeyError(TransformError):
     """
     Raised when config file has more than one key that serves the same
     purpose. For example, we must only provide either the sheet name
@@ -45,7 +58,7 @@ class RedundantJSONKeyError(TransformError):
                          self.k1,
                         "OR",
                          self.k2,
-                        "in the JSON configuration file. NOT both."])
+                        "in JSON configuration file. NOT both."])
 
 
 class InputDataTypeError(TransformError):
@@ -63,7 +76,7 @@ class InputDataTypeError(TransformError):
     def __str__(self):
         return ' '.join(["For key, '",
                          self.k,
-                         "' in config file, the data type must be one of these:",
+                         "' in JSON config file, the data type must be one of these:",
                          self.allowed_data_types])
 
 #

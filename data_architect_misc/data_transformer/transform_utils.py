@@ -8,39 +8,87 @@ import sys
 import transform_errors
 
 
-ROWS_PER_CHUNK = 500000
-ROWS_PER_FILE = 1500000
-
+# Constants for config file
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
 KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 
-KEY_COLUMN_HEADER_ROW_NUM = "column_header_row_number"
-KEY_CUSTOM_COLUMN_HEADER = "custom_column_headers"
-
-KEY_SHEET_NAME = 'sheet_name_to_use'
-KEY_SHEET_INDEX = 'sheet_index_to_use'
-VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
+KEY_SHEET_INDEX = 'sheet_index_of_excel_file'
 VALUE_SHEET_INDEX_DEFAULT = 0
+KEY_SHEET_NAME = 'sheet_name_of_excel_file'
+VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
 
 KEY_COLUMN_NAMES_TO_USE = 'list_of_column_names_to_use'
 KEY_COLUMN_INDEXES_TO_USE = 'list_of_column_indexes_to_use'
-VALUE_COLUMNS_TO_USE_DEFAULT = None
+VALUE_COLUMNS_TO_USE_DEFAULT = None # usecols=None means use all columns in pandas
 
-KEY_LEADING_ROWS_TO_SKIP = 'leading_rows_to_skip'
-KEY_STARTING_ROW_INDEX = 'starting_row_index_of_data'
-KEY_TRAILING_ROWS_TO_SKIP = 'trailing_rows_to_skip'
-VALUE_LEADING_ROWS_TO_SKIP_DEFAULT = 0
-VALUE_STARTING_ROW_INDEX_DEFAULT = 0
-VALUE_TRAILING_ROWS_TO_SKIP_DEFAULT = 0
+KEY_COLUMN_MAPPINGS = 'old_column_name_to_new_column_name_mappings'
+VALUE_COLUMN_MAPPINGS_DEFAULT = {}
 
-KEY_CSV_ENCODING = 'input_csv_file_encoding'
-VALUE_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
+KEY_INPUT_CSV_ENCODING = 'input_csv_file_encoding'
+VALUE_INPUT_CSV_ENCODING_DEFAULT = None # None defaults to 'utf-8' in pandas
+KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
+VALUE_INPUT_CSV_DELIMITER_DEFAULT = ','
+KEY_OUTPUT_CSV_ENCODING = 'output_csv_file_encoding'
+VALUE_OUTPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
+KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
+VALUE_OUTPUT_CSV_DELIMITER_DEFAULT = '|'
 
+KEY_COLUMN_HEADER_ROW_NUM = 'row_num_to_extract_column_names'
+VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = 0
+KEY_CUSTOM_COLUMN_HEADERS = 'custom_column_names_to_assign'
+
+KEY_ROW_NUM_WHERE_DATA_STARTS = 'row_num_where_data_starts'
+VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT = 0
+KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
+VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
+
+KEY_ROWS_PER_CHUNK = 'max_rows_to_read_for_each_processing_iteration'
+VALUE_ROWS_PER_CHUNK_DEFAULT = 500000
+KEY_ROWS_PER_OUTPUT_FILE = 'max_rows_to_write_in_each_output_file'
+VALUE_ROWS_PER_OUTPUT_FILE = 1500000
+
+# Keys in config file and their expected data types
+EXPECTED_CONFIG_DATA_TYPES = {
+    KEY_INPUT_FOLDER_PATH: [str],
+    KEY_INPUT_FILE_NAME_OR_PATTERN: [str],
+    KEY_OUTPUT_FOLDER_PATH: [str],
+    KEY_OUTPUT_FILE_PREFIX: [str],
+    KEY_SHEET_INDEX: [int],
+    KEY_SHEET_NAME: [str],
+
+    KEY_COLUMN_NAMES_TO_USE: [list],
+    KEY_COLUMN_INDEXES_TO_USE: [list],
+    KEY_COLUMN_MAPPINGS: [dict],
+    KEY_INPUT_CSV_ENCODING: [str],
+    KEY_INPUT_CSV_DELIMITER: [str],
+    KEY_OUTPUT_CSV_ENCODING: [str],
+    KEY_OUTPUT_CSV_DELIMITER: [str],
+    KEY_COLUMN_HEADER_ROW_NUM: [int],
+    KEY_CUSTOM_COLUMN_HEADERS: [list],
+    KEY_ROW_NUM_WHERE_DATA_STARTS: [int],
+    KEY_BOTTOM_ROWS_TO_SKIP: [int],
+    KEY_ROWS_PER_CHUNK: [int],
+    KEY_ROWS_PER_OUTPUT_FILE: [int],
+}
+
+# Keys in config file that must exist (required keys)
+REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
+                 KEY_INPUT_FILE_NAME_OR_PATTERN,
+                 KEY_OUTPUT_FOLDER_PATH]
+
+# Keys in config file that must not exist together (disjoint keys)
+MUTUALLY_EXCLUSIVE_KEYS = [(KEY_SHEET_INDEX, KEY_SHEET_NAME),
+                                (KEY_COLUMN_NAMES_TO_USE, KEY_COLUMN_INDEXES_TO_USE),
+                                (KEY_COLUMN_HEADER_ROW_NUM, KEY_CUSTOM_COLUMN_HEADERS)]
+
+# Other constants
 CSV_FILE_EXTENSION = '.csv'
 EXCEL_FILE_EXTENSION_OLD = '.xls'
 EXCEL_FILE_EXTENSION_NEW = '.xlsx'
+
+
 
 USAGE = """\nUsage example:
         >> python transform.py -c .\configs\china\config.json"""
@@ -86,6 +134,34 @@ def load_config(config_file):
         return json.load(f)
 
 
+def _assert_required_keys(config):
+    """Check if all required keys exist in the config loaded."""
+    for k in REQUIRED_KEYS:
+        if not k in config:
+            raise transform_errors.RequiredKeyNotFoundInConfigFile(k)
+
+
+def _assert_mutually_exclusive_keys(config):
+    """Check to make sure that some keys, which are NOT supposed to be together
+    in the config file, don't show up together in the config loaded."""
+    for kp in MUTUALLY_EXCLUSIVE_KEYS:
+        if (kp[0] in config) and (kp[1] in config):
+            raise transform_errors.MutuallyExclusiveKeyError(kp[0], kp[1])
+
+
+def _assert_expected_data_types(config):
+    """Check if loaded config has values that are of expected data types."""
+    for k, types in EXPECTED_CONFIG_DATA_TYPES.items():
+        if not all([isinstance(config[k], t) for t in types]):
+            raise transform_errors.InputDataTypeError(k, types)
+
+
+def validate_configurations(config):
+    _assert_required_keys(config)
+    _assert_mutually_exclusive_keys(config)
+    _assert_expected_data_types(config)
+
+
 def get_input_files(config):
     fn = os.path.join(config[KEY_INPUT_FOLDER_PATH],
                       config[KEY_INPUT_FILE_NAME_OR_PATTERN])
@@ -103,8 +179,8 @@ def get_output_file_prefix(config):
         print("\nNote: new folder created for output files =>",
               config[KEY_OUTPUT_FOLDER_PATH])
 
-    return os.path.join(config[KEY_OUTPUT_FOLDER_PATH],
-                        config[KEY_OUTPUT_FILE_PREFIX])
+    file_prefix =  config[KEY_OUTPUT_FILE_PREFIX] if KEY_OUTPUT_FILE_PREFIX in config else ''
+    return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
 
 
 def _assert_list(param, key_name, expected_data_type):
@@ -122,16 +198,16 @@ def _assert_none_or_list(param, key_name, expected_data_type):
 def get_column_names(input_files, config):
     # KEY_COLUMN_HEADER_ROW_NUM = "column_header_row_number"
     # KEY_CUSTOM_COLUMN_HEADER = "custom_column_headers"
-    if (KEY_COLUMN_HEADER_ROW_NUM in config) and (KEY_CUSTOM_COLUMN_HEADER in config):
+    if (KEY_COLUMN_HEADER_ROW_NUM in config) and (KEY_CUSTOM_COLUMN_HEADERS in config):
         raise transform_errors.RedundantJSONKeyError(KEY_COLUMN_HEADER_ROW_NUM,
-                                                     KEY_CUSTOM_COLUMN_HEADER)
+                                                     KEY_CUSTOM_COLUMN_HEADERS)
 
-    if KEY_CUSTOM_COLUMN_HEADER in config:
+    if KEY_CUSTOM_COLUMN_HEADERS in config:
         col_names = _get_value_from_dict(config,
-                                         KEY_CUSTOM_COLUMN_HEADER,
+                                         KEY_CUSTOM_COLUMN_HEADERS,
                                          None)
         _assert_list(col_names,
-                     KEY_CUSTOM_COLUMN_HEADER,
+                     KEY_CUSTOM_COLUMN_HEADERS,
                      "list of *all* strings representing column names.")
     else:
         # iterate through input files and pick column names
