@@ -159,21 +159,20 @@ def numeric(precision=PRECISION, scale=SCALE):
     and decimal scale equaling 'scale'.
     E.g., numeric(11,4) would yield '8211753.5117'
 
-    Note: we finally decided to use round() and random.uniform() although
-    we originally tried using random.random().
-    When using random.random(), it sometimes returns values < 0.0xxx.
-    For example, if random.random() returns '0.00123456789123' (for
-    precision = 10; exponent = 8; and scale = 2), after we calculate
+    Note: we finally decided to use random.uniform(0.1,0.99) although
+    we originally tried using random.random(). The problem is when
+    using random.random(), it could return something like '0.00123456789123'
+    (for precision = 10; exponent = 8; and scale = 2). Then when we calculate
     Decimal(0.00123456789123) * Decimal(10**exponent), we will get
     '123456.7891' (because Decimal will try to get result with at least
     10 digits as precision), resulting in four-digit decimal.
     If we use round(123456.7891, 2) to limit that number, we will
-    end up with '123456.78', which has incorrect precision.
+    end up with '123456.78', which would have incorrect precision.
     """
     getcontext().prec = precision
     exponent = (precision - scale)
     r = random.uniform(0.1, 0.99)
-    return round(Decimal(10**exponent) * Decimal(r), scale)
+    return Decimal(10**exponent) * Decimal(r)
 
 
 def integer(min=MIN_NUM, max=MAX_NUM):
