@@ -57,13 +57,10 @@ if __name__ == '__main__':
 
     # 3. Iterate through each transform procedure
     for config in transform_utils.load_config(args.c):
-        # TODO: an idea to entertain here is to see if we should check
-        # the correctness of JSON config keys and data types here.
-        # Doing so will help us avoid tedious checking of input
-        # correctness in individual functions like 'get_columns_to_use'.
+        # make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
         input_files = transform_utils.get_input_files(config)
-        output_file_prefix = transform_utils.get_output_file_prefix(config)
+        output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
 
         for input_file in input_files:
             if transform_utils.is_excel(input_file):

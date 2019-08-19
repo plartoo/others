@@ -7,7 +7,6 @@ import sys
 
 import transform_errors
 
-
 # Constants for config file
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
@@ -18,6 +17,11 @@ KEY_SHEET_INDEX = 'sheet_index_of_excel_file'
 VALUE_SHEET_INDEX_DEFAULT = 0
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
 VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
+
+KEY_COLUMN_HEADER_ROW_NUM = 'row_num_to_extract_column_names'
+VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = 0
+KEY_CUSTOM_COLUMN_HEADERS = 'custom_column_names_to_assign'
+VALUE_CUSTOM_COLUMN_HEADERS_DEFAULT = []
 
 KEY_COLUMN_NAMES_TO_USE = 'list_of_column_names_to_use'
 KEY_COLUMN_INDEXES_TO_USE = 'list_of_column_indexes_to_use'
@@ -34,10 +38,6 @@ KEY_OUTPUT_CSV_ENCODING = 'output_csv_file_encoding'
 VALUE_OUTPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 VALUE_OUTPUT_CSV_DELIMITER_DEFAULT = '|'
-
-KEY_COLUMN_HEADER_ROW_NUM = 'row_num_to_extract_column_names'
-VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = 0
-KEY_CUSTOM_COLUMN_HEADERS = 'custom_column_names_to_assign'
 
 KEY_ROW_NUM_WHERE_DATA_STARTS = 'row_num_where_data_starts'
 VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT = 0
@@ -80,14 +80,13 @@ REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
 
 # Keys in config file that must not exist together (disjoint keys)
 MUTUALLY_EXCLUSIVE_KEYS = [(KEY_SHEET_INDEX, KEY_SHEET_NAME),
-                                (KEY_COLUMN_NAMES_TO_USE, KEY_COLUMN_INDEXES_TO_USE),
-                                (KEY_COLUMN_HEADER_ROW_NUM, KEY_CUSTOM_COLUMN_HEADERS)]
+                           (KEY_COLUMN_NAMES_TO_USE, KEY_COLUMN_INDEXES_TO_USE),
+                           (KEY_COLUMN_HEADER_ROW_NUM, KEY_CUSTOM_COLUMN_HEADERS)]
 
 # Other constants
 CSV_FILE_EXTENSION = '.csv'
 EXCEL_FILE_EXTENSION_OLD = '.xls'
 EXCEL_FILE_EXTENSION_NEW = '.xlsx'
-
 
 
 USAGE = """\nUsage example:
@@ -103,11 +102,9 @@ HELP = """[Required] Configuration file (with full or relative path).
 E.g., python transform.py -c .\configs\china\config.json"""
 
 
-
 # TODO: write generate_config_json function below
-# TODO: document methods
-# TODO: unit test functions
-# TODO: use pydoc to generate documentation
+# TODO: document methods (use pydoc to generate documentation?)
+# TODO: (maybe) unit tests
 
 # def read_excel_file(file_path_and_name, sheet_name=0, header=0,
 #                     skiprows=0, skipfooter=0):
@@ -120,6 +117,10 @@ E.g., python transform.py -c .\configs\china\config.json"""
 
 
 def _get_value_from_dict(dict, key, default_value):
+    """
+    Returns associated value of a given key from dict.
+    If the key doesn't exist, returns default_value.
+    """
     if dict.get(key) is None:
         return default_value
     elif (isinstance(dict.get(key), str)) and (not dict.get(key)):
@@ -129,7 +130,10 @@ def _get_value_from_dict(dict, key, default_value):
 
 
 def load_config(config_file):
-    # REF: https://web.archive.org/web/20181002170353/https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
+    """
+    Load the config file as JSON.
+    REF: https://web.archive.org/web/20181002170353/https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
+    """
     with open(config_file, 'r') as f:
         return json.load(f)
 
@@ -142,8 +146,10 @@ def _assert_required_keys(config):
 
 
 def _assert_mutually_exclusive_keys(config):
-    """Check to make sure that some keys, which are NOT supposed to be together
-    in the config file, don't show up together in the config loaded."""
+    """
+    Check to make sure that some keys, which are NOT supposed to be together
+    in the config file, don't show up together in the config loaded.
+    """
     for kp in MUTUALLY_EXCLUSIVE_KEYS:
         if (kp[0] in config) and (kp[1] in config):
             raise transform_errors.MutuallyExclusiveKeyError(kp[0], kp[1])
@@ -157,12 +163,17 @@ def _assert_expected_data_types(config):
 
 
 def validate_configurations(config):
+    """Calls other helper functions to check on the validity of config JSON"""
     _assert_required_keys(config)
     _assert_mutually_exclusive_keys(config)
     _assert_expected_data_types(config)
 
 
 def get_input_files(config):
+    """
+    Returns input file(s) based on the file name/pattern
+    in the input folder name provided in JSON config file.
+    """
     fn = os.path.join(config[KEY_INPUT_FOLDER_PATH],
                       config[KEY_INPUT_FILE_NAME_OR_PATTERN])
     # REF: https://stackoverflow.com/a/41447012/1330974
@@ -173,34 +184,71 @@ def get_input_files(config):
     return input_files
 
 
-def get_output_file_prefix(config):
+def get_output_file_path_with_name_prefix(config):
+    """
+    Returns output file path with file name prefix, if the latter
+    is provided in the config JSON. Before joining the path with
+    file name, output folder is created if it doesn't exist already.
+    """
     if not os.path.exists(config[KEY_OUTPUT_FOLDER_PATH]):
         os.makedirs(config[KEY_OUTPUT_FOLDER_PATH])
-        print("\nNote: new folder created for output files =>",
+        print("\nINFO: new folder created for output files =>",
               config[KEY_OUTPUT_FOLDER_PATH])
 
     file_prefix =  config[KEY_OUTPUT_FILE_PREFIX] if KEY_OUTPUT_FILE_PREFIX in config else ''
     return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
 
 
-def _assert_list(param, key_name, expected_data_type):
-    """Asserts that the value is of type list. Else, raise appropriate error."""
-    if not isinstance(param, list):
-        raise transform_errors.InputDataTypeError(key_name, expected_data_type)
+def get_sheet_index_or_name(config):
+    """
+    Returns the sheet index or sheet name from the config JSON.
+    If the keys aren't defined in the JSON, returns default values
+    (such as 0 or 'Sheet1'), which means Pandas will load
+    the first sheet in the Excel file.
+    """
+    if KEY_SHEET_NAME in config:
+        return str(
+                    _get_value_from_dict(
+                        config,
+                        KEY_SHEET_NAME,
+                        VALUE_SHEET_NAME_DEFAULT)
+        )
+    else:
+        return int(
+                    _get_value_from_dict(
+                        config,
+                        KEY_SHEET_INDEX,
+                        VALUE_SHEET_INDEX_DEFAULT)
+        )
 
 
-def _assert_none_or_list(param, key_name, expected_data_type):
-    """Asserts that the value is either None or a list. Else, raise appropriate error."""
-    if (not param) or (not isinstance(param, list)):
-        raise transform_errors.InputDataTypeError(key_name, expected_data_type)
+def _get_row_num_to_extract_column_names(config):
+    """
+    From the config JSON, extract row number in the input file
+    where we should extract column names.
+    If the keys aren't defined in the JSON, returns 0 as default.
+    """
+    return _get_value_from_dict(
+                        config,
+                        KEY_COLUMN_HEADER_ROW_NUM,
+                        VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT)
 
 
-def get_column_names(input_files, config):
+def get_column_names(input_file, config):
+    if KEY_CUSTOM_COLUMN_HEADERS in config:
+        return _get_value_from_dict(
+                        config,
+                        KEY_CUSTOM_COLUMN_HEADERS,
+                        VALUE_CUSTOM_COLUMN_HEADERS_DEFAULT)
+    else:
+        row_num = _get_row_num_to_extract_column_names(config)
+        # TODO: here, maybe it's the best create a generic read_data(....)
+        # method which decides if the input file is excel or csv and
+        # read off a line of data based on specified params
+
+
     # KEY_COLUMN_HEADER_ROW_NUM = "column_header_row_number"
     # KEY_CUSTOM_COLUMN_HEADER = "custom_column_headers"
-    if (KEY_COLUMN_HEADER_ROW_NUM in config) and (KEY_CUSTOM_COLUMN_HEADERS in config):
-        raise transform_errors.RedundantJSONKeyError(KEY_COLUMN_HEADER_ROW_NUM,
-                                                     KEY_CUSTOM_COLUMN_HEADERS)
 
     if KEY_CUSTOM_COLUMN_HEADERS in config:
         col_names = _get_value_from_dict(config,
@@ -222,11 +270,20 @@ def get_column_names(input_files, config):
         # https://cmdlinetips.com/2018/04/how-to-drop-one-or-more-columns-in-pandas-dataframe/
         # https://jeffdelaney.me/blog/useful-snippets-in-pandas/
         # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
-        
-
 
         pass
 
+
+def _assert_list(param, key_name, expected_data_type):
+    """Asserts that the value is of type list. Else, raise appropriate error."""
+    if not isinstance(param, list):
+        raise transform_errors.InputDataTypeError(key_name, expected_data_type)
+
+
+def _assert_none_or_list(param, key_name, expected_data_type):
+    """Asserts that the value is either None or a list. Else, raise appropriate error."""
+    if (not param) or (not isinstance(param, list)):
+        raise transform_errors.InputDataTypeError(key_name, expected_data_type)
 
 
 def get_columns_to_use(config):
@@ -271,27 +328,6 @@ def get_trailing_rows_to_skip(config):
                 config,
                 KEY_TRAILING_ROWS_TO_SKIP,
                 VALUE_TRAILING_ROWS_TO_SKIP_DEFAULT)
-
-
-def get_sheet_index_or_name(config):
-    if (KEY_SHEET_NAME in config) and (KEY_SHEET_INDEX in config):
-        raise transform_errors.RedundantJSONKeyError(KEY_SHEET_NAME,
-                                                     KEY_SHEET_INDEX)
-
-    if KEY_SHEET_NAME in config:
-        return str(
-                    _get_value_from_dict(
-                        config,
-                        KEY_SHEET_NAME,
-                        VALUE_SHEET_NAME_DEFAULT)
-        )
-    else:
-        return int(
-                    _get_value_from_dict(
-                        config,
-                        KEY_SHEET_INDEX,
-                        VALUE_SHEET_INDEX_DEFAULT)
-        )
 
 
 def extract_file_name(file_path_and_name):
