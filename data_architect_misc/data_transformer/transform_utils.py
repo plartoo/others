@@ -1,6 +1,7 @@
 import pdb
 
 import json
+import pandas as pd
 import pathlib
 import os
 import sys
@@ -35,7 +36,7 @@ VALUE_INPUT_CSV_ENCODING_DEFAULT = None # None defaults to 'utf-8' in pandas
 KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
 VALUE_INPUT_CSV_DELIMITER_DEFAULT = ','
 KEY_OUTPUT_CSV_ENCODING = 'output_csv_file_encoding'
-VALUE_OUTPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
+VALUE_OUTPUT_CSV_ENCODING_DEFAULT = None # None defaults to 'utf-8' in pandas
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 VALUE_OUTPUT_CSV_DELIMITER_DEFAULT = '|'
 
@@ -199,6 +200,7 @@ def get_output_file_path_with_name_prefix(config):
     return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
 
 
+
 def get_sheet_index_or_name(config):
     """
     Returns the sheet index or sheet name from the config JSON.
@@ -208,31 +210,124 @@ def get_sheet_index_or_name(config):
     """
     if KEY_SHEET_NAME in config:
         return str(
-                    _get_value_from_dict(
-                        config,
-                        KEY_SHEET_NAME,
-                        VALUE_SHEET_NAME_DEFAULT)
+            _get_value_from_dict(
+                config,
+                KEY_SHEET_NAME,
+                VALUE_SHEET_NAME_DEFAULT
+            )
         )
     else:
         return int(
-                    _get_value_from_dict(
-                        config,
-                        KEY_SHEET_INDEX,
-                        VALUE_SHEET_INDEX_DEFAULT)
+            _get_value_from_dict(
+                config,
+                KEY_SHEET_INDEX,
+                VALUE_SHEET_INDEX_DEFAULT
+            )
         )
+
+
+def _get_input_csv_encoding(config):
+    """
+    Retrieve encoding for input CSV file.
+    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+    """
+    return _get_value_from_dict(
+                config,
+                KEY_INPUT_CSV_ENCODING,
+                VALUE_INPUT_CSV_ENCODING_DEFAULT
+            )
+
+
+def _get_input_csv_delimiter(config):
+    """Retrieve delimiter for input CSV file."""
+    return _get_value_from_dict(
+                config,
+                KEY_INPUT_CSV_DELIMITER,
+                VALUE_INPUT_CSV_DELIMITER_DEFAULT
+            )
+
+
+def _get_output_csv_encoding(config):
+    """
+    Retrieve encoding for output CSV file.
+    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+    """
+    return _get_value_from_dict(
+                config,
+                KEY_OUTPUT_CSV_ENCODING,
+                VALUE_OUTPUT_CSV_ENCODING_DEFAULT
+            )
+
+
+def _get_output_csv_delimiter(config):
+    """Retrieve delimiter for output CSV file."""
+    return _get_value_from_dict(
+                config,
+                KEY_OUTPUT_CSV_DELIMITER,
+                VALUE_OUTPUT_CSV_DELIMITER_DEFAULT
+            )
 
 
 def _get_row_num_to_extract_column_names(config):
     """
-    From the config JSON, extract row number in the input file
-    where we should extract column names.
-    If the keys aren't defined in the JSON, returns 0 as default.
+    Retrieve row number where we can fetch column names
+    in the input file. If the keys aren't defined in
+    the JSON, returns 0 as default.
     """
-    return _get_value_from_dict(
-                        config,
-                        KEY_COLUMN_HEADER_ROW_NUM,
-                        VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT)
+    return _get_value_from_dict(config,
+                                KEY_COLUMN_HEADER_ROW_NUM,
+                                VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT)
 
+
+def read_data(file_name_with_path,
+              config,
+              rows_to_read,
+              #header_row_num=0,
+              #custom_col_names=None,
+              #col_names_or_indexes_to_use=None,
+              #data_types=None,
+              skip_leading_rows=0,
+              skip_trailing_rows=0,
+              ):
+    # >>> df2=pd.read_csv('csv_n.csv',delimiter='|', skiprows=0, nrows=0)
+    # >>> df2=pd.read_csv('csv_d.csv',delimiter='|', skiprows=4, nrows=0)
+    # >>> df3=pd.read_excel('excel_n.xlsx', sheet_name=0, header=0, nrows=0)
+    # >>> df3=pd.read_excel('excel_d.xlsx', sheet_name=0, header=4, nrows=0)
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html
+    # https://cmdlinetips.com/2018/04/how-to-drop-one-or-more-columns-in-pandas-dataframe/
+    # https://jeffdelaney.me/blog/useful-snippets-in-pandas/
+    # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+
+    if is_excel(file_name_with_path):
+        sheet_name_or_index = get_sheet_index_or_name(config)
+
+    elif is_csv(file_name_with_path):
+        delimiter = _get_input_csv_delimiter(config)
+        encoding = _get_input_csv_encoding(config)
+        return pd.read_csv(file_name_with_path,
+                           skiprows=skip_leading_rows,
+                           nrows=rows_to_read,
+                           skipfooter=skip_trailing_rows,
+                           delimiter=delimiter,
+                           encoding=encoding)
+    else:
+        raise transform_errors.InvalidFileType(file_name_with_path)
+
+    # header_row_num = header (read_excel; read_csv)
+    # custom_col_names = names (read_excel; read_csv)
+    # col_names_or_indexes_to_use = usecols (read_excel; read_csv)
+    # data_types = dtype (read_excel)
+    # skip_leading_rows = skiprows (read_excel)
+    # rows_to_read = nrows (read_excel; read_csv)
+    # skip_trailing_rows = skipfooter (read_excel)
+    # delimiter = delimiter (read_csv); None will default to auto detection
+    # encoding = encoding (read_csv); If None, then we should NOT pass it in
+    # TODO: explore if we can pass other params such as quotechar; quoting; doublequote; escapechar; etc. via kwargs
+    # read by chunk: https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#iterating-through-files-chunk-by-chunk
+
+
+    pass
 
 def get_column_names(input_file, config):
     if KEY_CUSTOM_COLUMN_HEADERS in config:
@@ -246,10 +341,6 @@ def get_column_names(input_file, config):
         # method which decides if the input file is excel or csv and
         # read off a line of data based on specified params
 
-
-    # KEY_COLUMN_HEADER_ROW_NUM = "column_header_row_number"
-    # KEY_CUSTOM_COLUMN_HEADER = "custom_column_headers"
-
     if KEY_CUSTOM_COLUMN_HEADERS in config:
         col_names = _get_value_from_dict(config,
                                          KEY_CUSTOM_COLUMN_HEADERS,
@@ -258,18 +349,7 @@ def get_column_names(input_file, config):
                      KEY_CUSTOM_COLUMN_HEADERS,
                      "list of *all* strings representing column names.")
     else:
-        # iterate through input files and pick column names
-        # then compare them and return error if they are not equal
-        # else, return column names as list
-        # >>> df2=pd.read_csv('csv_n.csv',delimiter='|', skiprows=0, nrows=0)
-        # >>> df2=pd.read_csv('csv_d.csv',delimiter='|', skiprows=4, nrows=0)
-        # >>> df3=pd.read_excel('excel_n.xlsx', sheet_name=0, header=0, nrows=0)
-        # >>> df3=pd.read_excel('excel_d.xlsx', sheet_name=0, header=4, nrows=0)
-        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
-        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html
-        # https://cmdlinetips.com/2018/04/how-to-drop-one-or-more-columns-in-pandas-dataframe/
-        # https://jeffdelaney.me/blog/useful-snippets-in-pandas/
-        # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+        # we have to read column names from the input file itself
 
         pass
 
@@ -347,17 +427,6 @@ def is_excel(file_name_with_path):
 def is_csv(file_name_with_path):
     file_extension = get_file_extension(extract_file_name(file_name_with_path))
     return CSV_FILE_EXTENSION == file_extension.lower()
-
-
-def get_csv_encoding(config):
-    # REF: https://docs.python.org/3/library/codecs.html#standard-encodings
-    return _get_value_from_dict(config,
-                                KEY_CSV_ENCODING,
-                                VALUE_CSV_ENCODING)
-
-
-def get_csv_delimiter(config):
-    pass
 
 
 def print_config():
