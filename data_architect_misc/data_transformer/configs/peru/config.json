@@ -14,15 +14,17 @@
     "sheet_index_of_excel_file": 0,
     "_sheet_name_of_excel_file": "Sheet1",
 
-
-
     "__comment__": "optional. exclusive. row_num_to_extract_column_names and custom_column_names_to_assign",
-    "row_num_to_extract_column_names": 0,
+    "row_index_to_extract_column_names": 0,
     "custom_column_names_to_assign": ["(optional)#If header row doesn't exist, define which ones to apply"],
 
     "__comment__": "optional. exclusive. if exists, only one of column names and indexes is required. not both",
     "list_of_column_names_to_use": [],
     "list_of_column_indexes_to_use": [],
+
+
+
+
 
     "__comment__": "optional. old_column_name_to_new_column_name_mappings is optional",
     "old_column_name_to_new_column_name_mappings": {
@@ -37,7 +39,7 @@
 
 
     "__comment__": "optional. row_num_where_data_starts and num_of_rows_to_skip_from_the_bottom",
-    "row_num_where_data_starts": 0,
+    "row_index_where_data_starts": 0,
     "num_of_rows_to_skip_from_the_bottom": 0,
 
     "__comment__": "optional. max_rows_to_read_for_each_processing_iteration and max_rows_to_write_in_each_output_file",

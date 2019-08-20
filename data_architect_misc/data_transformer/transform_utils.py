@@ -8,6 +8,24 @@ import sys
 
 import transform_errors
 
+# TODO 1: in 'read_data' function it seems silly to have to check
+# is_excel/is_csv and retrieve relevant parameters (like delimiter)
+# every time we read. Let's create a class (say, 'DataReader') and
+# do it the OOP way.
+# TODO 2: write generate_config_json function
+# TODO 3: document methods (use pydoc to generate documentation?)
+# TODO 4: (maybe) unit tests
+# TODO 5: (maybe) explore if we can pass other params such as
+# quotechar; quoting; doublequote; escapechar etc. via kwargs.
+# Tangential REF for read by chunk in Pandas:
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#iterating-through-files-chunk-by-chunk
+# Other useful REFs:
+# https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
+# https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html
+# https://cmdlinetips.com/2018/04/how-to-drop-one-or-more-columns-in-pandas-dataframe/
+# https://jeffdelaney.me/blog/useful-snippets-in-pandas/
+# https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+
 # Constants for config file
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
@@ -19,7 +37,7 @@ VALUE_SHEET_INDEX_DEFAULT = 0
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
 VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
 
-KEY_COLUMN_HEADER_ROW_NUM = 'row_num_to_extract_column_names'
+KEY_COLUMN_HEADER_ROW_NUM = 'row_index_to_extract_column_names'
 VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = 0
 KEY_CUSTOM_COLUMN_HEADERS = 'custom_column_names_to_assign'
 VALUE_CUSTOM_COLUMN_HEADERS_DEFAULT = []
@@ -31,6 +49,10 @@ VALUE_COLUMNS_TO_USE_DEFAULT = None # usecols=None means use all columns in pand
 KEY_COLUMN_MAPPINGS = 'old_column_name_to_new_column_name_mappings'
 VALUE_COLUMN_MAPPINGS_DEFAULT = {}
 
+# Note: we tested and found that pandas' csv sniffer isn't very good
+# (even when using 'Python' as parser engine) in detecting delimiters, so
+# setting this as None is not good enough. Thus we decided to set the default
+# for 'VALUE_INPUT_CSV_DELIMITER_DEFAULT' as comma.
 KEY_INPUT_CSV_ENCODING = 'input_csv_file_encoding'
 VALUE_INPUT_CSV_ENCODING_DEFAULT = None # None defaults to 'utf-8' in pandas
 KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
@@ -40,13 +62,13 @@ VALUE_OUTPUT_CSV_ENCODING_DEFAULT = None # None defaults to 'utf-8' in pandas
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 VALUE_OUTPUT_CSV_DELIMITER_DEFAULT = '|'
 
-KEY_ROW_NUM_WHERE_DATA_STARTS = 'row_num_where_data_starts'
+KEY_ROW_NUM_WHERE_DATA_STARTS = 'row_index_where_data_starts'
 VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT = 0
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
 
 KEY_ROWS_PER_CHUNK = 'max_rows_to_read_for_each_processing_iteration'
-VALUE_ROWS_PER_CHUNK_DEFAULT = 500000
+VALUE_ROWS_PER_CHUNK_DEFAULT = 1500000
 KEY_ROWS_PER_OUTPUT_FILE = 'max_rows_to_write_in_each_output_file'
 VALUE_ROWS_PER_OUTPUT_FILE = 1500000
 
@@ -103,10 +125,6 @@ HELP = """[Required] Configuration file (with full or relative path).
 E.g., python transform.py -c .\configs\china\config.json"""
 
 
-# TODO: write generate_config_json function below
-# TODO: document methods (use pydoc to generate documentation?)
-# TODO: (maybe) unit tests
-
 # def read_excel_file(file_path_and_name, sheet_name=0, header=0,
 #                     skiprows=0, skipfooter=0):
 #     t1 = time.time()
@@ -159,7 +177,10 @@ def _assert_mutually_exclusive_keys(config):
 def _assert_expected_data_types(config):
     """Check if loaded config has values that are of expected data types."""
     for k, types in EXPECTED_CONFIG_DATA_TYPES.items():
-        if not all([isinstance(config[k], t) for t in types]):
+        # we use 'any' because some of the keys be , for example,
+        # either int or None, and EXPECTED_CONFIG_DATA_TYPES
+        # can have something like {KEY_NAME : [int, None]}
+        if not any([isinstance(config[k], t) for t in types]):
             raise transform_errors.InputDataTypeError(k, types)
 
 
@@ -209,66 +230,16 @@ def get_sheet_index_or_name(config):
     the first sheet in the Excel file.
     """
     if KEY_SHEET_NAME in config:
-        return str(
-            _get_value_from_dict(
-                config,
-                KEY_SHEET_NAME,
-                VALUE_SHEET_NAME_DEFAULT
-            )
-        )
+        return str(_get_value_from_dict(config,
+                                        KEY_SHEET_NAME,
+                                        VALUE_SHEET_NAME_DEFAULT))
     else:
-        return int(
-            _get_value_from_dict(
-                config,
-                KEY_SHEET_INDEX,
-                VALUE_SHEET_INDEX_DEFAULT
-            )
-        )
+        return int(_get_value_from_dict(config,
+                                        KEY_SHEET_INDEX,
+                                        VALUE_SHEET_INDEX_DEFAULT))
 
 
-def _get_input_csv_encoding(config):
-    """
-    Retrieve encoding for input CSV file.
-    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
-    """
-    return _get_value_from_dict(
-                config,
-                KEY_INPUT_CSV_ENCODING,
-                VALUE_INPUT_CSV_ENCODING_DEFAULT
-            )
-
-
-def _get_input_csv_delimiter(config):
-    """Retrieve delimiter for input CSV file."""
-    return _get_value_from_dict(
-                config,
-                KEY_INPUT_CSV_DELIMITER,
-                VALUE_INPUT_CSV_DELIMITER_DEFAULT
-            )
-
-
-def _get_output_csv_encoding(config):
-    """
-    Retrieve encoding for output CSV file.
-    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
-    """
-    return _get_value_from_dict(
-                config,
-                KEY_OUTPUT_CSV_ENCODING,
-                VALUE_OUTPUT_CSV_ENCODING_DEFAULT
-            )
-
-
-def _get_output_csv_delimiter(config):
-    """Retrieve delimiter for output CSV file."""
-    return _get_value_from_dict(
-                config,
-                KEY_OUTPUT_CSV_DELIMITER,
-                VALUE_OUTPUT_CSV_DELIMITER_DEFAULT
-            )
-
-
-def _get_row_num_to_extract_column_names(config):
+def _get_row_index_to_extract_column_names(config):
     """
     Retrieve row number where we can fetch column names
     in the input file. If the keys aren't defined in
@@ -279,79 +250,115 @@ def _get_row_num_to_extract_column_names(config):
                                 VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT)
 
 
-def read_data(file_name_with_path,
-              config,
-              rows_to_read,
-              #header_row_num=0,
-              #custom_col_names=None,
-              #col_names_or_indexes_to_use=None,
-              #data_types=None,
-              skip_leading_rows=0,
-              skip_trailing_rows=0,
-              ):
-    # >>> df2=pd.read_csv('csv_n.csv',delimiter='|', skiprows=0, nrows=0)
-    # >>> df2=pd.read_csv('csv_d.csv',delimiter='|', skiprows=4, nrows=0)
-    # >>> df3=pd.read_excel('excel_n.xlsx', sheet_name=0, header=0, nrows=0)
-    # >>> df3=pd.read_excel('excel_d.xlsx', sheet_name=0, header=4, nrows=0)
-    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
-    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html
-    # https://cmdlinetips.com/2018/04/how-to-drop-one-or-more-columns-in-pandas-dataframe/
-    # https://jeffdelaney.me/blog/useful-snippets-in-pandas/
-    # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+def _get_input_csv_encoding(config):
+    """
+    Retrieve encoding for input CSV file.
+    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+    """
+    return _get_value_from_dict(config,
+                                KEY_INPUT_CSV_ENCODING,
+                                VALUE_INPUT_CSV_ENCODING_DEFAULT)
+
+
+def _get_input_csv_delimiter(config):
+    """Retrieve delimiter for input CSV file."""
+    return _get_value_from_dict(config,
+                                KEY_INPUT_CSV_DELIMITER,
+                                VALUE_INPUT_CSV_DELIMITER_DEFAULT)
+
+
+def _get_output_csv_encoding(config):
+    """
+    Retrieve encoding for output CSV file.
+    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+    """
+    return _get_value_from_dict(config,
+                                KEY_OUTPUT_CSV_ENCODING,
+                                VALUE_OUTPUT_CSV_ENCODING_DEFAULT)
+
+
+def _get_output_csv_delimiter(config):
+    """Retrieve delimiter for output CSV file."""
+    return _get_value_from_dict(config,
+                                KEY_OUTPUT_CSV_DELIMITER,
+                                VALUE_OUTPUT_CSV_DELIMITER_DEFAULT)
+
+
+def read_data(file_name_with_path, config, rows_to_read,
+              header_row_index=0, skip_leading_rows=0, skip_trailing_rows=0):
+    # We might need to extend this method later to include other params such as:
+    # custom_col_names=None, (names in read_excel and read_csv)
+    # col_names_or_indexes_to_use=None, (usecols in read_excel and read_csv)
+    # data_types=None, (dtype in read_excel and read_csv)
 
     if is_excel(file_name_with_path):
-        sheet_name_or_index = get_sheet_index_or_name(config)
-
+        return pd.read_excel(file_name_with_path,
+                             skiprows=skip_leading_rows,
+                             nrows=rows_to_read,
+                             skipfooter=skip_trailing_rows,
+                             header=header_row_index,#_get_row_num_to_extract_column_names(config),
+                             sheet_name=get_sheet_index_or_name(config))
     elif is_csv(file_name_with_path):
-        delimiter = _get_input_csv_delimiter(config)
-        encoding = _get_input_csv_encoding(config)
         return pd.read_csv(file_name_with_path,
                            skiprows=skip_leading_rows,
                            nrows=rows_to_read,
                            skipfooter=skip_trailing_rows,
-                           delimiter=delimiter,
-                           encoding=encoding)
+                           delimiter=_get_input_csv_delimiter(config),
+                           encoding=_get_input_csv_encoding(config))
     else:
         raise transform_errors.InvalidFileType(file_name_with_path)
 
-    # header_row_num = header (read_excel; read_csv)
-    # custom_col_names = names (read_excel; read_csv)
-    # col_names_or_indexes_to_use = usecols (read_excel; read_csv)
-    # data_types = dtype (read_excel)
-    # skip_leading_rows = skiprows (read_excel)
-    # rows_to_read = nrows (read_excel; read_csv)
-    # skip_trailing_rows = skipfooter (read_excel)
-    # delimiter = delimiter (read_csv); None will default to auto detection
-    # encoding = encoding (read_csv); If None, then we should NOT pass it in
-    # TODO: explore if we can pass other params such as quotechar; quoting; doublequote; escapechar; etc. via kwargs
-    # read by chunk: https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#iterating-through-files-chunk-by-chunk
 
+def get_raw_column_names(input_file, config):
+    """
+    Returns a list of column names either from input file at specified
+    row index or custom column names defined in JSON config file.
 
-    pass
-
-def get_column_names(input_file, config):
+    Note: In pandas, we would read headers like below--
+    df1=pd.read_csv('csv_n.csv',delimiter='|', skiprows=0, nrows=0)
+    df2=pd.read_csv('csv_d.csv',delimiter='|', skiprows=4, nrows=0)
+    df3=pd.read_excel('excel_n.xlsx', sheet_name=0, header=0, nrows=0)
+    df4=pd.read_excel('excel_d.xlsx', sheet_name=0, header=4, nrows=0)
+    """
     if KEY_CUSTOM_COLUMN_HEADERS in config:
-        return _get_value_from_dict(
-                        config,
-                        KEY_CUSTOM_COLUMN_HEADERS,
-                        VALUE_CUSTOM_COLUMN_HEADERS_DEFAULT)
+        return _get_value_from_dict(config,
+                                    KEY_CUSTOM_COLUMN_HEADERS,
+                                    VALUE_CUSTOM_COLUMN_HEADERS_DEFAULT)
     else:
-        row_num = _get_row_num_to_extract_column_names(config)
-        # TODO: here, maybe it's the best create a generic read_data(....)
-        # method which decides if the input file is excel or csv and
-        # read off a line of data based on specified params
+        header_row_index = _get_row_index_to_extract_column_names(config)
+        if is_csv(input_file):
+            # Note: for CSV files, we have to use 'skiprows' param in
+            # 'read_csv()' to read header rows. It sucks but that's
+            # because of Pandas' inconsistent parameter names...
+            return read_data(input_file,
+                             config,
+                             0, # to read just the column names, must leave this as 0
+                             skip_leading_rows= header_row_index).columns.to_list()
+        else:
+            return read_data(input_file,
+                             config,
+                             0,
+                             header_row_index = header_row_index).columns.to_list()
 
-    if KEY_CUSTOM_COLUMN_HEADERS in config:
-        col_names = _get_value_from_dict(config,
-                                         KEY_CUSTOM_COLUMN_HEADERS,
-                                         None)
-        _assert_list(col_names,
-                     KEY_CUSTOM_COLUMN_HEADERS,
-                     "list of *all* strings representing column names.")
+
+def get_columns_to_use(config):
+    """
+    Returns the list of columns (in integer indexes, or names in string as
+    defined in 'usecols' parameter of Pandas' read_csv and read_exel methods)
+    defined in JSON config file. If not provided in the config file, returns
+    None so that we process ALL columns in the file.
+    """
+    if KEY_COLUMN_NAMES_TO_USE in config:
+        return _get_value_from_dict(config,
+                                    KEY_COLUMN_NAMES_TO_USE,
+                                    VALUE_COLUMNS_TO_USE_DEFAULT)
     else:
-        # we have to read column names from the input file itself
+        return _get_value_from_dict(config,
+                                    KEY_COLUMN_INDEXES_TO_USE,
+                                    VALUE_COLUMNS_TO_USE_DEFAULT)
 
-        pass
+
+
 
 
 def _assert_list(param, key_name, expected_data_type):
@@ -364,28 +371,6 @@ def _assert_none_or_list(param, key_name, expected_data_type):
     """Asserts that the value is either None or a list. Else, raise appropriate error."""
     if (not param) or (not isinstance(param, list)):
         raise transform_errors.InputDataTypeError(key_name, expected_data_type)
-
-
-def get_columns_to_use(config):
-    if (KEY_COLUMN_NAMES_TO_USE in config) and (KEY_COLUMN_INDEXES_TO_USE in config):
-        raise transform_errors.RedundantJSONKeyError(KEY_COLUMN_NAMES_TO_USE,
-                                                     KEY_COLUMN_INDEXES_TO_USE)
-
-    if KEY_COLUMN_NAMES_TO_USE in config:
-        list_of_columns_to_use = _get_value_from_dict(config,
-                                                      KEY_COLUMN_NAMES_TO_USE,
-                                                      VALUE_COLUMNS_TO_USE_DEFAULT)
-        _assert_none_or_list(list_of_columns_to_use,
-                             KEY_COLUMN_NAMES_TO_USE,
-                             "'None' or list of *all* strings.")
-    else:
-        list_of_columns_to_use = _get_value_from_dict(config,
-                                                      KEY_COLUMN_INDEXES_TO_USE,
-                                                      VALUE_COLUMNS_TO_USE_DEFAULT)
-        _assert_none_or_list(list_of_columns_to_use,
-                             KEY_COLUMN_INDEXES_TO_USE,
-                             "'None' or list of *all * integers")
-    return list_of_columns_to_use
 
 
 # TODO: decide if to remove this function

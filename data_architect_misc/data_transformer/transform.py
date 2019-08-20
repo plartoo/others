@@ -2,35 +2,14 @@ import pdb
 
 import argparse
 import os
-import sys
 
-import xlrd
 import pandas as pd
 
 import transform_errors
 import transform_utils
-from file_utils import get_file_extension
-
-
-CHUNK_SIZE = 100000 # 100k chunks
-## ***TODO: replace ',' with '.'
-# get extension
-## remove headers and footers if any
-# skip rows
-# skip footers
-
-# if XLSX
-# read sheet by sheet
-# if CSV
-# read file in chunk
-
-# get headers
-
-## pivot
 
 def check_data_against_rules(df, rules):
     replace_commas = rules['replace_commas_with_decimal_for_numbers']
-
     # [DM_1219_ColgateGlobal].[STG].[Data_Cleansing_Rule]
     # TODO: upper, ltrim, rtrim
     # "replace_commas_with_decimal_for_numbers": false,
@@ -55,14 +34,18 @@ if __name__ == '__main__':
     if (not args.c) or (not os.path.exists(args.c)):
         raise transform_errors.ConfigFileError()
 
-    # 3. Iterate through each transform procedure
+    # 3. Iterate through each transform procedure in config file
     for config in transform_utils.load_config(args.c):
-        # make sure config JSON has no conflicting keys and invalid data types
+        # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
         input_files = transform_utils.get_input_files(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
 
         for input_file in input_files:
+            col_names_from_input_file = transform_utils.get_raw_column_names(input_file, config)
+            col_names_or_indexes_to_use = transform_utils.get_columns_to_use(config)
+
+
             if transform_utils.is_excel(input_file):
                 sheet = transform_utils.get_sheet_index_or_name(config)
             elif transform_utils.is_csv(input_file):
