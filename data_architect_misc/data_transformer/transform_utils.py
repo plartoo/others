@@ -67,10 +67,8 @@ VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT = 0
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
 
-KEY_ROWS_PER_CHUNK = 'max_rows_to_read_for_each_processing_iteration'
+KEY_ROWS_PER_CHUNK = 'max_rows_to_process_each_iteration'
 VALUE_ROWS_PER_CHUNK_DEFAULT = 1500000
-KEY_ROWS_PER_OUTPUT_FILE = 'max_rows_to_write_in_each_output_file'
-VALUE_ROWS_PER_OUTPUT_FILE = 1500000
 
 # Keys in config file and their expected data types
 EXPECTED_CONFIG_DATA_TYPES = {
@@ -93,7 +91,6 @@ EXPECTED_CONFIG_DATA_TYPES = {
     KEY_ROW_NUM_WHERE_DATA_STARTS: [int],
     KEY_BOTTOM_ROWS_TO_SKIP: [int],
     KEY_ROWS_PER_CHUNK: [int],
-    KEY_ROWS_PER_OUTPUT_FILE: [int],
 }
 
 # Keys in config file that must exist (required keys)
@@ -125,16 +122,6 @@ HELP = """[Required] Configuration file (with full or relative path).
 E.g., python transform.py -c .\configs\china\config.json"""
 
 
-# def read_excel_file(file_path_and_name, sheet_name=0, header=0,
-#                     skiprows=0, skipfooter=0):
-#     t1 = time.time()
-#     df = pd.read_excel(file_path_and_name, sheet_name=sheet_name,
-#                        header=header, skiprows=skiprows, skipfooter=skipfooter)
-#     print('Read Excel file:', file_path_and_name)
-#     print("It took this many seconds to read the file:", time.time() - t1, "\n")
-#     return df
-
-
 def _get_value_from_dict(dict, key, default_value):
     """
     Returns associated value of a given key from dict.
@@ -150,7 +137,7 @@ def _get_value_from_dict(dict, key, default_value):
 
 def load_config(config_file):
     """
-    Load the config file as JSON.
+    Loads the config file as JSON.
     REF: https://web.archive.org/web/20181002170353/https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
     """
     with open(config_file, 'r') as f:
@@ -158,7 +145,7 @@ def load_config(config_file):
 
 
 def _assert_required_keys(config):
-    """Check if all required keys exist in the config loaded."""
+    """Checks if all required keys exist in the config loaded."""
     for k in REQUIRED_KEYS:
         if not k in config:
             raise transform_errors.RequiredKeyNotFoundInConfigFile(k)
@@ -166,7 +153,7 @@ def _assert_required_keys(config):
 
 def _assert_mutually_exclusive_keys(config):
     """
-    Check to make sure that some keys, which are NOT supposed to be together
+    Checks to make sure that some keys, which are NOT supposed to be together
     in the config file, don't show up together in the config loaded.
     """
     for kp in MUTUALLY_EXCLUSIVE_KEYS:
@@ -175,7 +162,7 @@ def _assert_mutually_exclusive_keys(config):
 
 
 def _assert_expected_data_types(config):
-    """Check if loaded config has values that are of expected data types."""
+    """Checks if loaded config has values that are of expected data types."""
     for k, types in EXPECTED_CONFIG_DATA_TYPES.items():
         # we use 'any' because some of the keys be , for example,
         # either int or None, and EXPECTED_CONFIG_DATA_TYPES
@@ -241,7 +228,7 @@ def get_sheet_index_or_name(config):
 
 def _get_row_index_to_extract_column_names(config):
     """
-    Retrieve row number where we can fetch column names
+    Retrieves row number where we can fetch column names
     in the input file. If the keys aren't defined in
     the JSON, returns 0 as default.
     """
@@ -252,7 +239,7 @@ def _get_row_index_to_extract_column_names(config):
 
 def _get_input_csv_encoding(config):
     """
-    Retrieve encoding for input CSV file.
+    Retrieves encoding for input CSV file.
     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
     """
     return _get_value_from_dict(config,
@@ -261,7 +248,7 @@ def _get_input_csv_encoding(config):
 
 
 def _get_input_csv_delimiter(config):
-    """Retrieve delimiter for input CSV file."""
+    """Retrieves delimiter for input CSV file."""
     return _get_value_from_dict(config,
                                 KEY_INPUT_CSV_DELIMITER,
                                 VALUE_INPUT_CSV_DELIMITER_DEFAULT)
@@ -269,7 +256,7 @@ def _get_input_csv_delimiter(config):
 
 def _get_output_csv_encoding(config):
     """
-    Retrieve encoding for output CSV file.
+    Retrieves encoding for output CSV file.
     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
     """
     return _get_value_from_dict(config,
@@ -278,14 +265,14 @@ def _get_output_csv_encoding(config):
 
 
 def _get_output_csv_delimiter(config):
-    """Retrieve delimiter for output CSV file."""
+    """Retrieves delimiter for output CSV file."""
     return _get_value_from_dict(config,
                                 KEY_OUTPUT_CSV_DELIMITER,
                                 VALUE_OUTPUT_CSV_DELIMITER_DEFAULT)
 
 
 def read_data(file_name_with_path, config, rows_to_read,
-              header_row_index=0, skip_leading_rows=0, skip_trailing_rows=0):
+              skip_leading_rows=0, skip_trailing_rows=0):
     # We might need to extend this method later to include other params such as:
     # custom_col_names=None, (names in read_excel and read_csv)
     # col_names_or_indexes_to_use=None, (usecols in read_excel and read_csv)
@@ -296,15 +283,20 @@ def read_data(file_name_with_path, config, rows_to_read,
                              skiprows=skip_leading_rows,
                              nrows=rows_to_read,
                              skipfooter=skip_trailing_rows,
-                             header=header_row_index,#_get_row_num_to_extract_column_names(config),
+                             header=_get_row_index_to_extract_column_names(config),
                              sheet_name=get_sheet_index_or_name(config))
     elif is_csv(file_name_with_path):
         return pd.read_csv(file_name_with_path,
                            skiprows=skip_leading_rows,
                            nrows=rows_to_read,
                            skipfooter=skip_trailing_rows,
+                           header=_get_row_index_to_extract_column_names(config),
                            delimiter=_get_input_csv_delimiter(config),
-                           encoding=_get_input_csv_encoding(config))
+                           encoding=_get_input_csv_encoding(config),
+                           # don't skip anything in input file and let programmer
+                           # decide how to parse them later in transform_functions
+                           skip_blank_lines=False,
+                           )
     else:
         raise transform_errors.InvalidFileType(file_name_with_path)
 
@@ -315,8 +307,8 @@ def get_raw_column_names(input_file, config):
     row index or custom column names defined in JSON config file.
 
     Note: In pandas, we would read headers like below--
-    df1=pd.read_csv('csv_n.csv',delimiter='|', skiprows=0, nrows=0)
-    df2=pd.read_csv('csv_d.csv',delimiter='|', skiprows=4, nrows=0)
+    df1=pd.read_csv('csv_n.csv',delimiter='|', header=0, nrows=0, skip_blank_lines=False)
+    df2=pd.read_csv('csv_d.csv',delimiter='|', header=4, nrows=0, skip_blank_lines=False)
     df3=pd.read_excel('excel_n.xlsx', sheet_name=0, header=0, nrows=0)
     df4=pd.read_excel('excel_d.xlsx', sheet_name=0, header=4, nrows=0)
     """
@@ -325,20 +317,10 @@ def get_raw_column_names(input_file, config):
                                     KEY_CUSTOM_COLUMN_HEADERS,
                                     VALUE_CUSTOM_COLUMN_HEADERS_DEFAULT)
     else:
-        header_row_index = _get_row_index_to_extract_column_names(config)
-        if is_csv(input_file):
-            # Note: for CSV files, we have to use 'skiprows' param in
-            # 'read_csv()' to read header rows. It sucks but that's
-            # because of Pandas' inconsistent parameter names...
-            return read_data(input_file,
-                             config,
-                             0, # to read just the column names, must leave this as 0
-                             skip_leading_rows= header_row_index).columns.to_list()
-        else:
-            return read_data(input_file,
-                             config,
-                             0,
-                             header_row_index = header_row_index).columns.to_list()
+        return read_data(input_file,
+                         config,
+                         0,  # to read just the column names, must leave this as 0
+                         ).columns.to_list()
 
 
 def get_columns_to_use(config):
@@ -358,61 +340,80 @@ def get_columns_to_use(config):
                                     VALUE_COLUMNS_TO_USE_DEFAULT)
 
 
+def get_column_mappings(config):
+    """
+    Returns the dictionary which has mappings between
+    {old_column_name: new_column_name, ...} that is defined
+    in JSON config file. If not provided in the config file,
+    returns empty dictionary, {}.
+    """
+    return _get_value_from_dict(config,
+                                KEY_COLUMN_MAPPINGS,
+                                VALUE_COLUMN_MAPPINGS_DEFAULT)
 
 
-
-def _assert_list(param, key_name, expected_data_type):
-    """Asserts that the value is of type list. Else, raise appropriate error."""
-    if not isinstance(param, list):
-        raise transform_errors.InputDataTypeError(key_name, expected_data_type)
-
-
-def _assert_none_or_list(param, key_name, expected_data_type):
-    """Asserts that the value is either None or a list. Else, raise appropriate error."""
-    if (not param) or (not isinstance(param, list)):
-        raise transform_errors.InputDataTypeError(key_name, expected_data_type)
+def get_row_index_where_data_starts(config):
+    """
+    Returns the row index where the data lines begin in the input file.
+    If key not provided in the JSON config file, returns 0 as default.
+    """
+    return _get_value_from_dict(config,
+                                KEY_ROW_NUM_WHERE_DATA_STARTS,
+                                VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT)
 
 
-# TODO: decide if to remove this function
-def get_leading_rows_to_skip(config):
-    return _get_value_from_dict(
-                config,
-                KEY_LEADING_ROWS_TO_SKIP,
-                VALUE_LEADING_ROWS_TO_SKIP_DEFAULT)
+def get_number_of_rows_to_skip_from_bottom(config):
+    """
+    Returns number of rows we should ignore/skip at the bottom of
+    the input file. If the key not provided in the JSON config file,
+    returns 0 as default.
+    """
+    return _get_value_from_dict(config,
+                                KEY_BOTTOM_ROWS_TO_SKIP,
+                                VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT)
 
 
-def get_starting_row_index(config):
-    return _get_value_from_dict(
-                config,
-                KEY_STARTING_ROW_INDEX,
-                VALUE_STARTING_ROW_INDEX_DEFAULT)
+def get_number_of_rows_to_skip_from_bottom(config):
+    """
+    Returns number of rows we should ignore/skip at the bottom of
+    the input file. If key is not provided in the JSON config file,
+    returns 0 as default.
+    """
+    return _get_value_from_dict(config,
+                                KEY_BOTTOM_ROWS_TO_SKIP,
+                                VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT)
 
 
-def get_trailing_rows_to_skip(config):
-    return _get_value_from_dict(
-                config,
-                KEY_TRAILING_ROWS_TO_SKIP,
-                VALUE_TRAILING_ROWS_TO_SKIP_DEFAULT)
+def get_max_rows_to_process_per_iteration(config):
+    """
+    Returns number of rows we should process (read and write)
+    per each iteration (for each input file). If the key is
+    not provided in the JSON config file, returns
+    VALUE_ROWS_PER_CHUNK_DEFAULT as default.
+    """
+    return _get_value_from_dict(config,
+                                KEY_ROWS_PER_CHUNK,
+                                VALUE_ROWS_PER_CHUNK_DEFAULT)
 
 
-def extract_file_name(file_path_and_name):
+def _extract_file_name(file_path_and_name):
+    """Extracts file name from path+filename string."""
     return os.path.split(file_path_and_name)[-1]
 
 
-def get_file_extension(file_name):
+def _get_file_extension(file_name):
+    """Extracts file extension from filename string."""
     return os.path.splitext(file_name)[1]
 
 
 def is_excel(file_name_with_path):
-    file_extension = get_file_extension(extract_file_name(file_name_with_path))
+    """Checks if file is Excel file type."""
+    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
     return ((EXCEL_FILE_EXTENSION_NEW == file_extension.lower()) or
             (EXCEL_FILE_EXTENSION_OLD == file_extension.lower()))
 
 
 def is_csv(file_name_with_path):
-    file_extension = get_file_extension(extract_file_name(file_name_with_path))
+    """Checks if file is CSV file type."""
+    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
     return CSV_FILE_EXTENSION == file_extension.lower()
-
-
-def print_config():
-    pass

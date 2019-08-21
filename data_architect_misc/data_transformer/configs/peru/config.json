@@ -22,29 +22,26 @@
     "list_of_column_names_to_use": [],
     "list_of_column_indexes_to_use": [],
 
-
-
-
-
     "__comment__": "optional. old_column_name_to_new_column_name_mappings is optional",
     "old_column_name_to_new_column_name_mappings": {
       "column1_old_name": "(optional)#column1_new_name"
     },
 
     "__comment__": "optional. csv encoding and delimiters are optional",
-    "input_csv_file_encoding": "",
-    "input_csv_file_delimiter": "",
-    "output_csv_file_encoding": "#optional",
-    "output_csv_file_delimiter": "#optional",
-
+    "input_csv_file_encoding": "#optional and will be read by private method",
+    "input_csv_file_delimiter": "#optional and will be read by private method",
+    "output_csv_file_encoding": "#optional and will be read by private method",
+    "output_csv_file_delimiter": "#optional and will be read by private method",
 
     "__comment__": "optional. row_num_where_data_starts and num_of_rows_to_skip_from_the_bottom",
     "row_index_where_data_starts": 0,
     "num_of_rows_to_skip_from_the_bottom": 0,
 
-    "__comment__": "optional. max_rows_to_read_for_each_processing_iteration and max_rows_to_write_in_each_output_file",
-    "max_rows_to_read_for_each_processing_iteration": "#optional",
-    "max_rows_to_write_in_each_output_file": "#optional",
+    "__comment__": "optional. max_rows_to_process_each_iteration defines how many rows will be read and written each iteration/chunk",
+    "max_rows_to_process_each_iteration": "#optional",
+
+
+
 
     "functions_to_apply_to_data_frame": {
       "maybe we don't need this": "#maybe we don't need this"
@@ -57,6 +54,5 @@
 
     "functions_to_apply_to_rows": ["Like if column 1 is null, ignore row"],
     "new_columns_to_add": [{"new_column": ["rules_used_to_populate_this_column"]}],
-
   }
 ]

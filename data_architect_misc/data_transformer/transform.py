@@ -6,6 +6,7 @@ import os
 import pandas as pd
 
 import transform_errors
+import transform_functions
 import transform_utils
 
 def check_data_against_rules(df, rules):
@@ -41,10 +42,23 @@ if __name__ == '__main__':
         input_files = transform_utils.get_input_files(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
 
+        rows_per_chunk = transform_utils.get_max_rows_to_process_per_iteration(config)
+        row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
+        footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
+
         for input_file in input_files:
+            # t1 = time.time()
+            # print('Read Excel file:', file_path_and_name)
+            # print("It took this many seconds to read the file:", time.time() - t1, "\n")
+
+            # TODO: maybe the following methods might have to be moved inside 'read_data'
             col_names_from_input_file = transform_utils.get_raw_column_names(input_file, config)
             col_names_or_indexes_to_use = transform_utils.get_columns_to_use(config)
+            old_to_new_col_mappings = transform_utils.get_column_mappings(config)
+            # df.rename(columns=old_to_new_col_mappings, inplace=True) if not old_to_new_col_mappings
 
+
+            # TODO: maybe we can embed output_csv_delimiter and encoding to 'write_data'
 
             if transform_utils.is_excel(input_file):
                 sheet = transform_utils.get_sheet_index_or_name(config)
