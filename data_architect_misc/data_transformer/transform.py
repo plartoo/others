@@ -39,14 +39,13 @@ if __name__ == '__main__':
     for config in transform_utils.load_config(args.c):
         # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
-        input_files = transform_utils.get_input_files(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
 
         rows_per_chunk = transform_utils.get_max_rows_to_process_per_iteration(config)
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
-        for input_file in input_files:
+        for input_file in transform_utils.get_input_files(config):
             # t1 = time.time()
             # print('Read Excel file:', file_path_and_name)
             # print("It took this many seconds to read the file:", time.time() - t1, "\n")

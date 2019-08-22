@@ -271,6 +271,29 @@ def _get_output_csv_delimiter(config):
                                 VALUE_OUTPUT_CSV_DELIMITER_DEFAULT)
 
 
+def _extract_file_name(file_path_and_name):
+    """Extracts file name from path+filename string."""
+    return os.path.split(file_path_and_name)[-1]
+
+
+def _get_file_extension(file_name):
+    """Extracts file extension from filename string."""
+    return os.path.splitext(file_name)[1]
+
+
+def is_excel(file_name_with_path):
+    """Checks if file is Excel file type."""
+    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
+    return ((EXCEL_FILE_EXTENSION_NEW == file_extension.lower()) or
+            (EXCEL_FILE_EXTENSION_OLD == file_extension.lower()))
+
+
+def is_csv(file_name_with_path):
+    """Checks if file is CSV file type."""
+    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
+    return CSV_FILE_EXTENSION == file_extension.lower()
+
+
 def read_data(file_name_with_path, config, rows_to_read,
               skip_leading_rows=0, skip_trailing_rows=0):
     # We might need to extend this method later to include other params such as:
@@ -396,24 +419,4 @@ def get_max_rows_to_process_per_iteration(config):
                                 VALUE_ROWS_PER_CHUNK_DEFAULT)
 
 
-def _extract_file_name(file_path_and_name):
-    """Extracts file name from path+filename string."""
-    return os.path.split(file_path_and_name)[-1]
 
-
-def _get_file_extension(file_name):
-    """Extracts file extension from filename string."""
-    return os.path.splitext(file_name)[1]
-
-
-def is_excel(file_name_with_path):
-    """Checks if file is Excel file type."""
-    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
-    return ((EXCEL_FILE_EXTENSION_NEW == file_extension.lower()) or
-            (EXCEL_FILE_EXTENSION_OLD == file_extension.lower()))
-
-
-def is_csv(file_name_with_path):
-    """Checks if file is CSV file type."""
-    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
-    return CSV_FILE_EXTENSION == file_extension.lower()
