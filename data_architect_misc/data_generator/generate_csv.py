@@ -287,7 +287,7 @@ def _get_data_type_name_and_parameter(input_str):
 
 def _remove_non_word_chars(input_str):
     """Removes space character, commas, etc."""
-    return re.sub(r'\W*?', '', input_str)
+    return re.sub(r'\W+?', '', input_str)
 
 
 def _get_parameters(param_str):
@@ -330,8 +330,9 @@ def _parse_mixed_params(params):
                 except ValueError:
                     processed.append(p)
             except:
-                sys.exit("ERROR: parsing mixed param =>",
-                         p, " has caused error.")
+                err_msg = ' '.join(["ERROR: parsing mixed param =>",
+                                    p, " has caused error."])
+                sys.exit(err_msg)
     return processed
 
 
@@ -367,7 +368,8 @@ def _make_partial(funcs, data_type, params):
     if data_type == 'categorical':
         p = _parse_mixed_params(params)
         v_print("\n=> Data type:", data_type, "\tParsed params:", p, "\n")
-        # in categorical case, we return immediately because its params are different
+        # in categorical case, we return immediately
+        # because its params are different from other cases
         return partial(funcs[data_type], p)
     elif data_type in ['date_time', 'date']:
         p = _parse_mixed_params(params)
@@ -380,7 +382,10 @@ def _make_partial(funcs, data_type, params):
     elif data_type in ['str_id', 'ascii_str', 'utf8_str', 'numeric', 'integer']:
         p = _parse_integer_params(params)
     else:
-        sys.exit("ERROR: data type '", data_type, "' is not supported.")
+        err_msg = ' '.join(["ERROR: data type '",
+                            data_type,
+                            "' is not supported."])
+        sys.exit(err_msg)
 
     v_print("\n=> Data type:", data_type, "\tParsed params:", str(p))
     return partial(funcs[data_type], p[0], p[1])
@@ -483,9 +488,12 @@ def main():
             try:
                 params = _get_parameters(dp[1])
             except:
-                sys.exit("ERROR: Parising this input data type=>", s,
-                         ". Try 'python generate_csv.py -h' "
-                         "to learn the correct usage.")
+                err_msg = ' '.join([
+                    "ERROR: Parsing input data type=>",
+                    s,
+                    ". Try 'python generate_csv.py -h'",
+                    "to learn the correct usage."])
+                sys.exit(err_msg)
 
             # 4. create partial functions to generate random data for each column
             generator_funcs.append(_make_partial(FUNCS, data_type, params))
@@ -500,8 +508,9 @@ def main():
     else:
         user_provided_col_names = args.c.split(',')
         if len(user_provided_col_names) != len(generator_funcs):
-            sys.exit("ERROR: if you provide custom column names, you must "
-                     "provide enough of these names to cover all data columns")
+            err_msg = ' '.join(["ERROR: if you provide custom column names, you must",
+                                "provide enough of these names to cover all data columns"])
+            sys.exit(err_msg)
         else:
             col_names = user_provided_col_names
 
@@ -526,4 +535,5 @@ def main():
 if __name__ == '__main__':
     # Note: To test inputs for flag 't', try this:
     # python generate_csv.py -t "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01',"2019-12-12"), categorical("blah",'1',2, 3)"
+    # python generate_csv.py -t "int_id(5,2),str_id(8,10), ascii_str( 8, 12),utf8_str(8,12) , double (1.5 , 5.6 ), numeric( 10, 4 ),integer(-5000 , 5000),date('2018-01-01','2019-12-12'),date_time('2018-01-01',"2019-12-12"), categorical("blah",'1',2, 3),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200),ascii_str( 200, 200)" -r 1000000
     main()
