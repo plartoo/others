@@ -63,7 +63,7 @@ KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 VALUE_OUTPUT_CSV_DELIMITER_DEFAULT = '|'
 
 KEY_ROW_NUM_WHERE_DATA_STARTS = 'row_index_where_data_starts'
-VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT = 0
+VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT = 1
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
 
@@ -100,8 +100,8 @@ REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
 
 # Keys in config file that must not exist together (disjoint keys)
 MUTUALLY_EXCLUSIVE_KEYS = [(KEY_SHEET_INDEX, KEY_SHEET_NAME),
-                           (KEY_COLUMN_NAMES_TO_USE, KEY_COLUMN_INDEXES_TO_USE),
-                           (KEY_COLUMN_HEADER_ROW_NUM, KEY_CUSTOM_COLUMN_HEADERS)]
+                           (KEY_COLUMN_HEADER_ROW_NUM, KEY_CUSTOM_COLUMN_HEADERS),
+                           (KEY_COLUMN_NAMES_TO_USE, KEY_COLUMN_INDEXES_TO_USE)]
 
 # Other constants
 CSV_FILE_EXTENSION = '.csv'
@@ -295,30 +295,38 @@ def is_csv(file_name_with_path):
 
 
 def read_data(file_name_with_path, config, rows_to_read,
-              skip_leading_rows=0, skip_trailing_rows=0):
-    # We might need to extend this method later to include other params such as:
-    # custom_col_names=None, (names in read_excel and read_csv)
-    # col_names_or_indexes_to_use=None, (usecols in read_excel and read_csv)
-    # data_types=None, (dtype in read_excel and read_csv)
+              skip_leading_rows=0, skip_trailing_rows=0,
+              header_row_index=0, custom_header_names=None,
+              column_names_or_indexes_to_use=None,
+              custom_data_types={}):
 
     if is_excel(file_name_with_path):
         return pd.read_excel(file_name_with_path,
                              skiprows=skip_leading_rows,
                              nrows=rows_to_read,
                              skipfooter=skip_trailing_rows,
-                             header=_get_row_index_to_extract_column_names(config),
-                             sheet_name=get_sheet_index_or_name(config))
+                             header=header_row_index,
+                             names=custom_header_names,
+                             usecols=column_names_or_indexes_to_use,
+                             dtype=custom_data_types,
+                             sheet_name=get_sheet_index_or_name(config),
+                             )
     elif is_csv(file_name_with_path):
         return pd.read_csv(file_name_with_path,
                            skiprows=skip_leading_rows,
-                           nrows=rows_to_read,
+                           # below causes error if we tries to read chunk=x and there's < x rows left in the last chunk
+                           #nrows=rows_to_read,
+                           chunksize=rows_to_read,
                            skipfooter=skip_trailing_rows,
-                           header=_get_row_index_to_extract_column_names(config),
+                           header=header_row_index,
+                           names=custom_header_names,
+                           usecols=column_names_or_indexes_to_use,
+                           dtype=custom_data_types,
                            delimiter=_get_input_csv_delimiter(config),
                            encoding=_get_input_csv_encoding(config),
                            # don't skip anything in input file and let programmer
                            # decide how to parse them later in transform_functions
-                           skip_blank_lines=False,
+                           #skip_blank_lines=False,
                            )
     else:
         raise transform_errors.InvalidFileType(file_name_with_path)
@@ -343,6 +351,7 @@ def get_raw_column_names(input_file, config):
         return read_data(input_file,
                          config,
                          0,  # to read just the column names, must leave this as 0
+                         header_row_index=_get_row_index_to_extract_column_names(config),
                          ).columns.to_list()
 
 

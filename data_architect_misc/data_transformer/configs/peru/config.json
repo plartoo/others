@@ -8,7 +8,7 @@
 
     "__comment__": "output folder path is required, but filename prefix is optional",
     "output_folder_path": "(required)./output/peru/",
-    "output_file_name_prefix": "peru_",
+    "output_file_name_prefix": "transformed_peru_",
 
     "__comment__": "optional. exclusive. sheet index and sheet names are optional.",
     "sheet_index_of_excel_file": 0,
@@ -20,7 +20,7 @@
 
     "__comment__": "optional. exclusive. if exists, only one of column names and indexes is required. not both",
     "list_of_column_names_to_use": [],
-    "list_of_column_indexes_to_use": [],
+    "_list_of_column_indexes_to_use": [],
 
     "__comment__": "optional. old_column_name_to_new_column_name_mappings is optional",
     "old_column_name_to_new_column_name_mappings": {
@@ -33,8 +33,8 @@
     "output_csv_file_encoding": "#optional and will be read by private method",
     "output_csv_file_delimiter": "#optional and will be read by private method",
 
-    "__comment__": "optional. row_num_where_data_starts and num_of_rows_to_skip_from_the_bottom",
-    "row_index_where_data_starts": 0,
+    "__comment__": "optional (but recommended for 'row_index_where_data_starts'. row_num_where_data_starts and num_of_rows_to_skip_from_the_bottom",
+    "row_index_where_data_starts": 1,
     "num_of_rows_to_skip_from_the_bottom": 0,
 
     "__comment__": "optional. max_rows_to_process_each_iteration defines how many rows will be read and written each iteration/chunk",
