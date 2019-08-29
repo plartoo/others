@@ -14,8 +14,12 @@ from bs4 import BeautifulSoup
 
 BASE_URL = 'https://national-tv.rentrak.com'
 LOGIN_URL = 'https://national-tv.rentrak.com/login.html'
-
-f = open('login.html', 'wb')
+# PAYLOAD = {
+#     'login_id':	'', # enter username here
+#     'password':	'', # enter pwd here
+#     'login': 'LOGIN',
+#     'url': ''
+# }
 
 # REF: use sessoins https://stackoverflow.com/a/17633072/1330974
 with requests.Session() as session:
