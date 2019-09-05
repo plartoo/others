@@ -10,7 +10,10 @@ import requests
 from bs4 import BeautifulSoup
 
 def percentage(numerator, denominator):
-    return round(100 * float(numerator)/float(denominator),2)
+    if denominator == 0:
+        return 0
+    else:
+        return round(100 * float(numerator)/float(denominator),2)
 
 BASE_URL = 'https://apps.acgme.org'
 IM_URL = 'https://apps.acgme.org/ads/Public/Programs/Search?stateId=&specialtyId=18&specialtyCategoryTypeId=&numCode=&city='
@@ -19,7 +22,7 @@ FILE_NAME = 'IM_ACGME.csv'
 with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as csv_file:
     csv_writer = csv.writer(csv_file, delimiter='|')
     # Write the header first
-    csv_writer.writerow(['Speciality', 'Program Name', 'City', 'Total Approved', 'Total Filled', 'Filled Percentage',
+    csv_writer.writerow(['Speciality', 'Program ID', 'Program Name', 'City', 'Total Approved', 'Total Filled', 'Filled Percentage',
                          'Accreditation Started', 'Accreditation Latest', 'Director First Appointed',
                          #'Coordinator Name', 'Coordinator Phone', 'Coordinator Email',
                          'Hospital URL'])
@@ -47,15 +50,16 @@ with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as csv_file:
         session.headers.update(updated_session_header)
 
         i = 0
-        for prg in programs[125:]:
-            specialty = prg.select('td:nth-child(3)')[0].text
+        for prg in programs:
+            prog_id = prg.select('tr.listview-row td:nth-child(2)')[0].text
             prog_name = prg.select('td:nth-child(4)')[0].text
+            specialty = prg.select('td:nth-child(3)')[0].text
+            cur_row = [prog_id, prog_name]
             city = prg.select('td:nth-child(6)')[0].text
 
             prog_detail_url = ''.join([BASE_URL, prg.select('td:nth-child(7) > a:nth-child(1)')[0].attrs['href']])
             print("Fetching:", prog_name, "\t\t==>", prog_detail_url)
-            # Now fetch the detail page
-            dpg = session.get(prog_detail_url)
+            dpg = session.get(prog_detail_url) # Fetch the detail page
             dpc = BeautifulSoup(dpg.content, 'html.parser')
 
             total_approved_ele = dpc.find_all('dt', text=re.compile(r'Total Approved Resident'))
@@ -98,7 +102,7 @@ with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as csv_file:
             director_first_appointed_ele = dpc.find_all('dt', text=re.compile(r'Director First Appointed'))
             director_first_appointed = director_first_appointed_ele[0].nextSibling.nextSibling.text.strip() if director_first_appointed_ele else 'N/A'
 
-            cur_row = [specialty, prog_name, city, total_approved, total_filled, total_filled_percentage,
+            cur_row = [specialty, prog_id, prog_name, city, total_approved, total_filled, total_filled_percentage,
                        accreditation_start, accreditation_last, director_first_appointed, hospital_url]
             print(str(i), ":", cur_row, "\n")
             csv_writer.writerow(cur_row)
