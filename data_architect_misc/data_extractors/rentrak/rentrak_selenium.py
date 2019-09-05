@@ -14,6 +14,7 @@ For anyone interested, read the following resources to learn more about Selenium
 
 import os
 from datetime import datetime
+import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -22,11 +23,33 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import account_info
 
-# Note: define the location of folder where Chrome driver saves downloaded files
-DOWNLOAD_FOLDER = 'C:\\Users\\phyo.thiha\\Downloads'
+
+def get_latest_file_in_folder(folder):
+    # We will infer latest downloaded (non-temporary) file name from getctime.
+    # REF: https://stackoverflow.com/q/17958987
+    non_temp_files = list(filter(lambda x: not x.endswith('.tmp'), os.listdir(folder)))
+    return max([os.path.join(folder, f) for f in non_temp_files], key=os.path.getctime)
+
+
+WAIT_TIME_INCREMENT_IN_SEC = 5
+WAIT_TIME_LIMIT = 300
+
+# Define the location of folder where Chrome driver saves downloaded files
+# Also if you use Firefox, make sure the download behavior is set to start
+# automatically (instead of user having to click on 'OK' button to start
+# the download).
+# REF: http://web.archive.org/web/20190905202224/http://kb.mozillazine.org/File_types_and_download_actions
+DOWNLOAD_FOLDER = os.path.join(os.path.expanduser('~'), 'Downloads')
 BASE_URL = 'https://national-tv.rentrak.com'
-# Assumes that "chromedrive/chromedriver.exe" shares same PARENT folder as this script
-parent_folder = os.path.dirname(os.path.normpath(os.getcwd()))
+
+# Create output folder
+script_folder = os.getcwd()
+output_folder = os.path.join(script_folder, 'output')
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+
+# Assume that "chromedrive/chromedriver.exe" shares same PARENT folder as this script
+parent_folder = os.path.dirname(os.path.normpath(script_folder))
 chromedriver_exe_with_path = os.path.join(parent_folder , 'chromedriver', 'chromedriver.exe')
 print("\nInvoking Chrome driver at:", chromedriver_exe_with_path, "\n")
 browser = webdriver.Chrome(executable_path=chromedriver_exe_with_path)
@@ -38,54 +61,146 @@ browser.find_element_by_id('login_id').send_keys(account_info.USERNAME)
 browser.find_element_by_id('password').send_keys(account_info.PASSWORD)
 browser.find_element_by_css_selector('input[type=\"submit\"]').click()
 
-# market_monthly_trend_menu = browser.find_elements_by_xpath("//a[contains(text(),'Market Monthly Trend')]")[0]
-# market_monthly_url = market_monthly_trend_menu.get_attribute('href')
-# # We can also wait before clicking on the market_monthly_trend_menu above
-# # REF: https://stackoverflow.com/questions/56119289/element-not-interactable-selenium
-# browser.get(market_monthly_url)
+# cur_datetime = datetime.now()
+# # We have decided to fetch YTD data (January of current year) to (current month of current year)
+# # E.g., from '20190101 00:00:00' to '20190901 00:00:00'
+# from_date = ''.join([cur_datetime.strftime('%Y'),'0101'])
+# to_date = ''.join([cur_datetime.strftime('%Y%m'),'01'])
+# from_datetime = ''.join([from_date,' 00:00:00'])
+# to_datetime = ''.join([to_date,' 00:00:00'])
+#
+# # Following bookmarks and filename prefixes are used to download Network Monthly Trends
+# bookmarks_filename_prefix = {
+#     'DoNotDelete_Automation_Network_Monthly_Trend_A-L_Networks_All_Markets':
+#         'Network_Monthly_Trend_A_L_Networks_All_Markets_',
+#     'DoNotDelete_Automation_Network_Monthly_Trend_M-Z_Networks_All_Markets':
+#         'Network_Monthly_Trend_M_Z_Networks_All_Markets_'
+# }
+#
+# for b, fp in bookmarks_filename_prefix.items():
+#     print("\nProcessing bookmark:", b)
+#     bookmark_menu = browser.find_element_by_xpath('//a[contains(text(),\"{0}\")]'.format(b))
+#     bookmark_url = bookmark_menu.get_attribute('href')
+#     print("\nExtracted bookmark URL:", bookmark_url)
+#     browser.get(bookmark_url)
+#
+#     from_date_option = browser.find_element_by_xpath('//*[@id="simple_month_range_from_select"]/option[contains(@value, "{0}")]'.format(from_datetime))
+#     to_date_option = browser.find_element_by_xpath('//*[@id="simple_month_range_to_select"]/option[contains(@value, "{0}")]'.format(to_datetime))
+#     from_date_option.click()
+#     to_date_option.click()
+#
+#     # This does not work for below: browser.find_element_by_css_selector('input[name=\"go\"]')
+#     go_button = browser.find_element_by_css_selector('.js-load-indicator')
+#     go_button.click()
+#
+#     # We cannot wait explicitly like suggested in the reference below:
+#     # REF 1: https://stackoverflow.com/questions/56119289/element-not-interactable-selenium
+#     # REF 2: http://web.archive.org/web/20190905194252/https://blog.codeship.com/get-selenium-to-wait-for-page-load/
+#     # because we cannot verify if/when the href in Excel button is updated (from the existing one)
+#     # REF: https://selenium-python.readthedocs.io/waits.html#explicit-waits (explicit wait)
+#     # Thus, wait for about a few seconds before fetching link from Excel button.
+#     # Update on Sept 5, 2019: Turns out we don't need to do this wait and the new href is posted almost instantaneously.
+#     # browser.implicitly_wait(10)
+#
+#     excel_download_button = browser.find_element_by_xpath("//*[@title='Download Report to Excel']")
+#     excel_download_url = excel_download_button.get_attribute('href')
+#     print("\nDownloading excel file from URL:", excel_download_url)
+#
+#     # We will get the name of latest downloaded file name before we start downloading the excel file
+#     existing_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
+#     browser.get(excel_download_url)
+#
+#     # Let's busy wait until the file is downloaded (no way to detect successful page load via Selenium
+#     time_waited_so_far_in_sec = 0
+#     while existing_latest_file == get_latest_file_in_folder(DOWNLOAD_FOLDER):
+#         time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
+#         time_waited_so_far_in_sec += WAIT_TIME_INCREMENT_IN_SEC
+#         if time_waited_so_far_in_sec > WAIT_TIME_LIMIT: # if download is taking longer than 5 minutes, break and print error message
+#             print("WARNING: It seems to be taking longer than", WAIT_TIME_LIMIT, ". We are skipping download for bookmark:", b)
+#             break
+#
+#     if existing_latest_file != get_latest_file_in_folder(DOWNLOAD_FOLDER):
+#         # Rename and move the downloaded file to 'output' folder which is located in the same parent folder as this script
+#         # downloaded_filename, downloaded_file_extension = os.path.splitext(downloaded_file_path_and_name)
+#         new_file_name = ''.join([fp, '_', from_date, '_', to_date, '.xlsx'])
+#         new_file_path_and_name = os.path.join(output_folder, new_file_name)
+#         print("\nRenaming and moving downloaded file:", get_latest_file_in_folder(DOWNLOAD_FOLDER),
+#               "\tto:", new_file_path_and_name)
+#         try:
+#             os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
+#         except FileExistsError:
+#             os.remove(new_file_path_and_name)
+#             os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
+#
+# # MONTHLY_MARKET_TREND_URL = '/reports/market_month_trend.html'
+# print("\nNetwork Monthly Trend YTD data download finished.")
+
 
 cur_datetime = datetime.now()
-# We have decided to fetch YTD data (January of current year) to (current month of current year)
-from_date = ''.join([cur_datetime.strftime('%Y'),'0101'])
-to_date = ''.join([cur_datetime.strftime('%Y%m'),'01'])
+from_date = '20160101'#''.join([cur_datetime.strftime('%Y'),'0101'])
+to_date = '201612'#''.join([cur_datetime.strftime('%Y%m'),'01'])
+from_datetime = ''.join([from_date,' 00:00:00'])
+to_datetime = ''.join([to_date,' 00:00:00'])
 
-# We will use the following primary bookmarks to fetch different months and networks
-# DoNotDelete_Automation_Market_Monthly_Trend_All_Networks_All_Markets
-# DoNotDelete_Automation_Network_Monthly_Trend_A-L_Networks_All_Markets
-# DoNotDelete_Automation_Network_Monthly_Trend_M-Z_Networks_All_Markets
-bookmarks = ["'DoNotDelete_Automation_Network_Monthly_Trend_A-L_Networks_All_Markets'",]
-for b in bookmarks:
-    print("Processing bookmark:", b)
-    bookmark_ele = browser.find_elements_by_xpath("//a[contains(text(),{0})]".format(b))[0]
-    bookmark_url = bookmark_ele.get_attribute('href')
-    print("Extracted bookmark URL:", bookmark_url)
+# Following bookmarks and filename prefixes are used to download Market Monthly Trends
+bookmarks_filename_prefix = {
+    'DoNotDelete_Automation_Market_Monthly_Trend_Individual_Network_All_Markets':
+        'Market_Monthly_Trend_Individual_Network_All_Markets_'
+}
+
+for b, fp in bookmarks_filename_prefix.items():
+    print("\nProcessing bookmark:", b)
+    bookmark_menu = browser.find_element_by_xpath('//a[contains(text(),\"{0}\")]'.format(b))
+    bookmark_url = bookmark_menu.get_attribute('href')
+    print("\nExtracted bookmark URL:", bookmark_url)
     browser.get(bookmark_url)
 
-    browser.find_element_by_xpath('//*[@id="simple_month_range_from_select"]/option[contains(text(), "{0}")]'.format(from_date)).click()
-    browser.find_element_by_xpath('//*[@id="simple_month_range_to_select"]/option[contains(text(), "{0}")]'.format(to_date)).click()
-    pdb.set_trace()
+    from_date_option = browser.find_element_by_xpath('//*[@id="simple_month_range_from_select"]/option[contains(@value, "{0}")]'.format(from_datetime))
+    to_date_option = browser.find_element_by_xpath('//*[@id="simple_month_range_to_select"]/option[contains(@value, "{0}")]'.format(to_datetime))
+    from_date_option.click()
+    to_date_option.click()
 
+    # This does not work for below: browser.find_element_by_css_selector('input[name=\"go\"]')
+    go_button = browser.find_element_by_css_selector('.js-load-indicator')
+    go_button.click()
 
-    #
-    # excel_download_ele = browser.find_elements_by_xpath("//*[@title='Download Report to Excel']")[0]
-    # excel_download_url = excel_download_ele.get_attribute('href')
-    # print("Downloading excel file from URL:", excel_download_url)
-    # browser.get(excel_download_url)
-    # # We will infer latest downloaded file name from getctime
-    # # REF: https://stackoverflow.com/q/17958987
-    # downloaded_file_name = max([os.path.join(DOWNLOAD_FOLDER, f) for f in os.listdir(DOWNLOAD_FOLDER)],
-    #                            key=os.path.getctime)
-    # print("\nDownloaded file named:", downloaded_file_name)
+    # We cannot wait explicitly like suggested in the reference below:
+    # REF 1: https://stackoverflow.com/questions/56119289/element-not-interactable-selenium
+    # REF 2: http://web.archive.org/web/20190905194252/https://blog.codeship.com/get-selenium-to-wait-for-page-load/
+    # because we cannot verify if/when the href in Excel button is updated (from the existing one)
+    # REF: https://selenium-python.readthedocs.io/waits.html#explicit-waits (explicit wait)
+    # Thus, wait for about a few seconds before fetching link from Excel button.
+    # Update on Sept 5, 2019: Turns out we don't need to do this wait and the new href is posted almost instantaneously.
+    # browser.implicitly_wait(10)
 
+    excel_download_button = browser.find_element_by_xpath("//*[@title='Download Report to Excel']")
+    excel_download_url = excel_download_button.get_attribute('href')
+    print("\nDownloading excel file from URL:", excel_download_url)
 
-# A
-# https://national-tv.rentrak.com/reports/monthly_network_trend_analysis.html?simple_month_range=20150101+00%3A00%3A00&simple_month_range=20151201+00%3A00%3A00&network_no=3_4_6_438_441_8779_5095_6459_341_342_6116_625_328_32_7540_330_629_553_372_345_367_375_379_674_482_11257_11539_8913_371_9850_397_319_8040_24_5063_366_5985_5203_9894_8842_12278_7635_1_7645_331_326_332_395_401_2073_8006_40_8082_8808_676_396_8036_413_5069_558_675_475_489_634_635_7726_-38354_637_550_478_278_415_8072_8092_31_354_623_355_28_671_627_36_2077_381_8096_1310_565_2210_8151_673_406_29_559_462_455_19_667_666_5968_297_12_572_551_562_580_556_552_387_622_495_480_12274_431_5729_12276_471_289_321_1260_11691_27_630_6261_385_472_5289_6018_2086_7667_7740_8090_2072_2076_140_33_639_640_641_642_650_568_567_5396_8068_8070_324_409_296_311_286_386_7242&tv_market_no=&go=Loading...&apply_ranker__hidden=false&dvr_bucket=within_72_hours&is_service_network_ready=1&dsr_sort_TrendViewsByNetworkMonth=network_long_name_and_name+broadcast_month&dsr_hideshow_hh_rating=hh_rating&dsr_hideshow_live=live
+    # We will get the name of latest downloaded file name before we start downloading the excel file
+    existing_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
+    browser.get(excel_download_url)
 
-MONTHLY_MARKET_TREND_URL = '/reports/market_month_trend.html'
+    # Let's busy wait until the file is downloaded (no way to detect successful page load via Selenium
+    time_waited_so_far_in_sec = 0
+    while existing_latest_file == get_latest_file_in_folder(DOWNLOAD_FOLDER):
+        time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
+        time_waited_so_far_in_sec += WAIT_TIME_INCREMENT_IN_SEC
+        if time_waited_so_far_in_sec > WAIT_TIME_LIMIT: # if download is taking longer than 5 minutes, break and print error message
+            print("WARNING: It seems to be taking longer than", WAIT_TIME_LIMIT, ". We are skipping download for bookmark:", b)
+            break
 
-print('Done')
-
-
-
+    if existing_latest_file != get_latest_file_in_folder(DOWNLOAD_FOLDER):
+        # Rename and move the downloaded file to 'output' folder which is located in the same parent folder as this script
+        # downloaded_filename, downloaded_file_extension = os.path.splitext(downloaded_file_path_and_name)
+        new_file_name = ''.join([fp, '_', from_date, '_', to_date, '.xlsx'])
+        new_file_path_and_name = os.path.join(output_folder, new_file_name)
+        print("\nRenaming and moving downloaded file:", get_latest_file_in_folder(DOWNLOAD_FOLDER),
+              "\tto:", new_file_path_and_name)
+        try:
+            os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
+        except FileExistsError:
+            os.remove(new_file_path_and_name)
+            os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
 
 
