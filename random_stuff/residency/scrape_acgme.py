@@ -47,7 +47,7 @@ with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as csv_file:
         session.headers.update(updated_session_header)
 
         i = 0
-        for prg in programs:
+        for prg in programs[125:]:
             specialty = prg.select('td:nth-child(3)')[0].text
             prog_name = prg.select('td:nth-child(4)')[0].text
             city = prg.select('td:nth-child(6)')[0].text
@@ -59,10 +59,23 @@ with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as csv_file:
             dpc = BeautifulSoup(dpg.content, 'html.parser')
 
             total_approved_ele = dpc.find_all('dt', text=re.compile(r'Total Approved Resident'))
-            total_approved = int(total_approved_ele[0].nextSibling.nextSibling.text.strip()) if total_approved_ele else -1
+            if total_approved_ele:
+                try:
+                    total_approved = int(total_approved_ele[0].nextSibling.nextSibling.text.strip())
+                except ValueError:
+                    # Sometimes, programs don't have this info and instead we see 'No Information Currently Present'
+                    total_approved = -1
+            else:
+                total_approved = -1
 
             total_filled_ele = dpc.find_all('dt', text=re.compile(r'Total Filled Resident'))
-            total_filled = int(total_filled_ele[0].nextSibling.nextSibling.text.strip()) if total_filled_ele else 0
+            if total_filled_ele:
+                try:
+                    total_filled = int(total_filled_ele[0].nextSibling.nextSibling.text.strip())
+                except ValueError:
+                    total_filled = 0
+            else:
+                total_filled = 0
 
             total_filled_percentage = percentage(total_filled, total_approved)
 
@@ -84,6 +97,7 @@ with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as csv_file:
 
             director_first_appointed_ele = dpc.find_all('dt', text=re.compile(r'Director First Appointed'))
             director_first_appointed = director_first_appointed_ele[0].nextSibling.nextSibling.text.strip() if director_first_appointed_ele else 'N/A'
+
             cur_row = [specialty, prog_name, city, total_approved, total_filled, total_filled_percentage,
                        accreditation_start, accreditation_last, director_first_appointed, hospital_url]
             print(str(i), ":", cur_row, "\n")
