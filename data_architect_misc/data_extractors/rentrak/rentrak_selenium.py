@@ -72,9 +72,9 @@ browser.find_element_by_css_selector('input[type=\"submit\"]').click()
 # # Following bookmarks and filename prefixes are used to download Network Monthly Trends
 # bookmarks_filename_prefix = {
 #     'DoNotDelete_Automation_Network_Monthly_Trend_A-L_Networks_All_Markets':
-#         'Network_Monthly_Trend_A_L_Networks_All_Markets_',
+#         'Network_Monthly_Trend_A_L_Networks_All_Markets',
 #     'DoNotDelete_Automation_Network_Monthly_Trend_M-Z_Networks_All_Markets':
-#         'Network_Monthly_Trend_M_Z_Networks_All_Markets_'
+#         'Network_Monthly_Trend_M_Z_Networks_All_Markets'
 # }
 #
 # for b, fp in bookmarks_filename_prefix.items():
