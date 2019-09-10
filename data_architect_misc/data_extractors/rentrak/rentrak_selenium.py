@@ -17,6 +17,7 @@ import pdb
 
 import os
 from datetime import datetime
+import re
 import time
 
 from selenium import webdriver
@@ -32,6 +33,22 @@ def get_latest_file_in_folder(folder):
     # REF: https://stackoverflow.com/q/17958987
     non_temp_files = list(filter(lambda x: not x.endswith('.tmp'), os.listdir(folder)))
     return max([os.path.join(folder, f) for f in non_temp_files], key=os.path.getctime)
+
+
+def correct_ampersand_character(str_with_ampersand):
+    # Replace '&amp;' in HTML decode string to '&' (correction)
+    return re.sub(r'&amp;', '&', str_with_ampersand)
+
+
+def sanitize_name(name):
+    # Replace characters "/ \ ? < > " * | :" that are not valid for file names in Windows (and '/' for Mac and Unix)
+    # Finally replaces double space characters to single space character for aesthetic reason
+    # Example networks that need this:
+    # ['A&amp;E', 'Azteca (Broadcast)', 'Azteca (Cable)', 'BET: Black Entertainment Television',
+    # 'Cartoon Network/Adult Swim', 'De Película', 'E! - Entertainment Television', "God's Learning Channel",
+    # 'Hallmark Movies &amp; Mysteries', 'History Channel en Español', 'Nickelodeon/Nick-at-Nite',
+    # 'TV Land/TV Land Classic', 'Utilisima - TV / Canal', 'V-me TV (Cable)']
+    return re.sub(r'\s+', ' ', re.sub(r'[\\\/\?<>\"\*|:]', ' ', correct_ampersand_character(name)))
 
 
 WAIT_TIME_INCREMENT_IN_SEC = 5
@@ -109,7 +126,7 @@ browser.find_element_by_css_selector('input[type=\"submit\"]').click()
 #     excel_download_url = excel_download_button.get_attribute('href')
 #     print("\nDownloading excel file from URL:", excel_download_url)
 #
-#     # We will get the name of latest downloaded file name before we start downloading the excel file
+#     # We will get the name of the existing latest downloaded file name before we start downloading the new data file
 #     existing_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
 #     browser.get(excel_download_url)
 #
@@ -163,26 +180,84 @@ for b, fp in bookmarks_filename_prefix.items():
     from_date_option.click()
     to_date_option.click()
 
-    # https://stackoverflow.com/a/46220662/1330974
-    browser.find_element_by_css_selector('#custom-network-no-style > span:nth-child(1)').click()
-    network_name_nodes = browser.find_elements_by_xpath('//ul[@id="network_no_list"]/li/ul/li[1]/ul//child::li')[0]
-    network_name = network_name_nodes.find_element_by_xpath('span').get_attribute('innerHTML')
-    search_box = browser.find_elements_by_xpath('//div[@class="tree-search"]/input[@name="search"]')[1]
-    search_button = browser.find_elements_by_xpath('//div[@class="tree-search"]/input[@name="search_submit"]')[1]
-    network_name = 'AMC'
-    search_box.clear()
-    search_box.send_keys(network_name)
-    search_button.click()
-    network_menu_option = browser.find_elements_by_xpath('//span[contains(text(), "{0}")]'.format(network_name))[0]
-    network_menu_option.click()
+    network_names = []
+    for network_name_node in browser.find_elements_by_xpath('//ul[@id="network_no_list"]/li/ul/li[1]/ul//child::li'):
+        network_name = network_name_node.find_element_by_xpath('span').get_attribute('innerHTML')
+        network_names.append(network_name)
 
-    # browser.find_elements_by_xpath('//div[@class="tree-search"]/input')[0].is_displayed()
+    print(network_names)
+    sys.exit()
+    
+    for network_name in network_names:
+        network_name = correct_ampersand_character(network_name)
+        print("\nGetting data for network:", network_name)
+        # Click on 'Network' drop down menu.
+        # https://stackoverflow.com/a/46220662/1330974
+        browser.find_element_by_css_selector('#custom-network-no-style > span:nth-child(1)').click()
 
-    # while (not browser.find_elements_by_xpath('//div[@class="tree-search"]/input')[0].is_displayed()):
-    #     time.sleep(5)
-    #     print("busy waiting")
+        # Enter network name in the search box.
+        # Note: Turns out there are two input tags and I was stuck for an hour trying to click on the first one,
+        # only to realize later when checking 'is_displayed' that the first one is not visible/interactable.
+        # browser.find_elements_by_xpath('//div[@class="tree-search"]/input')[0].is_displayed()
+        # while (not browser.find_elements_by_xpath('//div[@class="tree-search"]/input')[0].is_displayed()):
+        #     time.sleep(5)
+        #     print("busy waiting")
+        search_box = browser.find_elements_by_xpath('//div[@class="tree-search"]/input[@name="search"]')[1]
+        search_button = browser.find_elements_by_xpath('//div[@class="tree-search"]/input[@name="search_submit"]')[1]
+        search_box.clear()
+        search_box.send_keys(network_name)
+        search_button.click()
 
-#/html/body/div[3]/div[1]/input[1]
+        # Choose the network name from the returned search results above.
+        network_menu_option = browser.find_elements_by_xpath('//span[contains(text(), "{0}")]'.format(network_name))[0]
+        network_menu_option.click()
+
+        # Set the configurations by clicking 'Go' button, which triggers to call a new page with relevnant data.
+        go_button = browser.find_element_by_css_selector('.js-load-indicator')
+        go_button.click()
+
+        # Click on 'Excel' button to download Excel data file.
+        excel_download_button = browser.find_element_by_xpath("//*[@title='Download Report to Excel']")
+        excel_download_url = excel_download_button.get_attribute('href')
+        print("\nDownloading excel file from URL:", excel_download_url)
+
+        # We will get the name of the existing latest downloaded file name before we start downloading the new data file
+        existing_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
+        browser.get(excel_download_url)
+
+        # IMPORTANT ASSUMPTION: here, we don't expect any parallel process to be creating new files within Download folder
+        # while we are running this Rentrak scraping.
+        # Let's busy wait until the file is downloaded (no way to detect successful page load via Selenium
+        time_waited_so_far_in_sec = 0
+        while existing_latest_file == get_latest_file_in_folder(DOWNLOAD_FOLDER):
+            time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
+            time_waited_so_far_in_sec += WAIT_TIME_INCREMENT_IN_SEC
+            if time_waited_so_far_in_sec > WAIT_TIME_LIMIT: # if download is taking longer than 5 minutes, break and print error message
+                print("WARNING: It seems to be taking longer than", WAIT_TIME_LIMIT, ". We are skipping download for bookmark:", b)
+                break
+
+        if existing_latest_file != get_latest_file_in_folder(DOWNLOAD_FOLDER):
+            # We need to sanitize some network names like 'BET: Black Entertainment Television' and
+            # 'Cartoon Network/Adult Swim' because '/' and ':' characters aren't allowed as file names
+            # in Windows system
+            sanitized_network_name = sanitize_name(network_name)
+
+            # Rename and move the downloaded file to 'output' folder which is located in the same parent folder as this script
+            # downloaded_filename, downloaded_file_extension = os.path.splitext(downloaded_file_path_and_name)
+            new_file_name = ''.join([fp, '_', from_date, '_', to_date, '__', sanitized_network_name, '.xlsx'])
+            new_file_path_and_name = os.path.join(output_folder, new_file_name)
+            print("\nRenaming and moving downloaded file:", get_latest_file_in_folder(DOWNLOAD_FOLDER),
+                  "\tto:", new_file_path_and_name)
+            try:
+                os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
+            except FileExistsError:
+                os.remove(new_file_path_and_name)
+                os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
+
+# MONTHLY_MARKET_TREND_URL = '/reports/market_month_trend.html'
+print("\nMarket Monthly Trend YTD data download finished.")
+
+
 
 
 
@@ -204,8 +279,8 @@ for b, fp in bookmarks_filename_prefix.items():
     #                                             '//*[@id="network_no_list"]/li/ul/li/ul/li/span[1]')))
     # element.location_once_scrolled_into_view
     # element.click()
-    pdb.set_trace()
-    print("Done")
+    # pdb.set_trace()
+    # print("Done")
 
 #/html/body/div[3]/ul/li/ul/li[1]/ul/li[2]
 # li.open:nth-child(1) > ul:nth-child(3) > li:nth-child(1) > span:nth-child(1)
