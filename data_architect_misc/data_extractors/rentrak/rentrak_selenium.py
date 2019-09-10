@@ -12,6 +12,9 @@ For anyone interested, read the following resources to learn more about Selenium
 # http://web.archive.org/web/20190830175437/https://www.scrapehero.com/tutorial-web-scraping-hotel-prices-using-selenium-and-python/
 """
 
+import pdb
+
+
 import os
 from datetime import datetime
 import time
@@ -140,7 +143,7 @@ cur_datetime = datetime.now()
 from_date = '20160101'#''.join([cur_datetime.strftime('%Y'),'0101'])
 to_date = '201612'#''.join([cur_datetime.strftime('%Y%m'),'01'])
 from_datetime = ''.join([from_date,' 00:00:00'])
-to_datetime = ''.join([to_date,' 00:00:00'])
+to_datetime = ''.join([to_date,'01 00:00:00'])
 
 # Following bookmarks and filename prefixes are used to download Market Monthly Trends
 bookmarks_filename_prefix = {
@@ -160,47 +163,94 @@ for b, fp in bookmarks_filename_prefix.items():
     from_date_option.click()
     to_date_option.click()
 
-    # This does not work for below: browser.find_element_by_css_selector('input[name=\"go\"]')
-    go_button = browser.find_element_by_css_selector('.js-load-indicator')
-    go_button.click()
+    # https://stackoverflow.com/a/46220662/1330974
+    browser.find_element_by_css_selector('#custom-network-no-style > span:nth-child(1)').click()
+    network_name_nodes = browser.find_elements_by_xpath('//ul[@id="network_no_list"]/li/ul/li[1]/ul//child::li')[0]
+    network_name = network_name_nodes.find_element_by_xpath('span').get_attribute('innerHTML')
+    search_box = browser.find_elements_by_xpath('//div[@class="tree-search"]/input[@name="search"]')[1]
+    search_button = browser.find_elements_by_xpath('//div[@class="tree-search"]/input[@name="search_submit"]')[1]
+    network_name = 'AMC'
+    search_box.clear()
+    search_box.send_keys(network_name)
+    search_button.click()
+    network_menu_option = browser.find_elements_by_xpath('//span[contains(text(), "{0}")]'.format(network_name))[0]
+    network_menu_option.click()
 
-    # We cannot wait explicitly like suggested in the reference below:
-    # REF 1: https://stackoverflow.com/questions/56119289/element-not-interactable-selenium
-    # REF 2: http://web.archive.org/web/20190905194252/https://blog.codeship.com/get-selenium-to-wait-for-page-load/
-    # because we cannot verify if/when the href in Excel button is updated (from the existing one)
-    # REF: https://selenium-python.readthedocs.io/waits.html#explicit-waits (explicit wait)
-    # Thus, wait for about a few seconds before fetching link from Excel button.
-    # Update on Sept 5, 2019: Turns out we don't need to do this wait and the new href is posted almost instantaneously.
-    # browser.implicitly_wait(10)
+    # browser.find_elements_by_xpath('//div[@class="tree-search"]/input')[0].is_displayed()
 
-    excel_download_button = browser.find_element_by_xpath("//*[@title='Download Report to Excel']")
-    excel_download_url = excel_download_button.get_attribute('href')
-    print("\nDownloading excel file from URL:", excel_download_url)
+    # while (not browser.find_elements_by_xpath('//div[@class="tree-search"]/input')[0].is_displayed()):
+    #     time.sleep(5)
+    #     print("busy waiting")
 
-    # We will get the name of latest downloaded file name before we start downloading the excel file
-    existing_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
-    browser.get(excel_download_url)
+#/html/body/div[3]/div[1]/input[1]
 
-    # Let's busy wait until the file is downloaded (no way to detect successful page load via Selenium
-    time_waited_so_far_in_sec = 0
-    while existing_latest_file == get_latest_file_in_folder(DOWNLOAD_FOLDER):
-        time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
-        time_waited_so_far_in_sec += WAIT_TIME_INCREMENT_IN_SEC
-        if time_waited_so_far_in_sec > WAIT_TIME_LIMIT: # if download is taking longer than 5 minutes, break and print error message
-            print("WARNING: It seems to be taking longer than", WAIT_TIME_LIMIT, ". We are skipping download for bookmark:", b)
-            break
 
-    if existing_latest_file != get_latest_file_in_folder(DOWNLOAD_FOLDER):
-        # Rename and move the downloaded file to 'output' folder which is located in the same parent folder as this script
-        # downloaded_filename, downloaded_file_extension = os.path.splitext(downloaded_file_path_and_name)
-        new_file_name = ''.join([fp, '_', from_date, '_', to_date, '.xlsx'])
-        new_file_path_and_name = os.path.join(output_folder, new_file_name)
-        print("\nRenaming and moving downloaded file:", get_latest_file_in_folder(DOWNLOAD_FOLDER),
-              "\tto:", new_file_path_and_name)
-        try:
-            os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
-        except FileExistsError:
-            os.remove(new_file_path_and_name)
-            os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
+
+    # TODO: if I can't figure out how to click on the 'Search' box or click on the dropdown menus, just pre-cook the URLs and iterate through them.
+
+    # browser.find_elements_by_xpath('//ul[@id="network_no_list"]/li/ul/li[1]/ul//following-sibling::li')[0].get_attribute('innerHTML')
+    # browser.find_elements_by_xpath('//ul[@id="network_no_list"]/li/ul/li[1]/ul/*')[0].get_attribute('innerHTML')
+
+    # browser.find_element_by_xpath('//*[@id="network_no_list"]/li/ul/li/ul/li').click()
+
+    # import pdb
+
+    # elements = WebDriverWait(browser, 10).until(EC.visibility_of_all_elements_located((By.XPATH, '//*[@id="network_no_list"]/li/ul/li/ul')))
+    # for ele in elements:
+    #     ele.location_once_scrolled_into_view
+    #     ele.click()
+
+    # element = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH,
+    #                                             '//*[@id="network_no_list"]/li/ul/li/ul/li/span[1]')))
+    # element.location_once_scrolled_into_view
+    # element.click()
+    pdb.set_trace()
+    print("Done")
+
+#/html/body/div[3]/ul/li/ul/li[1]/ul/li[2]
+# li.open:nth-child(1) > ul:nth-child(3) > li:nth-child(1) > span:nth-child(1)
+
+    # # This does not work for below: browser.find_element_by_css_selector('input[name=\"go\"]')
+    # go_button = browser.find_element_by_css_selector('.js-load-indicator')
+    # go_button.click()
+    #
+    # # We cannot wait explicitly like suggested in the reference below:
+    # # REF 1: https://stackoverflow.com/questions/56119289/element-not-interactable-selenium
+    # # REF 2: http://web.archive.org/web/20190905194252/https://blog.codeship.com/get-selenium-to-wait-for-page-load/
+    # # because we cannot verify if/when the href in Excel button is updated (from the existing one)
+    # # REF: https://selenium-python.readthedocs.io/waits.html#explicit-waits (explicit wait)
+    # # Thus, wait for about a few seconds before fetching link from Excel button.
+    # # Update on Sept 5, 2019: Turns out we don't need to do this wait and the new href is posted almost instantaneously.
+    # # browser.implicitly_wait(10)
+    #
+    # excel_download_button = browser.find_element_by_xpath("//*[@title='Download Report to Excel']")
+    # excel_download_url = excel_download_button.get_attribute('href')
+    # print("\nDownloading excel file from URL:", excel_download_url)
+    #
+    # # We will get the name of latest downloaded file name before we start downloading the excel file
+    # existing_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
+    # browser.get(excel_download_url)
+    #
+    # # Let's busy wait until the file is downloaded (no way to detect successful page load via Selenium
+    # time_waited_so_far_in_sec = 0
+    # while existing_latest_file == get_latest_file_in_folder(DOWNLOAD_FOLDER):
+    #     time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
+    #     time_waited_so_far_in_sec += WAIT_TIME_INCREMENT_IN_SEC
+    #     if time_waited_so_far_in_sec > WAIT_TIME_LIMIT: # if download is taking longer than 5 minutes, break and print error message
+    #         print("WARNING: It seems to be taking longer than", WAIT_TIME_LIMIT, ". We are skipping download for bookmark:", b)
+    #         break
+    #
+    # if existing_latest_file != get_latest_file_in_folder(DOWNLOAD_FOLDER):
+    #     # Rename and move the downloaded file to 'output' folder which is located in the same parent folder as this script
+    #     # downloaded_filename, downloaded_file_extension = os.path.splitext(downloaded_file_path_and_name)
+    #     new_file_name = ''.join([fp, '_', from_date, '_', to_date, '.xlsx'])
+    #     new_file_path_and_name = os.path.join(output_folder, new_file_name)
+    #     print("\nRenaming and moving downloaded file:", get_latest_file_in_folder(DOWNLOAD_FOLDER),
+    #           "\tto:", new_file_path_and_name)
+    #     try:
+    #         os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
+    #     except FileExistsError:
+    #         os.remove(new_file_path_and_name)
+    #         os.rename(get_latest_file_in_folder(DOWNLOAD_FOLDER), new_file_path_and_name)
 
 
