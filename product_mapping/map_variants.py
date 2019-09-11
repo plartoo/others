@@ -1,3 +1,5 @@
+import argparse
+
 from mapping_utils import *
 from queries import mapped_nonsos_variants_q, mapped_sos_variants_q
 
@@ -54,9 +56,9 @@ if __name__ == '__main__':
         os.makedirs(output_dir)
 
 
-    raw_col_names = RAW_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS
+    raw_col_names = RAW_COLUMN_NAMES_FOR_APAC if apac_country else RAW_COLUMN_NAMES
     # all other shares the same keys and vals
-    final_col_names = FINAL_COLUMN_NAMES_FOR_APAC if apac_country else COLUMN_NAMES_FOR_ALL_OTHERS
+    final_col_names = FINAL_COLUMN_NAMES_FOR_APAC if apac_country else RAW_COLUMN_NAMES
     mapped_df = pd.DataFrame(columns=final_col_names, index=None)
 
     queries = [(mapped_sos_variants_q, 1), (mapped_nonsos_variants_q, 0)]

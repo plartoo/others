@@ -1,4 +1,3 @@
-import argparse
 import os
 import re
 import time
@@ -17,7 +16,10 @@ INPUT_DIR = 'input'
 OUTPUT_DIR = 'output'
 EXCLUDED_WORDS = {'N/A', 'na', 'N', 'A', 'n', 'a'}
 # TODO: extend this list; then remove this when we have migrated all APAC countries into main database
-APAC_COUNTRIES = ['INDIA', 'SINGAPORE', 'THAILAND', 'INDONESIA']
+APAC_COUNTRIES = ['INDIA', 'SINGAPORE', 'THAILAND',
+                  'INDONESIA', 'VIETNAM', 'PHILIPPINES',
+                  'MALAYSIA', 'TAIWAN', 'HONG KONG',
+                  'CHINA']
 
 LABEL_ID_COLUMN = 'LABEL_ID'
 RAW_COLUMN_NAMES_FOR_APAC = [
@@ -49,11 +51,12 @@ RAW_COLUMN_NAMES_FOR_APAC = [
 FINAL_COLUMN_NAMES_FOR_APAC = [
 'Included'  # if SOS_PRODUCT = 0, then 1; if SOS_PRODUCT = 1, then 2
 ,'CategoryType'  # leave blank
-,'Local_Section'
-,'Local_Category'
-,'Local_Advertiser'
-,'Local_Brand'
-,'Local_Product'
+,'Local_Section' # => GM_SECTOR_NAME
+,'Local_Category' # => GM_CATEGORY_NAME; for PHILLIPINES, GM_SUBSECTOR_NAME
+,'Local_Subcategory' # => '' for everything, but if for PHILIPPINES, then GM_CATEGORY_NAME
+,'Local_Advertiser' # => GM_ADVERTISER_NAME
+,'Local_Brand'# => GM_BRAND_NAME
+,'Local_Product' # => GM_PRODUCT_NAME
 ,'Comments'  # leave blank
 ,'Global_Category ID'  # leave blank
 ,'Global_Category Name'  # leave blank
@@ -72,7 +75,7 @@ FINAL_COLUMN_NAMES_FOR_APAC = [
 ,'GM_COUNTRY_NAME'
 ]
 
-COLUMN_NAMES_FOR_ALL_OTHERS = [
+RAW_COLUMN_NAMES = [
     'MAPPING_PROCESS_TYPE' # 'New_Product_Mapping'
     ,'GM_GLOBAL_PRODUCT_ID'
     ,'GM_COUNTRY_ID'
@@ -99,7 +102,7 @@ COLUMN_NAMES_FOR_ALL_OTHERS = [
 
 
 def run_sql(sql):
-    conn = pyodbc.connect(account_info.DM_1219)
+    conn = pyodbc.connect(account_info.WM_RF_DB_Colgate)
     return pd.read_sql(sql, conn)
 
 
@@ -168,22 +171,41 @@ def write_to_file(output_df, output_file, tsv=None):
     else:
         out_file_name = ''.join([output_file, str(int(time.time())), '.xlsx'])
         output_file = os.path.join(output_dir, out_file_name)
-        writer = pd.ExcelWriter(output_file)
-        output_df.to_excel(writer, index=False)
-        writer.save()
+        # writer = pd.ExcelWriter(output_file)
+        output_df.to_excel(output_file, index=False)
+        # writer.save()
     print('Finished guessing the mappings. Results written to', output_file)
 
 
-def prepare_row_content(pd_row, raw_col_names, final_col_names,
-                        predicted_target_name, predicted_target_id,
-                        target_name_col, target_id_col,
+def prepare_row_content(pd_row, # row
+                        raw_col_names, # column names from raw table
+                        final_col_names,
+                        predicted_target_name,
+                        predicted_target_id,
+                        target_name_col,
+                        target_id_col,
                         apac_flag):
+    # raw_col_names => 'MAPPING_PROCESS_TYPE' ,'GM_GLOBAL_PRODUCT_ID', 'GM_COUNTRY_ID',
+    #                   'GM_COUNTRY_NAME', 'GM_ADVERTISER_NAME', 'GM_SECTOR_NAME',
+    #                   'GM_SUBSECTOR_NAME', 'GM_CATEGORY_NAME'
+    # final_col_names => 'Included', 'CategoryType', 'Local_Section', 'Local_Category',
+    #                       'Local_Advertiser', 'Local_Brand', 'Local_Product'
+    # TARGET_NAME_COLUMN => 'Global_Subcategory Name' OR 'CP_SUBCATEGORY_NAME'
+    # TARGET_ID_COLUMN => 'Global_Subcategory ID' OR 'CP_SUBCATEGORY_ID'
+
+    # sorted(row_headers)
+    # sorted(vals_with_final_col_names.items())
+    # len(row_headers)
+    # len(raw_col_names)
+
     # TODO: this method can be removed when we finished merging APAC to main ETL flow
     row_headers = pd_row.to_dict().keys()
     vals_of_interest = [pd_row[c] if c in row_headers else '' for c in raw_col_names]
     vals_with_final_col_names = dict(zip(final_col_names, vals_of_interest))
     vals_with_final_col_names[target_name_col] = predicted_target_name
     vals_with_final_col_names[target_id_col] = predicted_target_id
+    # import pdb
+    # pdb.set_trace()
 
     if apac_flag:
         vals_with_final_col_names['Included'] = '2' if pd_row.SOS_PRODUCT else '1'
@@ -193,7 +215,6 @@ def prepare_row_content(pd_row, raw_col_names, final_col_names,
         # this is for non-APAC countries
         vals_with_final_col_names['MAPPING_PROCESS_TYPE'] = 'New_Product_Mapping'
         vals_with_final_col_names['LAST_MAPPED_BY'] = 'mapped by Multinomial Naive Bayes algorithm'
-
     return vals_with_final_col_names
 
 
