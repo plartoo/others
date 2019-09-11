@@ -1,10 +1,11 @@
-import pdb
-
 """
 Author: Phyo Thiha
-Last Modified Date: August 30, 2019
-Description: This is a Selenium script used to download data from RenTrak's website. 
-For anyone interested, read the following resources to learn more about Selenium:
+Last Modified Date: September 11, 2019
+Description: This is script is used to download data from RenTrak's website.
+It uses Selenium to interact with the website and download data form 'Excel'
+download button for each relevant data set.
+
+Note: For anyone interested, read the following resources to learn more about Selenium:
 # Selenium Docs: http://selenium-python.readthedocs.io/
 # http://web.archive.org/web/20190830175223/http://thiagomarzagao.com/2013/11/12/webscraping-with-selenium-part-1/
 # http://web.archive.org/web/20190830175349/http://thiagomarzagao.com/2013/11/14/webscraping-with-selenium-part-2/
@@ -21,9 +22,6 @@ import re
 import time
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 import account_info
 
@@ -33,8 +31,9 @@ def replace_nth_str(orig_str, to_replace_str, with_new_str, n):
     # (with_new_str) in the original string (orig_str)
     # Slightly modified version of: https://stackoverflow.com/a/35091558/1330974
     where = [m.start() for m in re.finditer(to_replace_str, orig_str)]
-    if not where:
-        # if no match found, just return the original string
+    if (not where) or (n > len(where)):
+        # if no match found or if we are going to get
+        # 'index out of range error', just return the original string
         return orig_str
 
     where = where[n-1]
@@ -48,6 +47,8 @@ def get_latest_file_in_folder(folder):
     # We will infer latest downloaded (non-temporary) file name from getctime.
     # REF: https://stackoverflow.com/q/17958987
     non_temp_files = list(filter(lambda x: not x.endswith('.tmp'), os.listdir(folder)))
+    # '.xlsx.crdownload' seems to be the temp download files in Windows 10 when using Chrome driver
+    non_download_in_progress_files = list(filter(lambda x: not x.endswith('.xlsx.crdownload'), os.listdir(folder)))
     return max([os.path.join(folder, f) for f in non_temp_files], key=os.path.getctime)
 
 
@@ -276,8 +277,8 @@ browser.find_element_by_css_selector('input[type=\"submit\"]').click()
 
 
 cur_datetime = datetime.now()
-from_date = '20160101'#''.join([cur_datetime.strftime('%Y'),'0101'])
-to_date = '20161201'#''.join([cur_datetime.strftime('%Y%m'),'01'])
+from_date = '20190101'#''.join([cur_datetime.strftime('%Y'),'0101'])
+to_date = '20190901'#''.join([cur_datetime.strftime('%Y%m'),'01'])
 from_datetime = ''.join([from_date,' 00:00:00'])
 to_datetime = ''.join([to_date,' 00:00:00'])
 
@@ -345,10 +346,10 @@ for b, fp in bookmarks_filename_prefix.items():
 
         cur_url = re.sub(r';?bookmark_no=\d+','',browser.current_url) # remove 'bookmark_no=...' portion
         cur_url = re.sub(r'network_no=[\d;]+',''.join(['network_no=', network_id, ';']), cur_url) # insert network id in the URL
-        cur_url = replace_nth_str(cur_url, 'simple_month_range=20190101', 'simple_month_range=20160101', 1)
-        cur_url = replace_nth_str(cur_url, 'simple_month_range=20190101', 'simple_month_range=20161201', 1)
-        print("Fetching url:", cur_url)
+        cur_url = replace_nth_str(cur_url, 'simple_month_range=20190101', 'simple_month_range=20190101', 1)
+        cur_url = replace_nth_str(cur_url, 'simple_month_range=20190101', 'simple_month_range=20190901', 2)
 
+        print("Fetching url:", cur_url)
         browser.get(cur_url)
 
         # Click on 'Excel' button to download Excel data file.
