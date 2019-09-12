@@ -12,10 +12,6 @@ Note: For anyone interested, read the following resources to learn more about Se
 # http://web.archive.org/web/20190830175411/http://thiagomarzagao.com/2013/11/15/webscraping-with-selenium-part-3/
 # http://web.archive.org/web/20190830175437/https://www.scrapehero.com/tutorial-web-scraping-hotel-prices-using-selenium-and-python/
 """
-
-import pdb
-
-
 import os
 from datetime import datetime
 import re
@@ -64,7 +60,7 @@ def wait_until_file_download_is_finished(cur_latest_file, download_folder, wait_
 
 
 def move_file_to_destination_folder(source_folder, dest_folder, new_file_name):
-    # Rename and move the latest downloaded file to 'output' folder
+    # Rename and move the latest downloaded file to 'selenium_output' folder
     # which is located in the same parent folder as this script
     new_file_path_and_name = os.path.join(dest_folder, new_file_name)
     print("\nRenaming and moving downloaded file:", get_latest_file_in_folder(source_folder),
@@ -125,9 +121,10 @@ def sanitize_name(name):
     # 'TV Land/TV Land Classic', 'Utilisima - TV / Canal', 'V-me TV (Cable)']
     return re.sub(r'\s+', ' ', re.sub(r'[\\\/\?<>\"\*|:]', ' ', correct_ampersand_character(name)))
 
+
 def create_output_folder(folder_that_has_this_code):
     # Create output folder
-    output_folder = os.path.join(folder_that_has_this_code, 'output')
+    output_folder = os.path.join(folder_that_has_this_code, 'selenium_output')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     return output_folder
@@ -161,11 +158,10 @@ def main():
 
     # Following bookmarks and filename prefixes are used to download Network Monthly Trends
     bookmarks_filename_prefix = {
-        # TODO: uncomment below bookmarks
-        # 'DoNotDelete_Automation_Network_Monthly_Trend_A-L_Networks_All_Markets':
-        #     'Network_Monthly_Trend_A_L_Networks_All_Markets',
-        # 'DoNotDelete_Automation_Network_Monthly_Trend_M-Z_Networks_All_Markets':
-        #     'Network_Monthly_Trend_M_Z_Networks_All_Markets',
+        'DoNotDelete_Automation_Network_Monthly_Trend_All_Markets_A-L_Networks':
+            'Network_Monthly_Trend_All_Markets_A_L_Networks',
+        'DoNotDelete_Automation_Network_Monthly_Trend_All_Markets_M-Z_Networks':
+            'Network_Monthly_Trend_All_Markets_M_Z_Networks',
         'DoNotDelete_Automation_Market_Monthly_Trend_Individual_Network_All_Markets':
             'Market_Monthly_Trend_Individual_Network_All_Markets_'
     }
@@ -259,42 +255,6 @@ def main():
     browser.close()
     print("\nFinished scraping data from RenTrak website.")
 
-# cur_datetime = datetime.now()
-# from_date = '20190101'#''.join([cur_datetime.strftime('%Y'),'0101'])
-# to_date = '20190901'#''.join([cur_datetime.strftime('%Y%m'),'01'])
-# from_datetime = ''.join([from_date,' 00:00:00'])
-# to_datetime = ''.join([to_date,' 00:00:00'])
-#
-# # Following bookmarks and filename prefixes are used to download Market Monthly Trends
-# bookmarks_filename_prefix = {
-#     'DoNotDelete_Automation_Market_Monthly_Trend_Individual_Network_All_Markets':
-#         'Market_Monthly_Trend_Individual_Network_All_Markets_'
-# }
-#
-# for b, file_name_prefix in bookmarks_filename_prefix.items():
-#     print("\nProcessing bookmark:", b)
-#     bookmark_menu = browser.find_element_by_xpath('//a[contains(text(),\"{0}\")]'.format(b))
-#     bookmark_url = bookmark_menu.get_attribute('href')
-#     print("\nExtracted bookmark URL:", bookmark_url)
-#     browser.get(bookmark_url)
-#
-#     from_date_option = browser.find_element_by_xpath('//*[@id="simple_month_range_from_select"]/option[contains(@value, "{0}")]'.format(from_datetime))
-#     to_date_option = browser.find_element_by_xpath('//*[@id="simple_month_range_to_select"]/option[contains(@value, "{0}")]'.format(to_datetime))
-#     from_date_option.click()
-#     to_date_option.click()
-#
-#
-#     network_ids = []
-#     # Fetch network ID's from the web page so that we can insert them to generate URLs to fetch
-#     for network_id_node in browser.find_elements_by_xpath('//ul[@id="network_no_list"]/li/ul/li[1]/ul/li/span[@class="v"]'):
-#         network_id = network_id_node.get_attribute('innerHTML').split('~')[1] # split strings like 'network_no~462'
-#         network_ids.append(network_id)
-#
-#     network_names = []
-#     # This time, we get network names from corresponding nodes (siblings)
-#     for network_name_node in browser.find_elements_by_xpath('//ul[@id="network_no_list"]/li/ul/li[1]/ul/li/span[@class="v"]/preceding-sibling::span'):
-#         network_name = network_name_node.get_attribute('innerHTML')
-#         network_names.append(network_name)
 
 if __name__ == '__main__':
     main()
