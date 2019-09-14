@@ -1,6 +1,6 @@
 """
 Author: Phyo Thiha
-Last Modified: September 11, 2019
+Last Modified: September 13, 2019
 Description: This is to calculate DMA weights (indexes) for
 individual networks (Market_Monthly_Trend), for each market based on
 national ratings (Network_Monthly_Trend), both of which we have
@@ -28,73 +28,55 @@ def create_output_folder(output_folder):
         os.makedirs(output_folder)
 
 
+def get_network_name(file_path_and_name):
+    # Extract network names from row#3 of RenTrak Market Monthly Trend Excel files
+    df = pd.read_excel(file_path_and_name, nrows=1, skiprows=2)
+    return df.columns[0].split(',')[0].strip()
+
+
 def main():
     create_output_folder(OUTPUT_FOLDER)
 
-    # Step 1: Build national consolidated dataframe (clean ‘-‘, take out parens and put them as separate column)
-    # Select files which starts with 'Network_Monthly_Trend*' in the input folder
-    national_rating_files = [os.path.join(INPUT_FOLDER,f) for f in os.listdir(INPUT_FOLDER)
-                             if (os.path.isfile(os.path.join(INPUT_FOLDER, f)) and 'Network_Monthly_Trend' in f)]
-    # By sorting, we make it a bit easier for pandas concatenation
-    # because now all columns will exist in the final data frame
-    # before we start concatenating vertically across networks (say, from M-Z)
-    national_rating_files.sort()
+    # # Step 1: Build national consolidated dataframe (clean ‘-‘, take out parens and put them as separate column)
+    # # Select files which starts with 'Network_Monthly_Trend*' in the input folder
+    # national_rating_files = [os.path.join(INPUT_FOLDER,f) for f in os.listdir(INPUT_FOLDER)
+    #                          if (os.path.isfile(os.path.join(INPUT_FOLDER, f)) and 'Network_Monthly_Trend' in f)]
+    #
+    # dfs = []
+    # for fi in national_rating_files:
+    #     df = pd.read_excel(fi, na_values="-", index_col=0, skiprows=5, skipfooter=6)
+    #     df.columns = [df.columns[0]] + [datetime.strptime(c.replace("\n",' '), '%b \'%y').strftime('%Y-%m') for c in df.columns[1:]]
+    #     dfs.append(df)
+    #
+    # # Consolidate/merge all national ratings in one data frame
+    # national_ratings_df = pd.concat(dfs, axis=1, sort=False)
+    # national_ratings_df = national_ratings_df.groupby(national_ratings_df.columns, axis=1).first()#.fillna('')
+    #
+    # # Update network short names as indexes, and add original (full) network names as a new column.
+    # # Short names are like 'ABCFAM' for 'ABC Family' because these codes are what we care in analysis and indexing
+    # network_full_names = list(national_ratings_df.index)
+    # network_short_names =  [re.findall(r'\((.*?)\)', n)[0] for n in network_full_names]
+    # national_ratings_df.index = network_short_names
+    # national_ratings_df.insert(0, "NetworkFullName", network_full_names, allow_duplicates=True)
+    #
+    # # Re-arrange columns so that NetworkFullName and Genre are the first ones (just because of my OCD)
+    # date_cols = [c for c in national_ratings_df.columns if re.search(r'\d{4}\-\d{2}', c)]
+    # non_date_cols = [c for c in national_ratings_df.columns if not re.search(r'\d{4}\-\d{2}', c)]
+    # national_ratings_df = national_ratings_df[non_date_cols + date_cols]
 
-    final_df = pd.DataFrame()
-    for fi in national_rating_files:
-        df = pd.read_excel(fi, index_col=0, skiprows=5, skipfooter=6)
-        # If there are networks that we have not seen, append them vertically in the final data frame
-        if not(set(df.index).issubset(set(final_df.index))):
-            print("\nintersect:", fi)
-            df.columns = [df.columns[0]] + [datetime.strptime(c.replace("\n",' '), '%b \'%y').strftime('%Y-%m') for c in df.columns[1:]]
-            # final_df = pd.concat([final_df, df[~df.index.isin(final_df.index)]]) # this is working
-            final_df = final_df.append([df])
-            # pdb.set_trace()
-            # final_df.columns = [final_df.columns[0]] + [datetime.strptime(c.replace("\n",' '), '%b \'%y').strftime('%Y-%m') for c in final_df.columns[1:]]
-            print('haa')
-        else:
-            print("\nno intersect:", fi)
-            # pdb.set_trace()
-            print('hee')
-    final_df.to_csv('output.csv')
-        #
-    # df.loc[df.index[0],'Jan\n\'19']
+    # national_ratings_df.to_csv('output.csv')
+    # pdb.set_trace()
+    # print('ha')
+
+    network_rating_files = [os.path.join(INPUT_FOLDER,f) for f in os.listdir(INPUT_FOLDER)
+                             if (os.path.isfile(os.path.join(INPUT_FOLDER, f)) and 'Market_Monthly_Trend' in f)]
+    dfs = []
+    for fi in network_rating_files:
+        network_name = get_network_name(fi)
+        df = pd.read_excel(fi, na_values="-", index_col=0, skiprows=5, skipfooter=6)
+        df.columns = [df.columns[0]] + [datetime.strptime(c.replace("\n",' '), '%b \'%y').strftime('%Y-%m') for c in df.columns[1:]]
+        dfs.append(df)
 
 
 if __name__ == '__main__':
     main()
-
-
-# df1 = pd.DataFrame({'2016-01': ['A0', 'A1', 'A2', 'A3'],
-# '2016-02': ['B0', 'B1', 'B2', 'B3'],
-# '2016-03': ['C0', 'C1', 'C2', 'C3'],
-# '2016-04': ['D0', 'D1', 'D2', 'D3']},
-# index=['N1', 'N2', 'N3', 'N4'])
-#
-# df2 = pd.DataFrame({'2017-01': ['A4', 'A5', 'A6'],
-# '2017-02': ['B4', 'B5', 'B6'],
-# '2017-03': ['C4', 'C5', 'C6'],
-# '2017-04': ['D4', 'D5', 'D6']},
-# index=['N1', 'N3', 'N5'])
-#
-# df3 = pd.DataFrame({'2018-01': ['A7', 'A8', 'A9'],
-# '2018-02': ['B7', 'B8', 'B9'],
-# '2018-03': ['C7', 'C8', 'C9'],
-# '2018-04': ['D7', 'D8', 'D9']},
-# index=['N1', 'N5', 'N6'])
-#
-#
-# df4 = pd.DataFrame({
-# '2016-01': ['A0', 'A1', 'A2', 'A3', '', ''],
-# '2016-02': ['B0', 'B1', 'B2', 'B3', '', ''],
-# '2016-03': ['C0', 'C1', 'C2', 'C3', '', ''],
-# '2016-04': ['D0', 'D1', 'D2', 'D3', '', ''],
-# '2017-01': ['A4', '',  'A5', '', 'A6', ''],
-# '2017-02': ['B4', '', 'B5', '', 'B6', ''],
-# '2017-03': ['C4', '', 'C5', '', 'C6', ''],
-# '2017-04': ['D4', '', 'D5', '', 'D6', ''],
-# '2018-01': ['A7', '', '', '', 'A8', 'A9'],
-# '2018-02': ['B7', '', '', '', 'B8', 'B9'],
-# '2018-03': ['C7', '', '', '', 'C8', 'C9'],
-# '2018-04': ['D7', '', '', '', 'D8', 'D9']},
-# index=['N1', 'N2', 'N3', 'N4', 'N5', 'N6'])
