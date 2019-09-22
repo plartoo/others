@@ -5,26 +5,25 @@ Description: Script to get puzzles from an online interview site.
 """
 import pdb
 
+from datetime import datetime
 import json
 import os
-from datetime import datetime
 import re
 import time
 
 from selenium import webdriver
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException
+#from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
 import account_info
 
 
 # Time to wait between checking latest downloaded files in 'Download' folder
 WAIT_TIME_INCREMENT_IN_SEC = 5
-WAIT_TIME_LIMIT = 300
+FULL_WINDOW_PIXEL_HEIGHT = 700
 
 DOWNLOAD_FOLDER = os.path.join(os.path.expanduser('~'), 'Downloads')
 
@@ -101,7 +100,37 @@ def save_problem_desc_screenshot(browser, screenshot_file):
 
 
 def click_on_solution_tab(browser):
-    browser.find_element_by_xpath('//span[contains(text(), "Solution")]').click()
+    # ElementClickInterceptedException
+    try:
+        soln_tab_ele = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC).until(
+            ec.element_to_be_clickable((By.XPATH, '//div[@data-key="solution"]')))# '//span[contains(text(), "Solution")]')))
+        time.sleep(3)
+        # browser.implicitly_wait(3)
+        soln_tab_ele.click()
+    except ElementClickInterceptedException:
+        soln_tab_ele = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC).until(
+            ec.presence_of_element_located((By.XPATH, '//div[@data-key="solution"]')))# '//span[contains(text(), "Solution")]')))
+        time.sleep(3)
+        soln_tab_ele.click()
+
+
+def take_solution_screenshot(browser, screenshot_cnt, output_folder, prob_difficulty, prob_name):
+    cur_soln_screenshot = os.path.join(output_folder,
+                                       ''.join([prob_difficulty, '_', prob_name, '_soln_', str(screenshot_cnt),
+                                                '_', datetime.now().strftime('%Y%m%d'), '.png']))
+    print("Taking screenshot#:", str(screenshot_cnt))
+    browser.save_screenshot(cur_soln_screenshot)
+
+
+def sanitize_name(name):
+    # Replace characters "/ \ ? < > " * | :" that are not valid for file names in Windows (and '/' for Mac and Unix)
+    # Then replaces double space characters to single space character for aesthetic reason
+    # Example networks that need this:
+    # ['A&amp;E', 'Azteca (Broadcast)', 'Azteca (Cable)', 'BET: Black Entertainment Television',
+    # 'Cartoon Network/Adult Swim', 'De Película', 'E! - Entertainment Television', "God's Learning Channel",
+    # 'Hallmark Movies &amp; Mysteries', 'History Channel en Español', 'Nickelodeon/Nick-at-Nite',
+    # 'TV Land/TV Land Classic', 'Utilisima - TV / Canal', 'V-me TV (Cable)']
+    return re.sub(r'\s+', ' ', re.sub(r'[\\\/\?<>\"\*|:]', ' ', name))
 
 
 def main():
@@ -120,9 +149,10 @@ def main():
     browser.get(account_info.ALL_PROBLEMS_URL)
     select_show_all_problems(browser)
 
-    meta_data = {}
-    for prob_and_url in [get_all_problems(browser)[1]]:#[0:5]:#[:1]:
-        prob_name = prob_and_url[0]
+    probs_and_urls = get_all_problems(browser)
+    for prob_and_url in probs_and_urls[846:]:
+        meta_data = {}
+        prob_name = sanitize_name(prob_and_url[0])
         prob_url = prob_and_url[1]
         browser.get(prob_url)
         time.sleep(WAIT_TIME_INCREMENT_IN_SEC) # wait 5 secs to load everything
@@ -137,36 +167,49 @@ def main():
                                 'similar_questions': similar_questions}
         print("\n=>Saving problem desc:", prob_name)
         print(json.dumps(meta_data[prob_name], indent=4, sort_keys=True), "\n")
+        # datetime.now().strftime('%Y%m%d%H%M%S')
         save_problem_desc_screenshot(browser,
                                      os.path.join(output_folder,
                                                   ''.join([prob_difficulty, '_', prob_name, '_prob_',
-                                                           datetime.now().strftime('%Y%m%d%H%M%S'), '.png'])))
+                                                           datetime.now().strftime('%Y%m%d'), '.png'])))
 
         click_on_solution_tab(browser)
         time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
         no_soln_ele = browser.find_elements_by_xpath('//*[contains(text(),"No solution for this question")]')
-        # Only if we do NOT see the tooltip text that says 'No solution for this question', then we proceed to take screenshots
-        print("\n=>Saving solution of problem:", prob_name)
         if not no_soln_ele:
-            i = 1
-            for s in browser.find_elements_by_xpath('//h2[contains(text(),"Solution")]/parent::div/h4[contains(text(),"Approach")]'):
-                cur_soln_screenshot = os.path.join(output_folder,
-                                                   ''.join([prob_difficulty, '_', prob_name, '_soln_', str(i), '_',
-                                                            datetime.now().strftime('%Y%m%d%H%M%S'), '.png']))
-                # browser.find_element_by_xpath('//h2[contains(text(),"Solution")]/parent::div/parent::div/parent::div')
-                # browser.execute_script("return document.body.scrollHeight") # 925 pixels
-                browser.execute_script("arguments[0].scrollIntoView();", s)
-                browser.save_screenshot(cur_soln_screenshot)
-                i += 1
+            # Only if we do NOT see the tooltip text that says 'No solution for this question', then we proceed to take screenshots
+            print("\n=>Saving solution of problem:", prob_name)
+            screenshot_cnt = 1
+            take_solution_screenshot(browser, screenshot_cnt, output_folder, prob_difficulty, prob_name)
 
-        # pdb.set_trace()
-        # print('ha')
+            target_pixel_row = 0
+            # this is the element we can scroll on
+            time.sleep(3)
+            solution_window = browser.find_element_by_xpath('//div[@id="solution"]/div[2]')
+            # pdb.set_trace()
+            # this is the element wrapper that tells us how many pixels the solution window is tall
+            try:
+                solution_window_height = browser.find_element_by_xpath('//h2[contains(text(),"Solution")]/parent::div').rect['height']
+            except NoSuchElementException:
+                solution_window_height = browser.find_element_by_xpath('//h4[contains(text(),"Approach")]/parent::div').rect['height']
 
-    meta_data_file = os.path.join(output_folder, ''.join([meta_data, '_',
-                                                          datetime.now().strftime('%Y%m%d'), '.txt']))
-    with open(meta_data_file, 'w') as outfile:
-        json.dump(meta_data, outfile)
-    # browser.close()
+            while (solution_window_height - FULL_WINDOW_PIXEL_HEIGHT) > 0:
+                target_pixel_row += FULL_WINDOW_PIXEL_HEIGHT
+                solution_window_height -= FULL_WINDOW_PIXEL_HEIGHT
+                js_script = ''.join(["arguments[0].scrollTo(0, window.scrollY + ", str(target_pixel_row), ");"])
+                # Example: browser.execute_script("arguments[0].scrollTo(0, window.scrollY + 1400)", s)
+                browser.execute_script(js_script, solution_window)
+                screenshot_cnt += 1
+                time.sleep(1)
+                take_solution_screenshot(browser, screenshot_cnt, output_folder, prob_difficulty, prob_name)
+
+        meta_data_file = os.path.join(output_folder, ''.join([prob_difficulty, '_', prob_name, '_meta_data_',
+                                                              datetime.now().strftime('%Y%m%d'), '.txt']))
+        with open(meta_data_file, 'w') as outfile:
+            json.dump(meta_data, outfile)
+            print("\n=>Saving meta data at:", meta_data_file)
+
+    browser.close()
     print("\nFinished puzzle program.")
 
 
