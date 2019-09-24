@@ -21,6 +21,11 @@ import re
 import time
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.common.by import By
+#from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
 import account_info
 
@@ -49,7 +54,7 @@ def log_in(browser):
 
 
 def go_to_ads_reporting(browser):
-    print("Clicking on 'Ads Reporting' in hamburger menu.")
+    print("\nClicking on 'Ads Reporting' in hamburger menu.")
     browser.find_elements_by_xpath('//*[text()="Business Manager"]')[1].click()
     browser.find_elements_by_xpath('//*[text()="Ads Reporting"]')[0].click()
 
@@ -61,8 +66,87 @@ def main():
     chromedriver_exe_with_path = os.path.join(parent_folder , 'chromedriver', 'chromedriver.exe')
     print("\nInvoking Chrome driver at:", chromedriver_exe_with_path, "\n")
     browser = webdriver.Chrome(executable_path=chromedriver_exe_with_path)
+    # browser.implicitly_wait(5)
     log_in(browser)
     go_to_ads_reporting(browser)
+
+    accounts_dropdown = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC)\
+        .until(ec.element_to_be_clickable((By.XPATH, '//div[@role="toolbar"]/*/button'))) # '//div[@role="toolbar"]/*/button[1]/div/span/i'
+    # accounts_dropdown = browser.find_element_by_xpath('//div[@role="toolbar"]/*/button[1]/div/span')
+    accounts_dropdown.click()
+
+    accounts = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC)\
+        .until(ec.presence_of_element_located((By.XPATH, '//a[@data-testid="big-ad-account-selector-item"]//*//div[contains(text(),"Account #")]')))
+    # account_names_ids = [e.text for e in browser.find_elements_by_xpath('//a[@data-testid="big-ad-account-selector-item"]//*//div[contains(text(),"Account #")]')]
+    # We need to fetch URLs like this: https://business.facebook.com/adsmanager/reporting/view?act=287663358591653&business_id=1863182507246219
+    report_urls = [''.join(['https://business.facebook.com/adsmanager/reporting/view?',
+                              re.search('.*(act.*)', e.get_attribute('href'), re.I)[1]])
+                   for e in browser.find_elements_by_xpath('//a[@data-testid="big-ad-account-selector-item"]')]
+
+    breakdowns_and_metrics_xpaths = {
+        'Campaign Name': '//span[text()="Campaign Name"]',
+        'Ad Set Name': '//span[text()="Ad Set Name"]',
+        'Ad Name': '//span[text()="Ad Name"]',
+        'Campaign ID': '//span[text()="Campaign ID"]',
+        'Ad Set ID': '//span[text()="Ad Set ID"]',
+        'Ad ID': '//span[text()="Ad ID"]',
+
+        'Day': '//span[text()="Day"]',
+
+        'Age': '//span[text()="Age"]',
+        'Gender': '//span[text()="Age"]',
+        'Country': '//span[text()="Country"]',
+        'Impression Device': '//span[text()="Impression Device"]',
+        'Platform': '//span[text()="Platform"]',
+        'Placement': '//span[text()="Placement"]',
+        'Device Platform': '//span[text()="Device Platform"]',
+        'Product ID': '//span[text()="Product ID"]',
+
+        'Destination': '//span[text()="Destination"]',
+        'Video View Type': '//span[text()="Video View Type"]',
+        'Video Sound': '//span[text()="Video Sound"]',
+        'Carousel Card': '//span[text()="Carousel Card"]',
+
+        'Objective': '//span[text()="Objective"]',
+    }
+
+    level_options = ['Campaign Name', 'Ad Set Name', 'Ad Name', 'Campaign ID', 'Ad Set ID', 'Ad ID']
+    time_options = ['Day']
+    delivery_options = ['Age', 'Gender', 'Country', 'Impression Device', 'Platform', 'Placement', 'Device Platform', 'Product ID']
+    action_options = ['Destination', 'Video View Type', 'Video Sound', 'Carousel Card']
+    breakdowns_settings_options = ['Objective']
+    performance_options = ['Results', 'Reach', 'Frequency', 'Impressions', 'Delivery', 'Amount Spent',
+                                   'Clicks (All)', 'Cost per Result', 'Cost per 1,000 People Reached',
+                                   'CPM (Cost per 1,000 Impressions)', 'Ad Delivery', 'Ad Set Delivery',
+                                   'Campaign Delivery']
+    engagement_options = ['Unique 2-Second Continuous Video Views', '2-Second Continuous Video Views']
+
+
+    # metrics
+    # 'div[@role="tablist"]/li[2]'
+    for url in report_urls:
+        print("\nFetching:", url)
+        browser.get(url)
+        accnt_name_id = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC)\
+            .until(ec.presence_of_element_located((By.XPATH, '//div[@role="toolbar"]/*/button/*/div[@data-hover="tooltip"]')))
+        # accnt_name_id = browser.find_element_by_xpath('//div[@role="toolbar"]/*/button/*/div[@data-hover="tooltip"]').text
+        print("\nCreating report templates for accnt:", accnt_name_id.text)
+        try:
+            # create_btn = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC)\
+            #     .until(ec.presence_of_element_located((By.XPATH, '//div[text()="Create"]')))
+            create_btn = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC)\
+                .until(ec.element_to_be_clickable((By.XPATH, '//div[text()="Create"]')))
+            # create_btn = browser.find_element_by_xpath('//div[text()="Create"]')
+            create_btn.click()
+        except TimeoutException:
+            # this means, we are redirected to 'All Reports' page because this account didn't have any prior report templates created
+            print("No report template exists, so we are now in the 'All Reports' page and we'll be creating new report templates.")
+
+
+        # click on metrics tab
+        # browser.find_elements_by_xpath('//span[text()="Metrics"]/parent::div')[0].click()
+        pdb.set_trace()
+        print("aha")
 
     # browser.close()
     pdb.set_trace()
