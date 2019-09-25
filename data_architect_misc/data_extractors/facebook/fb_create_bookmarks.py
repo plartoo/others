@@ -53,10 +53,7 @@ def log_in(browser):
 
 
 def go_to_ads_reporting(browser, ads_reporting_url):
-    # print("\nClicking on 'Ads Reporting' in hamburger menu.")
-    # browser.find_elements_by_xpath('//*[text()="Business Manager"]')[1].click()
-    # browser.find_elements_by_xpath('//*[text()="Ads Reporting"]')[0].click()
-    print("\nFetching Ads Reporting page for default account")
+    print("\nFetching Ads Reporting default landing page (to populate/collect links to landing page for each account).")
     browser.get(ads_reporting_url)
 
 
@@ -64,6 +61,9 @@ def click_xpath(browser, xpath):
     ele = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC)\
         .until(ec.element_to_be_clickable((By.XPATH, xpath)))
     ele.click()
+    # We need this because sometimes (e.g., in clicking on 'save' button) is not clickable
+    # (although we use 'element_to_be_clickable' above)
+    time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
 
 
 def enter_str_to_input_field(browser, xpath_to_input_field, str_to_enter):
@@ -184,24 +184,29 @@ def main():
                                'Ad Set ID', 'Ad Set Name', 'Campaign Budget', 'Campaign ID', 'Campaign Name']
     metrics_options_to_always_include = performance_options + engagement_options + metrics_setting_options
 
-    for url in report_urls:
-        print("\nFetching:", url)
-        browser.get(url)
+    for options in breakdowns_options:
+        for url in report_urls:
+            print("\nFetching:", url)
+            browser.get(url)
+            # Wait to load all the elements or we will end up getting account names like 'Loading___'
+            time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
 
-        accnt_name_id = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC)\
-            .until(ec.presence_of_element_located((By.XPATH, '//div[@role="toolbar"]/*/button/*/div[@data-hover="tooltip"]')))
-        accnt_name_str = re.sub(r'\W', '_', accnt_name_id.text)
-        print("\nCreating report templates for accnt:", accnt_name_str)
+            accnt_name_id = WebDriverWait(browser, WAIT_TIME_INCREMENT_IN_SEC) \
+                .until(ec.presence_of_element_located(
+                (By.XPATH, '//div[@role="toolbar"]/*/button/*/div[@data-hover="tooltip"]')))
+            accnt_name_str = re.sub(r'\W', '_', accnt_name_id.text)
+            print("\nCreating a report template for accnt:", accnt_name_str)
 
-        try:
-            create_btn_xpath = '//div[text()="Create"]'
-            click_xpath(browser, create_btn_xpath)
-        except TimeoutException:
-            # This means, we are redirected to 'All Reports' page because this account didn't have any prior report templates created
-            print("No report template exists, so we are now in the 'All Reports' page and we'll be creating new report templates.")
+            try:
+                create_btn_xpath = '//div[text()="Create"]'
+                click_xpath(browser, create_btn_xpath)
+            except TimeoutException:
+                # This means, we are redirected to 'All Reports' page because this account didn't have any prior report templates created
+                print(
+                    "No prior report template exists for this account, so we are now in the "
+                    "'All Reports' page and we'll be creating new report templates")
 
-        for options in breakdowns_options:
-            print("\nChecking boxes:", options)
+            print("with options:", options)
             for option_label in options:
                 check_option_box(browser, option_label)
 
@@ -218,24 +223,29 @@ def main():
             click_xpath(browser, last_week_option_xpath)
 
             # Combine strings of accnt_name, breakdowns and date range to form template name
-            options_str = '_'.join([re.sub(r'\W','',i) for i in options])
+            options_str = '_'.join([re.sub(r'\W', '', i) for i in options])
             from_date, to_date = get_report_date_range(browser)
             template_name = '_'.join(['DoNotDelete', accnt_name_str, options_str, from_date, to_date])
 
             edit_report_name_xpath = '//a[@id="all_reports_link"]/following-sibling::a[@href="#"]'
             input_field_xpath = '//input[@placeholder="Untitled Report"]'
             report_name_confirm_btn_xpath = '//div[text()="Confirm"]/ancestor::button'
-            save_btn_xpath = '//div[@id="save_button"]' #'//div[@id="save_button"]/div/button'
+            save_btn_xpath = '//div[@id="save_button"]'  # '//div[@id="save_button"]/div/button'
 
             click_xpath(browser, edit_report_name_xpath)
             enter_str_to_input_field(browser, input_field_xpath, template_name)
             click_xpath(browser, report_name_confirm_btn_xpath)
             click_xpath(browser, save_btn_xpath)
-
-            # TODO: for 2016, 2017 so on, append '&time_range=2019-01-01_2019-08-31' to
+            print("Created report template:", template_name)
+            # TODO:
+            # Start from place like this https://www.facebook.com/adsmanager/reporting/manage?act=675301196287656
+            # and for every report template under that, click on 'export' and maybe also download for
+            # 2016, 2017 so on, by appending '&time_range=2019-01-01_2019-08-31' to
             # bookmarked template URL: https://www.facebook.com/adsmanager/reporting/view?act=675301196287656&selected_report_id=23843815761760384
-            pdb.set_trace()
-            print("aha")
+            # pdb.set_trace()
+            # print("aha")
+
+
 
     # browser.close()
     # pdb.set_trace()
