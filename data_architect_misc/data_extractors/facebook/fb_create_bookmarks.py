@@ -153,15 +153,15 @@ def main():
         breakdowns_options_to_always_include + ['Age', 'Gender'] + ['Carousel Card'],
 
         breakdowns_options_to_always_include + ['Country'],
-        breakdowns_options_to_always_include + ['Country'],
-        breakdowns_options_to_always_include + ['Country'],
-        breakdowns_options_to_always_include + ['Country'],
+        breakdowns_options_to_always_include + ['Country'] + ['Destination'],
+        breakdowns_options_to_always_include + ['Country'] + ['Video View Type'],
+        breakdowns_options_to_always_include + ['Country'] + ['Carousel Card'],
 
         breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'],
+        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Destination'],
+        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Video View Type'],
+        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Carousel Card'],
+        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Conversion Device'],
 
         breakdowns_options_to_always_include + ['Product ID'] + ['Destination'],
         breakdowns_options_to_always_include + ['Product ID'] + ['Video View Type']
@@ -185,8 +185,8 @@ def main():
                                'Ad Set ID', 'Ad Set Name', 'Campaign Budget', 'Campaign ID', 'Campaign Name']
     metrics_options_to_always_include = performance_options + engagement_options + metrics_setting_options
 
-    for options in breakdowns_options:
-        for url in report_urls:
+    for url in report_urls:
+        for options in breakdowns_options:
             print("\nFetching:", url)
             browser.get(url)
             # Wait to load all the elements or we will end up getting account names like 'Loading___'
