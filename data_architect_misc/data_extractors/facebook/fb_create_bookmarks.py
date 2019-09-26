@@ -96,6 +96,7 @@ def check_option_box(browser, option_label):
         .until(ec.element_to_be_clickable((By.XPATH, button_xpath)))
     if checkbox_btn.get_attribute('aria-checked') != 'true':
         print("Box checked:", option_label)
+        time.sleep(2)
         # Only click on the checkbox if it has not been checked
         checkbox_btn.click()
         time.sleep(WAIT_TIME_INCREMENT_IN_SEC)
