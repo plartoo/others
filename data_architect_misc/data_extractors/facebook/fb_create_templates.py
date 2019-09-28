@@ -30,14 +30,6 @@ import account_info
 import fb_common
 
 
-# Location of folder where Chrome driver saves the downloaded files.
-# Also if you use Firefox, make sure the download behavior is set to start
-# automatically (instead of prompting user to click on 'OK' button to start
-# the download).
-# REF: http://web.archive.org/web/20190905202224/http://kb.mozillazine.org/File_types_and_download_actions
-DOWNLOAD_FOLDER = os.path.join(os.path.expanduser('~'), 'Downloads')
-
-
 def enter_str_to_input_field(browser, xpath_to_input_field, str_to_enter):
     # REF: https://stackoverflow.com/a/56875177
     # REF: Selenium expected conditions https://selenium-python.readthedocs.io/waits.html

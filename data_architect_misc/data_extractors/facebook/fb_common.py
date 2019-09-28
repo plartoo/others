@@ -25,13 +25,6 @@ import account_info
 # Time to wait between checking latest downloaded files in 'Download' folder
 WAIT_TIME_IN_SEC = 5
 
-# Location of folder where Chrome driver saves the downloaded files.
-# Also if you use Firefox, make sure the download behavior is set to start
-# automatically (instead of prompting user to click on 'OK' button to start
-# the download).
-# REF: http://web.archive.org/web/20190905202224/http://kb.mozillazine.org/File_types_and_download_actions
-DOWNLOAD_FOLDER = os.path.join(os.path.expanduser('~'), 'Downloads')
-
 
 def get_chrome_browser_instance():
     folder_that_has_this_code = os.getcwd()
