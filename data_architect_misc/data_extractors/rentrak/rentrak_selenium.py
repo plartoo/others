@@ -38,9 +38,8 @@ BASE_URL = 'https://national-tv.rentrak.com'
 def get_latest_file_in_folder(folder):
     # We will infer the latest downloaded (non-temporary) file name from getctime.
     # REF: https://stackoverflow.com/q/17958987
-    non_temp_files = list(filter(lambda x: not x.endswith('.tmp'), os.listdir(folder)))
     # '.xlsx.crdownload' seems to be the temp download files in Windows 10 when using Chrome driver
-    non_download_in_progress_files = list(filter(lambda x: not x.endswith('.xlsx.crdownload'), os.listdir(folder)))
+    non_temp_files = list(filter(lambda x: not (x.endswith('.tmp') or x.endswith('.xlsx.crdownload')), os.listdir(folder)))
     return max([os.path.join(folder, f) for f in non_temp_files], key=os.path.getctime)
 
 
@@ -55,7 +54,7 @@ def wait_until_file_download_is_finished(cur_latest_file, download_folder, wait_
         time_waited_so_far_in_sec += wait_time_increment
         if time_waited_so_far_in_sec > wait_time_limit:  # if download is taking longer than 5 minutes, break and print error message
             print("WARNING: It seems to be taking longer than", wait_time_limit,
-                  ". We are skipping download for bookmark:", b)
+                  ". We are skipping download for this bookmark.")
             return
 
 
