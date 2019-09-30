@@ -30,6 +30,7 @@ import fb_common
 # the download).
 # REF: http://web.archive.org/web/20190905202224/http://kb.mozillazine.org/File_types_and_download_actions
 DOWNLOAD_FOLDER = os.path.join(os.path.expanduser('~'), 'Downloads')
+OUTPUT_FOLDER_NAME = 'fb_business_manager_reports'
 TEMPLATE_PREFIX = 'DoNotDelete'
 
 
@@ -48,12 +49,14 @@ def get_latest_file_in_folder(folder):
     return max([os.path.join(folder, f) for f in non_temp_files], key=os.path.getctime)
 
 
-def wait_until_file_download_is_finished(cur_latest_file, download_folder, wait_time_increment, wait_time_limit):
+def wait_until_file_download_is_finished(previously_downloaded_file,
+                                         download_folder,
+                                         wait_time_increment, wait_time_limit):
     # IMPORTANT ASSUMPTION: here, we don't expect any parallel process to be creating
     # new files within Download folder while we are running this download process.
     # Let's busy wait until the file is downloaded (no way to detect successful page load via Selenium)
     time_waited_so_far_in_sec = 0
-    while cur_latest_file == get_latest_file_in_folder(download_folder):
+    while previously_downloaded_file == get_latest_file_in_folder(download_folder):
         time.sleep(wait_time_increment)
         time_waited_so_far_in_sec += wait_time_increment
         if time_waited_so_far_in_sec > wait_time_limit:  # if download is taking longer than 5 minutes, break and print error message
@@ -63,23 +66,49 @@ def wait_until_file_download_is_finished(cur_latest_file, download_folder, wait_
             return
 
 
-def rename_latest_download_and_move_to_destination_folder(browser, latest_file_in_download_folder,
-                                                          report_from_date, report_to_date):
-    # Only proceed to move the file from Download to destination folder when the download has finished
-    cur_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
-    if (latest_file_in_download_folder != cur_latest_file) and (TEMPLATE_PREFIX in cur_latest_file):
+def strip_date_ranges(report_template_name):
+    return re.sub(r'_\d{8}_\d{8}.*','', report_template_name)
 
-        new_file_name = ''.join([file_name_prefix, '_', report_from_date, '_', report_to_date, '.xlsx'])
-        move_file_to_destination_folder(DOWNLOAD_FOLDER, output_folder, new_file_name)
+
+def get_output_file_name(report_template_name, report_from_date, report_to_date):
+    # Decide which time frame we want to download data for (current year's YTD data by default)
+    cur_date = datetime.now().strftime('%Y%m%d')
+    file_name = '_'.join([strip_date_ranges(report_template_name),
+                          report_from_date, report_to_date, cur_date])
+    return ''.join([file_name, '.xlsx'])
+
+
+def move_most_recently_downloaded_file_to_destination_folder(previously_downloaded_file,
+                                                             source_folder,
+                                                             destination_folder,
+                                                             output_file_name):
+    """Rename and move the latest downloaded file to destination folder."""
+    cur_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
+    if (previously_downloaded_file != cur_latest_file) and (TEMPLATE_PREFIX in cur_latest_file):
+        # Only proceed when the latest downloaded file is different from previously downloaded file
+        new_file_path_and_name = os.path.join(destination_folder, 'test.xlsx')#output_file_name)
+        print("Renaming and moving downloaded file:", get_latest_file_in_folder(source_folder),
+              "\tto:", new_file_path_and_name)
+        try:
+            os.rename(get_latest_file_in_folder(source_folder), new_file_path_and_name)
+        except FileExistsError:
+            os.remove(new_file_path_and_name)
+            os.rename(get_latest_file_in_folder(source_folder), new_file_path_and_name)
+        except FileNotFoundError:
+            pdb.set_trace()
+            print('hee')
+    else:
+        print("WARNING: Did not find a difference between recently downloaded file "
+              "and previously downloaded file:", previously_downloaded_file)
+        print("Skipping the move of downloaded file...")
 
 
 def main():
-    # Decide which time frame we want to download data for (current year's YTD data by default)
-    cur_datetime = datetime.now().strftime('%Y%m%d')
-
     browser = fb_common.get_chrome_browser_instance()
     fb_common.log_in(browser)
+    reports_processed = []
     fb_common.go_to_ads_reporting(browser, account_info.ADS_REPORTING_URL)
+
     report_urls = fb_common.get_urls_of_all_accounts(browser,
                                                      'https://business.facebook.com/adsmanager/reporting/manage?')
 
@@ -105,28 +134,28 @@ def main():
                 from_date, to_date = fb_common.get_report_date_range(browser)
 
                 # Get the name of the latest downloaded file name in the download folder
-                cur_latest_file = get_latest_file_in_folder(fb_common.DOWNLOAD_FOLDER)
+                previously_downloaded_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
                 download_data_export_file(browser)
-                wait_until_file_download_is_finished(cur_latest_file, DOWNLOAD_FOLDER,
-                                                     fb_common.WAIT_TIME_IN_SEC, 600) # Wait up to 10 mins for download
-                pdb.set_trace()
-                print("ha")
+                # Wait up to 10 mins for download
+                wait_until_file_download_is_finished(previously_downloaded_file, DOWNLOAD_FOLDER,
+                                                     fb_common.WAIT_TIME_IN_SEC, 600)
+                destination_folder = fb_common.create_output_folder(os.getcwd(), OUTPUT_FOLDER_NAME)
+                output_file_name = get_output_file_name(report_name, from_date, to_date)
+                move_most_recently_downloaded_file_to_destination_folder(previously_downloaded_file,
+                                                                         DOWNLOAD_FOLDER,
+                                                                         destination_folder,
+                                                                         output_file_name)
                 downloaded_report_names.append(report_name)
             else:
                 pdb.set_trace()
                 print("hee")
 
-
-
-                time.sleep(5)  # give 5 secs break to RenTrak before fetching another page
-                print("\n", file_name_prefix, "YTD data download finished.")
+            time.sleep(5)  # give 5 secs break before fetching another template
+            print("\nData download for template:", report_name, " finished.")
 
     browser.close()
     print("\nFinished scraping data from RenTrak website.")
 
 
-
 if __name__ == '__main__':
     main()
-
-

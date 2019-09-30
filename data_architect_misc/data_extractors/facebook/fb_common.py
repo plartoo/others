@@ -93,3 +93,9 @@ def get_report_date_range(browser):
                          datetime.strptime(raw_date_str[-6], '%d').strftime('%d')])
     return (from_date, to_date)
 
+
+def create_output_folder(folder_that_has_this_code, folder_name):
+    output_folder = os.path.join(folder_that_has_this_code, folder_name)
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    return output_folder
