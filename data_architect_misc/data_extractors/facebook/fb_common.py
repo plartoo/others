@@ -1,11 +1,10 @@
 """
 Author: Phyo Thiha
-Last Modified Date: September 26, 2019
+Last Modified Date: October 1, 2019
 Description: This file stores all common methods used in both fb scripts
 (one for creating templates and another for downloading these templates).
 """
 
-import pdb
 
 import os
 from datetime import datetime
@@ -16,8 +15,8 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+# from selenium.webdriver.common.keys import Keys
+# from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
 import account_info
 

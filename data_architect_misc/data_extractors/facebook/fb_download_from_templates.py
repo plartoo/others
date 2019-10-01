@@ -1,6 +1,6 @@
 """
 Author: Phyo Thiha
-Last Modified Date: September 26, 2019
+Last Modified Date: October 1, 2019
 Description: This script downloads the data from the report templates
 (created by another script 'fb_create_templates.py') in each of the
 account in FB Business Manager website.
@@ -175,7 +175,10 @@ def main():
             fb_common.go_to_ads_reporting(browser)
             time.sleep(fb_common.WAIT_TIME_IN_SEC)
             scroll_to_report_name(browser, report_name)
+            time.sleep(fb_common.WAIT_TIME_IN_SEC)
             report_xpath = '//div[contains(text(),"{0}")]//parent::a//parent::span//parent::div//parent::div//parent::div'.format(report_name)
+            # TODO: maybe instead of  using click_xpath, try this JS click approach because we often get ElementClickInterceptedException here
+            # https://stackoverflow.com/a/48667924/1330974
             fb_common.click_xpath(browser, report_xpath)
             from_date, to_date = fb_common.get_report_date_range(browser)
 

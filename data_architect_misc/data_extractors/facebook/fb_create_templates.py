@@ -1,6 +1,6 @@
 """
 Author: Phyo Thiha
-Last Modified Date: September 26, 2019
+Last Modified Date: October 1, 2019
 Description: This is script is used to create report templates on Facebook's Business Manager site.
 We have ~48 FB accounts and each account has 16 report templates to create, so we will automate
 the creation of these report templates.
@@ -15,11 +15,9 @@ Note: For anyone interested, read the following resources to learn more about Se
 
 import pdb
 
-import os
 import re
 import time
 
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
@@ -72,6 +70,7 @@ def main():
     browser = fb_common.get_chrome_browser_instance()
     fb_common.log_in(browser)
     fb_common.go_to_ads_reporting(browser, account_info.ADS_REPORTING_URL)
+
     report_urls = fb_common.get_urls_of_all_accounts(browser,
                                                      'https://business.facebook.com/adsmanager/reporting/view?')
 
