@@ -69,8 +69,15 @@ def check_option_box(browser, option_label):
 def main():
     browser = fb_common.get_chrome_browser_instance()
     fb_common.log_in(browser)
-    fb_common.go_to_ads_reporting(browser, account_info.ADS_REPORTING_URL)
+    fb_common.go_to_ads_reporting(browser)
+    create_report_btn_xpath = '//div[contains(text(),"Create Report")]//parent::div/parent::button'
+    fb_common.click_xpath(browser, create_report_btn_xpath)
+    # ID
+    # (Pdb) len(browser.find_elements_by_xpath('//div[@class="uiScrollableAreaContent"]/div/ul/li/div/div[2]/div[1]/span[contains(text(),"ID")]'))
+    # Accnt name (need to remove the '0'th item
+    # browser.find_elements_by_xpath('//div[@class="uiScrollableAreaContent"]/div/ul/li/div/div[2]/div[1]/span[1]')[1].text
 
+    pdb.set_trace()
     report_urls = fb_common.get_urls_of_all_accounts(browser,
                                                      'https://business.facebook.com/adsmanager/reporting/view?')
 
