@@ -13,14 +13,10 @@ import os
 import re
 import time
 
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
-import account_info
 import fb_common
 
 
@@ -32,6 +28,9 @@ import fb_common
 DOWNLOAD_FOLDER = os.path.join(os.path.expanduser('~'), 'Downloads')
 OUTPUT_FOLDER_NAME = 'fb_business_manager_reports'
 TEMPLATE_PREFIX = 'DoNotDelete'
+# How long we should wait while the file is being downloaded
+WAIT_TIME_INCREMENT_IN_SEC = 5
+WAIT_TIME_LIMIT_IN_SEC = 600
 
 
 def download_data_export_file(browser):
@@ -86,7 +85,7 @@ def move_most_recently_downloaded_file_to_destination_folder(previously_download
     cur_latest_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
     if (previously_downloaded_file != cur_latest_file) and (TEMPLATE_PREFIX in cur_latest_file):
         # Only proceed when the latest downloaded file is different from previously downloaded file
-        new_file_path_and_name = os.path.join(destination_folder, 'test.xlsx')#output_file_name)
+        new_file_path_and_name = os.path.join(destination_folder, output_file_name)#'test.xlsx')
         print("Renaming and moving downloaded file:", get_latest_file_in_folder(source_folder),
               "\tto:", new_file_path_and_name)
         try:
@@ -95,8 +94,10 @@ def move_most_recently_downloaded_file_to_destination_folder(previously_download
             os.remove(new_file_path_and_name)
             os.rename(get_latest_file_in_folder(source_folder), new_file_path_and_name)
         except FileNotFoundError:
-            pdb.set_trace()
-            print('hee')
+            # NOTE: this could be because Windows has 260-character limit on paths
+            # https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#maximum-path-length-limitation
+            # It doesn't seem to be an issue when using Python 3.6+ on Windows 10 machine
+            print("ERROR: error in moving the file. Check the code to see developer's note.")
     else:
         print("WARNING: Did not find a difference between recently downloaded file "
               "and previously downloaded file:", previously_downloaded_file)
@@ -124,7 +125,7 @@ def fetch_list_of_all_relevant_reports(browser):
     scroll_length = 300;
 
     reports_in_dom = get_all_report_names_in_current_dom(browser)
-    i = 0
+    # i = 0
     while not set(reports_in_dom).issubset(set(all_reports)):
         for r in reports_in_dom:
             if not r in all_reports: #and (TEMPLATE_PREFIX in r):
@@ -133,146 +134,64 @@ def fetch_list_of_all_relevant_reports(browser):
                 all_reports.append(r)
                 # i += 1
 
-        # print(len(all_reports))
         cur_scroll_pos += scroll_length
         js = ''.join(['arguments[0].scrollTop=', str(cur_scroll_pos), ';'])
         # Scroll 600 pixel down and repeat
         browser.execute_script(js, browser.find_elements_by_xpath(scroll_div)[-1])
-        # print(reports_in_dom)
-        # pdb.set_trace()
         reports_in_dom = get_all_report_names_in_current_dom(browser)
     return all_reports
-
-def check_option_box(browser, option_label):
-    button_xpath = '//span[text()="{0}"]/ancestor::label/button'.format(option_label)
-    checkbox_btn = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
-        .until(ec.presence_of_element_located((By.XPATH, button_xpath)))
-    i = 0
-    scroll_bar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
-    scroll_bar = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
-        .until(ec.presence_of_element_located((By.XPATH, scroll_bar_xpath)))
-
-    while not checkbox_btn.is_displayed():
-        checkbox_location = browser.find_element_by_xpath(button_xpath).location['y'] + i
-        js_scroll = ''.join(['arguments[0].scrollTop=', str(checkbox_location), ';'])
-        browser.execute_script(js_scroll, scroll_bar)
-        # we will scroll 200 pixel every time until the checkbox appears in the visible DOM
-        i += 200
-
-    checkbox_btn = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
-        .until(ec.element_to_be_clickable((By.XPATH, button_xpath)))
-    if checkbox_btn.get_attribute('aria-checked') != 'true':
-        print("Box checked:", option_label)
-        time.sleep(2)
-        # Only click on the checkbox if it has not been checked
-        checkbox_btn.click()
-        time.sleep(fb_common.WAIT_TIME_IN_SEC)
-    else:
-        print("Box skipped:", option_label)
 
 
 def scroll_to_report_name(browser, report_name):
     cur_scroll_pos = 0;
     scroll_length = 300;
-    scroll_div = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]/parent::div'
-    report_xpath = '//div[contains(text(),"{0}")]//parent::a//parent::span//parent::div//parent::div//parent::div'.format(report_name)
-    element_found = False
-    try:
-        browser.find_element_by_xpath(report_xpath)
-        element_found = True
-    except NoSuchElementException:
-        element_found = False
-
     reports_in_dom = get_all_report_names_in_current_dom(browser)
-    # TODO: start from here
-    # while not report_name in reports_in_dom:
-    #     for r in reports_in_dom:
-    #         if not r in all_reports: #and (TEMPLATE_PREFIX in r):
-    #             # I won't use 'set' because I want to maintain the ordering
-    #             # print(str(i), ":", r)
-    #             all_reports.append(r)
-    #             # i += 1
-    #
-    #     # print(len(all_reports))
-    #     cur_scroll_pos += scroll_length
-    #     js = ''.join(['arguments[0].scrollTop=', str(cur_scroll_pos), ';'])
-    #     # Scroll 600 pixel down and repeat
-    #     browser.execute_script(js, browser.find_elements_by_xpath(scroll_div)[-1])
-    #     # print(reports_in_dom)
-    #     # pdb.set_trace()
-    #     reports_in_dom = get_all_report_names_in_current_dom(browser)
-    # return all_reports
-
-    while not element_found:
-
-    pass
+    scroll_div = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]/parent::div'
+    while not report_name in reports_in_dom:
+        cur_scroll_pos += scroll_length
+        js = ''.join(['arguments[0].scrollTop=', str(cur_scroll_pos), ';'])
+        # Scroll 600 pixel down and repeat
+        browser.execute_script(js, browser.find_elements_by_xpath(scroll_div)[-1])
+        reports_in_dom = get_all_report_names_in_current_dom(browser)
 
 
 def main():
+    destination_folder = fb_common.create_output_folder(os.getcwd(), OUTPUT_FOLDER_NAME)
     browser = fb_common.get_chrome_browser_instance()
     fb_common.log_in(browser)
     fb_common.go_to_ads_reporting(browser)
 
     all_reports = fetch_list_of_all_relevant_reports(browser)
-    print("\nNum of all unfiltered reports:", len(all_reports))
+    print("Num of all unfiltered reports:", len(all_reports))
     all_filtered_reports = list(filter(lambda x: (TEMPLATE_PREFIX in x), all_reports))
-    print("\nNum of filtered reports:", len(all_reports))
-    processed_reports = []
+    print("Num of filtered reports:", len(all_reports))
+    downloaded_report_names = []
 
     i = 0
-    for fr in all_filtered_reports:
-        i += 1
-        print(str(i), ".Trying to download report:", fr)
-        fb_common.go_to_ads_reporting(browser)
-        time.sleep(fb_common.WAIT_TIME_IN_SEC)
+    for report_name in all_filtered_reports:
+        if not (report_name in downloaded_report_names):
+            i += 1
+            print("\n", str(i), ".Trying to download report:", report_name)
+            fb_common.go_to_ads_reporting(browser)
+            time.sleep(fb_common.WAIT_TIME_IN_SEC)
+            scroll_to_report_name(browser, report_name)
+            report_xpath = '//div[contains(text(),"{0}")]//parent::a//parent::span//parent::div//parent::div//parent::div'.format(report_name)
+            fb_common.click_xpath(browser, report_xpath)
+            from_date, to_date = fb_common.get_report_date_range(browser)
 
-
-
-    pdb.set_trace()
-
-
-
-    report_urls = fb_common.get_urls_of_all_accounts(browser,
-                                                     'https://business.facebook.com/adsmanager/reporting/manage?')
-    # # TODO: remove below because this is only for testing purpose
-    # # 'br_oc_cspr_e1 (2023550174542784)'
-    report_urls = list(filter(lambda x: ('2023550174542784' in x), report_urls))
-
-    for url in report_urls:
-        print("\nFetching:", url)
-        browser.get(url)
-        # Wait to load all report templates or we will end up getting account names like 'Loading___'
-        time.sleep(fb_common.WAIT_TIME_IN_SEC)
-        accnt_name_str = fb_common.get_account_name_and_id(browser)
-        downloaded_report_names = []
-        report_names_xpath = '//span[@data-testid="manage_reports_name_cell"]'
-        for report_name_ele in browser.find_elements_by_xpath(report_names_xpath):
-            report_name = report_name_ele.text.strip()
-            if (not (report_name in downloaded_report_names)) and (TEMPLATE_PREFIX in report_name):
-                print("Report Name:", report_name)
-                view_report_btn = report_name_ele.find_element_by_xpath('./following::div/button')
-                view_report_btn.click()
-                time.sleep(fb_common.WAIT_TIME_IN_SEC) # Wait for the data table in the template to load
-                from_date, to_date = fb_common.get_report_date_range(browser)
-
-                # Get the name of the latest downloaded file name in the download folder
-                previously_downloaded_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
-                download_data_export_file(browser)
-                # Wait up to 10 mins for download
-                wait_until_file_download_is_finished(previously_downloaded_file, DOWNLOAD_FOLDER,
-                                                     fb_common.WAIT_TIME_IN_SEC, 600)
-                destination_folder = fb_common.create_output_folder(os.getcwd(), OUTPUT_FOLDER_NAME)
-                output_file_name = get_output_file_name(report_name, from_date, to_date)
-                move_most_recently_downloaded_file_to_destination_folder(previously_downloaded_file,
-                                                                         DOWNLOAD_FOLDER,
-                                                                         destination_folder,
-                                                                         output_file_name)
-                downloaded_report_names.append(report_name)
-            else:
-                pdb.set_trace()
-                print("hee")
-
-            time.sleep(5)  # give 5 secs break before fetching another template
+            # Get the name of the latest downloaded file name in the download folder
+            previously_downloaded_file = get_latest_file_in_folder(DOWNLOAD_FOLDER)
+            download_data_export_file(browser)
+            # Wait up to 10 mins for download
+            wait_until_file_download_is_finished(previously_downloaded_file, DOWNLOAD_FOLDER,
+                                                 WAIT_TIME_INCREMENT_IN_SEC,
+                                                 WAIT_TIME_LIMIT_IN_SEC)
+            output_file_name = get_output_file_name(report_name, from_date, to_date)
+            move_most_recently_downloaded_file_to_destination_folder(previously_downloaded_file,
+                                                                     DOWNLOAD_FOLDER,
+                                                                     destination_folder,
+                                                                     output_file_name)
+            downloaded_report_names.append(report_name)
             print("\nData download for template:", report_name, " finished.")
 
     browser.close()
