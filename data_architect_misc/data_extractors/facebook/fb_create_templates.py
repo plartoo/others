@@ -156,6 +156,7 @@ def main():
             # Combine strings of accnt_name, breakdowns and date range to form template name
             options_str = '_'.join([re.sub(r'\W', '', i) for i in options])
             from_date, to_date = fb_common.get_report_date_range(browser)
+            # TODO: number the reports
             template_name = '_'.join(['DoNotDelete', accnt_name_str, options_str, from_date, to_date])
 
             edit_report_name_xpath = '//a[@id="all_reports_link"]/following-sibling::a[@href="#"]'

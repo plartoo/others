@@ -103,17 +103,139 @@ def move_most_recently_downloaded_file_to_destination_folder(previously_download
         print("Skipping the move of downloaded file...")
 
 
+def get_all_report_names_in_current_dom(browser):
+    report_name_xpath = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]//a[@href="#"]/div'
+    WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC)\
+        .until(ec.presence_of_element_located((By.XPATH, report_name_xpath)))
+    return [r.text for r in browser.find_elements_by_xpath(report_name_xpath)]
+
+
+def get_all_report_names_in_current_dom(browser):
+    report_name_xpath = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]//a[@href="#"]/div'
+    WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC)\
+        .until(ec.presence_of_element_located((By.XPATH, report_name_xpath)))
+    return [r.text for r in browser.find_elements_by_xpath(report_name_xpath)]
+
+
+def fetch_list_of_all_relevant_reports(browser):
+    all_reports = []
+    scroll_div = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]/parent::div'
+    cur_scroll_pos = 0;
+    scroll_length = 300;
+
+    reports_in_dom = get_all_report_names_in_current_dom(browser)
+    i = 0
+    while not set(reports_in_dom).issubset(set(all_reports)):
+        for r in reports_in_dom:
+            if not r in all_reports: #and (TEMPLATE_PREFIX in r):
+                # I won't use 'set' because I want to maintain the ordering
+                # print(str(i), ":", r)
+                all_reports.append(r)
+                # i += 1
+
+        # print(len(all_reports))
+        cur_scroll_pos += scroll_length
+        js = ''.join(['arguments[0].scrollTop=', str(cur_scroll_pos), ';'])
+        # Scroll 600 pixel down and repeat
+        browser.execute_script(js, browser.find_elements_by_xpath(scroll_div)[-1])
+        # print(reports_in_dom)
+        # pdb.set_trace()
+        reports_in_dom = get_all_report_names_in_current_dom(browser)
+    return all_reports
+
+def check_option_box(browser, option_label):
+    button_xpath = '//span[text()="{0}"]/ancestor::label/button'.format(option_label)
+    checkbox_btn = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+        .until(ec.presence_of_element_located((By.XPATH, button_xpath)))
+    i = 0
+    scroll_bar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
+    scroll_bar = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+        .until(ec.presence_of_element_located((By.XPATH, scroll_bar_xpath)))
+
+    while not checkbox_btn.is_displayed():
+        checkbox_location = browser.find_element_by_xpath(button_xpath).location['y'] + i
+        js_scroll = ''.join(['arguments[0].scrollTop=', str(checkbox_location), ';'])
+        browser.execute_script(js_scroll, scroll_bar)
+        # we will scroll 200 pixel every time until the checkbox appears in the visible DOM
+        i += 200
+
+    checkbox_btn = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+        .until(ec.element_to_be_clickable((By.XPATH, button_xpath)))
+    if checkbox_btn.get_attribute('aria-checked') != 'true':
+        print("Box checked:", option_label)
+        time.sleep(2)
+        # Only click on the checkbox if it has not been checked
+        checkbox_btn.click()
+        time.sleep(fb_common.WAIT_TIME_IN_SEC)
+    else:
+        print("Box skipped:", option_label)
+
+
+def scroll_to_report_name(browser, report_name):
+    cur_scroll_pos = 0;
+    scroll_length = 300;
+    scroll_div = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]/parent::div'
+    report_xpath = '//div[contains(text(),"{0}")]//parent::a//parent::span//parent::div//parent::div//parent::div'.format(report_name)
+    element_found = False
+    try:
+        browser.find_element_by_xpath(report_xpath)
+        element_found = True
+    except NoSuchElementException:
+        element_found = False
+
+    reports_in_dom = get_all_report_names_in_current_dom(browser)
+    # TODO: start from here
+    # while not report_name in reports_in_dom:
+    #     for r in reports_in_dom:
+    #         if not r in all_reports: #and (TEMPLATE_PREFIX in r):
+    #             # I won't use 'set' because I want to maintain the ordering
+    #             # print(str(i), ":", r)
+    #             all_reports.append(r)
+    #             # i += 1
+    #
+    #     # print(len(all_reports))
+    #     cur_scroll_pos += scroll_length
+    #     js = ''.join(['arguments[0].scrollTop=', str(cur_scroll_pos), ';'])
+    #     # Scroll 600 pixel down and repeat
+    #     browser.execute_script(js, browser.find_elements_by_xpath(scroll_div)[-1])
+    #     # print(reports_in_dom)
+    #     # pdb.set_trace()
+    #     reports_in_dom = get_all_report_names_in_current_dom(browser)
+    # return all_reports
+
+    while not element_found:
+
+    pass
+
+
 def main():
     browser = fb_common.get_chrome_browser_instance()
     fb_common.log_in(browser)
-    reports_processed = []
-    fb_common.go_to_ads_reporting(browser, account_info.ADS_REPORTING_URL)
+    fb_common.go_to_ads_reporting(browser)
+
+    all_reports = fetch_list_of_all_relevant_reports(browser)
+    print("\nNum of all unfiltered reports:", len(all_reports))
+    all_filtered_reports = list(filter(lambda x: (TEMPLATE_PREFIX in x), all_reports))
+    print("\nNum of filtered reports:", len(all_reports))
+    processed_reports = []
+
+    i = 0
+    for fr in all_filtered_reports:
+        i += 1
+        print(str(i), ".Trying to download report:", fr)
+        fb_common.go_to_ads_reporting(browser)
+        time.sleep(fb_common.WAIT_TIME_IN_SEC)
+
+
+
+    pdb.set_trace()
+
+
 
     report_urls = fb_common.get_urls_of_all_accounts(browser,
                                                      'https://business.facebook.com/adsmanager/reporting/manage?')
-
-    # TODO: remove below because this is only for testing purpose
-    # 'br_oc_cspr_e1 (2023550174542784)'
+    # # TODO: remove below because this is only for testing purpose
+    # # 'br_oc_cspr_e1 (2023550174542784)'
     report_urls = list(filter(lambda x: ('2023550174542784' in x), report_urls))
 
     for url in report_urls:

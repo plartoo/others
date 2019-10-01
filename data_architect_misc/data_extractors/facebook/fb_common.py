@@ -45,9 +45,9 @@ def log_in(browser):
     browser.find_element_by_id('loginbutton').click()
 
 
-def go_to_ads_reporting(browser, ads_reporting_url):
+def go_to_ads_reporting(browser):
     print("\nFetching Ads Reporting default landing page (to populate/collect links to landing page for each account).")
-    browser.get(ads_reporting_url)
+    browser.get(account_info.ADS_REPORTING_URL)
 
 
 def get_urls_of_all_accounts(browser, url_prefix):
@@ -55,8 +55,9 @@ def get_urls_of_all_accounts(browser, url_prefix):
     click_xpath(browser, accounts_dropdown_xpath)
 
     # Wait until Account # dropdown elments are present in the DOM
-    accounts = WebDriverWait(browser, WAIT_TIME_IN_SEC)\
-        .until(ec.presence_of_element_located((By.XPATH, '//a[@data-testid="big-ad-account-selector-item"]//*//div[contains(text(),"Account #")]')))
+    account_elements_xpath = '//a[@data-testid="big-ad-account-selector-item"]//*//div[contains(text(),"Account #")]'
+    WebDriverWait(browser, WAIT_TIME_IN_SEC)\
+        .until(ec.presence_of_element_located((By.XPATH, account_elements_xpath)))
 
     # Generate URLs that will directly bring us to Ads Report page (otherwise, we'll have to navigate using FB's ever changing web UI)
     return [''.join([url_prefix,
