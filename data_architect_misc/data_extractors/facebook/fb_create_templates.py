@@ -15,38 +15,86 @@ Note: For anyone interested, read the following resources to learn more about Se
 
 import pdb
 
+from datetime import datetime
+import os
 import re
 import time
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+# from selenium.webdriver.common.keys import Keys
+# from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
-import account_info
+# import account_info
 import fb_common
 
 
-def enter_str_to_input_field(browser, xpath_to_input_field, str_to_enter):
-    # REF: https://stackoverflow.com/a/56875177
-    # REF: Selenium expected conditions https://selenium-python.readthedocs.io/waits.html
-    input_field = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC)\
-        .until(ec.element_to_be_clickable((By.XPATH, xpath_to_input_field)))
-    input_field.send_keys(Keys.CONTROL + 'a')
-    input_field.send_keys(Keys.DELETE)
-    input_field.send_keys(str_to_enter)
+TEMPLATE_LIST_LOG_FILE = 'accnts_with_templates.txt'
+# Prepare list of options to choose for 14 different templates we want to build
+MUST_HAVE_BREAKDOWN_OPTIONS = ['Account Name', 'Campaign Name', 'Ad Set Name', 'Ad Name',
+                               'Account ID', 'Campaign ID', 'Ad Set ID', 'Ad ID', 'Day',
+                               'Objective']
+BREAKDOWN_OPTIONS = [
+    MUST_HAVE_BREAKDOWN_OPTIONS + [] + ['Video Sound'],
+
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Age', 'Gender'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Age', 'Gender'] + ['Destination'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Age', 'Gender'] + ['Video View Type'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Age', 'Gender'] + ['Carousel Card'],
+
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Country'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Country'] + ['Destination'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Country'] + ['Video View Type'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Country'] + ['Carousel Card'],
+
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Impression Device', 'Platform', 'Placement', 'Device Platform'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + [
+        'Destination'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + [
+        'Video View Type'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + [
+        'Carousel Card'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + [
+        'Conversion Device'],
+
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Product ID'] + ['Destination'],
+    MUST_HAVE_BREAKDOWN_OPTIONS + ['Product ID'] + ['Video View Type']
+]
+
+PERFORMANCE_OPTIONS = ['Results', 'Reach', 'Frequency', 'Impressions', 'Delivery', 'Amount Spent',
+                       'Clicks (All)', 'Cost per Result', 'Cost per 1,000 People Reached',
+                       'CPM (Cost per 1,000 Impressions)', 'Ad Delivery', 'Ad Set Delivery',
+                       'Campaign Delivery']
+
+# TODO: Starting October 2019, FB will change names of 'Video View' to 'Video Play' in some of the metrics above
+# Note: it's now October 2, but FB hasn't changed the metric names
+ENGAGEMENT_OPTIONS = ['Unique 2-Second Continuous Video Views', '2-Second Continuous Video Views',
+                      '3-Second Video Views', '10-Second Video Views', 'Unique 10-Second Video Views',
+                      'ThruPlays', 'Video Average Watch Time', 'Video Plays',
+                      'Cost per 2-Second Continuous Video View', 'Cost per 3-Second Video View',
+                      'Cost per 10-Second Video View', 'Cost per ThruPlay', 'CTR (Link Click-Through Rate)',
+                      'Estimated Ad Recall Lift (People)', 'Estimated Ad Recall Lift Rate',
+                      'Cost per Estimated Ad Recall Lift (People)']
+
+# TODO: Maybe remove 'Account ID' etc. below that are duplicates of MUST_HAVE_BREAKDOWN_OPTIONS
+SETTINGS_OPTIONS_IN_METRICS_TAB = ['Account ID', 'Account Name', 'Reporting Starts', 'Reporting Ends', 'Bid',
+                                   'Buying Type', 'Objective', 'Schedule', 'Ad ID', 'Ad Name',
+                                   'Ad Set ID', 'Ad Set Name', 'Campaign Budget', 'Campaign ID', 'Campaign Name',
+                                   'Link (Ad Settings)', 'Currency']
+MUST_HAVE_METRICS_OPTIONS = PERFORMANCE_OPTIONS + ENGAGEMENT_OPTIONS + SETTINGS_OPTIONS_IN_METRICS_TAB
 
 
 def check_option_box(browser, option_label):
+    # This method is used to check on the checkbox of *a given option label*
     button_xpath = '//span[text()="{0}"]/ancestor::label/button'.format(option_label)
     checkbox_btn = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
         .until(ec.presence_of_element_located((By.XPATH, button_xpath)))
-    i = 0
+
     scroll_bar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
     scroll_bar = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
         .until(ec.presence_of_element_located((By.XPATH, scroll_bar_xpath)))
-
+    i = 0
     while not checkbox_btn.is_displayed():
         checkbox_location = browser.find_element_by_xpath(button_xpath).location['y'] + i
         js_scroll = ''.join(['arguments[0].scrollTop=', str(checkbox_location), ';'])
@@ -66,115 +114,187 @@ def check_option_box(browser, option_label):
         print("Box skipped:", option_label)
 
 
+def check_option_boxes(browser, option_labels):
+    checkboxes_xpath = '//button[@role="checkbox"]/following-sibling::span/div/span'
+    WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+        .until(ec.presence_of_element_located((By.XPATH, checkboxes_xpath)))
+    scrollbar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
+
+    for checkbox in browser.find_elements_by_xpath(checkboxes_xpath):
+        checkbox_label = checkbox.get_attribute('innerHTML').strip()
+        checkbox_button_xpath = '//span[text()="{0}"]/ancestor::label/button'.format(checkbox_label)
+        fb_common.scroll_to_element(browser, checkbox_button_xpath, scrollbar_xpath)
+        checkbox_button = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+            .until(ec.presence_of_element_located((By.XPATH, checkbox_button_xpath)))
+        if checkbox_label in option_labels:
+            print("Checking box for:", checkbox_label)
+            if checkbox_button.get_attribute('aria-checked') != 'true':
+                # Only click on the checkbox if it has not been checked
+                checkbox_button.click()
+                time.sleep(fb_common.WAIT_TIME_IN_SEC)
+        else:
+            print("Skipping box for:", checkbox_label)
+            if checkbox_button.get_attribute('aria-checked') == 'true':
+                # If the box is checked, but we don't need this option, uncheck the box
+                checkbox_button.click()
+                time.sleep(fb_common.WAIT_TIME_IN_SEC)
+
+
+def get_accounts_with_templates_created():
+    # Load list of accounts, if any, for which we have already create templates
+    log_folder = fb_common.create_output_folder(os.getcwd(), 'log')
+    template_log_file = os.path.join(log_folder, TEMPLATE_LIST_LOG_FILE)
+    accnts_with_templates_created = []
+    if os.path.exists(template_log_file):
+        with open(template_log_file) as f:
+            accnts_with_templates_created = [line.strip() for line in f]
+    return accnts_with_templates_created
+
+
+def get_all_account_names_and_ids(browser):
+    # Fetch account names and ids from the 'Create Report' prompt
+    account_checkbox_xpath = '//div[@class="uiScrollableAreaContent"]/div/ul/li'
+    WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+        .until(ec.element_to_be_clickable((By.XPATH, account_checkbox_xpath)))
+    account_names = [ele.text.split('\n')[0].strip() for ele in
+            browser.find_elements_by_xpath('//div[@class="uiScrollableAreaContent"]/div/ul/li')[1:]]
+    account_ids = [ele.text.split('\n')[1].strip() for ele in
+            browser.find_elements_by_xpath('//div[@class="uiScrollableAreaContent"]/div/ul/li')[1:]]
+    return account_names, account_ids
+
+
 def main():
+    accounts_with_templates = get_accounts_with_templates_created()
     browser = fb_common.get_chrome_browser_instance()
     fb_common.log_in(browser)
     fb_common.go_to_ads_reporting(browser)
+    print("\nFetching Ads Reporting default landing page (to collect names of all accounts).")
+    time.sleep(fb_common.WAIT_TIME_IN_SEC)
     create_report_btn_xpath = '//div[contains(text(),"Create Report")]//parent::div/parent::button'
     fb_common.click_xpath(browser, create_report_btn_xpath)
-    # ID
-    # (Pdb) len(browser.find_elements_by_xpath('//div[@class="uiScrollableAreaContent"]/div/ul/li/div/div[2]/div[1]/span[contains(text(),"ID")]'))
-    # Accnt name (need to remove the '0'th item
-    # browser.find_elements_by_xpath('//div[@class="uiScrollableAreaContent"]/div/ul/li/div/div[2]/div[1]/span[1]')[1].text
+    account_names, account_ids = get_all_account_names_and_ids(browser)
+    accounts_to_process = list(account_names)
+    accounts_to_process = [a for a in account_names if not a in accounts_with_templates or accounts_to_process.remove(a)]
+    accnt_search_box_xpath = '//input[@placeholder="Search by account name or ID"]'
+    accnt_checkbox_xpath = '//div[@class="uiScrollableAreaContent"]/div/ul/li[1]'
+    create_btn_xpath = '//div[text()="Create"]/parent::div/parent::button'
+    for cur_account_name in accounts_to_process:
+        print("\nCreating a report template for account:", cur_account_name)
+        print("Fetching Ads Reporting default landing page (to go to 'Create Report'.")
+        fb_common.go_to_ads_reporting(browser)
+        time.sleep(fb_common.WAIT_TIME_IN_SEC)
+        fb_common.click_xpath(browser, create_report_btn_xpath)
+        fb_common.enter_str_to_input_field(browser, accnt_search_box_xpath, cur_account_name)
+        # ASSUMPTION: here we (reasonably) hope that there are not duplicates in account names
+        time.sleep(fb_common.WAIT_TIME_IN_SEC)
+        fb_common.click_xpath(browser, accnt_checkbox_xpath)
+        fb_common.click_xpath(browser, create_btn_xpath)
+        time.sleep(fb_common.WAIT_TIME_IN_SEC)
 
-    pdb.set_trace()
-    report_urls = fb_common.get_urls_of_all_accounts(browser,
-                                                     'https://business.facebook.com/adsmanager/reporting/view?')
+        # Choose date range
+        print("Choosing date range.")
+        date_picker_xpath = '//span[@data-testid="date_picker"]//button'
+        last_week_option_xpath = '//ul[@aria-label="Date range selection menu"]/li[text()="Last week"]'
+        fb_common.click_xpath(browser, date_picker_xpath)
+        fb_common.click_xpath(browser, last_week_option_xpath)
 
-    # Prepare list of options to choose for 14 different templates we want to build
-    breakdowns_options_to_always_include = ['Campaign Name', 'Ad Set Name', 'Ad Name', 'Campaign ID', 'Ad Set ID',
-                                            'Ad ID', 'Day', 'Objective']
-    breakdowns_options = [
-        breakdowns_options_to_always_include + [] + ['Video Sound'],
+        # Switch to Metrics tab first because it's common across all different reports we will build
+        metrics_tab_xpath = '//ul[@role="tablist"]/li[2]'
+        fb_common.click_xpath(browser, metrics_tab_xpath)
+        print("Switching to 'Metrics' tab to check options.")
+        time.sleep(fb_common.WAIT_TIME_IN_SEC)
+        check_option_boxes(browser, MUST_HAVE_METRICS_OPTIONS)
 
-        breakdowns_options_to_always_include + ['Age', 'Gender'],
-        breakdowns_options_to_always_include + ['Age', 'Gender'] + ['Destination'],
-        breakdowns_options_to_always_include + ['Age', 'Gender'] + ['Video View Type'],
-        breakdowns_options_to_always_include + ['Age', 'Gender'] + ['Carousel Card'],
+        breakdown_tab_xpath = '//ul[@role="tablist"]/li[1]'
+        print("Switching to 'Breakdowns' tab to check options.")
+        fb_common.click_xpath(browser, breakdown_tab_xpath)
+        time.sleep(fb_common.WAIT_TIME_IN_SEC)
+        for i, options in enumerate(BREAKDOWN_OPTIONS):
+            print("Checking breakdown options:", options)
+            check_option_boxes(browser, options)
 
-        breakdowns_options_to_always_include + ['Country'],
-        breakdowns_options_to_always_include + ['Country'] + ['Destination'],
-        breakdowns_options_to_always_include + ['Country'] + ['Video View Type'],
-        breakdowns_options_to_always_include + ['Country'] + ['Carousel Card'],
-
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Destination'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Video View Type'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Carousel Card'],
-        breakdowns_options_to_always_include + ['Impression Device', 'Platform', 'Placement', 'Device Platform'] + ['Conversion Device'],
-
-        breakdowns_options_to_always_include + ['Product ID'] + ['Destination'],
-        breakdowns_options_to_always_include + ['Product ID'] + ['Video View Type']
-    ]
-
-    performance_options = ['Results', 'Reach', 'Frequency', 'Impressions', 'Delivery', 'Amount Spent',
-                                   'Clicks (All)', 'Cost per Result', 'Cost per 1,000 People Reached',
-                                   'CPM (Cost per 1,000 Impressions)', 'Ad Delivery', 'Ad Set Delivery',
-                                   'Campaign Delivery']
-
-    # TODO: Starting October 2019, FB will change names of 'Video View' to 'Video Play' in some of the metrics above
-    engagement_options = ['Unique 2-Second Continuous Video Views', '2-Second Continuous Video Views',
-                          '3-Second Video Views', '10-Second Video Views', 'Unique 10-Second Video Views',
-                          'ThruPlays', 'Video Average Watch Time', 'Video Plays',
-                          'Cost per 2-Second Continuous Video View', 'Cost per 3-Second Video View',
-                          'Cost per 10-Second Video View', 'Cost per ThruPlay', 'CTR (Link Click-Through Rate)',
-                          'Estimated Ad Recall Lift (People)', 'Estimated Ad Recall Lift Rate',
-                          'Cost per Estimated Ad Recall Lift (People)']
-    metrics_setting_options = ['Account ID', 'Account Name', 'Reporting Starts', 'Reporting Ends', 'Bid',
-                               'Buying Type', 'Objective', 'Schedule', 'Ad ID', 'Ad Name',
-                               'Ad Set ID', 'Ad Set Name', 'Campaign Budget', 'Campaign ID', 'Campaign Name']
-    metrics_options_to_always_include = performance_options + engagement_options + metrics_setting_options
-
-    for url in report_urls:
-        for options in breakdowns_options:
-            print("\nFetching:", url)
-            browser.get(url)
-            # Wait to load all the elements or we will end up getting account names like 'Loading___'
-            time.sleep(fb_common.WAIT_TIME_IN_SEC)
-
-            accnt_name_str = fb_common.get_account_name_and_id(browser)
-            try:
-                print("\nCreating a report template for accnt:", accnt_name_str)
-                create_btn_xpath = '//div[text()="Create"]'
-                fb_common.click_xpath(browser, create_btn_xpath)
-            except TimeoutException:
-                # This means, we are redirected to 'All Reports' page because this account didn't have any prior report templates created
-                print(
-                    "No prior report template exists for this account, so we are now in the "
-                    "'All Reports' page and we'll be creating new report templates")
-
-            print("with options:", options)
-            for option_label in options:
-                check_option_box(browser, option_label)
-
-            # Now we switch to Metrics tab
-            metrics_tab_xpath = '//ul[@role="tablist"]/li[2]'
-            fb_common.click_xpath(browser, metrics_tab_xpath)
-            print("\nSwitching to 'Metrics' tab.")
-            for option_label in metrics_options_to_always_include:
-                check_option_box(browser, option_label)
-
-            date_picker_xpath = '//span[@data-testid="date_picker"]/parent::div'
-            last_week_option_xpath = '//ul[@aria-label="Date range selection menu"]/li[text()="Last week"]'
-            fb_common.click_xpath(browser, date_picker_xpath)
-            fb_common.click_xpath(browser, last_week_option_xpath)
+            save_dropdown_xpath = '//div[@id="save_button"]//button[@data-testid="SUIAbstractMenu/button"]'
+            save_as_btn_xpath = '//li[contains(text(), "Save as")]'
+            fb_common.click_xpath(browser, save_dropdown_xpath)
+            time.sleep(2)
+            fb_common.click_xpath(browser, save_as_btn_xpath)
+            time.sleep(2)
 
             # Combine strings of accnt_name, breakdowns and date range to form template name
+            # from_date, to_date = fb_common.get_report_date_range(browser)
             options_str = '_'.join([re.sub(r'\W', '', i) for i in options])
-            from_date, to_date = fb_common.get_report_date_range(browser)
-            # TODO: number the reports
-            template_name = '_'.join(['DoNotDelete', accnt_name_str, options_str, from_date, to_date])
-
-            edit_report_name_xpath = '//a[@id="all_reports_link"]/following-sibling::a[@href="#"]'
+            template_name = '_'.join([str(i), 'DoNotDelete', cur_account_name, options_str, 'LastWeek'])#from_date, to_date])
             input_field_xpath = '//input[@placeholder="Untitled Report"]'
-            report_name_confirm_btn_xpath = '//div[text()="Confirm"]/ancestor::button'
-            save_btn_xpath = '//div[@id="save_button"]'  # '//div[@id="save_button"]/div/button'
+            fb_common.enter_str_to_input_field(browser, input_field_xpath, template_name)
+            time.sleep(2)
 
-            fb_common.click_xpath(browser, edit_report_name_xpath)
-            enter_str_to_input_field(browser, input_field_xpath, template_name)
-            fb_common.click_xpath(browser, report_name_confirm_btn_xpath)
-            fb_common.click_xpath(browser, save_btn_xpath)
-            print("Created report template:", template_name)
+            report_save_btn_xpath = '//div[text()="Save"]/parent::/div/parent::button'
+            fb_common.click_xpath(browser, report_save_btn_xpath)
+            print("Saved report template:", template_name)
+
+            pdb.set_trace()
+            print('hello')
+            # TODO: here, we Save AS report
+            # browser.find_element_by_xpath('//div[@id="save_button"]//button[@data-testid="SUIAbstractMenu/button"]').click()
+            # browser.find_element_by_xpath('//li[contains(text(), "Save as")]').click()
+            # input_field_xpath = '//input[@placeholder="Untitled Report"]'
+            # report_save_btn_xpath = '//div[text()="Save"]/ancestor::button'
+            # fb_common.enter_str_to_input_field(browser, input_field_xpath, template_name)
+            # fb_common.click_xpath(browser, report_save_btn_xpath)
+            # print("Created report template:", template_name)
+
+        # TODO: we also save account name in the log file
+
+    # for url in report_urls:
+    #     for options in BREAKDOWN_OPTIONS:
+    #         print("\nFetching:", url)
+    #         browser.get(url)
+    #         # Wait to load all the elements or we will end up getting account names like 'Loading___'
+    #         time.sleep(fb_common.WAIT_TIME_IN_SEC)
+    #
+    #         accnt_name_str = fb_common.get_account_name_and_id(browser)
+    #         try:
+    #             print("\nCreating a report template for accnt:", accnt_name_str)
+    #             create_btn_xpath = '//div[text()="Create"]'
+    #             fb_common.click_xpath(browser, create_btn_xpath)
+    #         except TimeoutException:
+    #             # This means, we are redirected to 'All Reports' page because this account didn't have any prior report templates created
+    #             print(
+    #                 "No prior report template exists for this account, so we are now in the "
+    #                 "'All Reports' page and we'll be creating new report templates")
+    #
+    #         print("with options:", options)
+    #         for option_label in options:
+    #             check_option_box(browser, option_label)
+    #
+    #         # Now we switch to Metrics tab
+    #         metrics_tab_xpath = '//ul[@role="tablist"]/li[2]'
+    #         fb_common.click_xpath(browser, metrics_tab_xpath)
+    #         print("\nSwitching to 'Metrics' tab.")
+    #         for option_label in MUST_HAVE_METRICS_OPTIONS:
+    #             check_option_box(browser, option_label)
+    #
+    #         date_picker_xpath = '//span[@data-testid="date_picker"]//button'
+    #         last_week_option_xpath = '//ul[@aria-label="Date range selection menu"]/li[text()="Last week"]'
+    #         fb_common.click_xpath(browser, date_picker_xpath)
+    #         fb_common.click_xpath(browser, last_week_option_xpath)
+    #
+    #         # Combine strings of accnt_name, breakdowns and date range to form template name
+    #         options_str = '_'.join([re.sub(r'\W', '', i) for i in options])
+    #         from_date, to_date = fb_common.get_report_date_range(browser)
+    #         # TODO: number the reports
+    #         template_name = '_'.join(['DoNotDelete', accnt_name_str, options_str, from_date, to_date])
+    #
+    #         edit_report_name_xpath = '//a[@id="all_reports_link"]/following-sibling::a[@href="#"]'
+    #         input_field_xpath = '//input[@placeholder="Untitled Report"]'
+    #         report_name_confirm_btn_xpath = '//div[text()="Confirm"]/ancestor::button'
+    #         save_btn_xpath = '//div[@id="save_button"]'  # '//div[@id="save_button"]/div/button'
+    #
+    #         fb_common.click_xpath(browser, edit_report_name_xpath)
+    #         fb_common.enter_str_to_input_field(browser, input_field_xpath, template_name)
+    #         fb_common.click_xpath(browser, report_name_confirm_btn_xpath)
+    #         fb_common.click_xpath(browser, save_btn_xpath)
+    #         print("Created report template:", template_name)
 
     browser.close()
     print("\nCreated bookmarks on FB Business Manager website.")

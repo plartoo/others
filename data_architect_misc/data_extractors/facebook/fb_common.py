@@ -15,8 +15,8 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-# from selenium.webdriver.common.keys import Keys
-# from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
 import account_info
 
@@ -35,7 +35,7 @@ def get_chrome_browser_instance():
 
 
 def log_in(browser):
-    print("Logging into Business Manager.")
+    print("\nLogging into Business Manager.")
     browser.get(account_info.BASE_URL)
     browser.find_element_by_id('email').clear()
     browser.find_element_by_id('pass').clear()
@@ -45,7 +45,6 @@ def log_in(browser):
 
 
 def go_to_ads_reporting(browser):
-    print("\nFetching Ads Reporting default landing page (to populate/collect links to landing page for each account).")
     browser.get(account_info.ADS_REPORTING_URL)
 
 
@@ -74,9 +73,14 @@ def get_account_name_and_id(browser):
 def click_xpath(browser, xpath):
     ele = WebDriverWait(browser, WAIT_TIME_IN_SEC)\
         .until(ec.element_to_be_clickable((By.XPATH, xpath)))
-    ele.click()
-    # We need this because sometimes (e.g., in clicking on 'save' button) is not clickable
-    # (although we use 'element_to_be_clickable' above)
+    try:
+        ele.click()
+    except ElementClickInterceptedException:
+        # We occasionally and erratically get ElementClickInterceptedException
+        # REF: https://stackoverflow.com/a/48667924
+        browser.execute_script('arguments[0].click();', ele)
+    # We added 5 second break because empirically, we found that it is good
+    # to give this much break before taking the next action in FB web UI
     time.sleep(WAIT_TIME_IN_SEC)
 
 
@@ -91,7 +95,7 @@ def get_report_date_range(browser):
     from_date = ''.join([raw_date_str[-5],
                          datetime.strptime(raw_date_str[-7], '%b').strftime('%m'),
                          datetime.strptime(raw_date_str[-6], '%d').strftime('%d')])
-    return (from_date, to_date)
+    return from_date, to_date
 
 
 def create_output_folder(folder_that_has_this_code, folder_name):
@@ -99,3 +103,30 @@ def create_output_folder(folder_that_has_this_code, folder_name):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     return output_folder
+
+
+def enter_str_to_input_field(browser, xpath_to_input_field, str_to_enter):
+    # REF: https://stackoverflow.com/a/56875177
+    # REF: Selenium expected conditions https://selenium-python.readthedocs.io/waits.html
+    input_field = WebDriverWait(browser, WAIT_TIME_IN_SEC)\
+        .until(ec.element_to_be_clickable((By.XPATH, xpath_to_input_field)))
+    # We can do 'input_field.clear()' but that sometimes doesn't work
+    input_field.send_keys(Keys.CONTROL + 'a')
+    input_field.send_keys(Keys.DELETE)
+    input_field.send_keys(str_to_enter)
+
+
+def scroll_to_element(browser, element_xpath, scrollbar_xpath):
+    element = WebDriverWait(browser, WAIT_TIME_IN_SEC) \
+        .until(ec.presence_of_element_located((By.XPATH, element_xpath)))
+    scrollbar = WebDriverWait(browser, WAIT_TIME_IN_SEC) \
+        .until(ec.presence_of_element_located((By.XPATH, scrollbar_xpath)))
+
+    # Scroll to checkbox element first
+    i = 0
+    while not element.is_displayed():
+        checkbox_location = browser.find_element_by_xpath(element_xpath).location['y'] + i
+        js_scroll = ''.join(['arguments[0].scrollTop=', str(checkbox_location), ';'])
+        browser.execute_script(js_scroll, scrollbar)
+        # We will scroll 200 pixel every time until the checkbox appears in the visible DOM
+        i += 200
