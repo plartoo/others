@@ -114,7 +114,10 @@ def check_option_box(browser, option_label):
         print("Box skipped:", option_label)
 
 
-def check_option_boxes(browser, option_labels):
+def click_option_boxes(browser, option_labels, check_or_uncheck):
+    if check_or_uncheck not in {"check", "uncheck"}:
+        raise ValueError("Choose either 'check' or 'uncheck' as value for clicking option boxes.")
+
     checkboxes_xpath = '//button[@role="checkbox"]/following-sibling::span/div/span'
     WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
         .until(ec.presence_of_element_located((By.XPATH, checkboxes_xpath)))
@@ -127,55 +130,29 @@ def check_option_boxes(browser, option_labels):
         checkbox_button = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
             .until(ec.presence_of_element_located((By.XPATH, checkbox_button_xpath)))
         if checkbox_label in option_labels:
-            if checkbox_label == 'Age':
-                import pdb
-                pdb.set_trace()
-                print('debug')
-            if checkbox_button.get_attribute('aria-checked') != 'true':
-                # Only click on the checkbox if it has not been checked
-                print("Checking box for:", checkbox_label)
-                checkbox_button.click()
-                time.sleep(fb_common.WAIT_TIME_IN_SEC)
+            if check_or_uncheck == "check":
+                if checkbox_button.get_attribute('aria-checked') != 'true':
+                    print("Checking box for:", checkbox_label)
+                    checkbox_button.click()
+                    time.sleep(fb_common.WAIT_TIME_IN_SEC)
+                else:
+                    print("Box already checked:", checkbox_label)
             else:
-                print("Box already checked:", checkbox_label)
+                if checkbox_button.get_attribute('aria-checked') == 'true':
+                    print("Unchecking box for:", checkbox_label)
+                    checkbox_button.click()
+                    time.sleep(fb_common.WAIT_TIME_IN_SEC)
+                else:
+                    print("Box already unchecked:", checkbox_label)
         else:
             print("Skipping box for:", checkbox_label)
             if checkbox_button.get_attribute('aria-checked') == 'true':
                 # If the box is checked, but we don't need this option, uncheck the box
+                # Note, this 'if' branch is really not necessary, but I added this here as extra caution
+                print("**We don't need this option above, but it's checked, so we are unchecking it.")
                 checkbox_button.click()
                 time.sleep(fb_common.WAIT_TIME_IN_SEC)
 
-
-def uncheck_option_boxes(browser, option_labels):
-    checkboxes_xpath = '//button[@role="checkbox"]/following-sibling::span/div/span'
-    WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
-        .until(ec.presence_of_element_located((By.XPATH, checkboxes_xpath)))
-    scrollbar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
-
-    for checkbox in browser.find_elements_by_xpath(checkboxes_xpath):
-        checkbox_label = checkbox.get_attribute('innerHTML').strip()
-        checkbox_button_xpath = '//span[text()="{0}"]/ancestor::label/button'.format(checkbox_label)
-        fb_common.scroll_to_element(browser, checkbox_button_xpath, scrollbar_xpath)
-        checkbox_button = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
-            .until(ec.presence_of_element_located((By.XPATH, checkbox_button_xpath)))
-        if checkbox_label in option_labels:
-            if checkbox_label == 'Age':
-                import pdb
-                pdb.set_trace()
-                print('debug')
-            if checkbox_button.get_attribute('aria-checked') != 'true':
-                # Only click on the checkbox if it has not been checked
-                print("Checking box for:", checkbox_label)
-                checkbox_button.click()
-                time.sleep(fb_common.WAIT_TIME_IN_SEC)
-            else:
-                print("Box already checked:", checkbox_label)
-        else:
-            print("Skipping box for:", checkbox_label)
-            if checkbox_button.get_attribute('aria-checked') == 'true':
-                # If the box is checked, but we don't need this option, uncheck the box
-                checkbox_button.click()
-                time.sleep(fb_common.WAIT_TIME_IN_SEC)
 
 def get_accounts_with_templates_created():
     print("Loading the list of accounts that already have templates created.")
@@ -257,7 +234,7 @@ def main():
         metrics_tab_xpath = '//ul[@role="tablist"]/li[2]'
         fb_common.click_xpath(browser, metrics_tab_xpath)
         time.sleep(fb_common.WAIT_TIME_IN_SEC)
-        check_option_boxes(browser, MUST_HAVE_METRICS_OPTIONS)
+        click_option_boxes(browser, MUST_HAVE_METRICS_OPTIONS, "check")
 
         print("Switching to 'Breakdowns' tab to check options.")
         breakdown_tab_xpath = '//ul[@role="tablist"]/li[1]'
@@ -266,7 +243,7 @@ def main():
 
         for i, options in enumerate(BREAKDOWN_OPTIONS):
             print("Checking breakdown options:", options)
-            check_option_boxes(browser, options)
+            click_option_boxes(browser, options, "check")
 
             print("Clicking 'Save As' from dropdown menu.")
             save_dropdown_xpath = '//div[@id="save_button"]//button[@data-testid="SUIAbstractMenu/button"]'
@@ -291,9 +268,12 @@ def main():
             fb_common.click_xpath(browser, report_save_btn_xpath)
             time.sleep(2)
 
+            print("Unchecking previously selected breakdown options.")
             scrollbar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
-            fb_common.scroll_all_the_way_up(browser, scrollbar_xpath)
-            # TODO: start here
+            # fb_common.scroll_all_the_way_up(browser, scrollbar_xpath)
+            click_option_boxes(browser, options, "uncheck")
+            print("\n")
+
 
         log_finished_account_name(cur_account_name)
 
