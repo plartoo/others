@@ -207,7 +207,7 @@ def main():
 
     for cur_account_name in accounts_to_process:
         print("\nCreating a report template for account:", cur_account_name)
-        print("Fetching Ads Reporting default landing page (to go to 'Create Report'.")
+        print("Fetching Ads Reporting default landing page (to go to 'Create Report'.)")
         fb_common.go_to_ads_reporting(browser)
         time.sleep(fb_common.WAIT_TIME_IN_SEC)
 
