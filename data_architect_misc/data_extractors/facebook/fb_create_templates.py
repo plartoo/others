@@ -127,11 +127,17 @@ def check_option_boxes(browser, option_labels):
         checkbox_button = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
             .until(ec.presence_of_element_located((By.XPATH, checkbox_button_xpath)))
         if checkbox_label in option_labels:
-            print("Checking box for:", checkbox_label)
+            if checkbox_label == 'Age':
+                import pdb
+                pdb.set_trace()
+                print('debug')
             if checkbox_button.get_attribute('aria-checked') != 'true':
                 # Only click on the checkbox if it has not been checked
+                print("Checking box for:", checkbox_label)
                 checkbox_button.click()
                 time.sleep(fb_common.WAIT_TIME_IN_SEC)
+            else:
+                print("Box already checked:", checkbox_label)
         else:
             print("Skipping box for:", checkbox_label)
             if checkbox_button.get_attribute('aria-checked') == 'true':
@@ -140,15 +146,56 @@ def check_option_boxes(browser, option_labels):
                 time.sleep(fb_common.WAIT_TIME_IN_SEC)
 
 
+def uncheck_option_boxes(browser, option_labels):
+    checkboxes_xpath = '//button[@role="checkbox"]/following-sibling::span/div/span'
+    WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+        .until(ec.presence_of_element_located((By.XPATH, checkboxes_xpath)))
+    scrollbar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
+
+    for checkbox in browser.find_elements_by_xpath(checkboxes_xpath):
+        checkbox_label = checkbox.get_attribute('innerHTML').strip()
+        checkbox_button_xpath = '//span[text()="{0}"]/ancestor::label/button'.format(checkbox_label)
+        fb_common.scroll_to_element(browser, checkbox_button_xpath, scrollbar_xpath)
+        checkbox_button = WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC) \
+            .until(ec.presence_of_element_located((By.XPATH, checkbox_button_xpath)))
+        if checkbox_label in option_labels:
+            if checkbox_label == 'Age':
+                import pdb
+                pdb.set_trace()
+                print('debug')
+            if checkbox_button.get_attribute('aria-checked') != 'true':
+                # Only click on the checkbox if it has not been checked
+                print("Checking box for:", checkbox_label)
+                checkbox_button.click()
+                time.sleep(fb_common.WAIT_TIME_IN_SEC)
+            else:
+                print("Box already checked:", checkbox_label)
+        else:
+            print("Skipping box for:", checkbox_label)
+            if checkbox_button.get_attribute('aria-checked') == 'true':
+                # If the box is checked, but we don't need this option, uncheck the box
+                checkbox_button.click()
+                time.sleep(fb_common.WAIT_TIME_IN_SEC)
+
 def get_accounts_with_templates_created():
-    # Load list of accounts, if any, for which we have already create templates
+    print("Loading the list of accounts that already have templates created.")
     log_folder = fb_common.create_output_folder(os.getcwd(), 'log')
     template_log_file = os.path.join(log_folder, TEMPLATE_LIST_LOG_FILE)
+
     accnts_with_templates_created = []
     if os.path.exists(template_log_file):
         with open(template_log_file) as f:
             accnts_with_templates_created = [line.strip() for line in f]
     return accnts_with_templates_created
+
+
+def log_finished_account_name(account_name):
+    print("Logging the name of account we have created templates for:", account_name)
+    log_folder = fb_common.create_output_folder(os.getcwd(), 'log')
+    template_log_file = os.path.join(log_folder, TEMPLATE_LIST_LOG_FILE)
+
+    with open(template_log_file, 'a') as f:
+        f.write(''.join([account_name, '\n']))
 
 
 def get_all_account_names_and_ids(browser):
@@ -170,49 +217,58 @@ def main():
     fb_common.go_to_ads_reporting(browser)
     print("\nFetching Ads Reporting default landing page (to collect names of all accounts).")
     time.sleep(fb_common.WAIT_TIME_IN_SEC)
+
     create_report_btn_xpath = '//div[contains(text(),"Create Report")]//parent::div/parent::button'
     fb_common.click_xpath(browser, create_report_btn_xpath)
+
     account_names, account_ids = get_all_account_names_and_ids(browser)
     accounts_to_process = list(account_names)
     accounts_to_process = [a for a in account_names if not a in accounts_with_templates or accounts_to_process.remove(a)]
     accnt_search_box_xpath = '//input[@placeholder="Search by account name or ID"]'
     accnt_checkbox_xpath = '//div[@class="uiScrollableAreaContent"]/div/ul/li[1]'
     create_btn_xpath = '//div[text()="Create"]/parent::div/parent::button'
+
     for cur_account_name in accounts_to_process:
         print("\nCreating a report template for account:", cur_account_name)
         print("Fetching Ads Reporting default landing page (to go to 'Create Report'.")
         fb_common.go_to_ads_reporting(browser)
         time.sleep(fb_common.WAIT_TIME_IN_SEC)
+
+        print("Searching for account in 'Create Report' prompt.")
         fb_common.click_xpath(browser, create_report_btn_xpath)
-        fb_common.enter_str_to_input_field(browser, accnt_search_box_xpath, cur_account_name)
         # ASSUMPTION: here we (reasonably) hope that there are not duplicates in account names
+        fb_common.enter_str_to_input_field(browser, accnt_search_box_xpath, cur_account_name)
         time.sleep(fb_common.WAIT_TIME_IN_SEC)
         fb_common.click_xpath(browser, accnt_checkbox_xpath)
+
+        print("Clicking 'Create Report' button.")
         fb_common.click_xpath(browser, create_btn_xpath)
         time.sleep(fb_common.WAIT_TIME_IN_SEC)
 
         # Choose date range
-        print("Choosing date range.")
+        print("Choosing date range for report template.")
         date_picker_xpath = '//span[@data-testid="date_picker"]//button'
         last_week_option_xpath = '//ul[@aria-label="Date range selection menu"]/li[text()="Last week"]'
         fb_common.click_xpath(browser, date_picker_xpath)
         fb_common.click_xpath(browser, last_week_option_xpath)
 
         # Switch to Metrics tab first because it's common across all different reports we will build
+        print("Switching to 'Metrics' tab to check options.")
         metrics_tab_xpath = '//ul[@role="tablist"]/li[2]'
         fb_common.click_xpath(browser, metrics_tab_xpath)
-        print("Switching to 'Metrics' tab to check options.")
         time.sleep(fb_common.WAIT_TIME_IN_SEC)
         check_option_boxes(browser, MUST_HAVE_METRICS_OPTIONS)
 
-        breakdown_tab_xpath = '//ul[@role="tablist"]/li[1]'
         print("Switching to 'Breakdowns' tab to check options.")
+        breakdown_tab_xpath = '//ul[@role="tablist"]/li[1]'
         fb_common.click_xpath(browser, breakdown_tab_xpath)
         time.sleep(fb_common.WAIT_TIME_IN_SEC)
+
         for i, options in enumerate(BREAKDOWN_OPTIONS):
             print("Checking breakdown options:", options)
             check_option_boxes(browser, options)
 
+            print("Clicking 'Save As' from dropdown menu.")
             save_dropdown_xpath = '//div[@id="save_button"]//button[@data-testid="SUIAbstractMenu/button"]'
             save_as_btn_xpath = '//li[contains(text(), "Save as")]'
             fb_common.click_xpath(browser, save_dropdown_xpath)
@@ -221,6 +277,7 @@ def main():
             time.sleep(2)
 
             # Combine strings of accnt_name, breakdowns and date range to form template name
+            print("Entering report name to input field.")
             # from_date, to_date = fb_common.get_report_date_range(browser)
             options_str = '_'.join([re.sub(r'\W', '', i) for i in options])
             template_name = '_'.join([str(i), 'DoNotDelete', cur_account_name, options_str, 'LastWeek'])#from_date, to_date])
@@ -228,73 +285,17 @@ def main():
             fb_common.enter_str_to_input_field(browser, input_field_xpath, template_name)
             time.sleep(2)
 
-            report_save_btn_xpath = '//div[text()="Save"]/parent::/div/parent::button'
+            print("Saving report template:", template_name)
+            # There are two 'Save As' buttons and we need to make sure we are clicking on the right one
+            report_save_btn_xpath = '//div[@aria-label="Save Report As"]//div[text()="Save"]/ancestor::button'
             fb_common.click_xpath(browser, report_save_btn_xpath)
-            print("Saved report template:", template_name)
+            time.sleep(2)
 
-            pdb.set_trace()
-            print('hello')
-            # TODO: here, we Save AS report
-            # browser.find_element_by_xpath('//div[@id="save_button"]//button[@data-testid="SUIAbstractMenu/button"]').click()
-            # browser.find_element_by_xpath('//li[contains(text(), "Save as")]').click()
-            # input_field_xpath = '//input[@placeholder="Untitled Report"]'
-            # report_save_btn_xpath = '//div[text()="Save"]/ancestor::button'
-            # fb_common.enter_str_to_input_field(browser, input_field_xpath, template_name)
-            # fb_common.click_xpath(browser, report_save_btn_xpath)
-            # print("Created report template:", template_name)
+            scrollbar_xpath = '//div[@id="left_rail_nux_target_node"]/div/div'
+            fb_common.scroll_all_the_way_up(browser, scrollbar_xpath)
+            # TODO: start here
 
-        # TODO: we also save account name in the log file
-
-    # for url in report_urls:
-    #     for options in BREAKDOWN_OPTIONS:
-    #         print("\nFetching:", url)
-    #         browser.get(url)
-    #         # Wait to load all the elements or we will end up getting account names like 'Loading___'
-    #         time.sleep(fb_common.WAIT_TIME_IN_SEC)
-    #
-    #         accnt_name_str = fb_common.get_account_name_and_id(browser)
-    #         try:
-    #             print("\nCreating a report template for accnt:", accnt_name_str)
-    #             create_btn_xpath = '//div[text()="Create"]'
-    #             fb_common.click_xpath(browser, create_btn_xpath)
-    #         except TimeoutException:
-    #             # This means, we are redirected to 'All Reports' page because this account didn't have any prior report templates created
-    #             print(
-    #                 "No prior report template exists for this account, so we are now in the "
-    #                 "'All Reports' page and we'll be creating new report templates")
-    #
-    #         print("with options:", options)
-    #         for option_label in options:
-    #             check_option_box(browser, option_label)
-    #
-    #         # Now we switch to Metrics tab
-    #         metrics_tab_xpath = '//ul[@role="tablist"]/li[2]'
-    #         fb_common.click_xpath(browser, metrics_tab_xpath)
-    #         print("\nSwitching to 'Metrics' tab.")
-    #         for option_label in MUST_HAVE_METRICS_OPTIONS:
-    #             check_option_box(browser, option_label)
-    #
-    #         date_picker_xpath = '//span[@data-testid="date_picker"]//button'
-    #         last_week_option_xpath = '//ul[@aria-label="Date range selection menu"]/li[text()="Last week"]'
-    #         fb_common.click_xpath(browser, date_picker_xpath)
-    #         fb_common.click_xpath(browser, last_week_option_xpath)
-    #
-    #         # Combine strings of accnt_name, breakdowns and date range to form template name
-    #         options_str = '_'.join([re.sub(r'\W', '', i) for i in options])
-    #         from_date, to_date = fb_common.get_report_date_range(browser)
-    #         # TODO: number the reports
-    #         template_name = '_'.join(['DoNotDelete', accnt_name_str, options_str, from_date, to_date])
-    #
-    #         edit_report_name_xpath = '//a[@id="all_reports_link"]/following-sibling::a[@href="#"]'
-    #         input_field_xpath = '//input[@placeholder="Untitled Report"]'
-    #         report_name_confirm_btn_xpath = '//div[text()="Confirm"]/ancestor::button'
-    #         save_btn_xpath = '//div[@id="save_button"]'  # '//div[@id="save_button"]/div/button'
-    #
-    #         fb_common.click_xpath(browser, edit_report_name_xpath)
-    #         fb_common.enter_str_to_input_field(browser, input_field_xpath, template_name)
-    #         fb_common.click_xpath(browser, report_name_confirm_btn_xpath)
-    #         fb_common.click_xpath(browser, save_btn_xpath)
-    #         print("Created report template:", template_name)
+        log_finished_account_name(cur_account_name)
 
     browser.close()
     print("\nCreated bookmarks on FB Business Manager website.")

@@ -16,6 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
 import account_info
@@ -130,3 +131,13 @@ def scroll_to_element(browser, element_xpath, scrollbar_xpath):
         browser.execute_script(js_scroll, scrollbar)
         # We will scroll 200 pixel every time until the checkbox appears in the visible DOM
         i += 200
+
+
+def scroll_all_the_way_up(browser, scrollbar_xpath):
+    # REF: https://stackoverflow.com/q/39471163
+    print("Scrolling all the way up the window pane.")
+    scrollbar = WebDriverWait(browser, WAIT_TIME_IN_SEC)\
+        .until(ec.element_to_be_clickable((By.XPATH, scrollbar_xpath)))
+    scrollbar.click()
+    ActionChains(browser).send_keys(Keys.HOME).perform()
+
