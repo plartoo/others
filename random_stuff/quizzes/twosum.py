@@ -7,61 +7,55 @@ def two_sum(nums, target):
                 print(count)
                 return [i, i+j]
     print(count)
-    return "Sorry"
+    return "Sorry. No desired pairing found."
 
 
 def two_sum2(nums, target):
     count = 0
+    print("\n", nums, "=>", target)
     for i, n1 in enumerate(nums):
         diff = target - n1
         for j, n2 in enumerate(nums[i:]):
             count += 1
             if diff == n2:
                 print(count)
-                return [i, i+j]
+                return ''.join(["Found:", str([i, i+j])])
     print(count)
-    return "Sorry"
+    return "Sorry. No desired pairing found."
+
+
+def two_sums3(nums, target):
+    d = {}
+    count = 0
+    print("\n", nums, "=>", target)
+    for i, n1 in enumerate(nums):
+        count += 1
+        diff = target - n1
+        if diff > 0:
+            d[diff] = i
+        if n1 in d:
+            if (n1 != diff):
+                return ''.join(["Found:", str([i,d[n1]])])
+    print(count)
+    return "Sorry. No desired pairing found."
 
 
 if __name__ == '__main__':
-    nums1 = [2, 7, 11, 15]
-    target = 9
-    print(two_sum(nums1, target))
-
-    nums1 = [2, 7, 11, 15]
-    target = 15
-    print(two_sum(nums1, target))
-
-    nums1 = [2, 7, 11, 15]
-    target = 22
-    print(two_sum(nums1, target))
-
-    nums1 = [2, 7, 11, 15]
-    target = 26
-    print(two_sum(nums1, target))
-
-    nums1 = [7, 11, 15, 2]
-    target = 9
-    print(two_sum(nums1, target))
-
+    # print(two_sum([2, 7, 11, 15], 9))
+    # print(two_sum([2, 7, 11, 15], 15))
+    # print(two_sum([2, 7, 11, 15], 22))
+    # print(two_sum([2, 7, 11, 15], 26))
+    # print(two_sum([7, 11, 15, 2], 9))
+    # print("\n====\n")
+    print(two_sum2([2, 7, 11, 15], 9))
+    print(two_sum2([22, 7, 11, 15], 15))
+    print(two_sum2([2, 7, 11, 15], 22))
+    print(two_sum2([2, 7, 11, 15], 26))
+    print(two_sum2([7, 11, 15, 2], 9))
     print("\n====\n")
-
-    nums1 = [2, 7, 11, 15]
-    target = 9
-    print(two_sum2(nums1, target))
-
-    nums1 = [2, 7, 11, 15]
-    target = 15
-    print(two_sum2(nums1, target))
-
-    nums1 = [2, 7, 11, 15]
-    target = 22
-    print(two_sum2(nums1, target))
-
-    nums1 = [2, 7, 11, 15]
-    target = 26
-    print(two_sum2(nums1, target))
-
-    nums1 = [7, 11, 15, 2]
-    target = 9
-    print(two_sum2(nums1, target))
+    print(two_sums3([2, 7, 11, 15], 9)) # [0,1]
+    print(two_sums3([22, 7, 11, 15], 15)) # no
+    print(two_sums3([2, 7, 11, 15], 22)) # [1,3]
+    print(two_sums3([2, 7, 11, 15], 26)) # [2,3]
+    print(two_sums3([7, 11, 15, 2], 9)) # [0,3]
+    print(two_sums3([7, 11, 15, 2], 0)) # no
