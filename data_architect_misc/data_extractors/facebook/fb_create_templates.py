@@ -205,7 +205,7 @@ def main():
     accnt_checkbox_xpath = '//div[@class="uiScrollableAreaContent"]/div/ul/li[1]'
     create_btn_xpath = '//div[text()="Create"]/parent::div/parent::button'
 
-    for cur_account_name in accounts_to_process:
+    for cur_account_name in accounts_to_process: #[a for a in accounts_to_process if 'CO_OC_UltraSoft_e1' in a]:
         print("\nCreating a report template for account:", cur_account_name)
         print("Fetching Ads Reporting default landing page (to go to 'Create Report'.)")
         fb_common.go_to_ads_reporting(browser)
@@ -247,7 +247,7 @@ def main():
 
             print("Clicking 'Save As' from dropdown menu.")
             save_dropdown_xpath = '//div[@id="save_button"]//button[@data-testid="SUIAbstractMenu/button"]'
-            save_as_btn_xpath = '//li[contains(text(), "Save as")]'
+            save_as_btn_xpath = '//*[contains(text(), "Save as")]/parent::li'
             fb_common.click_xpath(browser, save_dropdown_xpath)
             time.sleep(2)
             fb_common.click_xpath(browser, save_as_btn_xpath)
@@ -273,7 +273,6 @@ def main():
             # fb_common.scroll_all_the_way_up(browser, scrollbar_xpath)
             click_option_boxes(browser, options, "uncheck")
             print("\n")
-
 
         log_finished_account_name(cur_account_name)
 
