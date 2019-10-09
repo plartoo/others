@@ -111,13 +111,6 @@ def get_all_report_names_in_current_dom(browser):
     return [r.text for r in browser.find_elements_by_xpath(report_name_xpath)]
 
 
-def get_all_report_names_in_current_dom(browser):
-    report_name_xpath = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]//a[@href="#"]/div'
-    WebDriverWait(browser, fb_common.WAIT_TIME_IN_SEC)\
-        .until(ec.presence_of_element_located((By.XPATH, report_name_xpath)))
-    return [r.text for r in browser.find_elements_by_xpath(report_name_xpath)]
-
-
 def fetch_list_of_all_relevant_reports(browser):
     all_reports = []
     scroll_div = '//div[@class="ReactVirtualized__Grid__innerScrollContainer"]/parent::div'
@@ -161,14 +154,16 @@ def main():
     fb_common.log_in(browser)
     fb_common.go_to_ads_reporting(browser)
 
+    print("Fetching list of all available report template names...")
     all_reports = fetch_list_of_all_relevant_reports(browser)
     print("Num of all unfiltered reports:", len(all_reports))
-    all_filtered_reports = list(filter(lambda x: (TEMPLATE_PREFIX in x), all_reports))
-    print("Num of filtered reports:", len(all_reports))
-    downloaded_report_names = []
+    all_filtered_reports = all_reports
+    # all_filtered_reports = list(filter(lambda x: (TEMPLATE_PREFIX in x), all_reports))
+    print("Num of filtered reports:", len(all_filtered_reports))
 
+    downloaded_report_names = []
     i = 0
-    for report_name in all_filtered_reports:
+    for report_name in [r for r in all_filtered_reports if '0_Test_CO_OC_UltraSoft_e1' in r]:#all_filtered_reports:
         if not (report_name in downloaded_report_names):
             i += 1
             print("\n", str(i), ".Trying to download report:", report_name)
@@ -198,7 +193,7 @@ def main():
             print("\nData download for template:", report_name, " finished.")
 
     browser.close()
-    print("\nFinished scraping data from RenTrak website.")
+    print("\nFinished scraping data from FB Business Manager website.")
 
 
 if __name__ == '__main__':
