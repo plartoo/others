@@ -6,6 +6,16 @@ individual networks (Market_Monthly_Trend), for each market based on
 national ratings (Network_Monthly_Trend), both of which we have
 downloaded using Selenium.
 
+Usage:
+1. >> python calculate_indexes.py
+will take in all the market and network trend files in input ('selenium_output')
+folder, and use 'network_mappings*.csv' file to join these two sets of data
+to calculate indexes.
+
+2.  >> python calculate_indexes.py - y 2019
+will do the same as #1 above, but only take in year 2019 raw data files to calculate
+indexes.
+
 IMPORTANT NOTE: Before running this script, we must create a mapping
 file between network names in Market Monthly Trend and Network Monthly Trend
 files. Use 'create_mappings.py' script to generate that file, and
@@ -14,6 +24,7 @@ ONLY AFTER THAT, run this script.
 
 import pdb
 
+import argparse
 from datetime import datetime
 import re
 import os
@@ -56,10 +67,16 @@ def split_files_by_year(list_of_files):
     date_range_and_files = {}
     for d in date_ranges:
         date_range_and_files[d] = [f for f in list_of_files if d in f]
+
     return date_range_and_files
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Calculate indexes based on market (network) ratings and national ratings.')
+    parser.add_argument('-y', required=False, type=str,
+                        help='If you want to process indexes for just one year, enter the year string here.')
+    args = parser.parse_args()
+
     create_output_folder(OUTPUT_FOLDER)
 
     # Step 1: Load mappings between individual network files (Market Monthly Trend) and
@@ -111,6 +128,13 @@ def main():
                                                 if (os.path.isfile(os.path.join(INPUT_FOLDER, f))
                                                     and PARTIAL_MARKET_MONTHLY_TREND_FILE_NAME in f)])
 
+    if args.y:
+        dates = list(market_files_by_date.keys())
+        cur_year = str(datetime.now().year)
+        for d in dates:
+            if not (cur_year in d):
+                market_files_by_date.pop(d, None)
+
     # Step 3: Go through individual market monthly files and find corresponding period's and
     # market's national ratings from network monthly files to calculate the indexes.
     for d, files in market_files_by_date.items():
@@ -141,10 +165,12 @@ def main():
                     for date, market_rating in row.items():
                         if not pd.isnull(market_rating): # only if it's not 'NaN'
                             short_name = mappings_df.loc[network_name, SHORT_NAME_COLUMN]
-                            if not short_name in national_ratings_df.index:
-                                # cases where short_name is not available or cannot be easily decided such as
+                            if (short_name == 'Not Available') or (not short_name in national_ratings_df.index):
+                                # Cases where short_name is not available or cannot be easily decided such as
                                 # Azteca (Broadcast), for which we only have national rating for Azteca
-                                # (not for broadcast specifically)
+                                # (not for broadcast specifically). Usually, in these cases, the Market Monthly
+                                # files for these networks are also empty, so they are taken care of by
+                                # if 'df.empty' check above.
                                 rating_indexes.append([network_name, market_name, short_name, date,
                                                        1.0, market_rating, 0.0])
                             else:
@@ -154,7 +180,8 @@ def main():
                                                            market_rating / national_rating, market_rating,
                                                            national_rating])
                                 else:
-                                    # cases where we simply don't have ratings in national_ratings table (but the index exists)
+                                    # Cases where we simply don't have ratings in the national_ratings table
+                                    # But I have never seen this scenario with real data
                                     rating_indexes.append([network_name, market_name, short_name, date,
                                                            1.0, market_rating, 0.0])
 
