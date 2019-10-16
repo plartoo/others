@@ -1,0 +1,26 @@
+Run these codes in this order:
+
+1. Run 'rentrak_selenium.py'.
+2. In 'selenium_output' folder, you'll find new
+'Market_Monthly_Trend_Individual_Network_All_Markets_20*_20*__<Channel>.xlsx' files,
+'Network_Monthly_Trend_All_Markets_A_L_Networks_20*_20*.xlsx' and
+'Network_Monthly_Trend_All_Markets_M_Z_Networks_20*_20*.xlsx'
+3. Run 'create_mappings.py' and it will output 'network_mappings_<current_date>.csv' in 'selenium_output' folder.
+4. Compare the output from step #3 above with existing mapping file 'network_mappings_utf8.csv'.
+Update the entries in 'network_mappings_utf8.csv' if there are new entries/changes in latest network mapping
+file from step #3.
+5. Delete latest network mapping files in step #3 (i.e. leave only one 'network_mappings*' file with updated
+mappings in 'selenium_output' folder).
+6. Run 'calculate_indexes.py' and it'll output 'rating_indexes_20*_20*.csv' file in 'index_calculation_output' folder.
+
+== If you need to calculate Colgate and competitor's national ratings, do the following ==
+Note: before calculating colpal ratings, make sure all the network codes in colpal rating files
+(e.g., column 'G' of 'Colgate', 'Sensodyne' and 'Crest' tabs in 'toothpaste_ratings.xlsx') are a subset of
+column 'C' of '<rating_indexes_20*.csv>'. Useful note on how to compare subsets in Excel is:
+https://web.archive.org/web/20191011214556/https://answers.microsoft.com/en-us/msoffice/forum/msoffice_excel-mso_winother-mso_2007/excel-checking-two-columns-and-see-if-one-is-a/cef87218-7df8-437b-ae1d-2621d5b2a797
+
+7. Run 'calculate_colpal_ratings.py -i1 <rating_indexes_20*.csv> -o <output_file.csv>', where <rating_indexes_20*.csv>
+is the one generated in step #6 above and <output_file.csv> is the name you want to give to the output file.
+
+
+

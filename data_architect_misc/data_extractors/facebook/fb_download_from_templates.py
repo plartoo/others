@@ -129,7 +129,7 @@ def fetch_list_of_all_relevant_reports(browser):
 
         cur_scroll_pos += scroll_length
         js = ''.join(['arguments[0].scrollTop=', str(cur_scroll_pos), ';'])
-        # Scroll 600 pixel down and repeat
+        # Scroll 300 pixel down and repeat
         browser.execute_script(js, browser.find_elements_by_xpath(scroll_div)[-1])
         reports_in_dom = get_all_report_names_in_current_dom(browser)
     return all_reports
@@ -143,7 +143,7 @@ def scroll_to_report_name(browser, report_name):
     while not report_name in reports_in_dom:
         cur_scroll_pos += scroll_length
         js = ''.join(['arguments[0].scrollTop=', str(cur_scroll_pos), ';'])
-        # Scroll 600 pixel down and repeat
+        # Scroll 300 pixel down and repeat
         browser.execute_script(js, browser.find_elements_by_xpath(scroll_div)[-1])
         reports_in_dom = get_all_report_names_in_current_dom(browser)
 
@@ -157,22 +157,22 @@ def main():
     print("Fetching list of all available report template names...")
     all_reports = fetch_list_of_all_relevant_reports(browser)
     print("Num of all unfiltered reports:", len(all_reports))
-    all_filtered_reports = all_reports
-    # all_filtered_reports = list(filter(lambda x: (TEMPLATE_PREFIX in x), all_reports))
+    # all_filtered_reports = all_reports
+    all_filtered_reports = list(filter(lambda x: (TEMPLATE_PREFIX in x), all_reports))
     print("Num of filtered reports:", len(all_filtered_reports))
 
     downloaded_report_names = []
     i = 0
-    for report_name in [r for r in all_filtered_reports if '0_Test_CO_OC_UltraSoft_e1' in r]:#all_filtered_reports:
+    for report_name in all_filtered_reports: #['0_Test_CO_OC_UltraSoft_e1_AccountName_CampaignName_AdSetName_AdName_AccountID_CampaignID_AdSetID_AdID_Day_Objective_VideoSound_LastWeek']:
         if not (report_name in downloaded_report_names):
             i += 1
-            print("\n", str(i), ".Trying to download report:", report_name)
+            print("\n", str(i), ".Downloading report:", report_name)
             fb_common.go_to_ads_reporting(browser)
             time.sleep(fb_common.WAIT_TIME_IN_SEC)
             scroll_to_report_name(browser, report_name)
             time.sleep(fb_common.WAIT_TIME_IN_SEC)
             report_xpath = '//div[contains(text(),"{0}")]//parent::a//parent::span//parent::div//parent::div//parent::div'.format(report_name)
-            # TODO: maybe instead of  using click_xpath, try this JS click approach because we often get ElementClickInterceptedException here
+            # REF: This is how we might be able to click using direct JS call
             # https://stackoverflow.com/a/48667924/1330974
             fb_common.click_xpath(browser, report_xpath)
             from_date, to_date = fb_common.get_report_date_range(browser)

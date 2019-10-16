@@ -18,13 +18,13 @@ def two_sum2(nums, target):
         for j, n2 in enumerate(nums[i:]):
             count += 1
             if diff == n2:
-                print(count)
+                # print(count)
                 return ''.join(["Found:", str([i, i+j])])
-    print(count)
+    # print(count)
     return "Sorry. No desired pairing found."
 
 
-def two_sums3(nums, target):
+def two_sum3(nums, target):
     d = {}
     count = 0
     print("\n", nums, "=>", target)
@@ -34,9 +34,9 @@ def two_sums3(nums, target):
         if diff > 0:
             d[diff] = i
         if n1 in d:
-            if (n1 != diff):
+            if i != d[n1]: # for cases where the target = current_num * 2
                 return ''.join(["Found:", str([i,d[n1]])])
-    print(count)
+    # print(count)
     return "Sorry. No desired pairing found."
 
 
@@ -52,10 +52,11 @@ if __name__ == '__main__':
     print(two_sum2([2, 7, 11, 15], 22))
     print(two_sum2([2, 7, 11, 15], 26))
     print(two_sum2([7, 11, 15, 2], 9))
+    print(two_sum2([7, 11, 15, 2], 0)) # no
     print("\n====\n")
-    print(two_sums3([2, 7, 11, 15], 9)) # [0,1]
-    print(two_sums3([22, 7, 11, 15], 15)) # no
-    print(two_sums3([2, 7, 11, 15], 22)) # [1,3]
-    print(two_sums3([2, 7, 11, 15], 26)) # [2,3]
-    print(two_sums3([7, 11, 15, 2], 9)) # [0,3]
-    print(two_sums3([7, 11, 15, 2], 0)) # no
+    print(two_sum3([2, 7, 11, 15], 9)) # [0,1]
+    print(two_sum3([22, 7, 11, 15], 15)) # no
+    print(two_sum3([2, 7, 11, 15], 22)) # [1,3]
+    print(two_sum3([2, 7, 11, 15], 26)) # [2,3]
+    print(two_sum3([7, 11, 15, 2], 9)) # [0,3]
+    print(two_sum3([7, 11, 15, 2], 0)) # no
