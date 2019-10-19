@@ -25,6 +25,7 @@ session = FacebookSession(
 )
 api = FacebookAdsApi(session)
 
+
 if __name__ == '__main__':
     FacebookAdsApi.set_default_api(api)
 
@@ -40,21 +41,23 @@ if __name__ == '__main__':
     ### Get first account connected to the user
     my_account = me.get_ad_account()
 
-    ### Read connections (in this case, the accounts connected to me)
+    accnt = [a for a in me.get_ad_accounts() if a['account_id'] == '609465202905776'][0]
+    accnt.get_ad_sets()[0]
+    pdb.set_trace()
 
-    # Pro tip: Use list(me.get_ad_accounts()) to make a list out of
-    # all the elements out of the iterator
+    # ### Read connections (in this case, the accounts connected to me)
+    # # Pro tip: Use list(me.get_ad_accounts()) to make a list out of
+    # # all the elements out of the iterator
+    # my_accounts_iterator = me.get_ad_accounts()
+    # i = 0
+    # print('>>> Reading accounts associated with user')
+    # for account in my_accounts_iterator:
+    #     i += 1
+    #     print(i)
+    #     pp.pprint(account)
 
-    my_accounts_iterator = me.get_ad_accounts()
-    i = 0
-    print('>>> Reading accounts associated with user')
-    for account in my_accounts_iterator:
-        i += 1
-        print(i)
-        pp.pprint(account)
 
     print(">>> Campaign Stats")
-    pdb.set_trace()
     for campaign in my_account.get_campaigns(fields=[AdCampaign.Field.name]):
         for stat in campaign.get_stats(fields=[
             'impressions',
@@ -66,3 +69,7 @@ if __name__ == '__main__':
             print(campaign[campaign.Field.name])
             for statfield in stat:
                 print("\t%s:\t\t%s" % (statfield, stat[statfield]))
+
+#https://github.com/facebook/facebook-python-business-sdk/blob/master/facebook_business/adobjects/adaccount.py
+#get_ads(self, fields=None, params=None, batch=None, success=None, failure=None, pending=False)
+#get_ad_sets(self, fields=None, params=None, batch=None, success=None, failure=None, pending=False)
