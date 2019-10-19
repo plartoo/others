@@ -3,4 +3,3 @@ def roman(strg):
 
 if __name__ == '__main__':
     print(roman("VI"))
-    
