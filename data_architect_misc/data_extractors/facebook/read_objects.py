@@ -110,12 +110,60 @@ if __name__ == '__main__':
     ### Get first account connected to the user
     my_account = me.get_ad_account()
 
+    # for each account
+    # ****  for each campaign (get campaign with delivery info)
+    #           for each adset
+    #               for each ads
+    #
+    for accnt in me.get_ad_accounts():
+        # ** for ar_oc (1935368456694290), there are 23 campaigns and it checks out
+        # but for  co_oc (1904787169752419), there are 34 campaigns and the API returns just 25
+        # there seems to be a limit and how do we remove that?
+
+        pdb.set_trace()
+        print("hello")
+
+    accnt = [a for a in me.get_ad_accounts() if a['account_id'] == '609465202905776'][0]
+    accnt.get_ads()[0]
+    # get_insights(fields=fields,params=params,))
+    pdb.set_trace()
+
+    # ### Read connections (in this case, the accounts connected to me)
+    # # Pro tip: Use list(me.get_ad_accounts()) to make a list out of
+    # # all the elements out of the iterator
+    # my_accounts_iterator = me.get_ad_accounts()
+    # i = 0
+    # print('>>> Reading accounts associated with user')
+    # for account in my_accounts_iterator:
+    #     i += 1
+    #     print(i)
+    #     pp.pprint(account)
+
+    print(">>> Campaign Stats")
+    for campaign in my_account.get_campaigns(fields=[AdCampaign.Field.name]):
+        for stat in campaign.get_stats(fields=[
+            'impressions',
+            'clicks',
+            'spent',
+            'unique_clicks',
+            'actions',
+        ]):
+            print(campaign[campaign.Field.name])
+            for statfield in stat:
+                print("\t%s:\t\t%s" % (statfield, stat[statfield]))
+
+# https://github.com/facebook/facebook-python-business-sdk/blob/master/facebook_business/adobjects/adaccount.py
+# get_ads(self, fields=None, params=None, batch=None, success=None, failure=None, pending=False)
+# get_ad_sets(self, fields=None, params=None, batch=None, success=None, failure=None, pending=False)
+
+
     # TODO: opened URLs:
     # https://developers.facebook.com/docs/business-sdk/getting-started#python
     # https://developers.facebook.com/docs/marketing-api/insights/#query-for-statistics
     # https://developers.facebook.com/docs/marketing-api/insights/breakdowns#combiningbreakdowns
     # https://developers.facebook.com/docs/marketing-api/insights/best-practices
     # https://developers.facebook.com/docs/marketing-api/insights/parameters/v4.0
+    # https://developers.facebook.com/docs/marketing-api/reference/ad-campaign-group
     # level
     # account > Campaign > Ad Set (adset) > Ad
     # ***Day (time_increment==1?)
@@ -231,36 +279,3 @@ if __name__ == '__main__':
     # Estimated Ad Recall Lift Rate,
     # Cost per Estimated Ad Recall Lift
 
-    accnt = [a for a in me.get_ad_accounts() if a['account_id'] == '609465202905776'][0]
-    accnt.get_ads()[0]
-    # get_insights(fields=fields,params=params,))
-    pdb.set_trace()
-
-    # ### Read connections (in this case, the accounts connected to me)
-    # # Pro tip: Use list(me.get_ad_accounts()) to make a list out of
-    # # all the elements out of the iterator
-    # my_accounts_iterator = me.get_ad_accounts()
-    # i = 0
-    # print('>>> Reading accounts associated with user')
-    # for account in my_accounts_iterator:
-    #     i += 1
-    #     print(i)
-    #     pp.pprint(account)
-
-
-    print(">>> Campaign Stats")
-    for campaign in my_account.get_campaigns(fields=[AdCampaign.Field.name]):
-        for stat in campaign.get_stats(fields=[
-            'impressions',
-            'clicks',
-            'spent',
-            'unique_clicks',
-            'actions',
-        ]):
-            print(campaign[campaign.Field.name])
-            for statfield in stat:
-                print("\t%s:\t\t%s" % (statfield, stat[statfield]))
-
-#https://github.com/facebook/facebook-python-business-sdk/blob/master/facebook_business/adobjects/adaccount.py
-#get_ads(self, fields=None, params=None, batch=None, success=None, failure=None, pending=False)
-#get_ad_sets(self, fields=None, params=None, batch=None, success=None, failure=None, pending=False)
