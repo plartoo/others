@@ -110,6 +110,11 @@ if __name__ == '__main__':
     ### Get first account connected to the user
     my_account = me.get_ad_account()
 
+    # TODO: opened URLs:
+    # https://developers.facebook.com/docs/business-sdk/getting-started#python
+    # https://developers.facebook.com/docs/marketing-api/insights/#query-for-statistics
+    # https://developers.facebook.com/docs/marketing-api/insights/breakdowns#combiningbreakdowns
+    # https://developers.facebook.com/docs/marketing-api/insights/best-practices
     # https://developers.facebook.com/docs/marketing-api/insights/parameters/v4.0
     # level
     # account > Campaign > Ad Set (adset) > Ad
@@ -148,7 +153,7 @@ if __name__ == '__main__':
     # adset_name
     # ad_id
     # ad_name
-
+    #
     # impressions
     # frequency (The average number of times each person saw your ad. estimated)
     # reach
@@ -175,10 +180,8 @@ if __name__ == '__main__':
     # video_p95_watched_actions
     # video_thruplay_watched_actions (ThruPlays; either fullly played or for at least 15 seconds)
     # cost_per_thruplay (Cost per ThruPlay)
-
-
+    #
     # **buying_type (only visible at campaign level; The method by which you pay for and target ads in your campaigns: through dynamic auction bidding, fixed-price bidding, or reach and frequency buying)
-
     # actions (total number of actions people took that are attributed to your ads. Actions may include engagement, clicks or conversions)
     # unique_actions (The number of people who took an action that was attributed to your ads. This metric is estimated)
     # action_values (total value of all conversions attributed to your ads)
@@ -202,8 +205,7 @@ if __name__ == '__main__':
     # **quality_ranking (only available on ad level; A ranking of your ad's perceived quality. Quality is measured using feedback on your ads and the post-click experience. Your ad is ranked against ads that competed for the same audience. Possible values include BELOW_AVERAGE_10, BELOW_AVERAGE_20, BELOW_AVERAGE_35, AVERAGE, ABOVE_AVERAGE, or UNKNOWN if there's not enough information about the ad. This metric is an ad relevance diagnostic (https://www.facebook.com/help/403110480493160))
     # video_play_actions (Video Plays; number of times videos starts playing; excludes replays. metrics in development)
     # website_ctr (The percentage of times people saw your ad and performed a link click)
-
-
+    #
     #               ***Bid, Campaign Budget
     # Performance: 	***Delivery, Ad Delivery, Ad Set Delivery, Campaign Delivery (The current status of your campaign, ad set or ad delivery)
     #               ***Results, Cost per Result,
@@ -220,8 +222,7 @@ if __name__ == '__main__':
     # 				*** 3-Second Video Views, Cost per 3-Second Video View,
     #               *** 10-Second Video Views, Cost per-10 Second Video View, Unique 10-Second Video Views,
     #
-    # **Video Average Watch Time (video_avg_time_watched_actions)
-    #
+    # Video Average Watch Time (video_avg_time_watched_actions)
     # Video Plays (video_play_actions)
     # ThruPlays (video_thruplay_watched_actions)
     # Cost per ThruPlay,
