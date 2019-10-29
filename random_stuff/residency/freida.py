@@ -5,6 +5,7 @@ Description: Script to fetch data of residency programs.
 """
 
 import json
+from json import JSONDecodeError
 import csv
 import os
 import sys
@@ -16,10 +17,10 @@ import requests
 BASE_URL = 'https://freida.ama-assn.org'
 SEARCH_PARAM_URL = 'https://freida.ama-assn.org/Freida/user/search/getProgramSearchParameters.do'
 IM_URL = 'https://freida.ama-assn.org/Freida/#/programs?specialtiesToSearch=140'
-FILE_NAME = 'IM_FREIDA.csv' # output file name
+FILE_NAME = '20191028_IM_FREIDA_WITH_CONTACTS.csv' # output file name
 
 # Load program list json
-PROGRAM_LIST_JSON = ''.join(['freida_all_im_programs','.txt'])
+PROGRAM_LIST_JSON = 'freida_all_im_programs_from_search_result.txt'#''.join(['freida_all_im_programs','.txt'])
 
 
 def percentage(numerator, denominator):
@@ -55,7 +56,7 @@ def update_cookie_in_header(session, header, cookie_val):
 
 def main():
     with open(os.path.join('freida_im_json', PROGRAM_LIST_JSON)) as json_file:
-        programs = json.load(json_file)
+            programs = json.load(json_file)
 
     header = {
         'Accept': 'application/json, text/plain, */*',
@@ -79,6 +80,10 @@ def main():
             'Program Name',
             'City',
             'State',
+            'Program Director',
+            'Contact Info (Coordinator)',
+            'Program Years',
+            'Program Co-director',
             'Speciality',
             'ERAS',
             'NRMP',
@@ -102,6 +107,7 @@ def main():
             'Freida Comments',
             'Freida Custom Fields'
         ])
+
 
         with requests.Session() as session:
             session.get(IM_URL)
@@ -147,6 +153,10 @@ def main():
                     prg['Min Step1 Score'] = get_val_from_dict(detail_json, ['jsonExpandedProgram', 'xppUsmleStep1Score'])
                     prg['Min Step2 Score'] = get_val_from_dict(detail_json, ['jsonExpandedProgram', 'xppUsmleStep2Score'])
                     prg['Freida Comments'] = get_val_from_dict(detail_json, ['jsonExpandedProgram', 'xppComments'])
+                    prg['Program Years'] = get_val_from_dict(detail_json, ['pgmYears'])
+                    prg['Codirector Info'] = get_val_from_dict(detail_json, ['programCoDirectorInfo'])
+                    prg['Contact Info'] = get_val_from_dict(detail_json, ['programContactInfo'])
+                    prg['Program Director Info'] = get_val_from_dict(detail_json, ['programDirectorInfo'])
 
                     i += 1
                     print(json.dumps(prg, indent=4, sort_keys=True))
@@ -155,6 +165,10 @@ def main():
                         prg['Program Name'],
                         prg['City'],
                         prg['State'],
+                        prg['Program Director Info'],
+                        prg['Contact Info'],
+                        prg['Program Years'],
+                        prg['Codirector Info'],
                         prg['Speciality'],
                         prg['ERAS'],
                         prg['NRMP'],
@@ -184,7 +198,9 @@ def main():
                     # prg['Goverment Affiliated'] = detail_json['pgmGovAffilInd']
                 except ValueError:
                     print("\nError parsing JSON for:", prg['Program Name'], "\tURL:", program_detail_url)
-                    sys.exit()
+                    # sys.exit()
+                except JSONDecodeError:
+                    print("\nError decoding JSON for:", prg['Program Name'], "\tURL:", program_detail_url)
 
 
 if __name__ == '__main__':
