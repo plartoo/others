@@ -1,11 +1,13 @@
 import pdb
 
+from facebook_business import adobjects
 from facebook_business import FacebookSession
 from facebook_business import FacebookAdsApi
-from facebook_business.adobjects.campaign import Campaign as AdCampaign
-from facebook_business.adobjects.adaccountuser import AdAccountUser as AdUser
+from facebook_business.adobjects.adaccountuser import AdAccountUser
+from facebook_business.adobjects.campaign import Campaign
 from facebook_business.adobjects.adaccount import AdAccount
-
+from facebook_business.adobjects.adsinsights import AdsInsights
+from facebook_business.adobjects.adreportrun import AdReportRun
 
 import json
 import os
@@ -87,13 +89,16 @@ if __name__ == '__main__':
     # Q: Is there more up-to-date documentation for Python SDK and API in general with examples?
 
     FacebookAdsApi.set_default_api(api)
-    me = AdUser(fbid='114975229923225')#'me')
+    me = AdAccountUser(fbid='me')#(fbid='100040589411639')#(fbid='114975229923225')#'me')
     # pp.pprint(me.remote_read(fields=[AdUser.Field.name]))
-    pdb.set_trace()
+    # pdb.set_trace()
     # my_account = me.get_ad_account()
+    accnts = []
     for accnt in me.get_ad_accounts():
-        pdb.set_trace()
-        print("hello")
+        accnts.append(accnt)
+
+    pdb.set_trace()
+    print("hello")
 
 
     # my_app_id = config['app_id']
