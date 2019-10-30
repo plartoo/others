@@ -30,7 +30,7 @@ if __name__ == '__main__':
             'fields':'id,name, adaccounts',
             'access_token':config['access_token']
         }
-    all_data = []
+    all_accnts = []
     req.prepare_url(url, params)
     resp = requests.get(req.url)
     data = resp.json()
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     pp.pprint(data)
     while data['data']:
-        all_data += data['data']
+        all_accnts += data['data']
         if 'next' in data['paging']:
             next_url = data['paging']['next']
         else:
