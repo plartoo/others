@@ -262,9 +262,9 @@ if __name__ == '__main__':
     # Frequency
     # Reach
     # Clicks (All),
-    # Amount Spent,
+    # spend (Amount Spent),
     # CPM,
-    # Cost per 1,000 People Reached
+    # Cost per 1,000 People Reached (cpp)
     #
     # Engagement: 	***Unique 2-Second Continuous Video Views, 2-Second Continuous Video Views, Cost per 2-Second Continuous Video View,
     # 				*** 3-Second Video Views, Cost per 3-Second Video View,
