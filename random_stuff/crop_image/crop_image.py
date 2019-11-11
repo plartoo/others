@@ -21,11 +21,12 @@ def crop(input_img, coords, output_img):
 if __name__ == '__main__':
     home = str(Path.home())
     img_dir = os.path.join(home, 'Dropbox', 'Apps', 'Test')
-    repo_dir = os.path.join(img_dir, 'tootp.github.io')
+    repo_dir = os.path.join(img_dir, 'test')
 
     # yyyymmdd = datetime.datetime.today().strftime('%Y%m%d')
     # img_file_name = ''.join([yyyymmdd, '.jpg'])
     img_files = glob.glob(os.path.join(img_dir, '*.jpg'))
+    img_files += glob.glob(os.path.join(img_dir, '*.png'))
     img_files.sort(key=os.path.getmtime)
     last_modified_img = img_files[-1]
     img_modified_date = datetime.datetime.fromtimestamp(os.path.getmtime(last_modified_img)).date()
@@ -37,12 +38,9 @@ if __name__ == '__main__':
     repo.remotes.origin.pull() # first, try to sync the repo with remote
 
     if img_modified_date == today_date:
-        for img_coord in [('a.png', (100, 100, 101, 379)),
-                          ('b.png', (543, 115, 831, 365)),
-                          ('c.png', (22, 630, 1310, 669))]:
-            #[('a.png', (100, 88, 101, 343)),
-            #                  ('b.png', (446, 361, 735, 650)),
-            #                  ('c.png', (10, 1207, 741, 1248))]:
+        for img_coord in [('a.png', (100, 100, 101, 375)), # big box
+                          ('b.png', (522, 81, 812, 370)), # b c
+                          ('c.png', (40, 580, 1294, 618))]: #(22, 630, 1310, 669))]: # three colors
             output_img = os.path.join(repo_dir , img_coord[0])
             print("Starting to crop the image at:", last_modified_img)
             crop(last_modified_img, img_coord[1], output_img)
