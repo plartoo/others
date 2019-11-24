@@ -11,7 +11,7 @@ def myprint(d):
 
 
 def main():
-    d = pd.read_excel('woodcliff.xls',header=None,sheet_name=None)
+    d = pd.read_excel('woodcliff_orig_20191111.xls',header=None,sheet_name=None)
     list_of_d = []
     for sheet, df in d.items():
         print('Sheet name:', sheet)
@@ -57,8 +57,8 @@ def main():
                             elif split_s[1] and split_s[2]:
                                 cur_d['OtherFee'] = float(split_s[2])
 
-                    # pdb.set_trace()
                     # myprint(cur_d)
+                    # pdb.set_trace()
                     list_of_d.append(cur_d)
 
                 # reset all variables and flags
@@ -99,12 +99,12 @@ def main():
                 cur_d['BillingAddress'] = row[1]
             if row[2] == 'Home Phone':
                 cur_d['HomePhone'] = row[3]
-            if row[5] == 'Email':
+            if row[5] == 'EMail':
                 cur_d['Email'] = row[6]
 
             if row[2] == 'Work Phone':
                 cur_d['WorkPhone'] = row[3]
-            if row[5] == 'Email 2':
+            if row[5] == 'EMail 2':
                 cur_d['Email2'] = row[6]
 
             if row[2] == 'Cell/Co-Cell':
@@ -158,6 +158,7 @@ def main():
                                            'ResidentName', 'CoResidentName', 'ROWN',
                                            'HomePhone', 'WorkPhone', 'CellPhone', 'ROWNPhone',
                                            'CountLateFee', 'CountLateNotice', 'LateCharge',
+                                           'Email', 'Email2',
 
                                            'Parking', 'RealEstateTax', 'StorageFee', 'Mortgage', 'CapitalReserve',
                                            'MaintenanceFee', 'OtherFee',
