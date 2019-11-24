@@ -7,10 +7,60 @@ from apiclient import errors
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from email.mime.audio import MIMEAudio
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import mimetypes
 
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
+SCOPES = ['https://www.googleapis.com/auth/gmail.compose']#['https://www.googleapis.com/auth/gmail.modify']
+
+
+def create_message(sender, to, subject, message_text):
+  """
+  REF: https://developers.google.com/gmail/api/v1/reference/users/messages/send
+  Create a message for an email.
+
+  Args:
+    sender: Email address of the sender.
+    to: Email address of the receiver.
+    subject: The subject of the email message.
+    message_text: The text of the email message.
+
+  Returns:
+    An object containing a base64url encoded email object.
+  """
+  message = MIMEText(message_text, 'html')
+  message['to'] = to
+  message['from'] = sender
+  message['subject'] = subject
+  return {'raw': base64.urlsafe_b64encode(message.as_string().encode('UTF-8')).decode('ascii')}
+
+
+def send_message(service, user_id, message):
+  """
+  REF: https://developers.google.com/gmail/api/v1/reference/users/messages/send
+  Send an email message.
+
+  Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    message: Message to be sent.
+
+  Returns:
+    Sent Message.
+  """
+  try:
+    message = (service.users().messages().send(userId=user_id, body=message)
+               .execute())
+    print('Message Id: %s' % message['id'])
+    return message
+  except errors.HttpError as error:
+    print('An error occurred: %s' % error)
 
 
 def get_service(token_file_with_path, cred_file_with_path):
@@ -137,7 +187,11 @@ def get_full_message(service, user_id, msg_id):
 
 
 def get_full_message_body_str(full_msg):
-    return str(base64.urlsafe_b64decode(full_msg.get('payload').get('body').get('data')))
+    return str(base64.urlsafe_b64decode(full_msg.get('payload').get('parts')[0].get('body').get('data')))
+
+
+def get_full_message_body_HTML(full_msg):
+    return str(base64.urlsafe_b64decode(full_msg.get('payload').get('parts')[1].get('body').get('data')))
 
 
 def get_mime_message(service, user_id, msg_id):
