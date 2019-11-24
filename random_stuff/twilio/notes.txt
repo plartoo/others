@@ -1,0 +1,38 @@
+1. Build 'woodcliff_parsed_selected_columns_20191123' out of 'woodcliff_orig_20191111'
+2. Combine Cell and Home Phones; Combine Email addresses in  'woodcliff_parsed_selected_columns_20191123' 
+3. Load result in #2 to SQL Server @ [global-cp-digital].[dbo].[test_residents]
+4. Exract undelivered messages from https://www.twilio.com/console/sms/logs and 'export to CSV'
+5. In #4, '30006' Errors are landline or unreachable carrier. '30005' Erros are Unkonwn destination handset and '30003' is Unreachable destination handset.
+6. Clean exported CSV in #4 and upload it to SQL Server @ [global-cp-digital].[dbo].[test_sms_log_20191123]
+7. RUN this query to remove '-' from phone numbers:   UPDATE [dbo].[test_residents] SET [CellOrHomePhoneValues] = REPLACE([CellOrHomePhoneValues], '-', '')
+8. RUN this query to extract only the lines with valid phone numbers:
+SELECT [Unit]
+	,[MoveInDate]
+	,[ResidentName]
+	,[CoResidentName]
+	,[ROWN]
+	,[HomePhone]
+	,[WorkPhone]
+	,[CellPhone]
+	,[ROWNPhone]
+	,[ISROWNSameAsHomeWorkOrCellPhone]
+	,[CellOrHomePhoneFormula]
+	,[CellOrHomePhoneValues]
+	,b.[to]
+	,[Email]
+	,[Email2]
+	,[EmailCombinedWithFormula]
+	,[EmailCombinedValues]
+	,[UnitAddress]
+FROM [dbo].[test_residents] AS a
+LEFT JOIN (
+	SELECT DISTINCT [from]
+		,[to]
+		,[status]
+	FROM [dbo].[test_sms_log_20191123]
+	) AS b ON a.[CellOrHomePhoneValues] = b.[to]
+WHERE b.[to] IS NULL -- where we did not fail to deliver messages
+	--WHERE b.[to] is NOT NULL
+
+9. Save the above query's result as 'residents_with_valid_numbers_20191123.csv' (I prefer xlsx because there are commas and semi colons in the raw data itself)
+10. Run send_sms_reminders.py or send_emails.py using above Excel/CSV file as base.
