@@ -67,17 +67,15 @@ def main():
 
     df = pd.read_excel(EMAIL_DATA_FILE)
     # df = pd.read_csv(EMAIL_DATA_FILE)
-    subject = 'Woodcliff Gardens Reminder System: Voting day for Board Election TOMORROW at 7PM, Henry Hudson room (8700 basement)'
+    subject = 'Woodcliff Gardens Reminder System: Board Election Results and Surveys/Feedback for Website'
     message_text = """
     (Note: Please do not reply to this email because on the other side, it's a computer system sending these messages out.)
     <br><br>
-    Hello Shareholders,
+    Dear Shareholders,
     <br><br>
-    Don't forget to vote for Annual Board Election <b>TOMORROW at 7PM, Henry Hudson room (8700 basement).</b>
+    Please check out the board election results and other update/surveys on our community website: http://woodcliffgardens.net</b>
     <br><br>
-    <b>***Please remember every VOTE counts (and we would have to spend thousands of dollars AGAIN if the vote quorum is not met)!!***</b>
-    <br><br><br><br>
-    Thank you.
+    Happy Thanksgiving!
     <br>
     """
 
