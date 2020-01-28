@@ -30,7 +30,7 @@ def main():
     """
     TOKEN_FILE = 'woodcliffreminder_token.pickle'
     CREDENTIAL_FILE = 'woodcliffreminder_credentials.json'
-    EMAIL_DATA_FILE = 'residents_with_valid_numbers_20191123.xlsx'
+    EMAIL_DATA_FILE = 'WoodcliffResidentCellandEmailAddressCollectionForReminderSystem_20200126.xlsx' #'residents_with_valid_numbers_20191123.xlsx'
 
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
@@ -67,21 +67,26 @@ def main():
 
     df = pd.read_excel(EMAIL_DATA_FILE)
     # df = pd.read_csv(EMAIL_DATA_FILE)
-    subject = 'Woodcliff Gardens Reminder System: Board Election Results and Surveys/Feedback for Website'
+
+
+    ## Step 1: Update subjct and message_text below.
+    subject = 'Woodcliff Gardens Reminder System: Shareholders meeting tomorrow (Tuesday, January 28, 2020 - 7:30PM at #8700 basement)'
     message_text = """
-    (Note: Please do not reply to this email because on the other side, it's a computer system sending these messages out.)
     <br><br>
     Dear Shareholders,
     <br><br>
-    Please check out the board election results and other update/surveys on our community website: http://woodcliffgardens.net</b>
+    We have shareholders (open) meeting tomorrow (Tuesday, January 28, 2020 - 7:30PM) at Henry Hudson room (#8700 basement).</b>
     <br><br>
-    Happy Thanksgiving!
+    You are receiving this email because you have subscribed to Woodcliff reminder system. If you'd like to unsubscribe from this list, please reply this email with message 'unsubscribe' and we'll review it monthly to remove you from it.
+    <br><br>
+    See you there!
     <br>
     """
 
     sent_emails = {}
+    i = 0
     for index, row in df.iterrows():
-        raw_to_email = row['EmailCombinedValues']
+        raw_to_email = row['Email Address']
         if not (pd.isna(raw_to_email) or raw_to_email == 'NA'):
             emails = raw_to_email.split(';')
             to_emails = []
@@ -94,9 +99,19 @@ def main():
                     to_emails.append(e)
 
             to_email = ';'.join(to_emails)
+
             if to_email:
-                print(index,str(to_email))
+                ## Step 2: Test sending the message with ** my email ** (enter it here) below first
+                # msg = gmail_utils.create_message('woodcliffreminder@gmail.com', '', subject, message_text)
+                # gmail_utils.send_message(service, user_id, msg)
+                # exit(0)
+
+                ## Step 3: visually inspect all emails first.
+                # print(index+1, '=>', str(to_email))
+
+                ## Step 4: After step 2 testing, uncomment this below and send this out to everyone
                 msg = gmail_utils.create_message('woodcliffreminder@gmail.com', to_email, subject, message_text)
+                print(index+1, '=>', str(to_email))
                 gmail_utils.send_message(service, user_id, msg)
 
 
