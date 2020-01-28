@@ -37,7 +37,7 @@ VALUE_SHEET_INDEX_DEFAULT = 0
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
 VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
 
-KEY_COLUMN_HEADER_ROW_NUM = 'row_index_to_extract_column_names'
+KEY_ROW_NUM_OF_COLUMN_HEADERS = 'row_index_to_extract_column_names'
 VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = 0
 KEY_CUSTOM_COLUMN_HEADERS = 'custom_column_names_to_assign'
 VALUE_CUSTOM_COLUMN_HEADERS_DEFAULT = []
@@ -67,8 +67,8 @@ VALUE_ROW_NUM_WHERE_DATA_STARTS_DEFAULT = 1
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
 
-KEY_ROWS_PER_CHUNK = 'max_rows_to_process_each_iteration'
-VALUE_ROWS_PER_CHUNK_DEFAULT = 1500000
+KEY_ROWS_PER_CHUNK_FOR_CSV = 'rows_per_chunk_for_csv'
+VALUE_ROWS_PER_CHUNK_FOR_CSV_DEFAULT = 1500000
 
 # Keys in config file and their expected data types
 EXPECTED_CONFIG_DATA_TYPES = {
@@ -86,11 +86,11 @@ EXPECTED_CONFIG_DATA_TYPES = {
     KEY_INPUT_CSV_DELIMITER: [str],
     KEY_OUTPUT_CSV_ENCODING: [str],
     KEY_OUTPUT_CSV_DELIMITER: [str],
-    KEY_COLUMN_HEADER_ROW_NUM: [int],
+    KEY_ROW_NUM_OF_COLUMN_HEADERS: [int],
     KEY_CUSTOM_COLUMN_HEADERS: [list],
     KEY_ROW_NUM_WHERE_DATA_STARTS: [int],
     KEY_BOTTOM_ROWS_TO_SKIP: [int],
-    KEY_ROWS_PER_CHUNK: [int],
+    KEY_ROWS_PER_CHUNK_FOR_CSV: [int],
 }
 
 # Keys in config file that must exist (required keys)
@@ -100,7 +100,7 @@ REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
 
 # Keys in config file that must not exist together (disjoint keys)
 MUTUALLY_EXCLUSIVE_KEYS = [(KEY_SHEET_INDEX, KEY_SHEET_NAME),
-                           (KEY_COLUMN_HEADER_ROW_NUM, KEY_CUSTOM_COLUMN_HEADERS),
+                           (KEY_ROW_NUM_OF_COLUMN_HEADERS, KEY_CUSTOM_COLUMN_HEADERS),
                            (KEY_COLUMN_NAMES_TO_USE, KEY_COLUMN_INDEXES_TO_USE)]
 
 # Other constants
@@ -208,7 +208,6 @@ def get_output_file_path_with_name_prefix(config):
     return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
 
 
-
 def get_sheet_index_or_name(config):
     """
     Returns the sheet index or sheet name from the config JSON.
@@ -233,7 +232,7 @@ def _get_row_index_to_extract_column_names(config):
     the JSON, returns 0 as default.
     """
     return _get_value_from_dict(config,
-                                KEY_COLUMN_HEADER_ROW_NUM,
+                                KEY_ROW_NUM_OF_COLUMN_HEADERS,
                                 VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT)
 
 
@@ -416,7 +415,7 @@ def get_number_of_rows_to_skip_from_bottom(config):
                                 VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT)
 
 
-def get_max_rows_to_process_per_iteration(config):
+def get_rows_per_chunk_for_csv(config):
     """
     Returns number of rows we should process (read and write)
     per each iteration (for each input file). If the key is
@@ -424,8 +423,8 @@ def get_max_rows_to_process_per_iteration(config):
     VALUE_ROWS_PER_CHUNK_DEFAULT as default.
     """
     return _get_value_from_dict(config,
-                                KEY_ROWS_PER_CHUNK,
-                                VALUE_ROWS_PER_CHUNK_DEFAULT)
+                                KEY_ROWS_PER_CHUNK_FOR_CSV,
+                                VALUE_ROWS_PER_CHUNK_FOR_CSV_DEFAULT)
 
 
 

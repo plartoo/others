@@ -41,9 +41,11 @@ if __name__ == '__main__':
         transform_utils.validate_configurations(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
 
-        rows_per_chunk = transform_utils.get_max_rows_to_process_per_iteration(config)
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
+
+        pdb.set_trace()
+
 
         for input_file in transform_utils.get_input_files(config):
             # t1 = time.time()
@@ -56,12 +58,19 @@ if __name__ == '__main__':
             old_to_new_col_mappings = transform_utils.get_column_mappings(config)
             # df.rename(columns=old_to_new_col_mappings, inplace=True) if not old_to_new_col_mappings
 
-
             # TODO: maybe we can embed output_csv_delimiter and encoding to 'write_data'
 
             if transform_utils.is_excel(input_file):
                 sheet = transform_utils.get_sheet_index_or_name(config)
+                # Note: We will load everything on the sheet in Excel (not do chunking) because
+                # anybody sane would not be using Excel to store terabytes of data.
+                # Excel, theoretically, can store up to maximum of:
+                # 1048576 (rows) * 16384 (cols) 32767 (chars/cell) * 32 (bits/char for encoding like UTF-8)
+                # = 4.5 petabytes of data, but we sure shouldn't be loading that file using this program
+
+
             elif transform_utils.is_csv(input_file):
+                rows_per_chunk = transform_utils.get_rows_per_chunk_for_csv(config)
                 encoding = transform_utils.get_csv_encoding(config)
                 input_csv_delimiter = transform_utils.get_csv_delimiter(config)
             else:
