@@ -1,0 +1,61 @@
+[
+  {
+    "__instruction__": "Update values for the keys labeled as 'Required' below. Optional parameters can be left empty.",
+    "__instruction__": "Exclusive means only one of the ensuing options must be used.",
+
+    "__comment__": "(Required) Input folder and file name or for processing multiple files, the pattern of file names.",
+    "input_folder_path": "./input/switzerland/",
+    "input_file_name_or_pattern": "SWI_N_ALL_INV*.xlsx",
+
+    "__comment__": "(Required) Output folder path is required.",
+    "output_folder_path": "./output/switzerland/",
+
+    "__comment__": "(Optional) Prefix for the output file name.",
+    "output_file_name_prefix": "transformed_switzerland_",
+
+    "__comment__": "(Optional and exclusive) Enter either sheet index OR sheet names, NOT BOTH. The default is the first sheet in the Excel file.",
+    "sheet_index_of_excel_file": 0,
+    "_sheet_name_of_excel_file": "Sheet1",
+
+    "__comment__": "(Optional and exclusive) Enter either the row number (> 0) from which to extract column headers/labels OR custom_column_names_to_assign.",
+    "row_index_to_extract_column_names": 0,
+    "custom_column_names_to_assign": [],
+
+    "__comment__": "(Optional and exclusive) Enter column names OR indexes (NOT BOTH) to transform/process. If the list is empty, the program will default to using all columns.",
+    "list_of_column_names_to_use": [],
+    "list_of_column_indexes_to_use": [],
+
+    "__comment__": "(Optional) If you want to change column names, enter the mappings below. If the dictionary is empty, the program will default to original column names.",
+    "old_column_name_to_new_column_name_mappings": {},
+
+    "__comment__": "(Optional) CSV encoding and delimiters. If empty, the program uses Pandas defaults (UTF-8 and comma).",
+    "input_csv_file_encoding": "",
+    "input_csv_file_delimiter": "",
+    "output_csv_file_encoding": "",
+    "output_csv_file_delimiter": "",
+
+    "__comment__": "(Optional) Specify which row index (starting from 0) the data begins.",
+    "__comment__": "Usually the data begins at row index=1 (row index=0 is for column headers), so we make the default as '1' below.",
+    "row_index_where_data_starts": 1,
+
+    "__comment__": "(Optional) For CSV files, Maximum number of rows to read, process and output in each program iteration (to not overload computer memory).",
+    "__comment__": "If below field is deleted, we use 1,500,000 rows as default value, which is defined in transform_utils.py.",
+    "rows_per_chunk_for_csv": 1500000,
+
+    "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file.",
+    "num_of_rows_to_skip_from_the_bottom": 0,
+
+    "functions_to_apply_to_data_frame": {
+      "maybe we don't need this": "#maybe we don't need this"
+    },
+
+    "functions_to_apply_to_columns": {
+      "column1": ["Like convert to float"],
+      "column2": []
+    },
+
+    "functions_to_apply_to_rows": ["Like if column 1 is null, ignore row"],
+
+    "new_columns_to_add": [{"new_column": ["rules_used_to_populate_this_column"]}]
+  }
+]

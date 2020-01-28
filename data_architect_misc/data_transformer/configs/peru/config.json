@@ -1,10 +1,10 @@
 [
   {
-    "__comment__": "Update the fields that has value set to 'required' below. The others are optional.",
+    "__comment__": "Update the fields that has value set to 'Required' below. The others are optional.",
 
-    "__comment__": "input folder and filename/pattern are required",
-    "input_folder_path": "./input/peru/",
-    "input_file_name_or_pattern": "*.xlsx",
+    "__comment__": "(Required) input folder and filename/pattern are required",
+    "input_folder_path": "./input/switzerland/",
+    "input_file_name_or_pattern": "SWI_N_ALL_INV*.xlsx",
 
     "__comment__": "output folder path is required, but filename prefix is optional",
     "output_folder_path": "(required)./output/peru/",
