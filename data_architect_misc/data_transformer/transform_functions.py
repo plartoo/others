@@ -17,3 +17,8 @@ class TransformFunctions(object):
 
     def multiply_by_thousand():
         pass
+
+
+    def rename_columns():
+        # df.rename(columns=old_to_new_col_mappings, inplace=True) if not old_to_new_col_mappings
+        pass

@@ -7,7 +7,7 @@ class TransformError(Exception):
 class ConfigFileError(TransformError):
     """Raised when JSON config file is not found or its path is not provided."""
     def __str__(self):
-        return "You must provide valid path AND name of " \
+        return "\nYou must provide valid path AND name of " \
                "the JSON configuration file. Try \n>> python " \
                "transform.py -h \nto learn the proper usage."
 
@@ -15,7 +15,7 @@ class ConfigFileError(TransformError):
 class FileNotFound(TransformError):
     """Raised when file(s) is not found."""
     def __init__(self, filename):
-        super().__init__("Please make sure that the following file(s) exists:",
+        super().__init__("\nPlease make sure that the following file(s) exists:",
                           filename)
 
 
@@ -25,7 +25,7 @@ class InvalidFileType(TransformError):
         self.file_name = file_name
 
     def __str__(self):
-        return ''.join(["This program only accepts either Excel or CSV files.",
+        return ''.join(["\nThis program only accepts either Excel or CSV files.",
                         "But this input file is neither of those:",
                         self.file_name])
 
@@ -39,7 +39,7 @@ class RequiredKeyNotFoundInConfigFile(TransformError):
         self.key_name = key_name
 
     def __str__(self):
-        return ' '.join(["Please make sure to include and provide value for this "
+        return ' '.join(["\nPlease make sure to include and provide value for this "
                          "required key in JSON config file:", self.key_name])
 
 
@@ -54,7 +54,7 @@ class MutuallyExclusiveKeyError(TransformError):
         self.k2 = key2
 
     def __str__(self):
-        return ' '.join(["You can provide EITHER",
+        return ' '.join(["\nYou can provide EITHER",
                          self.k1,
                         "OR",
                          self.k2,
@@ -74,7 +74,7 @@ class InputDataTypeError(TransformError):
 
 
     def __str__(self):
-        return ' '.join(["For key, '",
+        return ' '.join(["\nFor key, '",
                          self.k,
                          "' in JSON config file, the data type must be one of these:",
                          self.allowed_data_types])
