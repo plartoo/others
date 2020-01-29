@@ -26,7 +26,9 @@ def check_data_against_rules(df, rules):
 
 if __name__ == '__main__':
     # 1. Process arguments passed into the program
-    parser = argparse.ArgumentParser(description=transform_utils.DESC)
+    parser = argparse.ArgumentParser(description=transform_utils.DESC,
+                                     formatter_class = argparse.RawTextHelpFormatter,
+                                     usage=argparse.SUPPRESS)
     parser.add_argument('-c', required=True, type=str,
                         help=transform_utils.HELP)
     args = parser.parse_args()
@@ -44,46 +46,48 @@ if __name__ == '__main__':
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
-        pdb.set_trace()
-
 
         for input_file in transform_utils.get_input_files(config):
+            print("Processing file:", input_file)
             # t1 = time.time()
             # print('Read Excel file:', file_path_and_name)
             # print("It took this many seconds to read the file:", time.time() - t1, "\n")
 
-            # TODO: maybe the following methods might have to be moved inside 'read_data'
-            col_names_from_input_file = transform_utils.get_raw_column_names(input_file, config)
-            col_names_or_indexes_to_use = transform_utils.get_columns_to_use(config)
-            old_to_new_col_mappings = transform_utils.get_column_mappings(config)
-            # df.rename(columns=old_to_new_col_mappings, inplace=True) if not old_to_new_col_mappings
-
-            # TODO: maybe we can embed output_csv_delimiter and encoding to 'write_data'
+            # TODO: maybe combine get_raw_column_headers with read_data because I use the latter just for the former
+            col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
 
             if transform_utils.is_excel(input_file):
-                sheet = transform_utils.get_sheet_index_or_name(config)
-                # Note: We will load everything on the sheet in Excel (not do chunking) because
-                # anybody sane would not be using Excel to store terabytes of data.
+                sheet = transform_utils.get_sheet_name(config)
+                # Note: We will load everything on the sheet in Excel (i.e. no chunk processing)
+                # because anybody reasonable would not be using Excel to store terabytes of data.
                 # Excel, theoretically, can store up to maximum of:
                 # 1048576 (rows) * 16384 (cols) 32767 (chars/cell) * 32 (bits/char for encoding like UTF-8)
-                # = 4.5 petabytes of data, but we sure shouldn't be loading that file using this program
+                # = 4.5 petabytes of data, but we sure shouldn't be processing a file of such size
+                # using this program
 
+                # TODO: try out different Excel files to see how this skipping rows work
+                print("Skipping this many rows:", row_idx_where_data_starts)
+                df_raw = pd.read_excel(input_file,
+                                       sheet_name=sheet,
+                                       skiprows=row_idx_where_data_starts,
+                                       skipfooter=footer_rows_to_skip,
+                                       header=None,
+                                       names=col_headers_from_input_file
+                                       )
+
+                pdb.set_trace()
+                # We need to apply these rules:
+                # 1. rename columns
+                # 2. drop columns
+                # 3.
+                print('debug')
 
             elif transform_utils.is_csv(input_file):
                 rows_per_chunk = transform_utils.get_rows_per_chunk_for_csv(config)
-                encoding = transform_utils.get_csv_encoding(config)
-                input_csv_delimiter = transform_utils.get_csv_delimiter(config)
+                encoding = transform_utils.get_input_csv_encoding(config)
+                input_csv_delimiter = transform_utils.get_input_csv_delimiter(config)
             else:
                 raise transform_errors.InvalidFileType(input_file)
-
-
-
-        # TODO: get column header row index or custom column headers to use
-        cols_to_use = transform_utils.get_columns_to_use(config)
-        # TODO: get column rename mappings
-        leading_rows = transform_utils.get_leading_rows_to_skip(config)
-        trailing_rows = transform_utils.get_trailing_rows_to_skip(config)
-
 
 
 
