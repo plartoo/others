@@ -31,6 +31,9 @@ KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
 KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
+KEY_TRANSFORM_FUNCTIONS_FILE = 'transform_functions_file'
+# We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
+VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(), 'transform_functions', 'transform_functions.py')
 
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
 VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
@@ -173,6 +176,15 @@ def get_output_file_path_with_name_prefix(config):
 
     file_prefix =  config[KEY_OUTPUT_FILE_PREFIX] if KEY_OUTPUT_FILE_PREFIX in config else ''
     return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
+
+
+def load_transform_functions(config):
+    transform_funcs_file = _get_value_from_dict(config,
+                                                KEY_TRANSFORM_FUNCTIONS_FILE,
+                                                VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT)
+
+
+
 
 
 def get_sheet_name(config):

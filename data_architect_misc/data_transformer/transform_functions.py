@@ -12,6 +12,10 @@ class TransformFunctions(object):
 
 
     def remove_dollars(data_row):
+        """
+        Remove the dollar sign given a data frame.
+        :return:
+        """
         pass
 
 

@@ -2,6 +2,7 @@ import pdb
 
 import argparse
 import os
+import sys
 
 import pandas as pd
 
@@ -36,6 +37,17 @@ if __name__ == '__main__':
     # 2. Load JSON configuration file
     if (not args.c) or (not os.path.exists(args.c)):
         raise transform_errors.ConfigFileError()
+
+    new_sys_path = ''
+    if new_sys_path not in sys.path:
+        sys.path.append(new_sys_path)
+        print("\nNew sys path appended:", new_sys_path)
+        print("Current sys path is:\n", sys.path, "\n")
+    file_name_without_extension = os.path.splitext(blob_file_name)[0]
+    # REF: https://stackoverflow.com/a/54956419
+    custom_processing_module = importlib.import_module(os.path.join(file_name_without_extension))
+    print("Imported this module:", file_name_without_extension)
+
 
     # 3. Iterate through each transform procedure in config file
     for config in transform_utils.load_config(args.c):

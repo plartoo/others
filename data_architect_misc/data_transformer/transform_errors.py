@@ -30,7 +30,6 @@ class InvalidFileType(TransformError):
                         self.file_name])
 
 
-
 class RequiredKeyNotFoundInConfigFile(TransformError):
     """
     Raised when config file does not have required key.
