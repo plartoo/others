@@ -40,3 +40,11 @@ class TransformFunctions(object):
     def rename_columns(self):
         # df.rename(columns=old_to_new_col_mappings, inplace=True) if not old_to_new_col_mappings
         pass
+
+
+    def fatty(self):
+        print("calling parent")
+
+
+# if __name__ == '__main__':
+#     TransformFunctions().__init__()

@@ -38,22 +38,12 @@ if __name__ == '__main__':
     if (not args.c) or (not os.path.exists(args.c)):
         raise transform_errors.ConfigFileError()
 
-    new_sys_path = ''
-    if new_sys_path not in sys.path:
-        sys.path.append(new_sys_path)
-        print("\nNew sys path appended:", new_sys_path)
-        print("Current sys path is:\n", sys.path, "\n")
-    file_name_without_extension = os.path.splitext(blob_file_name)[0]
-    # REF: https://stackoverflow.com/a/54956419
-    custom_processing_module = importlib.import_module(os.path.join(file_name_without_extension))
-    print("Imported this module:", file_name_without_extension)
-
-
     # 3. Iterate through each transform procedure in config file
     for config in transform_utils.load_config(args.c):
         # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
+        transform_funcs = transform_utils.load_transform_functions(config)
 
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
@@ -87,7 +77,9 @@ if __name__ == '__main__':
                                        names=col_headers_from_input_file
                                        )
 
-                pdb.set_trace()
+                transform_funcs = transform_funcs.CountrySpecificTransformFunctions()
+                transform_funcs.call_swiss()
+                transform_funcs.fatty()
                 # We need to apply these rules:
                 # 1. rename columns
                 # 2. drop columns

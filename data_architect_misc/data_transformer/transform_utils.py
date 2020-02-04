@@ -1,5 +1,6 @@
 import pdb
 
+import importlib
 import json
 import pandas as pd
 import pathlib
@@ -33,7 +34,7 @@ KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 KEY_TRANSFORM_FUNCTIONS_FILE = 'transform_functions_file'
 # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
-VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(), 'transform_functions', 'transform_functions.py')
+VALUE_TRANSFORM_FUNCTIONS_FILES_DEFAULT = os.path.join(os.getcwd(), 'transform_functions', 'transform_functions.py')
 
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
 VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
@@ -178,13 +179,36 @@ def get_output_file_path_with_name_prefix(config):
     return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
 
 
+def _append_sys_path(new_sys_path):
+    if new_sys_path not in sys.path:
+        sys.path.append(new_sys_path)
+        print("\nNew sys path appended:", new_sys_path)
+        print("Current sys path is:\n", sys.path, "\n")
+
+
+# KEY_TRANSFORM_FUNCTIONS_FILE = 'transform_functions_files'
+# # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
+# VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(), 'transform_functions', 'transform_functions.py')
 def load_transform_functions(config):
+    """Extract corresponding value from config file and load the custom module that has transform functions.
+    """
     transform_funcs_file = _get_value_from_dict(config,
                                                 KEY_TRANSFORM_FUNCTIONS_FILE,
-                                                VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT)
+                                                VALUE_TRANSFORM_FUNCTIONS_FILES_DEFAULT)
+    if os.path.isfile(transform_funcs_file):
+        directory, file_name = os.path.split(transform_funcs_file)
+        _append_sys_path(directory)
 
-
-
+        file_name_without_extension = os.path.splitext(file_name)[0]
+        # Note: we assume that all transform function modules are located in
+        # './transform_funcs' directory, which is used as pcakage name below.
+        # Module name is either country specific python file name (wihtout extension) or transform_funcs
+        # E.g., importlib.import_module('switzerland_transform_functions', package='transform_functions')
+        # OR importlib.import_module('transform_functions.switzerland_transform_functions')
+        return importlib.import_module(file_name_without_extension,
+                                       package=os.path.basename(directory))
+    else:
+        raise transform_errors.FileNotFound(transform_funcs_file)
 
 
 def get_sheet_name(config):
