@@ -43,11 +43,11 @@ if __name__ == '__main__':
         # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
-        transform_funcs = transform_utils.load_transform_functions(config)
+        custom_funcs_module = transform_utils.load_custom_functions(config)
+        custom_funcs = transform_utils.get_functions_to_apply(config)
 
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
-
 
         for input_file in transform_utils.get_input_files(config):
             print("Processing file:", input_file)
@@ -77,9 +77,22 @@ if __name__ == '__main__':
                                        names=col_headers_from_input_file
                                        )
 
-                transform_funcs = transform_funcs.CountrySpecificTransformFunctions()
-                transform_funcs.call_swiss()
-                transform_funcs.fatty()
+
+                # TODO: We need to think about renaming this transform_funcs as custom_modules
+                # because we might want to use this pattern for logging; QA-ing and mapping tasks
+                #
+                # Before writing custom functions to transform data, please read
+                # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
+                #
+                custom_funcs_instance = custom_funcs_module.CountrySpecificTransformFunctions()
+                # drop_columns(df, [])
+                # stack_columns(df)
+                # add_compete_non_compete_flag(df, [])
+                custom_funcs_instance.call_swiss()
+                custom_funcs_instance.parent_function()
+                # TOCONT: use partial to create a function for each of the ones in custom_funcs list and call them
+                import pdb
+                pdb.set_trace()
                 # We need to apply these rules:
                 # 1. rename columns
                 # 2. drop columns

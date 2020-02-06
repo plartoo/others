@@ -30,6 +30,12 @@
     "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file.",
     "num_of_rows_to_skip_from_the_bottom": 5,
 
+    "__comment__": "(Required) List of the functions and their parameters in a list like [[\"drop_columns\",[0,2]], ....]",
+    "__comment__": "These functions must be defined either in transform_functions.py or individual countries transform file such as switzerland_transform_functions.py",
+    "__comment__": "If these functions aren't provided, error would be raised because why even bother running this program if there's nothing to transform/apply, right?",
+    "functions_to_apply": [["drop_columns_by_index", [10, 11, 12, 13, 14, 15, 16, 17, 18]],
+                          ["rename_columns", {"Produktgruppe": "Product Group"}]
+                          ],
 
 
     "__comment__": "(Optional) CSV encoding and delimiters. If empty, the program uses Pandas defaults (UTF-8 and comma).",

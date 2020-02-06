@@ -60,6 +60,9 @@ VALUE_ROW_INDEX_WHERE_DATA_STARTS_DEFAULT = 1
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
 
+KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
+VALUE_FUNCTIONS_TO_APPLY = []
+
 KEY_ROWS_PER_CHUNK_FOR_CSV = 'rows_per_chunk_for_csv'
 VALUE_ROWS_PER_CHUNK_FOR_CSV_DEFAULT = 1500000
 
@@ -78,13 +81,15 @@ EXPECTED_CONFIG_DATA_TYPES = {
     KEY_ROW_INDEX_OF_COLUMN_HEADERS: [int],
     KEY_ROW_INDEX_WHERE_DATA_STARTS: [int],
     KEY_BOTTOM_ROWS_TO_SKIP: [int],
+    KEY_FUNCTIONS_TO_APPLY: [list],
     KEY_ROWS_PER_CHUNK_FOR_CSV: [int],
 }
 
 # Keys in config file that must exist (required keys)
 REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
                  KEY_INPUT_FILE_NAME_OR_PATTERN,
-                 KEY_OUTPUT_FOLDER_PATH]
+                 KEY_OUTPUT_FOLDER_PATH,
+                 KEY_FUNCTIONS_TO_APPLY]
 
 # Other constants
 CSV_FILE_EXTENSION = '.csv'
@@ -189,7 +194,7 @@ def _append_sys_path(new_sys_path):
 # KEY_TRANSFORM_FUNCTIONS_FILE = 'transform_functions_files'
 # # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
 # VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(), 'transform_functions', 'transform_functions.py')
-def load_transform_functions(config):
+def load_custom_functions(config):
     """Extract corresponding value from config file and load the custom module that has transform functions.
     """
     transform_funcs_file = _get_value_from_dict(config,
@@ -360,6 +365,27 @@ def get_number_of_rows_to_skip_from_bottom(config):
     return _get_value_from_dict(config,
                                 KEY_BOTTOM_ROWS_TO_SKIP,
                                 VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT)
+
+
+def get_functions_to_apply(config):
+    """
+    Returns the list of tuples where each tuple is a pair of function
+    name (string type) and its corresponding parameter, if any.
+    For example: [('drop_columns', [1,2,3]),
+                  ('rename_columns', {'old_col_name' : 'new_col_name'}),
+                  ...]
+    """
+    funcs_list = _get_value_from_dict(config,
+                                      KEY_FUNCTIONS_TO_APPLY,
+                                      VALUE_FUNCTIONS_TO_APPLY)
+    if not funcs_list:
+        raise transform_errors.ListEmptyError(KEY_FUNCTIONS_TO_APPLY)
+
+    for func_and_var_tuple in funcs_list:
+        if type(func_and_var_tuple) is not list:
+            # The input should be tuples in a list. Each tuple
+            raise transform_errors.InputDataTypeError(KEY_FUNCTIONS_TO_APPLY, [list])
+    return funcs_list
 
 
 def get_rows_per_chunk_for_csv(config):

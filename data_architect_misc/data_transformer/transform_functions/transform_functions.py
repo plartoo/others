@@ -21,6 +21,25 @@ class TransformFunctions(object):
         pass
 
 
+    def drop_columns(self, df, col_idx):
+        """
+        Drop columns from a dataframe and returns the resulting dataframe.
+        REF: https://stackoverflow.com/a/18145399
+
+        Args:
+            df: Raw dataframe from which we need to drop columns.
+            list_of_cols: List of column indexes (
+
+        Returns:
+            Dataframe from which the columns are dropped.
+        """
+
+
+    def rename_columns(self, df, old_to_new_cols_dict):
+        # df.rename(columns=old_to_new_col_mappings, inplace=True) if not old_to_new_col_mappings
+        print("hey rename_columns was called")
+
+
     def _trim_space(self, cell_str):
         return str(cell_str).strip()
 
@@ -37,12 +56,7 @@ class TransformFunctions(object):
         pass
 
 
-    def rename_columns(self):
-        # df.rename(columns=old_to_new_col_mappings, inplace=True) if not old_to_new_col_mappings
-        pass
-
-
-    def fatty(self):
+    def parent_function(self):
         print("calling parent")
 
 
