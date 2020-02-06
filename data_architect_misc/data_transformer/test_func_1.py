@@ -6,12 +6,6 @@
 # The best one: http://drunkenpython.org/tag/dispatcher.html
 # https://stackoverflow.com/questions/19075843/dispatch-a-class-method
 
-data = [
-{'Result': 1, 'Reason1': False, 'Reason2': 1},
-{'Result': 0, 'Reason1': False, 'Reason2':'haha'},
-{'Result': 0, 'Reason1': True, 'Reason2': 'hehe'},
-{'Result': 0, 'Reason1': True, 'Reason2': 0},
-]
 
 
 def rule_1(datum, **kwargs):
@@ -51,6 +45,12 @@ def rule_3(datum, **kwargs):
 
 
 
+data = [
+{'Result': 1, 'Reason1': False, 'Reason2': 1},
+{'Result': 0, 'Reason1': False, 'Reason2':'haha'},
+{'Result': 0, 'Reason1': True, 'Reason2': 'hehe'},
+{'Result': 0, 'Reason1': True, 'Reason2': 0},
+]
 # There can be 'rule_3', 'rule_4' and so on... Also, these rules may have different method signatures (that is, they may take in more than one input parameter)
 rule_book = [rule_2, rule_1] # I want to apply rule_2 first and then rule_1
 
