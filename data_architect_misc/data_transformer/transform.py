@@ -59,7 +59,7 @@ if __name__ == '__main__':
             col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
 
             if transform_utils.is_excel(input_file):
-                sheet = transform_utils.get_sheet_name(config)
+                sheet = transform_utils.get_sheet(config)
                 # Note: We will load everything on the sheet in Excel (i.e. no chunk processing)
                 # because anybody reasonable would not be using Excel to store terabytes of data.
                 # Excel, theoretically, can store up to maximum of:
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
                 # TODO: try out different Excel files to see how this skipping rows work
                 print("Skipping this many rows:", row_idx_where_data_starts)
-                df_raw = pd.read_excel(input_file,
+                cur_df = pd.read_excel(input_file,
                                        sheet_name=sheet,
                                        skiprows=row_idx_where_data_starts,
                                        skipfooter=footer_rows_to_skip,
@@ -88,15 +88,26 @@ if __name__ == '__main__':
                 # drop_columns(df, [])
                 # stack_columns(df)
                 # add_compete_non_compete_flag(df, [])
-                custom_funcs_instance.call_swiss()
-                custom_funcs_instance.parent_function()
+                # import pdb
+                # pdb.set_trace()
                 # TOCONT: use partial to create a function for each of the ones in custom_funcs list and call them
+                for func_and_params in custom_funcs:
+                    # REF1: https://stackoverflow.com/a/12025554
+                    # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
+                    func_and_params = func_and_params['function']
+                    print("\nInvoking function:", func_and_params[0])
+                    func = getattr(custom_funcs_instance, func_and_params[0])
+                    cur_df = func(cur_df, func_and_params[1])
+                    # import pdb
+                    # pdb.set_trace()
+                    print('aha')
+
+                # We need to apply these rules:
+                # 3. stack months
+
+                # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
                 import pdb
                 pdb.set_trace()
-                # We need to apply these rules:
-                # 1. rename columns
-                # 2. drop columns
-                # 3.
                 print('debug')
 
             elif transform_utils.is_csv(input_file):
@@ -115,7 +126,6 @@ if __name__ == '__main__':
         #   rename columns if necessary
         #   apply functions (add columns, etc.)
         # df = pd.read_excel(input_file,sheet_name=sheet)
-        pdb.set_trace()
         print('haha')
         #     df = transform_utils.get_data_frame()
         #

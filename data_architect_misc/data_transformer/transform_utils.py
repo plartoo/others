@@ -37,7 +37,7 @@ KEY_TRANSFORM_FUNCTIONS_FILE = 'transform_functions_file'
 VALUE_TRANSFORM_FUNCTIONS_FILES_DEFAULT = os.path.join(os.getcwd(), 'transform_functions', 'transform_functions.py')
 
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
-VALUE_SHEET_NAME_DEFAULT = 'Sheet1'
+VALUE_SHEET_NAME_DEFAULT = 0
 
 KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'
 VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = -1
@@ -141,10 +141,12 @@ def _assert_required_keys(config):
 def _assert_expected_data_types(config):
     """Checks if loaded config has values that are of expected data types."""
     for k, types in EXPECTED_CONFIG_DATA_TYPES.items():
-        # we use 'any' because some of the keys be , for example,
-        # either int or None, and EXPECTED_CONFIG_DATA_TYPES
-        # can have something like {KEY_NAME : [int, None]}
-        if not any([isinstance(config[k], t) for t in types]):
+        # We use 'any' because we want to allow some of the keys
+        # to be, for example, either int or None, and
+        # EXPECTED_CONFIG_DATA_TYPES can be configured with
+        # something like {KEY_NAME : [int, None]}
+        # print(k, "=>", config[k], "=>", types)
+        if (k in config) and (not any([isinstance(config[k], t) for t in types])):
             raise transform_errors.InputDataTypeError(k, types)
 
 
@@ -216,15 +218,16 @@ def load_custom_functions(config):
         raise transform_errors.FileNotFound(transform_funcs_file)
 
 
-def get_sheet_name(config):
+def get_sheet(config):
     """
     Returns the sheet name from the config JSON.
-    If the keys aren't defined in the JSON, returns default values
-    ('Sheet1'), which means Pandas will load the first sheet in the Excel file.
+    If the keys aren't defined in the JSON, returns default sheet
+    (which is 0), which means Pandas will load the first sheet in
+    Excel file.
     """
-    return str(_get_value_from_dict(config,
-                                    KEY_SHEET_NAME,
-                                    VALUE_SHEET_NAME_DEFAULT))
+    return _get_value_from_dict(config,
+                                KEY_SHEET_NAME,
+                                VALUE_SHEET_NAME_DEFAULT)
 
 
 def _extract_file_name(file_path_and_name):
@@ -257,17 +260,7 @@ def read_data(file_name_with_path, config, rows_to_read,
               custom_data_types={}):
     """
     This function is used to get just one row, if any, that has column headers.
-
-    :param file_name_with_path:
-    :param config:
-    :param rows_to_read:
-    :param skip_leading_rows:
-    :param skip_trailing_rows:
-    :param header_row_index:
-    :param custom_header_names:
-    :param column_names_or_indexes_to_use:
-    :param custom_data_types:
-    :return:
+    TODO: We need to revise this for reading CSV header. Also review both approaches to see if we can simplify this.
     """
     if is_excel(file_name_with_path):
         return pd.read_excel(file_name_with_path,
@@ -278,7 +271,7 @@ def read_data(file_name_with_path, config, rows_to_read,
                              names=custom_header_names,
                              usecols=column_names_or_indexes_to_use,
                              dtype=custom_data_types,
-                             sheet_name=get_sheet_name(config),
+                             sheet_name=get_sheet(config),
                              )
     elif is_csv(file_name_with_path):
         return pd.read_csv(file_name_with_path,
@@ -379,11 +372,14 @@ def get_functions_to_apply(config):
                                       KEY_FUNCTIONS_TO_APPLY,
                                       VALUE_FUNCTIONS_TO_APPLY)
     if not funcs_list:
+        # Function list must NOT be empty
         raise transform_errors.ListEmptyError(KEY_FUNCTIONS_TO_APPLY)
 
-    for func_and_var_tuple in funcs_list:
-        if type(func_and_var_tuple) is not list:
-            # The input should be tuples in a list. Each tuple
+    for func_and_var in funcs_list:
+        if type(func_and_var) is not dict:
+            # Function and their corresponding parameters should be wrapped
+            # in a dictionary with key "function".
+            # E.g., [{"function": ["func_1", 12]}, {"function": ["func_2", [1,2,3]}]
             raise transform_errors.InputDataTypeError(KEY_FUNCTIONS_TO_APPLY, [list])
     return funcs_list
 

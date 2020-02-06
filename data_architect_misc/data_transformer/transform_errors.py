@@ -7,7 +7,7 @@ class TransformError(Exception):
 class ConfigFileError(TransformError):
     """Raised when JSON config file is not found or its path is not provided."""
     def __str__(self):
-        return "\nYou must provide valid path AND name of " \
+        return "You must provide valid path AND name of " \
                "the JSON configuration file. Try \n>> python " \
                "transform.py -h \nto learn the proper usage."
 
@@ -15,7 +15,7 @@ class ConfigFileError(TransformError):
 class FileNotFound(TransformError):
     """Raised when file(s) is not found."""
     def __init__(self, filename):
-        super().__init__("\nPlease make sure that the following file(s) exists ",
+        super().__init__("Please make sure that the following file(s) exists ",
                           filename)
 
 
@@ -25,7 +25,7 @@ class InvalidFileType(TransformError):
         self.file_name = file_name
 
     def __str__(self):
-        return ' '.join(["\nThis program only accepts either Excel or CSV files.",
+        return ' '.join(["This program only accepts either Excel or CSV files.",
                         "But the input file type does not match what's expected:",
                         self.file_name])
 
@@ -38,7 +38,7 @@ class RequiredKeyNotFoundInConfigFile(TransformError):
         self.key_name = key_name
 
     def __str__(self):
-        return ' '.join(["\nPlease make sure to include and provide value for this "
+        return ' '.join(["Please make sure to include and provide value for this "
                          "required key in JSON config file:", self.key_name])
 
 
@@ -53,7 +53,7 @@ class MutuallyExclusiveKeyError(TransformError):
         self.k2 = key2
 
     def __str__(self):
-        return ' '.join(["\nYou can provide EITHER '",
+        return ' '.join(["You can provide EITHER '",
                          self.k1,
                         "' OR '",
                          self.k2,
@@ -72,7 +72,7 @@ class InputDataTypeError(TransformError):
         self.dt = expected_data_types
 
     def __str__(self):
-        return ''.join(["\nFor '",
+        return ''.join(["For '",
                          self.k,
                          "' key in JSON config file, the data type must be one of the following in the list: ",
                          str(self.dt)])
@@ -81,9 +81,14 @@ class InputDataTypeError(TransformError):
 class ListEmptyError(TransformError):
     """Raised when the provided list is empty."""
     def __init__(self, key_name):
-        super().__init__("\nPlease make sure that non-empty list is provided for the following key in the config file ",
+        super().__init__("Please make sure that non-empty list is provided for the following key in the config file ",
                           key_name)
 
+
+class ColumnCountError(TransformError):
+    """Raised when the number of columns in a dataframe is not according to expectation"""
+    def __init__(self, msg):
+        super().__init__(msg)
 
 #
 # COLUMNS_TO_USE_TYPE_ERROR = """ERROR: For '""" + KEY_COLUMN_NAMES_TO_USE
