@@ -89,8 +89,6 @@ class TransformFunctions(object):
             does not equal to what is expected.
         """
         if df.shape[1] != num_of_cols_expected:
-            import pdb
-            pdb.set_trace()
             raise transform_errors.ColumnCountError(
                 ' '.join(["Expected column count of:", str(num_of_cols_expected),
                           "but found:", str(df.shape[1]), "in the current dataframe."])

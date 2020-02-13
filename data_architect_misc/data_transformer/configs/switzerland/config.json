@@ -35,13 +35,13 @@
     "functions_to_apply": [
       {
         "__function_comment__": "Every month, we must adjust the following column indexes in this function because the raw files have different number of columns each month.",
-        "function":["drop_columns_by_index", [10, 11, 12, 13, 14, 15, 16, 17, 21]]
+        "transform_function":["drop_columns_by_index", [10, 11, 12, 13, 14, 15, 16, 17, 21]]
       },
       {
-        "function":["drop_columns_by_name", ["Werbungtreibender", "Verlag/Vermarkter", "Sprachgebiet"]]
+        "transform_function":["drop_columns_by_name", ["Werbungtreibender", "Verlag/Vermarkter", "Sprachgebiet"]]
       },
       {
-        "function": ["rename_columns", {
+        "transform_function": ["rename_columns", {
           "Branche": "Sector",
           "Produktgruppe": "Subsector",
           "Produktsegment": "Category",
@@ -53,7 +53,7 @@
       },
       {
         "__function_comment__": "When we run this function, there are only 13 columns total left in the raw data frame.",
-        "function": ["assert_number_of_columns_equals", 10]
+        "assert_function": ["assert_number_of_columns_equals", 10]
       }
     ],
 

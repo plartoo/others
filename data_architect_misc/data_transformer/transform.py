@@ -92,18 +92,19 @@ if __name__ == '__main__':
                 # pdb.set_trace()
                 # TOCONT: use partial to create a function for each of the ones in custom_funcs list and call them
                 for func_and_params in custom_funcs:
-                    # REF1: https://stackoverflow.com/a/12025554
-                    # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
-                    func_and_params = func_and_params['function']
-                    print("\nInvoking function:", func_and_params[0])
-                    func = getattr(custom_funcs_instance, func_and_params[0])
-                    cur_df = func(cur_df, func_and_params[1])
-                    # import pdb
-                    # pdb.set_trace()
-                    print('aha')
+                    if transform_utils.KEY_TRANSFORM_FUNC in func_and_params:
+                        func_and_params = func_and_params[transform_utils.KEY_TRANSFORM_FUNC]
+                        func = getattr(custom_funcs_instance, func_and_params[0])
+                        print("\nInvoking transform function:", func_and_params[0])
+                        # REF1: https://stackoverflow.com/a/12025554
+                        # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
+                        cur_df = func(cur_df, func_and_params[1])
+                    elif transform_utils.KEY_ASSERT_FUNC in func_and_params:
+                        func_and_params = func_and_params[transform_utils.KEY_ASSERT_FUNC]
+                        func = getattr(custom_funcs_instance, func_and_params[0])
+                        print("\nInvoking assert function:", func_and_params[0])
+                        func(cur_df, func_and_params[1])
 
-                # We need to apply these rules:
-                # 3. stack months
 
                 # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
                 import pdb
