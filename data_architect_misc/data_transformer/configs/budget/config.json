@@ -1,0 +1,44 @@
+[
+  {
+    "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
+    "input_folder_path": "./input/budget/",
+    "input_file_name_or_pattern": "Global Budget Roll-up_9.16.19.xlsx",
+
+    "__comment__": "(Optional) Enter sheet name to process. Default is the first sheet in the Excel file.",
+    "sheet_name_of_excel_file": "Budget Roll-Up",
+
+    "__comment__": "(Required) Output folder path is required.",
+    "output_folder_path": "./output/budget/",
+
+    "__comment__": "(Optional) Prefix for the output file name.",
+    "output_file_name_prefix": "transformed_budget_",
+
+    "__comment__": "(Optional task-specific file (path+name) that has data transforming functions, which will be imported and used in the transform process.",
+    "transform_functions_file": "./transform_functions/budget_transform_functions.py",
+
+    "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from.",
+    "__comment__": "If this value is not provided, program will assume there is no header row in the input file",
+    "row_index_to_extract_column_headers": 0,
+
+    "__comment__": "(Optional) Specify which row index (starting from 0) the data begins.",
+    "__comment__": "Usually the data begins at row index=1 (row index=0 is for column headers), so we make the default as '1' below.",
+    "row_index_where_data_starts": 1,
+
+    "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file.",
+    "num_of_rows_to_skip_from_the_bottom": 0,
+
+    "__comment__": "(Required) List of the functions and their parameters in a list like [[\"drop_columns\",[0,2]], ....]",
+    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as switzerland_transform_functions.py",
+    "__comment__": "If these functions aren't provided, error would be raised because why even bother running this program if there's nothing to transform/apply, right?",
+    "functions_to_apply": [
+      {
+        "__function_comment__": "Every month, we must adjust the following column indexes in this function because the raw files have different number of columns each month.",
+        "transform_function":["drop_unnamed_columns", []]
+      },
+      {
+        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
+        "assert_function": ["assert_number_of_columns_equals", 13]
+      }
+    ]
+  }
+]

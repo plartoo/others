@@ -55,6 +55,21 @@ class TransformFunctions(object):
         return df.drop(list_of_col_names, axis=1)
 
 
+    def drop_unnamed_columns(self, df, params=None):
+        """
+        Drop columns that have 'Unnamed' as column header, which is a usual
+        occurrence for some Excel/CSV raw data files with empty but hidden columns.
+        Args:
+            df: Raw dataframe to transform.
+            params: We don't need any parameter for this function,
+                    so it's defaulted to None.
+
+        Returns:
+            Dataframe whose 'Unnamed' columns are dropped.
+        """
+        return df.loc[:, ~df.columns.str.contains(r'Unnamed')]
+
+
     def rename_columns(self, df, old_to_new_cols_dict):
         """
         Rename column headers to new ones given a dictionary of
@@ -93,6 +108,8 @@ class TransformFunctions(object):
                 ' '.join(["Expected column count of:", str(num_of_cols_expected),
                           "but found:", str(df.shape[1]), "in the current dataframe."])
             )
+        else:
+            print("Successfully check that the current dataframe has:", num_of_cols_expected, "columns.")
 
         return df
 

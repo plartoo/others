@@ -68,7 +68,7 @@ if __name__ == '__main__':
                 # using this program
 
                 # TODO: try out different Excel files to see how this skipping rows work
-                print("Skipping this many rows:", row_idx_where_data_starts)
+                print("Skipping this many rows (including header row) from the top of the file:", row_idx_where_data_starts)
                 cur_df = pd.read_excel(input_file,
                                        sheet_name=sheet,
                                        skiprows=row_idx_where_data_starts,
@@ -84,7 +84,7 @@ if __name__ == '__main__':
                 # Before writing custom functions to transform data, please read
                 # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
                 #
-                custom_funcs_instance = custom_funcs_module.CountrySpecificTransformFunctions()
+                custom_funcs_instance = custom_funcs_module.TaskSpecificTransformFunctions()
                 # drop_columns(df, [])
                 # stack_columns(df)
                 # add_compete_non_compete_flag(df, [])
@@ -95,14 +95,14 @@ if __name__ == '__main__':
                     if transform_utils.KEY_TRANSFORM_FUNC in func_and_params:
                         func_and_params = func_and_params[transform_utils.KEY_TRANSFORM_FUNC]
                         func = getattr(custom_funcs_instance, func_and_params[0])
-                        print("\nInvoking transform function:", func_and_params[0])
+                        print("=>Invoking transform function:", func_and_params[0])
                         # REF1: https://stackoverflow.com/a/12025554
                         # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
                         cur_df = func(cur_df, func_and_params[1])
                     elif transform_utils.KEY_ASSERT_FUNC in func_and_params:
                         func_and_params = func_and_params[transform_utils.KEY_ASSERT_FUNC]
                         func = getattr(custom_funcs_instance, func_and_params[0])
-                        print("\nInvoking assert function:", func_and_params[0])
+                        print("=>Invoking assert function:", func_and_params[0])
                         func(cur_df, func_and_params[1])
 
 
