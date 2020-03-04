@@ -30,9 +30,24 @@ class InvalidFileType(TransformError):
                         self.file_name])
 
 
+class RequiredKeyNotFound(TransformError):
+    """
+    Raised when we do NOT find required key in a dictionary.
+    """
+    def __init__(self, dictionary, key_names):
+        self.dictionary = dictionary
+        self.key_names = key_names
+
+    def __str__(self):
+        return ' '.join(["In dictionary: ", str(self.dictionary),
+                         ", at least one of the following required key(s) must exist: ",
+                         str(self.key_names)])
+
+
 class RequiredKeyNotFoundInConfigFile(TransformError):
     """
-    Raised when config file does not have required key.
+    Raised when config file does not have required key
+    (more specific version of RequiredKeyNotFound error).
     """
     def __init__(self, key_name):
         self.key_name = key_name
@@ -74,7 +89,7 @@ class InputDataTypeError(TransformError):
     def __str__(self):
         return ''.join(["For '",
                          self.k,
-                         "' key in JSON config file, the data type must be one of the following in the list: ",
+                         "' key in JSON config file, the data type must be one of the followings: ",
                          str(self.dt)])
 
 

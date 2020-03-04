@@ -44,7 +44,6 @@ if __name__ == '__main__':
         transform_utils.validate_configurations(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
         custom_funcs_module = transform_utils.load_custom_functions(config)
-        custom_funcs = transform_utils.get_functions_to_apply(config)
 
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
@@ -91,19 +90,34 @@ if __name__ == '__main__':
                 # import pdb
                 # pdb.set_trace()
                 # TOCONT: use partial to create a function for each of the ones in custom_funcs list and call them
-                for func_and_params in custom_funcs:
-                    if transform_utils.KEY_TRANSFORM_FUNC in func_and_params:
-                        func_and_params = func_and_params[transform_utils.KEY_TRANSFORM_FUNC]
-                        func = getattr(custom_funcs_instance, func_and_params[0])
-                        print("=>Invoking transform function:", func_and_params[0])
+                for func_and_params in transform_utils.get_functions_to_apply(config):
+                    if transform_utils.KEY_TRANSFORM_FUNC_NAME in func_and_params:
                         # REF1: https://stackoverflow.com/a/12025554
                         # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
-                        cur_df = func(cur_df, func_and_params[1])
-                    elif transform_utils.KEY_ASSERT_FUNC in func_and_params:
-                        func_and_params = func_and_params[transform_utils.KEY_ASSERT_FUNC]
-                        func = getattr(custom_funcs_instance, func_and_params[0])
-                        print("=>Invoking assert function:", func_and_params[0])
-                        func(cur_df, func_and_params[1])
+                        # REF3: Passing variable length args in getattr - https://stackoverflow.com/q/6321940
+                        print("=>Invoking transform function:", func_and_params)
+                        func_args = transform_utils.get_transform_function_args(func_and_params)
+                        func_kwargs = transform_utils.get_transform_function_kwargs(func_and_params)
+                        cur_df = getattr(custom_funcs_instance,
+                                         transform_utils.get_transform_function_name(
+                                             func_and_params))(cur_df,*func_args,**func_kwargs)
+                        import pdb
+                        pdb.set_trace()
+                        print('transform func')
+                    elif transform_utils.KEY_ASSERT_FUNC_NAME in func_and_params:
+                        # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
+                        # if passing df in/out of function is memory expensive
+                        # and if not, merge assert and transform
+                        # if so, ask question on SO like this: "Is passing around dataframes into functions in pandas memory intensive/expensive?"
+                        print("=>Invoking assert function:", func_and_params)
+                        func_args = transform_utils.get_assert_function_args(func_and_params)
+                        func_kwargs = transform_utils.get_assert_function_kwargs(func_and_params)
+                        getattr(custom_funcs_instance,
+                                transform_utils.get_assert_function_name(
+                                    func_and_params))(cur_df, *func_args, **func_kwargs)
+                        import pdb
+                        pdb.set_trace()
+                        print('assert func')
 
 
                 # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling

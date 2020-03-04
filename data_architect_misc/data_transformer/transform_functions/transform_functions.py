@@ -55,7 +55,7 @@ class TransformFunctions(object):
         return df.drop(list_of_col_names, axis=1)
 
 
-    def drop_unnamed_columns(self, df, params=None):
+    def drop_unnamed_columns(self, df):
         """
         Drop columns that have 'Unnamed' as column header, which is a usual
         occurrence for some Excel/CSV raw data files with empty but hidden columns.

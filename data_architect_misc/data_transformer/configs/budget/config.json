@@ -28,16 +28,21 @@
     "num_of_rows_to_skip_from_the_bottom": 0,
 
     "__comment__": "(Required) List of the functions and their parameters in a list like [[\"drop_columns\",[0,2]], ....]",
-    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as switzerland_transform_functions.py",
-    "__comment__": "If these functions aren't provided, error would be raised because why even bother running this program if there's nothing to transform/apply, right?",
+    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as .\\transform_function\\switzerland_transform_functions.py",
     "functions_to_apply": [
       {
-        "__function_comment__": "Every month, we must adjust the following column indexes in this function because the raw files have different number of columns each month.",
-        "transform_function":["drop_unnamed_columns", []]
+        "__function_comment__": "Budget roll up Excel file has empty columns. We need to drop them first",
+        "transform_function_name": "drop_unnamed_columns"
       },
       {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
-        "assert_function": ["assert_number_of_columns_equals", 13]
+        "assert_function_name": "assert_number_of_columns_equals",
+        "assert_function_args": [13]
+      },
+      {
+        "__function_comment__": "Whenever channel is 'Ecommerce' or 'Amazon', set it to 'E-Commerce'.",
+        "transform_function_name": "map_to_ecommerce",
+        "transform_function_args": [["Ecommerce", "Amazon"]]
       }
     ]
   }
