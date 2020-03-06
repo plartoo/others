@@ -82,42 +82,44 @@ if __name__ == '__main__':
                 #
                 # Before writing custom functions to transform data, please read
                 # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
-                #
                 custom_funcs_instance = custom_funcs_module.TaskSpecificTransformFunctions()
-                # drop_columns(df, [])
-                # stack_columns(df)
-                # add_compete_non_compete_flag(df, [])
-                # import pdb
-                # pdb.set_trace()
-                # TOCONT: use partial to create a function for each of the ones in custom_funcs list and call them
+
                 for func_and_params in transform_utils.get_functions_to_apply(config):
-                    if transform_utils.KEY_TRANSFORM_FUNC_NAME in func_and_params:
-                        # REF1: https://stackoverflow.com/a/12025554
-                        # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
-                        # REF3: Passing variable length args in getattr - https://stackoverflow.com/q/6321940
-                        print("=>Invoking transform function:", func_and_params)
-                        func_args = transform_utils.get_transform_function_args(func_and_params)
-                        func_kwargs = transform_utils.get_transform_function_kwargs(func_and_params)
-                        cur_df = getattr(custom_funcs_instance,
-                                         transform_utils.get_transform_function_name(
-                                             func_and_params))(cur_df,*func_args,**func_kwargs)
-                        import pdb
-                        pdb.set_trace()
-                        print('transform func')
-                    elif transform_utils.KEY_ASSERT_FUNC_NAME in func_and_params:
-                        # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
-                        # if passing df in/out of function is memory expensive
-                        # and if not, merge assert and transform
-                        # if so, ask question on SO like this: "Is passing around dataframes into functions in pandas memory intensive/expensive?"
-                        print("=>Invoking assert function:", func_and_params)
-                        func_args = transform_utils.get_assert_function_args(func_and_params)
-                        func_kwargs = transform_utils.get_assert_function_kwargs(func_and_params)
-                        getattr(custom_funcs_instance,
-                                transform_utils.get_assert_function_name(
-                                    func_and_params))(cur_df, *func_args, **func_kwargs)
-                        import pdb
-                        pdb.set_trace()
-                        print('assert func')
+                    print("=>Invoking transform function:", func_and_params)
+                    func_args = transform_utils.get_transform_function_args(func_and_params)
+                    func_kwargs = transform_utils.get_transform_function_kwargs(func_and_params)
+                    cur_df = getattr(custom_funcs_instance,
+                                     transform_utils.get_transform_function_name(
+                                         func_and_params))(cur_df, *func_args, **func_kwargs)
+                    # TODO: find out if there's a way to force python functions to return something of specific type
+
+                    # if transform_utils.KEY_TRANSFORM_FUNC_NAME in func_and_params:
+                    #     # REF1: https://stackoverflow.com/a/12025554
+                    #     # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
+                    #     # REF3: Passing variable length args in getattr - https://stackoverflow.com/q/6321940
+                    #     print("=>Invoking transform function:", func_and_params)
+                    #     func_args = transform_utils.get_transform_function_args(func_and_params)
+                    #     func_kwargs = transform_utils.get_transform_function_kwargs(func_and_params)
+                    #     cur_df = getattr(custom_funcs_instance,
+                    #                      transform_utils.get_transform_function_name(
+                    #                          func_and_params))(cur_df,*func_args,**func_kwargs)
+                    #     import pdb
+                    #     pdb.set_trace()
+                    #     print('transform func')
+                    # elif transform_utils.KEY_ASSERT_FUNC_NAME in func_and_params:
+                    #     # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
+                    #     # if passing df in/out of function is memory expensive
+                    #     # and if not, merge assert and transform
+                    #     # if so, ask question on SO like this: "Is passing around dataframes into functions in pandas memory intensive/expensive?"
+                    #     print("=>Invoking assert function:", func_and_params)
+                    #     func_args = transform_utils.get_assert_function_args(func_and_params)
+                    #     func_kwargs = transform_utils.get_assert_function_kwargs(func_and_params)
+                    #     getattr(custom_funcs_instance,
+                    #             transform_utils.get_assert_function_name(
+                    #                 func_and_params))(cur_df, *func_args, **func_kwargs)
+                    #     import pdb
+                    #     pdb.set_trace()
+                    #     print('assert func')
 
 
                 # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
@@ -126,6 +128,7 @@ if __name__ == '__main__':
                 print('debug')
 
             elif transform_utils.is_csv(input_file):
+                # REF: how to chunk process CSV files https://pythonspeed.com/articles/chunking-pandas/
                 rows_per_chunk = transform_utils.get_rows_per_chunk_for_csv(config)
                 encoding = transform_utils.get_input_csv_encoding(config)
                 input_csv_delimiter = transform_utils.get_input_csv_delimiter(config)
