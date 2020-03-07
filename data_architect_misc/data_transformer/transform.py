@@ -1,6 +1,7 @@
 import pdb
 
 import argparse
+import json
 import os
 import sys
 
@@ -43,13 +44,20 @@ if __name__ == '__main__':
         # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
         output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
-        custom_funcs_module = transform_utils.load_custom_functions(config)
+
+        # TODO: We need to think about renaming this transform_funcs_instance as custom_module_instance
+        # because we might want to use this pattern for logging; QA-ing and mapping tasks
+        #
+        # Before writing custom functions to transform data, please read
+        # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
+        transform_funcs_instance = transform_utils.instantiate_transform_functions_module(config)
 
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
         for input_file in transform_utils.get_input_files(config):
             print("Processing file:", input_file)
+            # TODO: Time the performance
             # t1 = time.time()
             # print('Read Excel file:', file_path_and_name)
             # print("It took this many seconds to read the file:", time.time() - t1, "\n")
@@ -76,22 +84,24 @@ if __name__ == '__main__':
                                        names=col_headers_from_input_file
                                        )
 
-
-                # TODO: We need to think about renaming this transform_funcs as custom_modules
-                # because we might want to use this pattern for logging; QA-ing and mapping tasks
-                #
-                # Before writing custom functions to transform data, please read
-                # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
-                custom_funcs_instance = custom_funcs_module.TaskSpecificTransformFunctions()
-
                 for func_and_params in transform_utils.get_functions_to_apply(config):
-                    print("=>Invoking transform function:", func_and_params)
-                    func_args = transform_utils.get_transform_function_args(func_and_params)
-                    func_kwargs = transform_utils.get_transform_function_kwargs(func_and_params)
-                    cur_df = getattr(custom_funcs_instance,
-                                     transform_utils.get_transform_function_name(
+                    print("=> Invoking transform function:\n", json.dumps(func_and_params,
+                                                                          sort_keys=True,
+                                                                          indent=4))
+                    func_args = transform_utils.get_function_args(func_and_params)
+                    func_kwargs = transform_utils.get_function_kwargs(func_and_params)
+                    cur_df = getattr(transform_funcs_instance,
+                                     transform_utils.get_function_name(
                                          func_and_params))(cur_df, *func_args, **func_kwargs)
+                    print(cur_df)
+                    # import pdb
+                    # pdb.set_trace()
+                    # print('debug')
+
                     # TODO: find out if there's a way to force python functions to return something of specific type
+                    # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
+                    # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
+                    # if passing df in/out of function is memory expensive
 
                     # if transform_utils.KEY_TRANSFORM_FUNC_NAME in func_and_params:
                     #     # REF1: https://stackoverflow.com/a/12025554
@@ -107,8 +117,6 @@ if __name__ == '__main__':
                     #     pdb.set_trace()
                     #     print('transform func')
                     # elif transform_utils.KEY_ASSERT_FUNC_NAME in func_and_params:
-                    #     # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
-                    #     # if passing df in/out of function is memory expensive
                     #     # and if not, merge assert and transform
                     #     # if so, ask question on SO like this: "Is passing around dataframes into functions in pandas memory intensive/expensive?"
                     #     print("=>Invoking assert function:", func_and_params)
@@ -122,10 +130,6 @@ if __name__ == '__main__':
                     #     print('assert func')
 
 
-                # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
-                import pdb
-                pdb.set_trace()
-                print('debug')
 
             elif transform_utils.is_csv(input_file):
                 # REF: how to chunk process CSV files https://pythonspeed.com/articles/chunking-pandas/

@@ -34,12 +34,12 @@ KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 
 TRANSFORM_FUNCTIONS_FOLDER = 'transform_functions'
-DEFAULT_TRANSFORM_FUNCTIONS_FILE = 'transform_functions.py'
-KEY_TRANSFORM_FUNCTIONS_FILE = 'transform_functions_file'
+DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = 'transform_functions.py'
+KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE = 'custom_transform_functions_file'
 # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
-VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(),
-                                                       TRANSFORM_FUNCTIONS_FOLDER,
-                                                       DEFAULT_TRANSFORM_FUNCTIONS_FILE)
+VALUE_COMMON_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(),
+                                                             TRANSFORM_FUNCTIONS_FOLDER,
+                                                             DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
 
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
 VALUE_SHEET_NAME_DEFAULT = 0
@@ -67,6 +67,12 @@ VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
 
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
 VALUE_FUNCTIONS_TO_APPLY = []
+KEY_FUNC_NAME = 'function_name'
+KEY_FUNC_ARGS = 'function_args'
+VALUE_FUNC_ARGS_DEFAULT = []
+KEY_FUNC_KWARGS = 'function_kwargs'
+VALUE_FUNC_KWARGS_DEFAULT = {}
+
 KEY_TRANSFORM_FUNC_NAME = 'transform_function_name'
 KEY_TRANSFORM_FUNC_ARGS = 'transform_function_args'
 VALUE_TRANSFORM_FUNC_ARGS_DEFAULT = []
@@ -208,27 +214,45 @@ def _append_sys_path(new_sys_path):
         print("Current sys path is:\n", sys.path, "\n")
 
 
-# KEY_TRANSFORM_FUNCTIONS_FILE = 'transform_functions_files'
-# # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
-# VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(), 'transform_functions', 'transform_functions.py')
-def load_custom_functions(config):
-    """Extract corresponding value from config file and load the custom module that has transform functions.
+def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
+    if transform_funcs_file == VALUE_COMMON_TRANSFORM_FUNCTIONS_FILE_DEFAULT:
+        # Here, the config file does not define the file that has
+        # custom transform functions, so we are going to load (instantiate)
+        # the CommonTransformFunctions instance.
+        return transform_funcs_module.CommonTransformFunctions()
+    else:
+        return transform_funcs_module.CustomTransformFunctions()
+
+
+def instantiate_transform_functions_module(config):
+    """First, extract corresponding value from config file and
+    import the module that has either the common or the custom
+    (e.g., transform) functions.
+    After importing the module, call private function to
+    instantiate that module.
     """
     transform_funcs_file = _get_value_from_dict(config,
-                                                KEY_TRANSFORM_FUNCTIONS_FILE,
-                                                VALUE_TRANSFORM_FUNCTIONS_FILE_DEFAULT)
+                                                KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
+                                                VALUE_COMMON_TRANSFORM_FUNCTIONS_FILE_DEFAULT)
     if os.path.isfile(transform_funcs_file):
         directory, file_name = os.path.split(transform_funcs_file)
         _append_sys_path(directory)
 
         file_name_without_extension = os.path.splitext(file_name)[0]
+        relative_module_name = ''.join(['.', file_name_without_extension])
         # Note: we assume that all transform function modules are located in
-        # './transform_funcs' directory, which is used as pcakage name below.
-        # Module name is either country specific python file name (wihtout extension) or transform_funcs
+        # './transform_funcs' directory, which is used as package name below.
+        # Relative module name, the first argument, is either custom python file name
+        # (without extension) or the file with common transform functions
+        # (that is, 'transform_functions' python file) prefixed with '.' (dot).
         # E.g., importlib.import_module('switzerland_transform_functions', package='transform_functions')
         # OR importlib.import_module('transform_functions.switzerland_transform_functions')
-        return importlib.import_module(file_name_without_extension,
-                                       package=os.path.basename(directory))
+        # import pdb
+        # pdb.set_trace()
+        return _instantiate_transform_module(transform_funcs_file,
+                                             importlib.import_module(
+                                                 relative_module_name,
+                                                 package=os.path.basename(directory)))
     else:
         raise transform_errors.FileNotFound(transform_funcs_file)
 
@@ -426,76 +450,133 @@ def get_functions_to_apply(config):
     return funcs_list
 
 
-def get_transform_function_name(dict_of_func_and_params):
+def get_function_name(dict_of_func_and_params):
     """
     Extract and return function name (string type) from the dictionary
-    that holds transform function name and parameters (args/kwargs), if any.
+    that holds the function name and parameters (args/kwargs), if any.
 
     Args:
         dict_of_func_and_params: Dictionary that has function name and
         parameters like this:
           {
             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
-            "transform_function_name": "drop_unnamed_columns",
-            "transform_function_args": [["Unnamed 1", "Unnamed 2"]]
+            "function_name": "drop_unnamed_columns",
+            "function_args": [["Unnamed 1", "Unnamed 2"]]
           }
 
     Returns:
-         Function name (string) that we will convert to attribute and invoke
+         Function name (string) that we will convert to class attribute and invoke
          for data transformation.
 
     Raises:
         RequiredKeyNotFound: Return this error if there is no expected function key
         in the dictionary.
     """
-    if not _is_key_in_dict(dict_of_func_and_params, [KEY_TRANSFORM_FUNC_NAME]):
+    if not _is_key_in_dict(dict_of_func_and_params, [KEY_FUNC_NAME]):
         # This means the user did not not provide function name
         # for us to apply in the transform process
         raise transform_errors.RequiredKeyNotFound(dict_of_func_and_params,
-                                                   [KEY_TRANSFORM_FUNC_NAME])
+                                                   [KEY_FUNC_NAME])
 
     return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_TRANSFORM_FUNC_NAME,
+                                KEY_FUNC_NAME,
                                 None)
 
 
-def get_assert_function_name(dict_of_func_and_params):
+# def get_transform_function_name(dict_of_func_and_params):
+#     """
+#     Extract and return function name (string type) from the dictionary
+#     that holds transform function name and parameters (args/kwargs), if any.
+#
+#     Args:
+#         dict_of_func_and_params: Dictionary that has function name and
+#         parameters like this:
+#           {
+#             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
+#             "transform_function_name": "drop_unnamed_columns",
+#             "transform_function_args": [["Unnamed 1", "Unnamed 2"]]
+#           }
+#
+#     Returns:
+#          Function name (string) that we will convert to attribute and invoke
+#          for data transformation.
+#
+#     Raises:
+#         RequiredKeyNotFound: Return this error if there is no expected function key
+#         in the dictionary.
+#     """
+#     if not _is_key_in_dict(dict_of_func_and_params, [KEY_TRANSFORM_FUNC_NAME]):
+#         # This means the user did not not provide function name
+#         # for us to apply in the transform process
+#         raise transform_errors.RequiredKeyNotFound(dict_of_func_and_params,
+#                                                    [KEY_TRANSFORM_FUNC_NAME])
+#
+#     return _get_value_from_dict(dict_of_func_and_params,
+#                                 KEY_TRANSFORM_FUNC_NAME,
+#                                 None)
+#
+#
+# def get_assert_function_name(dict_of_func_and_params):
+#     """
+#     Extract and return function name (string type) from the dictionary
+#     that holds assert function name and parameters (args/kwargs), if any.
+#
+#     Args:
+#         dict_of_func_and_params: Dictionary that has function name and
+#         parameters like this:
+#           {
+#             "__function_comment__": "Make sure the dataframe has 13 columns at this stage.",
+#             "assert_function_name": "assert_number_of_columns_equals",
+#             "assert_function_args": [10]
+#           }
+#
+#     Returns:
+#          Function name (string) that we will convert to attribute and invoke
+#          for data QA (assertions).
+#
+#     Raises:
+#         RequiredKeyNotFound: Return this error if there is no expected function key
+#         in the dictionary.
+#     """
+#     if not _is_key_in_dict(dict_of_func_and_params, [KEY_ASSERT_FUNC_NAME]):
+#         # This means the user did not not provide function name
+#         # for us to apply in the transform process
+#         raise transform_errors.RequiredKeyNotFound(dict_of_func_and_params,
+#                                                    [KEY_ASSERT_FUNC_NAME])
+#
+#     return _get_value_from_dict(dict_of_func_and_params,
+#                                 KEY_ASSERT_FUNC_NAME,
+#                                 None)
+
+
+def get_function_args(dict_of_func_and_params):
     """
-    Extract and return function name (string type) from the dictionary
-    that holds assert function name and parameters (args/kwargs), if any.
+    Extract and return list of arguments (*args) or an empty
+    list from the dictionary that holds function name and
+    parameters (args and kwargs), if any.
 
     Args:
         dict_of_func_and_params: Dictionary that has function name and
         parameters like this:
           {
-            "__function_comment__": "Make sure the dataframe has 13 columns at this stage.",
-            "assert_function_name": "assert_number_of_columns_equals",
-            "assert_function_args": [10]
+            "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
+            "function_name": "drop_unnamed_columns",
+            "function_args": [["Unnamed 1", "Unnamed 2"]]
           }
 
     Returns:
-         Function name (string) that we will convert to attribute and invoke
-         for data QA (assertions).
-
-    Raises:
-        RequiredKeyNotFound: Return this error if there is no expected function key
-        in the dictionary.
+         List of parameters like [param1, param2] or an empty list if
+         "function_args" key does not exists in the dictionary.
     """
-    if not _is_key_in_dict(dict_of_func_and_params, [KEY_ASSERT_FUNC_NAME]):
-        # This means the user did not not provide function name
-        # for us to apply in the transform process
-        raise transform_errors.RequiredKeyNotFound(dict_of_func_and_params,
-                                                   [KEY_ASSERT_FUNC_NAME])
-
     return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_ASSERT_FUNC_NAME,
-                                None)
+                                KEY_FUNC_ARGS,
+                                VALUE_FUNC_ARGS_DEFAULT)
 
 
-def get_transform_function_args(dict_of_func_and_params):
+def get_function_kwargs(dict_of_func_and_params):
     """
-    Extract and return list of arguments (*args) or an empty list from
-    the dictionary that holds transform function name and parameters
+    Extract and return list of keyword arguments (*kwargs) or an empty list
+    from the dictionary that holds function name and parameters
     (args and kwargs), if any.
 
     Args:
@@ -503,88 +584,111 @@ def get_transform_function_args(dict_of_func_and_params):
         parameters like this:
           {
             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
-            "transform_function_name": "drop_unnamed_columns",
-            "transform_function_args": [["Unnamed 1", "Unnamed 2"]]
-          }
-
-    Returns:
-         List of parameters like [param1, param2] or an empty list.
-    """
-    return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_TRANSFORM_FUNC_ARGS,
-                                VALUE_TRANSFORM_FUNC_ARGS_DEFAULT)
-
-
-def get_transform_function_kwargs(dict_of_func_and_params):
-    """
-    Extract and return list of keyword arguments (*kwargs) or an empty list
-    from the dictionary that holds transform function name and parameters
-    (args and kwargs), if any.
-
-    Args:
-        dict_of_func_and_params: Dictionary that has function name and
-        parameters like this:
-          {
-            "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
-            "transform_function_name": "map_channel_columns",
-            "transform_function_kwargs": {"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}
+            "function_name": "map_channel_columns",
+            "function_kwargs": {"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}
           }
 
     Returns:
          Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
-         or an empty dictionary.
+         or an empty dictionary if "function_kwargs" key does not exist in the dictionary.
     """
     return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_TRANSFORM_FUNC_KWARGS,
-                                VALUE_TRANSFORM_FUNC_KWARGS_DEFAULT)
+                                KEY_FUNC_KWARGS,
+                                VALUE_FUNC_KWARGS_DEFAULT)
 
 
-def get_assert_function_args(dict_of_func_and_params):
-    """
-    Extract and return list of arguments (*args) or an empty list from
-    the dictionary that holds assert function name and parameters
-    (args and kwargs), if any.
-
-    Args:
-        dict_of_func_and_params: Dictionary that has function name and
-        parameters like this:
-          {
-            "__function_comment__": "Make sure the dataframe has 13 columns at this stage.",
-            "assert_function_name": "assert_number_of_columns_equals",
-            "assert_function_args": [10]
-          }
-
-    Returns:
-         List of parameters like [param1, param2] or an empty list.
-    """
-    return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_ASSERT_FUNC_ARGS,
-                                VALUE_ASSERT_FUNC_ARGS_DEFAULT)
-
-
-def get_assert_function_kwargs(dict_of_func_and_params):
-    """
-    Extract and return list of keyword arguments (*kwargs) or an empty list
-    from the dictionary that holds assert function name and parameters
-    (args and kwargs), if any.
-
-    Args:
-        dict_of_func_and_params: Dictionary that has function name and
-        parameters like this:
-          {
-            "__function_comment__": "Make sure if col1 is 'Amazon', col2's vlaue is 'E-Commerce'.",
-            "transform_function_name": "assert_mapped_channel_columns",
-            "transform_function_kwargs": {"Amazon": "E-Commerce"}
-          }
-
-    Returns:
-         Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
-         or an empty dictionary.
-    """
-    return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_ASSERT_FUNC_KWARGS,
-                                VALUE_ASSERT_FUNC_KWARGS_DEFAULT)
-
+# def get_transform_function_args(dict_of_func_and_params):
+#     """
+#     Extract and return list of arguments (*args) or an empty list from
+#     the dictionary that holds transform function name and parameters
+#     (args and kwargs), if any.
+#
+#     Args:
+#         dict_of_func_and_params: Dictionary that has function name and
+#         parameters like this:
+#           {
+#             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
+#             "transform_function_name": "drop_unnamed_columns",
+#             "transform_function_args": [["Unnamed 1", "Unnamed 2"]]
+#           }
+#
+#     Returns:
+#          List of parameters like [param1, param2] or an empty list.
+#     """
+#     return _get_value_from_dict(dict_of_func_and_params,
+#                                 KEY_TRANSFORM_FUNC_ARGS,
+#                                 VALUE_TRANSFORM_FUNC_ARGS_DEFAULT)
+#
+#
+# def get_transform_function_kwargs(dict_of_func_and_params):
+#     """
+#     Extract and return list of keyword arguments (*kwargs) or an empty list
+#     from the dictionary that holds transform function name and parameters
+#     (args and kwargs), if any.
+#
+#     Args:
+#         dict_of_func_and_params: Dictionary that has function name and
+#         parameters like this:
+#           {
+#             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
+#             "transform_function_name": "map_channel_columns",
+#             "transform_function_kwargs": {"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}
+#           }
+#
+#     Returns:
+#          Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
+#          or an empty dictionary.
+#     """
+#     return _get_value_from_dict(dict_of_func_and_params,
+#                                 KEY_TRANSFORM_FUNC_KWARGS,
+#                                 VALUE_TRANSFORM_FUNC_KWARGS_DEFAULT)
+#
+#
+# def get_assert_function_args(dict_of_func_and_params):
+#     """
+#     Extract and return list of arguments (*args) or an empty list from
+#     the dictionary that holds assert function name and parameters
+#     (args and kwargs), if any.
+#
+#     Args:
+#         dict_of_func_and_params: Dictionary that has function name and
+#         parameters like this:
+#           {
+#             "__function_comment__": "Make sure the dataframe has 13 columns at this stage.",
+#             "assert_function_name": "assert_number_of_columns_equals",
+#             "assert_function_args": [10]
+#           }
+#
+#     Returns:
+#          List of parameters like [param1, param2] or an empty list.
+#     """
+#     return _get_value_from_dict(dict_of_func_and_params,
+#                                 KEY_ASSERT_FUNC_ARGS,
+#                                 VALUE_ASSERT_FUNC_ARGS_DEFAULT)
+#
+#
+# def get_assert_function_kwargs(dict_of_func_and_params):
+#     """
+#     Extract and return list of keyword arguments (*kwargs) or an empty list
+#     from the dictionary that holds assert function name and parameters
+#     (args and kwargs), if any.
+#
+#     Args:
+#         dict_of_func_and_params: Dictionary that has function name and
+#         parameters like this:
+#           {
+#             "__function_comment__": "Make sure if col1 is 'Amazon', col2's vlaue is 'E-Commerce'.",
+#             "transform_function_name": "assert_mapped_channel_columns",
+#             "transform_function_kwargs": {"Amazon": "E-Commerce"}
+#           }
+#
+#     Returns:
+#          Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
+#          or an empty dictionary.
+#     """
+#     return _get_value_from_dict(dict_of_func_and_params,
+#                                 KEY_ASSERT_FUNC_KWARGS,
+#                                 VALUE_ASSERT_FUNC_KWARGS_DEFAULT)
 
 
 def get_rows_per_chunk_for_csv(config):

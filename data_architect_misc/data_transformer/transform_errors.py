@@ -105,7 +105,14 @@ class ColumnCountError(TransformError):
     def __init__(self, msg):
         super().__init__(msg)
 
-#
+
+class InputLengthError(TransformError):
+    """Raised when the length of the input paraemters do not match what is expected.
+    """
+    def __init__(self, error_msg):
+        super().__init__(error_msg)
+
+
 # COLUMNS_TO_USE_TYPE_ERROR = """ERROR: For '""" + KEY_COLUMN_NAMES_TO_USE
 # + """' and '""" + KEY_COLUMN_INDEXES_TO_USE + """' keys in JSON
 # configuration file, you must provide either 'None' OR
