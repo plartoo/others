@@ -46,20 +46,22 @@
       },
       {
         "__function_comment__": "Whenever channel is 'Facebook' or 'Other Social', set Macro Channel to 'Social'.",
-        "function_name": "update_values_in_columns",
+        "function_name": "update_values_in_multiple_columns",
         "function_args": [
-          ["Channel"],
-          [{"Facebook": "Social", "Other Social": "Social"}]
+          ["Channel", "Macro Channel"],
+          [
+            {"Facebook": "Social", "Other social": "Social", "Other Social": "Social"},
+            {"Search": "TestSearch"}
+          ]
         ]
       },
       {
-        "function_name": "print_swiss"
-      },
-      {
-        "function_name": "return_int"
+        "function_name": "update_values_in_one_column",
+        "function_args": [
+          "Macro Channel",
+          {"Online Video": "Test Online Video"}
+          ]
       }
-
-
     ]
   }
 ]

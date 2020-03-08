@@ -94,9 +94,9 @@ if __name__ == '__main__':
                                      transform_utils.get_function_name(
                                          func_and_params))(cur_df, *func_args, **func_kwargs)
                     print(cur_df)
-                    # import pdb
-                    # pdb.set_trace()
-                    # print('debug')
+                    import pdb
+                    pdb.set_trace()
+                    print('debug')
 
                     # TODO: find out if there's a way to force python functions to return something of specific type
                     # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling

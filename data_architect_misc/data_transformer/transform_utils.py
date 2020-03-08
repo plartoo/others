@@ -168,7 +168,7 @@ def _assert_expected_data_types(config):
         # something like {KEY_NAME : [int, None]}
         # print(k, "=>", config[k], "=>", types)
         if (k in config) and (not any([isinstance(config[k], t) for t in types])):
-            raise transform_errors.InputDataTypeError(k, types)
+            raise transform_errors.ConfigFileInputDataTypeError(k, types)
 
 
 def validate_configurations(config):
@@ -210,7 +210,7 @@ def get_output_file_path_with_name_prefix(config):
 def _append_sys_path(new_sys_path):
     if new_sys_path not in sys.path:
         sys.path.append(new_sys_path)
-        print("\nNew sys path appended:", new_sys_path)
+        print("\nThis new sys path is appended:", new_sys_path)
         print("Current sys path is:\n", sys.path, "\n")
 
 
@@ -227,9 +227,8 @@ def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
 def instantiate_transform_functions_module(config):
     """First, extract corresponding value from config file and
     import the module that has either the common or the custom
-    (e.g., transform) functions.
-    After importing the module, call private function to
-    instantiate that module.
+    (e.g., transform) functions. After importing the module,
+    call private function to instantiate that module.
     """
     transform_funcs_file = _get_value_from_dict(config,
                                                 KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
@@ -247,8 +246,8 @@ def instantiate_transform_functions_module(config):
         # (that is, 'transform_functions' python file) prefixed with '.' (dot).
         # E.g., importlib.import_module('switzerland_transform_functions', package='transform_functions')
         # OR importlib.import_module('transform_functions.switzerland_transform_functions')
-        # import pdb
-        # pdb.set_trace()
+        # REF1: https://stackoverflow.com/a/10675081/1330974
+        # REF2: https://stackoverflow.com/a/8899345/1330974
         return _instantiate_transform_module(transform_funcs_file,
                                              importlib.import_module(
                                                  relative_module_name,
@@ -445,7 +444,7 @@ def get_functions_to_apply(config):
             # Function and their corresponding parameters should be wrapped
             # in a dictionary as described in the documentation above.
             # E.g., [{"transform_function_name": "func_1", "transform_function_args": [[12]]}, ...]
-            raise transform_errors.InputDataTypeError(KEY_FUNCTIONS_TO_APPLY, [dict])
+            raise transform_errors.ConfigFileInputDataTypeError(KEY_FUNCTIONS_TO_APPLY, [dict])
 
     return funcs_list
 

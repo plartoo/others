@@ -15,6 +15,11 @@ import transform_errors
 
 def return_value_type_check(f):
     def check_callable(*args, **kwargs):
+        """
+        Helper function which asserts that all functions implemented
+        within TransformFunctions and its subclasses return pandas
+        dataframe. If not, raise exception.
+        """
         r = f(*args, **kwargs)
         if not isinstance(r, pd.DataFrame):
             raise Exception(f"Functions defined within TransformFunctions "
@@ -45,36 +50,6 @@ class CommonTransformFunctions(TransformFunctions):
     REF: https://stackoverflow.com/a/2203479
          https://stackoverflow.com/a/6322114
     """
-
-    # def __init__(self, **kwargs):
-    #     """
-    #     Run time check to see if functions in this class
-    #     and its subclasses return pandas dataframe, which
-    #     is a pre-requisite.
-    #     REF: https://stackoverflow.com/a/60571077/1330974
-    #     """
-    #     super().__init__(**kwargs)
-    #     import pdb
-    #     pdb.set_trace()
-    #     for k, v in self.__dict__.items():
-    #         print(k, v)
-    #         if callable(v):
-    #             setattr(self, k, return_value_type_check(v))
-
-
-    # def __init_subclass__(cls, **kwargs):
-    #     """
-    #     Run time check to see if functions in this class
-    #     and its subclasses return pandas dataframe, which
-    #     is a pre-requisite.
-    #     REF: https://stackoverflow.com/a/60571077/1330974
-    #     """
-    #     super().__init_subclass__(**kwargs)
-    #     for k, v in cls.__dict__.items():
-    #         if callable(v):
-    #             setattr(cls, k, return_value_type_check(v))
-
-
     def drop_columns_by_index(self, df, list_of_col_idx) -> pd.DataFrame:
         """
         Drop columns from a dataframe using a list of indexes.
@@ -139,14 +114,45 @@ class CommonTransformFunctions(TransformFunctions):
         return df.rename(columns=old_to_new_cols_dict)
 
 
-    # def parent_return_int(self, df) -> int:
-    #     return 1
+    def update_values_in_one_column(self,
+                                     df,
+                                     col_name,
+                                     dictionary_of_value_mappings)  -> pd.DataFrame:
+        """
+        Given a dataframe, column name and dictionary representing
+        old-to-new-value mappings for the column, apply the mappings.
+
+        For example, if we want 'Ecommerce' and 'Amazon' values in 'col1' of the
+        dataframe to be updated to 'E-Commerce', we would call this method like this:
+        update_values_in_columns(df, "col1", {"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"}).
+        # REF: https://stackoverflow.com/a/20250996
+
+        Args:
+            df: Raw dataframe to transform.
+            col_name: Column to update values at.
+            dictionary_of_value_mappings: List of dictionaries, each of them
+            representing original values and desired (updated) values.
+            E.g., if we want 'Amazon' and 'Ecommerce' to be mapped to 'E-Commerce'
+            we should provide {"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}.
+
+        Returns:
+            Dataframe with updated values based on provided arguments.
+        """
+        if not isinstance(col_name, str):
+            raise transform_errors.InputDataTypeError("Column name must be of string type")
+
+        if not isinstance(dictionary_of_value_mappings, dict):
+            raise transform_errors.InputDataTypeError(
+                "Value (old to new) mappings must be of dictionary type")
+
+        df[col_name] = df[col_name].map(dictionary_of_value_mappings).fillna(df[col_name])
+        return df
 
 
-    def update_values_in_columns(self,
-                                 df,
-                                 list_of_col_names,
-                                 list_of_dictionary_of_update_values)  -> pd.DataFrame:
+    def update_values_in_multiple_columns(self,
+                                          df,
+                                          list_of_col_names,
+                                          list_of_dictionary_of_value_mappings)  -> pd.DataFrame:
         """
         Given a dataframe, list of columns and corresponding list of dictionaries
         representing old-to-new-value mappings for each column, apply these
@@ -161,7 +167,7 @@ class CommonTransformFunctions(TransformFunctions):
             list_of_col_names: List of columns to update values at.
             For example, if we want 'col1' and 'col2' values to be updated, we
             provide: ['col1', 'col2'].
-            list_of_dictionary_of_update_values: List of dictionaries, each of them
+            list_of_dictionary_of_value_mappings: List of dictionaries, each of them
             representing original values and desired (updated) values.
             E.g., if we want 'Amazon' and 'Ecommerce' to be mapped to 'E-Commerce'
             we should provide [{"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}]
@@ -170,17 +176,15 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with updated values based on provided arguments.
         """
         # https://stackoverflow.com/a/20250996
-        if len(list_of_col_names) != len(list_of_dictionary_of_update_values):
-            raise transform_errors.InputLengthError("The length of column list:",
+        if len(list_of_col_names) != len(list_of_dictionary_of_value_mappings):
+            raise transform_errors.InputDataLengthError("The length of column list:",
                                                     len(list_of_col_names),
                                                     "is NOT the same as the length of",
                                                     "list of dictionaries of update values:",
-                                                    len(list_of_dictionary_of_update_values))
-        print("update_values_in_columns")
+                                                    len(list_of_dictionary_of_value_mappings))
         for i, col in enumerate(list_of_col_names):
-            df[col] = df[col].map(list_of_dictionary_of_update_values[i]).fillna(df[col])
-
-        # return df
+            df[col] = df[col].map(list_of_dictionary_of_value_mappings[i]).fillna(df[col])
+        return df
 
 
     def assert_number_of_columns_equals(self, df, num_of_cols_expected) -> pd.DataFrame:
@@ -233,4 +237,3 @@ class CommonTransformFunctions(TransformFunctions):
 # if __name__ == '__main__':
 #
 #     CommonTransformFunctions().__init__()
-#     # TransformFunctions().__init__()
