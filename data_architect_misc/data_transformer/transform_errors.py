@@ -120,6 +120,15 @@ class ColumnCountError(TransformError):
         super().__init__(msg)
 
 
+class PossibleDuplicateError(TransformError):
+    """
+    Raised when there is a possibility of duplicate values in a given column.
+    This should alert the programmer to check the values in the column again
+    and apply necessary mapping to remove the duplicate values.
+    """
+    def __init__(self, msg):
+        super().__init__(msg)
+
 
 # COLUMNS_TO_USE_TYPE_ERROR = """ERROR: For '""" + KEY_COLUMN_NAMES_TO_USE
 # + """' and '""" + KEY_COLUMN_INDEXES_TO_USE + """' keys in JSON

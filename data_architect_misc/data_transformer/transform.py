@@ -75,7 +75,8 @@ if __name__ == '__main__':
                 # using this program
 
                 # TODO: try out different Excel files to see how this skipping rows work
-                print("Skipping this many rows (including header row) from the top of the file:", row_idx_where_data_starts)
+                print("\nSkipping this many rows (including header row) from the top of the file:",
+                      row_idx_where_data_starts)
                 cur_df = pd.read_excel(input_file,
                                        sheet_name=sheet,
                                        skiprows=row_idx_where_data_starts,
@@ -85,18 +86,19 @@ if __name__ == '__main__':
                                        )
 
                 for func_and_params in transform_utils.get_functions_to_apply(config):
-                    print("=> Invoking transform function:\n", json.dumps(func_and_params,
+                    print("\n=> Invoking transform function:\n", json.dumps(func_and_params,
                                                                           sort_keys=True,
                                                                           indent=4))
+                    func_name = transform_utils.get_function_name(func_and_params)
                     func_args = transform_utils.get_function_args(func_and_params)
                     func_kwargs = transform_utils.get_function_kwargs(func_and_params)
                     cur_df = getattr(transform_funcs_instance,
-                                     transform_utils.get_function_name(
-                                         func_and_params))(cur_df, *func_args, **func_kwargs)
-                    print(cur_df)
-                    import pdb
-                    pdb.set_trace()
-                    print('debug')
+                                     func_name)(cur_df, *func_args, **func_kwargs)
+                    # print(cur_df)
+                    if func_name == 'check_possible_duplicates':
+                        import pdb
+                        pdb.set_trace()
+                        print('debug')
 
                     # TODO: find out if there's a way to force python functions to return something of specific type
                     # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
