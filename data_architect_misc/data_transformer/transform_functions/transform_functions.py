@@ -63,6 +63,7 @@ class TransformFunctions:
         'YouTube' to 'Youtube'.
         REF: https://stackoverflow.com/a/42500863/1330974
         """
+        print(s)
         return re.sub("(^|\s)(\S)", lambda m: m.group(1) + m.group(2).upper(), s)
 
 
@@ -137,9 +138,9 @@ class CommonTransformFunctions(TransformFunctions):
         return df.rename(columns=old_to_new_cols_dict)
 
 
-    def check_possible_duplicates(self,
-                                  df,
-                                  col_name) -> pd.DataFrame:
+    def check_possible_duplicates_in_one_column(self,
+                                                df,
+                                                col_name) -> pd.DataFrame:
         """
         This method will make sure that the given column (col_name)
         does NOT have duplicate values. It will do so by first
@@ -181,12 +182,49 @@ class CommonTransformFunctions(TransformFunctions):
                                ".\nPlease update/map these values to new, standardized values."
                                ])
             raise transform_errors.PossibleDuplicateError(err_msg)
+
         return df
 
 
-    def capitalize_first_letter_of_each_word_in_column_values(self,
-                                                              df,
-                                                              col_name):
+    def check_possible_duplicates_in_multiple_columns(self,
+                                                      df,
+                                                      list_of_col_names) -> pd.DataFrame:
+        """
+        This method will check if any of the given list of columns
+        has duplicate values in it. It will do so by first
+        turning all letters of each value in individual column to small case.
+        See description of "check_possible_duplicates_in_one_column" for
+        more detail.
+
+        Args:
+            df: Raw dataframe to search for duplicates.
+            col_name:   Column name in the dataframe in which we should
+                        look for duplicates.
+
+        Returns:
+            Original dataframe if no duplicates are found.
+
+        Raises:
+            PossibleDuplicateError, if there's a possible duplicate values.
+        """
+        non_alpha_numerical_chars_pattern = re.compile(r'\W', re.UNICODE)
+        for col_name in list_of_col_names:
+            orig_values = set(df[col_name].values)
+            simplified_values = {non_alpha_numerical_chars_pattern.sub('', s).lower()
+                                 for s in orig_values}
+            if len(orig_values) != len(simplified_values):
+                err_msg = ''.join(["Possible duplicates found in the values of column, '",
+                                   col_name, "':\n", str(sorted(orig_values)),
+                                   ".\nPlease update/map these values to new, standardized values."
+                                   ])
+                raise transform_errors.PossibleDuplicateError(err_msg)
+
+        return df
+
+
+    def capitalize_first_letter_of_each_word_in_one_column(self,
+                                                           df,
+                                                           col_name):
         """
         This method will make sure every word of the values in a given
         column (col_name) will be capitalized.
@@ -200,15 +238,59 @@ class CommonTransformFunctions(TransformFunctions):
             df: Raw dataframe to capitalize the beginning of each word.
             col_name:   Column name in the dataframe in which we should
                         look to capitalize the beginning of each word.
-
         Returns:
-            Dataframe with updated (each word with first letter capitalized).
-
+            Dataframe with the column values where the first letter of
+            each word is capitalized.
         """
         if not isinstance(col_name, str):
             raise transform_errors.InputDataTypeError("Column name must be of string type")
 
         df[col_name] = df[col_name].apply(lambda s: self._cap_sentence(s))
+
+        return df
+
+
+    def capitalize_first_letter_of_each_word_in_multiple_columns(self,
+                                                                 df,
+                                                                 list_of_col_names):
+        """
+        This method will capitalize every word in a given list of columns
+        (list_of_col_names). This method is basically a modified version of
+        "capitalize_first_letter_of_each_word_in_column_values" to transform
+        more than one column.
+
+        NOTE: I have decided to not call "capitalize_first_letter_of_each_word_in_one_column"
+        from this method because I don't want to pass in the dataframe
+        many times (which is inefficient in terms of memory  consumption)
+        into another method although it'd have been a better coding practice.
+
+        Args:
+            df: Raw dataframe to capitalize the beginning of each word.
+            list_of_col_names:  List of column names in the dataframe
+                                in which we should look to capitalize
+                                the beginning of each word.
+        Returns:
+            Dataframe with the column values (for each of the columns in
+            list_of_col_names) where the first letter of each word is
+            capitalized.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("List of column names must "
+                                                      "be of list type with individual "
+                                                      "names being string values.")
+
+        for col_name in list_of_col_names:
+            # TODO: keep_default_na=False by default (REF: https://stackoverflow.com/a/41417295)
+            # TODO: allow na_values as optional parameter as well (default to None) (REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html)
+            # TODO: df['Region'].unique() have 'nan' value, and we can see them via df[df['Region'].isnull()] (not via df[df['Region'] == pd.np.nan]
+            # so we need a method to set nan and then null values to something like empty string
+            # we also need to extend this and its parent method to manage/treat nan values as empty strings
+            # (or maybe we shouldn't and let them fail so that user can handle it themselves)
+            print(col_name)
+            import pdb
+            pdb.set_trace()
+            df[col_name] = df[col_name].apply(lambda s: self._cap_sentence(s))
+
         return df
 
 
@@ -244,6 +326,7 @@ class CommonTransformFunctions(TransformFunctions):
                 "Value (old to new) mappings must be of dictionary type")
 
         df[col_name] = df[col_name].map(dictionary_of_value_mappings).fillna(df[col_name])
+
         return df
 
 
@@ -282,6 +365,7 @@ class CommonTransformFunctions(TransformFunctions):
                                                     len(list_of_dictionary_of_value_mappings))
         for i, col in enumerate(list_of_col_names):
             df[col] = df[col].map(list_of_dictionary_of_value_mappings[i]).fillna(df[col])
+
         return df
 
 
@@ -328,6 +412,7 @@ class CommonTransformFunctions(TransformFunctions):
                 "Col1-Col2 value pairs must be of dictionary type")
 
         df[target_column_name] = df[base_column_name].map(dictionary_of_value_pairs).fillna(df[target_column_name])
+
         return df
 
 
@@ -358,6 +443,58 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
+    def assert_no_null_values_in_columns(self,
+                                         df,
+                                         list_of_col_names) -> pd.DataFrame:
+        """
+        Assert that there is no NULL/NaN values in the list
+        of columns provided.
+
+        Args:
+            df: Raw dataframe to check for Nan/NULL values.
+            list_of_col_names: List of column names (each is of string type)
+            in which we should look for NaN/NULL values.
+            REF1: https://stackoverflow.com/a/27159258
+            REF2: https://stackoverflow.com/a/42923089
+
+        Returns:
+            The original dataframe is returned if the assertion is successful.
+
+        Raises:
+            NaNFoundError: If there is any NaN/NULL value in the given list
+            of columns.
+        """
+        # for col_name in list_of_col_names:
+        import pdb
+        pdb.set_trace()
+        print("test")
+
+
+        # if df.shape[1] != num_of_cols_expected:
+        #     raise transform_errors.ColumnCountError(
+        #         ' '.join(["Expected column count of:", str(num_of_cols_expected),
+        #                   "but found:", str(df.shape[1]), "in the current dataframe."])
+        #     )
+        # else:
+        #     print("Successfully check that the current dataframe has:", num_of_cols_expected, "columns.")
+
+        return df
+
+
+    def assert_no_nan_values_in_columns(self,
+                                        df,
+                                        list_of_col_names) -> pd.DataFrame:
+        # TODO: to implement
+        pass
+
+
+    def assert_no_empty_string_values_in_columns(self,
+                                                 df,
+                                                 list_of_col_names) -> pd.DataFrame:
+        # TODO: to implement
+        pass
+
+
     def _trim_space(self, cell_str) -> pd.DataFrame:
         return str(cell_str).strip()
 
@@ -379,5 +516,4 @@ class CommonTransformFunctions(TransformFunctions):
 
 
 # if __name__ == '__main__':
-#
 #     CommonTransformFunctions().__init__()

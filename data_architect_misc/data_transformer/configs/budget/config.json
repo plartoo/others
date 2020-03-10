@@ -40,24 +40,53 @@
         "function_args": [13]
       },
       {
-        "function_name": "capitalize_first_letter_of_each_word_in_column_values",
-        "function_args": ["Channel"]
+        "function_name": "capitalize_first_letter_of_each_word_in_multiple_columns",
+        "function_args": [["Channel", "Macro Channel", "Segment Macro", "Market", "Region"]]
       },
       {
         "function_name": "update_values_in_one_column",
         "function_args": [
           "Channel",
           {"Youtube": "YouTube"}
-          ]
+        ]
       },
       {
-        "function_name": "check_possible_duplicates",
-        "function_args": ["Channel"]
+        "function_name": "update_values_in_one_column",
+        "function_args": [
+          "Segment Macro",
+          {"HC": "HC Product Range", "PC": "PC Product Range",
+          "Female body Cleansers": "Female Body Cleansers"}
+        ]
       },
-
       {
-        "function_name": "capitalize_first_letter_of_each_word_in_column_values",
-        "function_args": ["Macro Channel"]
+        "function_name": "update_values_in_one_column",
+        "function_args": [
+          "Market",
+          {
+            "USH": "US",
+            "AA": "US"
+          }
+        ]
+      },
+      {
+        "function_name": "update_values_in_one_column",
+        "function_args": [
+          "Year",
+          {
+            "2019": "2019LE"
+          }
+        ]
+      },
+      {
+        "function_name": "update_values_in_one_column",
+        "function_args": [
+          "Region",
+          {
+            "LATAM": "Latin America",
+            "APAC": "Asia",
+            "AED": "Africa-Eurasia"
+          }
+        ]
       },
       {
         "__function_comment__": "Whenever Channel is 'Ecommerce' or 'Amazon', set Macro Channel to 'E-Commerce'.",
@@ -70,25 +99,19 @@
         "function_args": ["Channel", "Macro Channel", {"Facebook": "Social", "Other Social": "Social"}]
       },
       {
-        "function_name": "check_possible_duplicates",
-        "function_args": ["Macro Channel"]
-      },
-
-      {
-        "function_name": "capitalize_first_letter_of_each_word_in_column_values",
-        "function_args": ["Segment Macro"]
+        "__function_comment__": "Whenever Market is 'AA', 'Canada', 'US', 'USH', set Region to to 'North America'.",
+        "function_name": "update_values_in_col2_based_on_col1_values",
+        "function_args": ["Market", "Region", {"AA": "North America", "Canada": "North America", "US": "North America", "USH": "North America"}]
       },
       {
-        "function_name": "update_values_in_one_column",
-        "function_args": [
-          "Segment Macro",
-          {"HC": "HC Product Range", "PC": "PC Product Range",
-          "Female body Cleansers": "Female Body Cleansers"}
-          ]
+        "__function_comment__": "After capitalizing words and updating values in columns, try to detect duplicates, if any.",
+        "function_name": "check_possible_duplicates_in_multiple_columns",
+        "function_args": ["Channel", "Macro Channel", "Segment Macro", "Region", "Market"]
       },
       {
-        "function_name": "check_possible_duplicates",
-        "function_args": ["Segment Macro"]
+        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
+        "function_name": "assert_no_null_values_in_columns",
+        "function_args": ["Region", "Hub", "Market", "Year", "Category", "Segment Macro", "Brand", "Macro Channel", "Channel"]
       }
 
     ]

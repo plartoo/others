@@ -95,10 +95,10 @@ if __name__ == '__main__':
                     cur_df = getattr(transform_funcs_instance,
                                      func_name)(cur_df, *func_args, **func_kwargs)
                     # print(cur_df)
-                    if func_name == 'check_possible_duplicates':
-                        import pdb
-                        pdb.set_trace()
-                        print('debug')
+                    # if func_name == 'check_possible_duplicates':
+                    #     import pdb
+                    #     pdb.set_trace()
+                    #     print('debug')
 
                     # TODO: find out if there's a way to force python functions to return something of specific type
                     # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
