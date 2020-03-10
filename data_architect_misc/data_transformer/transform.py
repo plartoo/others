@@ -77,12 +77,14 @@ if __name__ == '__main__':
                 # TODO: try out different Excel files to see how this skipping rows work
                 print("\nSkipping this many rows (including header row) from the top of the file:",
                       row_idx_where_data_starts)
+                # TODO: remove keep_default_na=False
                 cur_df = pd.read_excel(input_file,
                                        sheet_name=sheet,
                                        skiprows=row_idx_where_data_starts,
                                        skipfooter=footer_rows_to_skip,
                                        header=None,
-                                       names=col_headers_from_input_file
+                                       names=col_headers_from_input_file,
+                                       keep_default_na=False
                                        )
 
                 for func_and_params in transform_utils.get_functions_to_apply(config):
@@ -95,10 +97,10 @@ if __name__ == '__main__':
                     cur_df = getattr(transform_funcs_instance,
                                      func_name)(cur_df, *func_args, **func_kwargs)
                     # print(cur_df)
-                    # if func_name == 'check_possible_duplicates':
-                    #     import pdb
-                    #     pdb.set_trace()
-                    #     print('debug')
+                    if func_name == 'create_new_column_based_on_another_column_values':
+                        import pdb
+                        pdb.set_trace()
+                        print('debug')
 
                     # TODO: find out if there's a way to force python functions to return something of specific type
                     # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling

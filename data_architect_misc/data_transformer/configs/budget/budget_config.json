@@ -109,11 +109,32 @@
         "function_args": [["Channel", "Macro Channel", "Segment Macro", "Region", "Market"]]
       },
       {
-        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
-        "function_name": "assert_no_null_values_in_columns",
-        "function_args": ["Region", "Hub", "Market", "Year", "Category", "Segment Macro", "Brand", "Macro Channel", "Channel"]
+        "function_name": "create_new_column_based_on_another_column_values",
+        "function_args": ["MappedChannelNames", "Channel",
+          {
+            "GDN Display": "Display",
+            "GDN Video": "Online Video",
+            "YouTube": "Online Video",
+            "Amazon": "E-Commerce",
+            "Facebook": "Social",
+            "Programmatic": "Programmatic",
+            "Paid Search": "Search",
+            "SEO": "Other Digital",
+            "PR\\Influencers": "Other Digital",
+            "Online Partnership": "Other Digital",
+            "Ecommerce": "E-Commerce",
+            "Online Display": "Display",
+            "Mobile Display": "Display",
+            "Mobile Video": "Online Video",
+            "OLV/Preroll/VOD": "Online Video",
+            "TV": "TV",
+            "Print": "Print",
+            "Other Digital": "Other Digital",
+            "Other Social": "Social",
+            "Other": "Other Non-Digital"
+          }
+        ]
       }
-
     ]
   }
 ]

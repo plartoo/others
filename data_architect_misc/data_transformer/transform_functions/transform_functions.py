@@ -63,7 +63,8 @@ class TransformFunctions:
         'YouTube' to 'Youtube'.
         REF: https://stackoverflow.com/a/42500863/1330974
         """
-        print(s)
+        # TODO: remove line below
+        # print(s)
         return re.sub("(^|\s)(\S)", lambda m: m.group(1) + m.group(2).upper(), s)
 
 
@@ -286,9 +287,9 @@ class CommonTransformFunctions(TransformFunctions):
             # so we need a method to set nan and then null values to something like empty string
             # we also need to extend this and its parent method to manage/treat nan values as empty strings
             # (or maybe we shouldn't and let them fail so that user can handle it themselves)
-            print(col_name)
-            import pdb
-            pdb.set_trace()
+            # print(col_name)
+            # import pdb
+            # pdb.set_trace()
             df[col_name] = df[col_name].apply(lambda s: self._cap_sentence(s))
 
         return df

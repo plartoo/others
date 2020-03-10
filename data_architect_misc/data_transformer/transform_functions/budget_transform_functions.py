@@ -52,6 +52,15 @@ class CustomTransformFunctions(CommonTransformFunctions):
         return df
 
 
+    def create_new_column_based_on_another_column_values(self,
+                                                         df,
+                                                         new_col_name,
+                                                         existing_col_name,
+                                                         mappings):
+        df[new_col_name] = mappings[df[existing_col_name]]
+        import pdb
+        pdb.set_trace()
+
     # def return_int(self, df)  -> bool:
     #     # Testing if enforcing pandas dataframe as return type is successful. Pass!
     #     return 1
