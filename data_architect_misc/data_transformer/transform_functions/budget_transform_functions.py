@@ -48,18 +48,8 @@ class CustomTransformFunctions(CommonTransformFunctions):
             Dataframe with Region value set to something (not NULL).
         """
         print("map_macrochannel_to_ecommerce")
-        #TODO: fix this so that we check value in Channel and change value in another column
         return df
 
-
-    def create_new_column_based_on_another_column_values(self,
-                                                         df,
-                                                         new_col_name,
-                                                         existing_col_name,
-                                                         mappings):
-        df[new_col_name] = mappings[df[existing_col_name]]
-        import pdb
-        pdb.set_trace()
 
     # def return_int(self, df)  -> bool:
     #     # Testing if enforcing pandas dataframe as return type is successful. Pass!

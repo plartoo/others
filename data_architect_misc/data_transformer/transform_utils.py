@@ -43,6 +43,11 @@ VALUE_COMMON_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(),
 
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
 VALUE_SHEET_NAME_DEFAULT = 0
+# Pandas unfortunately has 'keep_default_na' option which tries to interpret
+# NaN, NULL, NA, N/A, etc. values in the raw data to NaN. We must turn it off
+# by default. REF: https://stackoverflow.com/a/41417295
+KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_from_raw_data'
+VALUE_KEEP_DEFAULT_NA_DEFAULT = False
 
 KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'
 VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = -1
@@ -266,6 +271,23 @@ def get_sheet(config):
     return _get_value_from_dict(config,
                                 KEY_SHEET_NAME,
                                 VALUE_SHEET_NAME_DEFAULT)
+
+
+def get_keep_default_na(config):
+    """
+    Pandas somehow decided that it's okay to try to interpret
+    values like 'NA','N/A','NULL','NaN', etc. to NaN value
+    by default (that is, 'keep_default_na' option in pandas'
+    read_excel/read_csv methods is True by default).
+
+    So when we read raw data files using pandas, we must turn
+    it off by default unless user explicitly set this flag to
+    True.
+    REF: https://stackoverflow.com/q/41417214
+    """
+    return _get_value_from_dict(config,
+                                KEY_KEEP_DEFAULT_NA,
+                                VALUE_KEEP_DEFAULT_NA_DEFAULT)
 
 
 def _extract_file_name(file_path_and_name):

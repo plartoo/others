@@ -67,6 +67,7 @@ if __name__ == '__main__':
 
             if transform_utils.is_excel(input_file):
                 sheet = transform_utils.get_sheet(config)
+                keep_default_na = transform_utils.get_keep_default_na(config)
                 # Note: We will load everything on the sheet in Excel (i.e. no chunk processing)
                 # because anybody reasonable would not be using Excel to store terabytes of data.
                 # Excel, theoretically, can store up to maximum of:
@@ -80,11 +81,11 @@ if __name__ == '__main__':
                 # TODO: remove keep_default_na=False
                 cur_df = pd.read_excel(input_file,
                                        sheet_name=sheet,
+                                       keep_default_na=keep_default_na,
                                        skiprows=row_idx_where_data_starts,
                                        skipfooter=footer_rows_to_skip,
                                        header=None,
-                                       names=col_headers_from_input_file,
-                                       keep_default_na=False
+                                       names=col_headers_from_input_file
                                        )
 
                 for func_and_params in transform_utils.get_functions_to_apply(config):

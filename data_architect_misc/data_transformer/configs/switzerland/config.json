@@ -65,6 +65,9 @@
     "__comment__": "(Optional) Enter sheet name to process. Default is the first sheet in the Excel file.",
     "sheet_name_of_excel_file": "Gaba Report - Gaba Report",
 
+    "__comment__": "(Optional) Decide if pandas should interpret 'NA', 'N/A', 'NULL', etc. to NaN value. Default is false",
+    "interpret_na_null_etc_from_raw_data": false,
+
     "__comment__": "(Optional) CSV encoding and delimiters. If empty, the program uses Pandas defaults (UTF-8 and comma).",
     "input_csv_file_encoding": "",
     "input_csv_file_delimiter": "",

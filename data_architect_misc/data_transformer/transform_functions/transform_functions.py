@@ -281,24 +281,18 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "names being string values.")
 
         for col_name in list_of_col_names:
-            # TODO: keep_default_na=False by default (REF: https://stackoverflow.com/a/41417295)
-            # TODO: allow na_values as optional parameter as well (default to None) (REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html)
-            # TODO: df['Region'].unique() have 'nan' value, and we can see them via df[df['Region'].isnull()] (not via df[df['Region'] == pd.np.nan]
-            # so we need a method to set nan and then null values to something like empty string
-            # we also need to extend this and its parent method to manage/treat nan values as empty strings
-            # (or maybe we shouldn't and let them fail so that user can handle it themselves)
-            # print(col_name)
-            # import pdb
-            # pdb.set_trace()
+            # TODO: df['Region'].unique() have 'nan' value, and
+            # we can see them via df[df['Region'].isnull()] (not via df[df['Region'] == pd.np.nan]
+            # so **we need a method to set nan and then null values to something like empty string**
             df[col_name] = df[col_name].apply(lambda s: self._cap_sentence(s))
 
         return df
 
 
     def update_values_in_one_column(self,
-                                     df,
-                                     col_name,
-                                     dictionary_of_value_mappings)  -> pd.DataFrame:
+                                    df,
+                                    col_name,
+                                    dictionary_of_value_mappings)  -> pd.DataFrame:
         """
         Given a dataframe, column name and dictionary representing
         old-to-new-value mappings for the column, apply the mappings.
@@ -413,6 +407,55 @@ class CommonTransformFunctions(TransformFunctions):
                 "Col1-Col2 value pairs must be of dictionary type")
 
         df[target_column_name] = df[base_column_name].map(dictionary_of_value_pairs).fillna(df[target_column_name])
+
+        return df
+
+
+    def create_new_column_based_on_another_column_values(self,
+                                                         df,
+                                                         new_col_name,
+                                                         existing_col_name,
+                                                         dictionary_of_mappings):
+        """
+        Creates a new column using dictionary of mappings in which keys represent
+        values in existing column name and dict values representing values in
+        the new column.
+
+        For example, say we have a column named 'Channel' in our original
+        dataframe with values "GDN Display", "GDN Video" and "YouTube".
+        We want to create a new column named "NewChannelNames" and in that
+        column, whenever we see "GDN Display" in 'Channel' column, we want to
+        enter "Display"; when we see "GDN Video" in 'Channel' column, we want
+        to enter "Online Video"; when we see "YouTube" in 'Channel' column,
+        we want to enter "Online Video" in the new column, we call this method
+        with parameters like this:
+        create_new_column_based_on_another_column_values(df, "NewChannelNames",
+        "Channel", {"GDN Display": "Display", "GDN Video": "Online Video",
+        "YouTube": "Online Video"}).
+
+        REF: https://stackoverflow.com/a/24216489
+
+        Args:
+            df: Raw dataframe to transform.
+            new_col_name: Name of the new column to be created.
+            existing_col_name: Name of the column which already exist in
+            the dataframe and the one we should use as a base to map from.
+            dictionary_of_mappings: Dictionary representing key-value pairs
+            of existing column's values (as keys) and new column's values
+            (as values).
+
+        Returns:
+            The dataframe with new column attached which has values in the
+            mapping provided.
+        """
+        if not (isinstance(new_col_name, str) and isinstance(existing_col_name, str)):
+            raise transform_errors.InputDataTypeError("Column names must be of string type")
+
+        if not isinstance(dictionary_of_mappings, dict):
+            raise transform_errors.InputDataTypeError(
+                "Mapping key-value pairs must be of dictionary type")
+
+        df[new_col_name] = df[existing_col_name].map(dictionary_of_mappings)
 
         return df
 
