@@ -46,7 +46,7 @@ VALUE_SHEET_NAME_DEFAULT = 0
 # Pandas unfortunately has 'keep_default_na' option which tries to interpret
 # NaN, NULL, NA, N/A, etc. values in the raw data to NaN. We must turn it off
 # by default. REF: https://stackoverflow.com/a/41417295
-KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_from_raw_data'
+KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan'
 VALUE_KEEP_DEFAULT_NA_DEFAULT = False
 
 KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'

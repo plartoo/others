@@ -30,6 +30,12 @@
     "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file.",
     "num_of_rows_to_skip_from_the_bottom": 0,
 
+
+    "__comment__": "REMOVE THIS AFTER TESTING",
+    "interpret_na_null_etc_values_from_raw_data_as_nan": false,
+
+
+
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as .\\transform_function\\switzerland_transform_functions.py",
     "functions_to_apply": [
@@ -42,6 +48,39 @@
         "function_name": "assert_number_of_columns_equals",
         "function_args": [13]
       },
+
+
+      {  "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
+        "function_name": "assert_no_less_than_values_in_columns",
+        "function_args": [0.02, ["Budget (USD)"]]
+      },
+      {
+        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
+        "function_name": "replace_na_values_with_empty_string",
+        "function_args": [["Year", "Campaign Categorization"]]
+      },
+
+      {
+        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
+        "function_name": "assert_no_na_values_in_columns",
+        "function_args": [["Year", "Campaign Categorization"]]
+      },
+
+      {
+        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
+        "function_name": "assert_no_empty_string_values_in_columns",
+        "function_args": [["Year", "Campaign Categorization"]]
+      },
+
+
+
+      {
+        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
+        "function_name": "assert_no_na_values_in_columns",
+        "function_args": [["Region", "Hub", "Market", "Year", "Category", "Segment Macro", "Brand", "Macro Channel", "Channel"]]
+      },
+
+
       {
         "function_name": "capitalize_first_letter_of_each_word_in_multiple_columns",
         "function_args": [["Channel", "Macro Channel", "Segment Macro", "Market", "Region"]]
@@ -110,11 +149,6 @@
         "__function_comment__": "After capitalizing words and updating values in columns, try to detect duplicates, if any.",
         "function_name": "check_possible_duplicates_in_multiple_columns",
         "function_args": [["Channel", "Macro Channel", "Segment Macro", "Region", "Market"]]
-      },
-      {
-        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
-        "function_name": "assert_no_null_values_in_columns",
-        "function_args": ["Region", "Hub", "Market", "Year", "Category", "Segment Macro", "Brand", "Macro Channel", "Channel"]
       }
 
     ]

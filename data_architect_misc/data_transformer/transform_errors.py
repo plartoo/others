@@ -130,6 +130,27 @@ class PossibleDuplicateError(TransformError):
         super().__init__(msg)
 
 
+class NaNFoundError(TransformError):
+    """Raised when there is any nan value in the given (part of) the dataframe."""
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
+class EmptyStringFoundError(TransformError):
+    """Raised when there is an empty string in a given column of the dataframe."""
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
+class LessThanThresholdValueFoundError(TransformError):
+    """
+    Raised when there is value that is less than the given threshold value
+    found in a given column of the dataframe.
+    """
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
 # COLUMNS_TO_USE_TYPE_ERROR = """ERROR: For '""" + KEY_COLUMN_NAMES_TO_USE
 # + """' and '""" + KEY_COLUMN_INDEXES_TO_USE + """' keys in JSON
 # configuration file, you must provide either 'None' OR

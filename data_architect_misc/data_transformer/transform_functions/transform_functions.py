@@ -63,8 +63,6 @@ class TransformFunctions:
         'YouTube' to 'Youtube'.
         REF: https://stackoverflow.com/a/42500863/1330974
         """
-        # TODO: remove line below
-        # print(s)
         return re.sub("(^|\s)(\S)", lambda m: m.group(1) + m.group(2).upper(), s)
 
 
@@ -281,9 +279,6 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "names being string values.")
 
         for col_name in list_of_col_names:
-            # TODO: df['Region'].unique() have 'nan' value, and
-            # we can see them via df[df['Region'].isnull()] (not via df[df['Region'] == pd.np.nan]
-            # so **we need a method to set nan and then null values to something like empty string**
             df[col_name] = df[col_name].apply(lambda s: self._cap_sentence(s))
 
         return df
@@ -487,19 +482,20 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def assert_no_null_values_in_columns(self,
+    def assert_no_na_values_in_columns(self,
                                          df,
                                          list_of_col_names) -> pd.DataFrame:
         """
-        Assert that there is no NULL/NaN values in the list
-        of columns provided.
+        Check if there is any NaN/Null/None values in the list of
+        columns provided. If there is any, raise NaNFoundError.
 
         Args:
-            df: Raw dataframe to check for Nan/NULL values.
+            df: Raw dataframe to check for Nan values.
             list_of_col_names: List of column names (each is of string type)
             in which we should look for NaN/NULL values.
-            REF1: https://stackoverflow.com/a/27159258
-            REF2: https://stackoverflow.com/a/42923089
+            REF1: https://stackoverflow.com/a/42923089
+            REF2: https://stackoverflow.com/a/27159258
+            REF3: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.isnull.html
 
         Returns:
             The original dataframe is returned if the assertion is successful.
@@ -508,35 +504,117 @@ class CommonTransformFunctions(TransformFunctions):
             NaNFoundError: If there is any NaN/NULL value in the given list
             of columns.
         """
-        # for col_name in list_of_col_names:
-        import pdb
-        pdb.set_trace()
-        print("test")
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("List of column names must "
+                                                      "be of list type with individual "
+                                                      "column names being string values.")
 
-
-        # if df.shape[1] != num_of_cols_expected:
-        #     raise transform_errors.ColumnCountError(
-        #         ' '.join(["Expected column count of:", str(num_of_cols_expected),
-        #                   "but found:", str(df.shape[1]), "in the current dataframe."])
-        #     )
-        # else:
-        #     print("Successfully check that the current dataframe has:", num_of_cols_expected, "columns.")
+        if df[list_of_col_names].isnull().values.any():
+            raise transform_errors.NaNFoundError(''.join([
+                "NaN/None/NaT value is found in one of these columns:",
+                str(list_of_col_names)
+            ]))
 
         return df
 
 
-    def assert_no_nan_values_in_columns(self,
-                                        df,
-                                        list_of_col_names) -> pd.DataFrame:
-        # TODO: to implement
-        pass
+    def replace_na_values_with_empty_string(self,
+                                            df,
+                                            list_of_col_names) -> pd.DataFrame:
+        """
+        Replace NaN values with empty string.
+        An example use of this method would be when we load a file that has
+        "NA" as values in some of its cells, but when Pandas read the file
+        with keep_default_na = True (which is default), then it will load
+        these values as pd.np.nan (i.e. NaN values). In instances like that,
+        we must use this method to replace these NaN values with empty string.
+
+        Args:
+            df: Raw dataframe.
+            list_of_col_names: List of column names (each is of string type)
+            in which we should look for NaN/NULL values to replace with
+            empty strings.
+            REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.fillna.html
+
+        Returns:
+            The dataframe whose NaN values are replaced with empty string.
+        """
+        df[list_of_col_names] = df[list_of_col_names].fillna('')
+
+        return df
 
 
     def assert_no_empty_string_values_in_columns(self,
                                                  df,
                                                  list_of_col_names) -> pd.DataFrame:
-        # TODO: to implement
-        pass
+        """
+        Check if there is any empty string values in the list of
+        columns provided. If there is any, raise EmptyStringFoundError.
+
+        Args:
+            df: Raw dataframe to check for empty string values.
+            list_of_col_names: List of column names (each is of string type)
+            in which we should look for empty string values.
+            REF1: https://stackoverflow.com/a/52843708
+
+        Returns:
+            The original dataframe is returned if the assertion is successful.
+
+        Raises:
+            EmptyStringFoundError: If there is any empty string value
+            in the given list of columns.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("List of column names must "
+                                                      "be of list type with individual "
+                                                      "column names being string values.")
+
+        for col_name in list_of_col_names:
+            if df[df[col_name] == ''].index.any():
+                raise transform_errors.EmptyStringFoundError(''.join([
+                    "Empty string value is found in this column:", col_name
+                ]))
+
+        return df
+
+
+    # TODO: assert_no_negative_values_in_columns(['local_spend'])
+    def assert_no_less_than_values_in_columns(self,
+                                              df,
+                                              threshold_value,
+                                              list_of_col_names) -> pd.DataFrame:
+        """
+        Check if there is any value which is less than the threshold_value
+        in the list of columns provided.
+        If there is any, raise LessThanThresholdValueFoundError.
+
+        Args:
+            df: Raw dataframe to check for values less than the threshold values.
+            threshold_value: Value to compare against individual values in
+            the dataframe's columns.
+            list_of_col_names: List of column names (each is of string type)
+            whose values we should compare against the threshold value.
+
+        Returns:
+            The original dataframe is returned if the assertion is successful.
+
+        Raises:
+            LessThanThresholdValueFoundError: If there is any empty string value
+            in the given list of columns.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("List of column names must "
+                                                      "be of list type with individual "
+                                                      "column names being string values.")
+
+        for col_name in list_of_col_names:
+            if any(df[col_name] < threshold_value):
+                raise transform_errors.LessThanThresholdValueFoundError(''.join([
+                    "There is at least one value less than this threshold value: '" ,
+                    str(threshold_value),
+                    "' found in this column: ", col_name]))
+
+        return df
 
 
     def _trim_space(self, cell_str) -> pd.DataFrame:
