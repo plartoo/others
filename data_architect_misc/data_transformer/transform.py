@@ -98,7 +98,7 @@ if __name__ == '__main__':
                     cur_df = getattr(transform_funcs_instance,
                                      func_name)(cur_df, *func_args, **func_kwargs)
                     # print(cur_df)
-                    if func_name == 'create_new_column_based_on_another_column_values':
+                    if func_name == 'add_char_in_front_of_region_names_in_total_rows':
                         import pdb
                         pdb.set_trace()
                         print('debug')
@@ -153,7 +153,7 @@ if __name__ == '__main__':
         #   rename columns if necessary
         #   apply functions (add columns, etc.)
         # df = pd.read_excel(input_file,sheet_name=sheet)
-        print('haha')
+        print('Program finished.')
         #     df = transform_utils.get_data_frame()
         #
         # For CSV,

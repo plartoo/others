@@ -30,12 +30,6 @@
     "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file.",
     "num_of_rows_to_skip_from_the_bottom": 0,
 
-
-    "__comment__": "REMOVE THIS AFTER TESTING",
-    "interpret_na_null_etc_values_from_raw_data_as_nan": false,
-
-
-
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as .\\transform_function\\switzerland_transform_functions.py",
     "functions_to_apply": [
@@ -48,60 +42,60 @@
         "function_name": "assert_number_of_columns_equals",
         "function_args": [13]
       },
-
-
-      {  "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
-        "function_name": "assert_no_less_than_values_in_columns",
-        "function_args": [0.02, ["Budget (USD)"]]
-      },
-      {
-        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
-        "function_name": "replace_na_values_with_empty_string",
-        "function_args": [["Year", "Campaign Categorization"]]
-      },
-
       {
         "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
         "function_name": "assert_no_na_values_in_columns",
-        "function_args": [["Year", "Campaign Categorization"]]
+        "function_args": [[
+          "Region", "Hub", "Market", "Year",
+          "Category", "Segment Macro", "Brand", "Macro Channel",
+          "Channel"]]
       },
-
       {
-        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
-        "function_name": "assert_no_empty_string_values_in_columns",
-        "function_args": [["Year", "Campaign Categorization"]]
+        "__function_comment__": "Before mapping region names, let's capitalize all of region names",
+        "function_name": "capitalize_all_letters_of_each_word_in_multiple_columns",
+        "function_args": [["Region"]]
       },
-
-
-
       {
-        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
-        "function_name": "assert_no_na_values_in_columns",
-        "function_args": [["Region", "Hub", "Market", "Year", "Category", "Segment Macro", "Brand", "Macro Channel", "Channel"]]
+        "function_name": "update_str_values_in_column",
+        "function_args": [
+          "Region",
+          {
+            "LATAM": "Latin America",
+            "EUROPE": "Europe",
+            "APAC": "Asia-Pacific",
+            "AED": "Africa-Eurasia",
+            "NA": "North America"
+          }
+        ]
       },
-
-
       {
         "function_name": "capitalize_first_letter_of_each_word_in_multiple_columns",
-        "function_args": [["Channel", "Macro Channel", "Segment Macro", "Market", "Region"]]
+        "function_args": [["Channel", "Macro Channel", "Segment Macro", "Market"]]
       },
       {
-        "function_name": "update_values_in_one_column",
+        "function_name": "update_str_values_in_column",
         "function_args": [
           "Channel",
-          {"Youtube": "YouTube"}
+          {
+            "Youtube": "YouTube",
+            "Ecommerce": "eCommerce",
+            "E-Commerce": "eCommerce",
+            "E-commerce": "eCommerce",
+            "e-Commerce": "eCommerce",
+            "e-commerce": "eCommerce",
+            "ecommerce": "eCommerce"
+          }
         ]
       },
       {
-        "function_name": "update_values_in_one_column",
+        "function_name": "update_str_values_in_column",
         "function_args": [
           "Segment Macro",
-          {"HC": "HC Product Range", "PC": "PC Product Range",
-          "Female body Cleansers": "Female Body Cleansers"}
+          {"HC": "HC Product Range", "PC": "PC Product Range"}
         ]
       },
       {
-        "function_name": "update_values_in_one_column",
+        "function_name": "update_str_values_in_column",
         "function_args": [
           "Market",
           {
@@ -111,46 +105,55 @@
         ]
       },
       {
-        "function_name": "update_values_in_one_column",
+        "function_name": "update_int_values_in_multiple_columns_to_str_values",
         "function_args": [
-          "Year",
-          {
-            "2019": "2019LE"
-          }
+          ["Year"],
+          [
+            {"2019": "2019LE"}
+          ]
         ]
       },
       {
-        "function_name": "update_values_in_one_column",
-        "function_args": [
-          "Region",
-          {
-            "LATAM": "Latin America",
-            "APAC": "Asia",
-            "AED": "Africa-Eurasia"
-          }
-        ]
-      },
-      {
-        "__function_comment__": "Whenever Channel is 'Ecommerce' or 'Amazon', set Macro Channel to 'E-Commerce'.",
-        "function_name": "update_values_in_col2_based_on_col1_values",
-        "function_args": ["Channel", "Macro Channel", {"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"}]
+        "__function_comment__": "Whenever Channel is 'Ecommerce' or 'Amazon', set Macro Channel to 'eCommerce'.",
+        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_args": ["Channel", "Macro Channel", {"Ecommerce": "eCommerce", "Amazon": "eCommerce"}]
       },
       {
         "__function_comment__": "Whenever Channel is 'Facebook' or 'Other Social', set Macro Channel to 'Social'.",
-        "function_name": "update_values_in_col2_based_on_col1_values",
+        "function_name": "update_str_values_in_col2_based_on_col1_values",
         "function_args": ["Channel", "Macro Channel", {"Facebook": "Social", "Other Social": "Social"}]
       },
       {
         "__function_comment__": "Whenever Market is 'AA', 'Canada', 'US', 'USH', set Region to to 'North America'.",
-        "function_name": "update_values_in_col2_based_on_col1_values",
-        "function_args": ["Market", "Region", {"AA": "North America", "Canada": "North America", "US": "North America", "USH": "North America"}]
+        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_args": ["Market", "Region",
+          {"AA": "North America", "Canada": "North America", "US": "North America", "USH": "North America"}]
       },
       {
-        "__function_comment__": "After capitalizing words and updating values in columns, try to detect duplicates, if any.",
+        "__function_comment__": "Whenever Category is 'pet', update Region to 'Hills'",
+        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_args": ["Category", "Region", {"pet": "Hills", "Pet": "Hills"}]
+      },
+      {
+        "__function_comment__": "Whenever Segment Macro is 'pet food', update Region to 'Hills'",
+        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_args": ["Segment Macro", "Region", {"pet": "Hills", "Pet": "Hills"}]
+      },
+      {
+        "__function_comment__": "After capitalizing words and updating values in/across columns, try to detect duplicates, if any.",
         "function_name": "check_possible_duplicates_in_multiple_columns",
-        "function_args": [["Channel", "Macro Channel", "Segment Macro", "Region", "Market"]]
+        "function_args": [["Region", "Market", "Segment Macro", "Macro Channel", "Channel"]]
+      },
+      {
+        "__function_comment__": "We will create sum of budget rows for each region, year and macro channel pair/combination.",
+        "function_name": "add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair",
+        "function_args": [["Region", "Year", "Macro Channel"], "Budget (USD)"]
+      },
+      {
+        "__function_comment__": "Because of the sorting order issue in Tableau, we need to add a space character in front of Region in total/sum Budget rows",
+        "function_name": "add_char_in_front_of_region_names_in_total_rows",
+        "function_args": [" "]
       }
-
     ]
   }
 ]

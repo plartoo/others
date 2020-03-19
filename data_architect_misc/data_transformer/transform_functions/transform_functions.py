@@ -223,14 +223,14 @@ class CommonTransformFunctions(TransformFunctions):
 
     def capitalize_first_letter_of_each_word_in_one_column(self,
                                                            df,
-                                                           col_name):
+                                                           col_name) -> pd.DataFrame:
         """
-        This method will make sure every word of the values in a given
-        column (col_name) will be capitalized.
+        This method will make sure the first letter of every word
+        of the values in a given column (col_name) will be capitalized.
         For example, suppose we have these values for 'col1':
         ['Other social', 'Other Social', 'Female body cleansers',
         'Female Body cleansers'], this method will transform these
-        values into this - [Other Social', 'Other Social',
+        values into this - ['Other Social', 'Other Social',
         'Female Body Cleansers', 'Female Body Cleansers'].
 
         Args:
@@ -251,10 +251,11 @@ class CommonTransformFunctions(TransformFunctions):
 
     def capitalize_first_letter_of_each_word_in_multiple_columns(self,
                                                                  df,
-                                                                 list_of_col_names):
+                                                                 list_of_col_names) -> pd.DataFrame:
         """
-        This method will capitalize every word in a given list of columns
-        (list_of_col_names). This method is basically a modified version of
+        This method will capitalize the first letter of every word
+        in a given list of columns (list_of_col_names).
+        This method is basically a modified version of
         "capitalize_first_letter_of_each_word_in_column_values" to transform
         more than one column.
 
@@ -284,13 +285,52 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_values_in_one_column(self,
+    def capitalize_all_letters_of_each_word_in_multiple_columns(self,
+                                                                df,
+                                                                list_of_col_names) -> pd.DataFrame:
+        """
+        This method will capitalize all letters of each word in a given
+        list of columns (list_of_col_names). This method is basically a modified
+        version of "capitalize_first_letter_of_each_word_in_multiple_columns"
+        to capitalize every letter in each word.
+
+        For example, suppose we have these values for 'col1':
+        ['Other social', 'Other Social', 'Female body cleansers',
+        'Female Body cleansers'], this method will transform these
+        values into one of these values -
+        ['OTHER SOCIAL', 'FEMALE BODY CLEANSERS'].
+
+        Args:
+            df: Raw dataframe to capitalize the words.
+            list_of_col_names:  List of column names in the dataframe
+                                in which we should look to capitalize
+                                each word.
+        Returns:
+            Dataframe with the column values (for each of the columns in
+            list_of_col_names) where each word is capitalized.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("List of column names must "
+                                                      "be of list type with individual "
+                                                      "names being string values.")
+
+        for col_name in list_of_col_names:
+            df[col_name] = df[col_name].apply(lambda s: s.upper())
+
+        return df
+
+
+    def update_str_values_in_column(self,
                                     df,
                                     col_name,
                                     dictionary_of_value_mappings)  -> pd.DataFrame:
         """
         Given a dataframe, column name and dictionary representing
         old-to-new-value mappings for the column, apply the mappings.
+        **Note that if this column holds non-string type data,
+        this method will NOT work as intended because in JSON config file
+        we can only use string as keys. To update non-string values in
+        columns, please use another method.
 
         For example, if we want 'Ecommerce' and 'Amazon' values in 'col1' of the
         dataframe to be updated to 'E-Commerce', we would call this method like this:
@@ -306,7 +346,7 @@ class CommonTransformFunctions(TransformFunctions):
             we should provide {"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}.
 
         Returns:
-            Dataframe with updated values based on provided arguments.
+            Dataframe with updated values based on the provided arguments.
         """
         if not isinstance(col_name, str):
             raise transform_errors.InputDataTypeError("Column name must be of string type")
@@ -320,14 +360,18 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_values_in_multiple_columns(self,
-                                          df,
-                                          list_of_col_names,
-                                          list_of_dictionary_of_value_mappings)  -> pd.DataFrame:
+    def update_str_values_in_multiple_columns(self,
+                                              df,
+                                              list_of_col_names,
+                                              list_of_dictionary_of_value_mappings)  -> pd.DataFrame:
         """
         Given a dataframe, list of columns and corresponding list of dictionaries
         representing old-to-new-value mappings for each column, apply these
         mappings to each column.
+        **Note that if this column holds non-string type data,
+        this method will NOT work as intended because in JSON config file
+        we can only use string as keys. To update non-string values in
+        columns, please use another method.
 
         For example, if we want 'Ecommerce' and 'Amazon' values in 'col1' of the
         dataframe to be updated to 'E-Commerce', we would call this method like this:
@@ -345,7 +389,7 @@ class CommonTransformFunctions(TransformFunctions):
             we should provide [{"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}]
 
         Returns:
-            Dataframe with updated values based on provided arguments.
+            Dataframe with updated values based on the provided arguments.
         """
         if len(list_of_col_names) != len(list_of_dictionary_of_value_mappings):
             raise transform_errors.InputDataLengthError("The length of column list:",
@@ -359,11 +403,50 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_values_in_col2_based_on_col1_values(self,
-                                                   df,
-                                                   base_column_name,
-                                                   target_column_name,
-                                                   dictionary_of_value_pairs)  -> pd.DataFrame:
+    def update_int_values_in_multiple_columns_to_str_values(self,
+                                                            df,
+                                                            list_of_col_names,
+                                                            list_of_dictionary_of_value_mappings) -> pd.DataFrame:
+        """
+        Sometimes, we need to convert integer values in certain columns
+        to string values. For example, if we don't have full year data
+        for 2020 in 'Year' column, and thus, we must replace 2020 (integer
+        value) with '2020 YTD'. This is the method to accomplish that.
+        REF: https://stackoverflow.com/a/17950531/1330974
+
+        Args:
+            df: Raw dataframe to transform.
+            list_of_col_names: List of columns to update values at.
+            list_of_dictionary_of_value_mappings: List of dictionaries, each of them
+            representing original values and desired (updated) values.
+            E.g., if we want '2019' and '2020' to be mapped to '2019 LE'
+            and '2020 YTD' respectively, we should provide
+            [{"2019": "2019 LE", "2020": "2020 YTD"}]
+
+        Returns:
+            Dataframe with updated values based on the provided arguments.
+            Note that this modified dataframe will have string columns
+            instead of original integer columns.
+        """
+        if len(list_of_col_names) != len(list_of_dictionary_of_value_mappings):
+            raise transform_errors.InputDataLengthError("The length of column list:",
+                                                    len(list_of_col_names),
+                                                    "is NOT the same as the length of",
+                                                    "list of dictionaries of update values:",
+                                                    len(list_of_dictionary_of_value_mappings))
+        for i, col in enumerate(list_of_col_names):
+            # first, convert the data type of the column to string
+            df[col] = df[col].apply(str)
+            df[col] = df[col].map(list_of_dictionary_of_value_mappings[i]).fillna(df[col])
+
+        return df
+
+
+    def update_str_values_in_col2_based_on_col1_values(self,
+                                                       df,
+                                                       base_column_name,
+                                                       target_column_name,
+                                                       dictionary_of_value_pairs)  -> pd.DataFrame:
         """
         Given a dataframe, two column names (col1 and col2) and a dictionary
         representing col1-values-to-new-col2-values mappings, apply the mappings.
@@ -410,7 +493,7 @@ class CommonTransformFunctions(TransformFunctions):
                                                          df,
                                                          new_col_name,
                                                          existing_col_name,
-                                                         dictionary_of_mappings):
+                                                         dictionary_of_mappings) -> pd.DataFrame:
         """
         Creates a new column using dictionary of mappings in which keys represent
         values in existing column name and dict values representing values in

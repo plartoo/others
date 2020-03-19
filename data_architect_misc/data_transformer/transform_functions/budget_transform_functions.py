@@ -17,6 +17,44 @@ class CustomTransformFunctions(CommonTransformFunctions):
     individual processing task** must be defined as part
     of this class.
     """
+
+    def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
+                                                                           df,
+                                                                           list_of_col_names_to_group_by,
+                                                                           col_name_to_sum
+                                                                           )  -> pd.DataFrame:
+        """
+        For each unique pair of region, year and macro channel, add a total line
+        item for Budget (USD) in the dataframe.
+        This is needed to create total Division-wide displays in the dashboard.
+        REF: https://stackoverflow.com/q/58276169/1330974
+        """
+        df_grouped_and_summed = df.groupby(list_of_col_names_to_group_by)[col_name_to_sum]\
+            .sum().reset_index()
+        df = pd.concat([df, df_grouped_and_summed], sort=False).fillna('Total')\
+            .sort_values(by=list_of_col_names_to_group_by).reset_index(drop=True)
+
+        return df
+
+
+    def add_char_in_front_of_region_names_in_total_rows(self,
+                                                        df,
+                                                        char_to_add_in_front):
+        """
+        In Tableau, the filters are sorted by alphabetical order.
+        In order to make sure Division filters appear on top of the filter
+        options, we need to append space character in front of Division
+        total rows under 'Region' column.
+        REF1: https://stackoverflow.com/a/49995329/1330974
+        E.g., df.loc[df.Hub == 'Total', 'Region'] = df['Region'].apply(lambda x: f" {x}")
+        REF2: https://stackoverflow.com/a/45651450/1330974
+        E.g., df.loc[df.Hub == 'Total','Region'] = '*' + df[df.Hub == 'Total']['Region']
+        """
+        df.loc[df.Hub == 'Total', 'Region'] = df['Region'].apply(lambda x: f" {x}")
+
+        return df
+
+
     def set_originally_null_region_to_values_when_market_is_one_of_the_matching_values(
             self,
             df,
