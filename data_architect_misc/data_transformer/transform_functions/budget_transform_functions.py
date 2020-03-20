@@ -55,6 +55,22 @@ class CustomTransformFunctions(CommonTransformFunctions):
         return df
 
 
+    def capitalize_market_name_if_they_are_the_same_as_region_name(self,
+                                                                   df) -> pd.DataFrame:
+        """
+        Neel decided that in Tableau dashboard market filters, we want to show
+        'Division' values with capitalized letters so that users can select them
+        to see the total division value (although there's already 'All' option
+        to choose in market filter).
+
+        This method make sure that the region values that are copied to market
+        columns are capitalized.
+        """
+        df.loc[df.Region == df.Market, 'Market'] = df['Market'].apply(lambda x: x.upper())
+
+        return df
+
+
     def set_originally_null_region_to_values_when_market_is_one_of_the_matching_values(
             self,
             df,

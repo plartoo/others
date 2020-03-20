@@ -153,6 +153,15 @@
         "__function_comment__": "Because of the sorting order issue in Tableau, we need to add a space character in front of Region in total/sum Budget rows",
         "function_name": "add_char_in_front_of_region_names_in_total_rows",
         "function_args": [" "]
+      },
+      {
+        "__function_comment__": "In sum of budget rows, we need to copy region values to market for 'Total' lines",
+        "function_name": "copy_col1_value_to_col2_if_col2_has_specific_value",
+        "function_args": ["Region", "Market", "Total"]
+      },
+      {
+        "__function_comment__": "In sum of budget rows, we need to also capitalize market values if they are the same as region values.",
+        "function_name": "capitalize_market_name_if_they_are_the_same_as_region_name"
       }
     ]
   }

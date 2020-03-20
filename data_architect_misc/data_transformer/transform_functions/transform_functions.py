@@ -489,6 +489,40 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
+    def copy_col1_value_to_col2_if_col2_has_specific_value(self,
+                                                           df,
+                                                           col1_name,
+                                                           col2_name,
+                                                           col2_value) -> pd.DataFrame:
+        """
+        Copy value from column 1 to column 2 if **column 2** (not column 1)
+        has provided value.
+        For example, if we want to copy values from region (division) column
+        to market (country) whenever region column has value equal to 'Total',
+        we can call this function with parameters like this:
+        copy_col1_value_to_col2_if_col2_has_specific_value(df, 'region', 'market', 'Total')
+        REF: https://stackoverflow.com/a/51039824
+
+        Args:
+            df: Raw dataframe to transform.
+            col1_name: Column name **from** which the value will be copied.
+            col2_name: Column name **to** which to value will be copied.
+            col2_value: Column 2's value which will be used as a condition
+            to decide if we should copy column 1's value to column 2.
+
+        Returns:
+            Dataframe with updated values based on the provided arguments.
+        """
+        if not (isinstance(col1_name, str) and isinstance(col2_name, str)
+                and isinstance(col2_value, str)):
+            raise transform_errors.InputDataTypeError("Column names and values "
+                                                      "must be of string type")
+
+        df.loc[df[col2_name] == col2_value, col2_name] = df[col1_name]
+
+        return df
+
+
     def create_new_column_based_on_another_column_values(self,
                                                          df,
                                                          new_col_name,

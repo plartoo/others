@@ -98,7 +98,9 @@ if __name__ == '__main__':
                     cur_df = getattr(transform_funcs_instance,
                                      func_name)(cur_df, *func_args, **func_kwargs)
                     # print(cur_df)
-                    if func_name == 'add_char_in_front_of_region_names_in_total_rows':
+                    if func_name == 'capitalize_market_name_if_they_are_the_same_as_region_name':
+                        cur_df.to_excel('shit.xlsx', index=False)
+                        sys.exit()
                         import pdb
                         pdb.set_trace()
                         print('debug')
