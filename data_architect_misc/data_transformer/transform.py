@@ -98,7 +98,7 @@ if __name__ == '__main__':
                     cur_df = getattr(transform_funcs_instance,
                                      func_name)(cur_df, *func_args, **func_kwargs)
                     # print(cur_df)
-                    if func_name == 'capitalize_market_name_if_they_are_the_same_as_region_name':
+                    if func_name == 'update_str_value_in_col2_if_col1_has_one_of_given_values':
                         cur_df.to_excel('shit.xlsx', index=False)
                         sys.exit()
                         import pdb

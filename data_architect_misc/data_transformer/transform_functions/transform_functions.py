@@ -442,11 +442,11 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_str_values_in_col2_based_on_col1_values(self,
-                                                       df,
-                                                       base_column_name,
-                                                       target_column_name,
-                                                       dictionary_of_value_pairs)  -> pd.DataFrame:
+    def update_str_value_in_col2_based_on_col1_values(self,
+                                                      df,
+                                                      base_column_name,
+                                                      target_column_name,
+                                                      dictionary_of_value_pairs)  -> pd.DataFrame:
         """
         Given a dataframe, two column names (col1 and col2) and a dictionary
         representing col1-values-to-new-col2-values mappings, apply the mappings.
@@ -487,6 +487,57 @@ class CommonTransformFunctions(TransformFunctions):
         df[target_column_name] = df[base_column_name].map(dictionary_of_value_pairs).fillna(df[target_column_name])
 
         return df
+
+
+    def update_str_value_in_col2_if_col1_has_one_of_given_values(self,
+                                                                 df,
+                                                                 col1_name,
+                                                                 col2_name,
+                                                                 list_of_values_in_col1,
+                                                                 final_val_in_col2)  -> pd.DataFrame:
+        """
+        Update the string value column 2 to 'final_val_in_col1'
+        if column 1's value is one of the items in the given
+        list_of_values_in_col1.
+
+        E.g., Whenever value in Market column is ' AFRICA-EURASIA', ' EUROPE',
+        or ' HILLS', we want to update Brand column to " All Brands". Then,
+        update_str_value_in_col2_if_col1_has_one_of_given_values(df, "Market", "Brand",
+        [" AFRICA-EURASIA", " EUROPE", " HILLS" ], " All Brands")
+
+        REF: How to use isin() in pandas
+        https://archive.st/7804
+        http://archive.ph/pZWv6
+
+        Args:
+            df: Raw dataframe to transform.
+            col1_name: Name of the column in which we will try to match the
+            values against.
+            col2_name: Name of the column whose value we will update.
+            list_of_values_in_col1: If one of the values in this list of values
+            matches what's in col1, then we'll update the value in col2.
+            final_val_in_col1: We will update the value of col2 to this value.
+
+        Returns:
+            Dataframe with updated values based on provided arguments.
+        """
+        if not (isinstance(col1_name, str) and isinstance(col2_name, str)):
+            raise transform_errors.InputDataTypeError("Column names must be of string "
+                                                      "type.")
+
+        if not isinstance(final_val_in_col2, str):
+            raise transform_errors.InputDataTypeError("The final value for col2_name"
+                                                      " must be a string.")
+
+        if not isinstance(list_of_values_in_col1, list):
+            raise transform_errors.InputDataTypeError("list_of_values_in_col1 must "
+                                                      "be of list type with individual "
+                                                      "names being string values.")
+
+        df.loc[df[col1_name].isin(list_of_values_in_col1), col2_name] = final_val_in_col2
+
+        return df
+
 
 
     def copy_col1_value_to_col2_if_col2_has_specific_value(self,

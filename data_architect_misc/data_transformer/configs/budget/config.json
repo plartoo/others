@@ -115,28 +115,28 @@
       },
       {
         "__function_comment__": "Whenever Channel is 'Ecommerce' or 'Amazon', set Macro Channel to 'eCommerce'.",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_name": "update_str_value_in_col2_based_on_col1_values",
         "function_args": ["Channel", "Macro Channel", {"Ecommerce": "eCommerce", "Amazon": "eCommerce"}]
       },
       {
         "__function_comment__": "Whenever Channel is 'Facebook' or 'Other Social', set Macro Channel to 'Social'.",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_name": "update_str_value_in_col2_based_on_col1_values",
         "function_args": ["Channel", "Macro Channel", {"Facebook": "Social", "Other Social": "Social"}]
       },
       {
         "__function_comment__": "Whenever Market is 'AA', 'Canada', 'US', 'USH', set Region to to 'North America'.",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_name": "update_str_value_in_col2_based_on_col1_values",
         "function_args": ["Market", "Region",
           {"AA": "North America", "Canada": "North America", "US": "North America", "USH": "North America"}]
       },
       {
         "__function_comment__": "Whenever Category is 'pet', update Region to 'Hills'",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_name": "update_str_value_in_col2_based_on_col1_values",
         "function_args": ["Category", "Region", {"pet": "Hills", "Pet": "Hills"}]
       },
       {
         "__function_comment__": "Whenever Segment Macro is 'pet food', update Region to 'Hills'",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_name": "update_str_value_in_col2_based_on_col1_values",
         "function_args": ["Segment Macro", "Region", {"pet": "Hills", "Pet": "Hills"}]
       },
       {
@@ -162,6 +162,16 @@
       {
         "__function_comment__": "In sum of budget rows, we need to also capitalize market values if they are the same as region values.",
         "function_name": "capitalize_market_name_if_they_are_the_same_as_region_name"
+      },
+      {
+        "__function_comment__": "Whenever Market is ' AFRICA-EURASIA',' ASIA PACIFIC',' EUROPE',' HILLS',' LATIN AMERICA' or ' NORTH AMERICA', set Brand to ' All Brands'.",
+        "function_name": "update_str_value_in_col2_if_col1_has_one_of_given_values",
+        "function_args": [
+          "Market",
+          "Brand",
+          [" AFRICA-EURASIA"," ASIA PACIFIC"," EUROPE"," HILLS"," LATIN AMERICA"," NORTH AMERICA"],
+          " All Brands"
+        ]
       }
     ]
   }
