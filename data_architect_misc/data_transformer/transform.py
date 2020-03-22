@@ -11,20 +11,6 @@ import transform_errors
 import transform_functions
 import transform_utils
 
-def check_data_against_rules(df, rules):
-    replace_commas = rules['replace_commas_with_decimal_for_numbers']
-    # [DM_1219_ColgateGlobal].[STG].[Data_Cleansing_Rule]
-    # TODO: upper, ltrim, rtrim
-    # "replace_commas_with_decimal_for_numbers": false,
-    # Setting the whole column such as 'SUBMEDIA_1' or 'SUBMEDIA_2' as 'N/A' regardless of the condition
-    # Delete rows that were loaded with null values for advertiser and local_spend (1. mark as delete if condition met)
-    # Setting DAYPART = 'N/A' for records with a media type other than Radio or Television (2. if condition in one column is met, then apply something to another column)
-    # Set TOTAL_DURATION = 0 for records having 'PRESS' as media type (see #2)
-    # Delete records having a investment = 0 and Rating = 0 (3. mark as delete if condition in TWO columns is met)
-    # Set spot_length = Total_Duration Field Spot_Length (4. Copy value from one column to another)
-    # Replace all the NULL and empty values with N/A OR 0 Field SECTOR => ("default_value": "N/A" or "0")
-    pass
-
 
 if __name__ == '__main__':
     # 1. Process arguments passed into the program
@@ -43,7 +29,6 @@ if __name__ == '__main__':
     for config in transform_utils.load_config(args.c):
         # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
-        output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
 
         # TODO: We need to think about renaming this transform_funcs_instance as custom_module_instance
         # because we might want to use this pattern for logging; QA-ing and mapping tasks
@@ -68,12 +53,12 @@ if __name__ == '__main__':
             if transform_utils.is_excel(input_file):
                 sheet = transform_utils.get_sheet(config)
                 keep_default_na = transform_utils.get_keep_default_na(config)
-                # Note: We will load everything on the sheet in Excel (i.e. no chunk processing)
-                # because anybody reasonable would not be using Excel to store terabytes of data.
-                # Excel, theoretically, can store up to maximum of:
+                # Note: We will load everything on the sheet in Excel (i.e. no chunk processing).
+                # Excel, theoretically, can store up to a maximum of:
                 # 1048576 (rows) * 16384 (cols) 32767 (chars/cell) * 32 (bits/char for encoding like UTF-8)
                 # = 4.5 petabytes of data, but we sure shouldn't be processing a file of such size
-                # using this program
+                # using this program nor no one in their right mind should be storing that much
+                # data in an Excel file.
 
                 # TODO: try out different Excel files to see how this skipping rows work
                 print("\nSkipping this many rows (including header row) from the top of the file:",
@@ -105,8 +90,9 @@ if __name__ == '__main__':
                         pdb.set_trace()
                         print('debug')
 
-                    # TODO: find out if there's a way to force python functions to return something of specific type
-                    # TODO: Logging, Output writing, QA-ing, Mapping, CSV handling
+                    # TODO: have output_function key in config file that allows user to
+                    # write custom function to throw the df to the desired destination (csv or SQL Server)
+                    # TODO: Logging, Mapping, CSV handling
                     # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
                     # if passing df in/out of function is memory expensive
 
@@ -147,6 +133,9 @@ if __name__ == '__main__':
                 raise transform_errors.InvalidFileType(input_file)
 
 
+            if transform_utils.write_data(config):
+                output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
+
 
         # 1. Read data in chunk (skipping x top rows; capturing header)
         # 2. For each chunk
@@ -155,6 +144,7 @@ if __name__ == '__main__':
         #   rename columns if necessary
         #   apply functions (add columns, etc.)
         # df = pd.read_excel(input_file,sheet_name=sheet)
+
         print('Program finished.')
         #     df = transform_utils.get_data_frame()
         #

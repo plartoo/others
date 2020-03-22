@@ -10,7 +10,16 @@
     "__comment__": "(Optional) Decide if pandas should interpret 'NA', 'N/A', 'NULL', etc. to NaN value. Default is false",
     "interpret_na_null_etc_from_raw_data": false,
 
-    "__comment__": "(Required) Output folder path is required.",
+    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
+    "write_output": true,
+
+    "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
+    "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
+    "__comment__": "This option is only for those who wants to write data to somewhere other than to a local file in CSV format.",
+    "data_writer_class_file": "./csv_data_writer.py",
+
+    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
+    "__comment__": "Default is going to be the current working directory of transform.py",
     "output_folder_path": "./output/budget/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
@@ -140,12 +149,12 @@
         "function_args": ["Segment Macro", "Region", {"pet": "Hills", "Pet": "Hills"}]
       },
       {
-        "__function_comment__": "After capitalizing words and updating values in/across columns, try to detect duplicates, if any.",
+        "__function_comment__": "After capitalizing words and updating values in/across columns, there must be no duplicates in essential columns.",
         "function_name": "check_possible_duplicates_in_multiple_columns",
         "function_args": [["Region", "Market", "Segment Macro", "Macro Channel", "Channel"]]
       },
       {
-        "__function_comment__": "We will create sum of budget rows for each region, year and macro channel pair/combination.",
+        "__function_comment__": "Create sum of budget rows for each region, year and macro channel pair/combination.",
         "function_name": "add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair",
         "function_args": [["Region", "Year", "Macro Channel"], "Budget (USD)"]
       },
@@ -155,12 +164,12 @@
         "function_args": [" "]
       },
       {
-        "__function_comment__": "In sum of budget rows, we need to copy region values to market for 'Total' lines",
+        "__function_comment__": "To show Division names in Market filter on Tableau, we need to copy Division (Region) names to Market column for 'Total' lines",
         "function_name": "copy_col1_value_to_col2_if_col2_has_specific_value",
         "function_args": ["Region", "Market", "Total"]
       },
       {
-        "__function_comment__": "In sum of budget rows, we need to also capitalize market values if they are the same as region values.",
+        "__function_comment__": "Capitalize Market names if they are the same as Division (Region) names (to look good on Tableau Market filter).",
         "function_name": "capitalize_market_name_if_they_are_the_same_as_region_name"
       },
       {
@@ -169,7 +178,7 @@
         "function_args": [
           "Market",
           "Brand",
-          [" AFRICA-EURASIA"," ASIA PACIFIC"," EUROPE"," HILLS"," LATIN AMERICA"," NORTH AMERICA"],
+          [" AFRICA-EURASIA"," ASIA-PACIFIC"," EUROPE"," HILLS"," LATIN AMERICA"," NORTH AMERICA"],
           " All Brands"
         ]
       }

@@ -30,67 +30,70 @@ import transform_errors
 # Constants for config file
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
+KEY_WRITE_OUTPUT = 'write_output'
+DEFAULT_WRITE_OUTPUT = True
+KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
+DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
+                                              'csv_data_writer.py')
 KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 
-TRANSFORM_FUNCTIONS_FOLDER = 'transform_functions'
-DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = 'transform_functions.py'
 KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE = 'custom_transform_functions_file'
 # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
-VALUE_COMMON_TRANSFORM_FUNCTIONS_FILE_DEFAULT = os.path.join(os.getcwd(),
-                                                             TRANSFORM_FUNCTIONS_FOLDER,
-                                                             DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
+                                                       'transform_functions',
+                                                       'transform_functions.py')
 
 KEY_SHEET_NAME = 'sheet_name_of_excel_file'
-VALUE_SHEET_NAME_DEFAULT = 0
+DEFAULT_SHEET_NAME = 0
 # Pandas unfortunately has 'keep_default_na' option which tries to interpret
 # NaN, NULL, NA, N/A, etc. values in the raw data to NaN. We must turn it off
 # by default. REF: https://stackoverflow.com/a/41417295
 KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan'
-VALUE_KEEP_DEFAULT_NA_DEFAULT = False
+DEFAULT_KEEP_DEFAULT_NA = False
 
 KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'
-VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT = -1
+DEFAULT_COLUMN_HEADER_ROW_NUM = -1
 
 # Note: we tested and found that pandas' csv sniffer isn't very good
 # (even when using 'Python' as parser engine) in detecting delimiters, so
 # setting this as None is not good enough. Thus we decided to set the default
 # for 'VALUE_INPUT_CSV_DELIMITER_DEFAULT' as comma.
 KEY_INPUT_CSV_ENCODING = 'input_csv_file_encoding'
-VALUE_INPUT_CSV_ENCODING_DEFAULT = None # None defaults to 'utf-8' in pandas
+DEFAULT_INPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
 KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
-VALUE_INPUT_CSV_DELIMITER_DEFAULT = ','
+DEFAULT_INPUT_CSV_DELIMITER = ','
 KEY_OUTPUT_CSV_ENCODING = 'output_csv_file_encoding'
-VALUE_OUTPUT_CSV_ENCODING_DEFAULT = None # None defaults to 'utf-8' in pandas
+DEFAULT_OUTPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
-VALUE_OUTPUT_CSV_DELIMITER_DEFAULT = '|'
+DEFAULT_OUTPUT_CSV_DELIMITER = '|'
 
 KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
-VALUE_ROW_INDEX_WHERE_DATA_STARTS_DEFAULT = 1
+DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
-VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT = 0
+DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
 
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
-VALUE_FUNCTIONS_TO_APPLY = []
+DEFAULT_FUNCTIONS_TO_APPLY = []
 KEY_FUNC_NAME = 'function_name'
 KEY_FUNC_ARGS = 'function_args'
-VALUE_FUNC_ARGS_DEFAULT = []
+DEFAULT_FUNC_ARGS = []
 KEY_FUNC_KWARGS = 'function_kwargs'
-VALUE_FUNC_KWARGS_DEFAULT = {}
+DEFAULT_FUNC_KWARGS = {}
 
 KEY_TRANSFORM_FUNC_NAME = 'transform_function_name'
 KEY_TRANSFORM_FUNC_ARGS = 'transform_function_args'
-VALUE_TRANSFORM_FUNC_ARGS_DEFAULT = []
+DEFAULT_TRANSFORM_FUNC_ARGS = []
 KEY_TRANSFORM_FUNC_KWARGS = 'transform_function_kwargs'
-VALUE_TRANSFORM_FUNC_KWARGS_DEFAULT = {}
+DEFAULT_TRANSFORM_FUNC_KWARGS = {}
 KEY_ASSERT_FUNC_NAME = 'assert_function_name'
 KEY_ASSERT_FUNC_ARGS = 'assert_function_args'
-VALUE_ASSERT_FUNC_ARGS_DEFAULT = []
+DEFAULT_ASSERT_FUNC_ARGS = []
 KEY_ASSERT_FUNC_KWARGS = 'assert_function_kwargs'
-VALUE_ASSERT_FUNC_KWARGS_DEFAULT = {}
+DEFAULT_ASSERT_FUNC_KWARGS = {}
 
 KEY_ROWS_PER_CHUNK_FOR_CSV = 'rows_per_chunk_for_csv'
-VALUE_ROWS_PER_CHUNK_FOR_CSV_DEFAULT = 1500000
+DEFAULT_ROWS_PER_CHUNK_FOR_CSV = 1500000
 
 # Keys in config file and their expected data types
 EXPECTED_CONFIG_DATA_TYPES = {
@@ -114,7 +117,6 @@ EXPECTED_CONFIG_DATA_TYPES = {
 # Keys in config file that must exist (required keys)
 REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
                  KEY_INPUT_FILE_NAME_OR_PATTERN,
-                 KEY_OUTPUT_FOLDER_PATH,
                  KEY_FUNCTIONS_TO_APPLY]
 
 # Other constants
@@ -197,8 +199,30 @@ def get_input_files(config):
     return input_files
 
 
+def _append_sys_path(new_sys_path):
+    if new_sys_path not in sys.path:
+        sys.path.append(new_sys_path)
+        print("\nThis new sys path is appended:", new_sys_path)
+        print("Current sys path is:\n", sys.path, "\n")
+
+
+def write_data(config):
+    """
+    Get boolean value that tells the program whether to
+    write the output (transformed dataframe) to somewhere.
+    """
+    return _get_value_from_dict(config,
+                                KEY_WRITE_OUTPUT,
+                                DEFAULT_WRITE_OUTPUT)
+
+
+def instantiate_data_writer_module(config):
+    pass
+
+
 def get_output_file_path_with_name_prefix(config):
     """
+    TODO: if this is not defined, we probably should default to output folder?
     Returns output file path with file name prefix, if the latter
     is provided in the config JSON. Before joining the path with
     file name, output folder is created if it doesn't exist already.
@@ -212,15 +236,8 @@ def get_output_file_path_with_name_prefix(config):
     return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
 
 
-def _append_sys_path(new_sys_path):
-    if new_sys_path not in sys.path:
-        sys.path.append(new_sys_path)
-        print("\nThis new sys path is appended:", new_sys_path)
-        print("Current sys path is:\n", sys.path, "\n")
-
-
 def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
-    if transform_funcs_file == VALUE_COMMON_TRANSFORM_FUNCTIONS_FILE_DEFAULT:
+    if transform_funcs_file == DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE:
         # Here, the config file does not define the file that has
         # custom transform functions, so we are going to load (instantiate)
         # the CommonTransformFunctions instance.
@@ -237,7 +254,7 @@ def instantiate_transform_functions_module(config):
     """
     transform_funcs_file = _get_value_from_dict(config,
                                                 KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
-                                                VALUE_COMMON_TRANSFORM_FUNCTIONS_FILE_DEFAULT)
+                                                DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
     if os.path.isfile(transform_funcs_file):
         directory, file_name = os.path.split(transform_funcs_file)
         _append_sys_path(directory)
@@ -270,7 +287,7 @@ def get_sheet(config):
     """
     return _get_value_from_dict(config,
                                 KEY_SHEET_NAME,
-                                VALUE_SHEET_NAME_DEFAULT)
+                                DEFAULT_SHEET_NAME)
 
 
 def get_keep_default_na(config):
@@ -287,7 +304,7 @@ def get_keep_default_na(config):
     """
     return _get_value_from_dict(config,
                                 KEY_KEEP_DEFAULT_NA,
-                                VALUE_KEEP_DEFAULT_NA_DEFAULT)
+                                DEFAULT_KEEP_DEFAULT_NA)
 
 
 def _extract_file_name(file_path_and_name):
@@ -362,7 +379,7 @@ def _get_row_index_to_extract_column_headers(config):
     """
     return _get_value_from_dict(config,
                                 KEY_ROW_INDEX_OF_COLUMN_HEADERS,
-                                VALUE_COLUMN_HEADER_ROW_NUM_DEFAULT)
+                                DEFAULT_COLUMN_HEADER_ROW_NUM)
 
 
 def get_raw_column_headers(input_file, config):
@@ -395,7 +412,7 @@ def get_row_index_where_data_starts(config):
     """
     return _get_value_from_dict(config,
                                 KEY_ROW_INDEX_WHERE_DATA_STARTS,
-                                VALUE_ROW_INDEX_WHERE_DATA_STARTS_DEFAULT)
+                                DEFAULT_ROW_INDEX_WHERE_DATA_STARTS)
 
 
 def get_number_of_rows_to_skip_from_bottom(config):
@@ -406,7 +423,7 @@ def get_number_of_rows_to_skip_from_bottom(config):
     """
     return _get_value_from_dict(config,
                                 KEY_BOTTOM_ROWS_TO_SKIP,
-                                VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT)
+                                DEFAULT_BOTTOM_ROWS_TO_SKIP)
 
 
 def get_number_of_rows_to_skip_from_bottom(config):
@@ -417,7 +434,7 @@ def get_number_of_rows_to_skip_from_bottom(config):
     """
     return _get_value_from_dict(config,
                                 KEY_BOTTOM_ROWS_TO_SKIP,
-                                VALUE_BOTTOM_ROWS_TO_SKIP_DEFAULT)
+                                DEFAULT_BOTTOM_ROWS_TO_SKIP)
 
 
 def _is_key_in_dict(dictionary, list_of_keys):
@@ -456,7 +473,7 @@ def get_functions_to_apply(config):
     """
     funcs_list = _get_value_from_dict(config,
                                       KEY_FUNCTIONS_TO_APPLY,
-                                      VALUE_FUNCTIONS_TO_APPLY)
+                                      DEFAULT_FUNCTIONS_TO_APPLY)
     if not funcs_list:
         # Function list must NOT be empty
         raise transform_errors.ListEmptyError(KEY_FUNCTIONS_TO_APPLY)
@@ -591,7 +608,7 @@ def get_function_args(dict_of_func_and_params):
     """
     return _get_value_from_dict(dict_of_func_and_params,
                                 KEY_FUNC_ARGS,
-                                VALUE_FUNC_ARGS_DEFAULT)
+                                DEFAULT_FUNC_ARGS)
 
 
 def get_function_kwargs(dict_of_func_and_params):
@@ -615,7 +632,7 @@ def get_function_kwargs(dict_of_func_and_params):
     """
     return _get_value_from_dict(dict_of_func_and_params,
                                 KEY_FUNC_KWARGS,
-                                VALUE_FUNC_KWARGS_DEFAULT)
+                                DEFAULT_FUNC_KWARGS)
 
 
 # def get_transform_function_args(dict_of_func_and_params):
@@ -721,7 +738,7 @@ def get_rows_per_chunk_for_csv(config):
     """
     return _get_value_from_dict(config,
                                 KEY_ROWS_PER_CHUNK_FOR_CSV,
-                                VALUE_ROWS_PER_CHUNK_FOR_CSV_DEFAULT)
+                                DEFAULT_ROWS_PER_CHUNK_FOR_CSV)
 
 
 def get_input_csv_encoding(config):
@@ -731,14 +748,14 @@ def get_input_csv_encoding(config):
     """
     return _get_value_from_dict(config,
                                 KEY_INPUT_CSV_ENCODING,
-                                VALUE_INPUT_CSV_ENCODING_DEFAULT)
+                                DEFAULT_INPUT_CSV_ENCODING)
 
 
 def get_input_csv_delimiter(config):
     """Retrieves delimiter for input CSV file."""
     return _get_value_from_dict(config,
                                 KEY_INPUT_CSV_DELIMITER,
-                                VALUE_INPUT_CSV_DELIMITER_DEFAULT)
+                                DEFAULT_INPUT_CSV_DELIMITER)
 
 
 def get_output_csv_encoding(config):
@@ -748,11 +765,11 @@ def get_output_csv_encoding(config):
     """
     return _get_value_from_dict(config,
                                 KEY_OUTPUT_CSV_ENCODING,
-                                VALUE_OUTPUT_CSV_ENCODING_DEFAULT)
+                                DEFAULT_OUTPUT_CSV_ENCODING)
 
 
 def get_output_csv_delimiter(config):
     """Retrieves delimiter for output CSV file."""
     return _get_value_from_dict(config,
                                 KEY_OUTPUT_CSV_DELIMITER,
-                                VALUE_OUTPUT_CSV_DELIMITER_DEFAULT)
+                                DEFAULT_OUTPUT_CSV_DELIMITER)
