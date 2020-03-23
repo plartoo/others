@@ -206,7 +206,7 @@ def _append_sys_path(new_sys_path):
         print("Current sys path is:\n", sys.path, "\n")
 
 
-def write_data(config):
+def get_write_data_decision(config):
     """
     Get boolean value that tells the program whether to
     write the output (transformed dataframe) to somewhere.
@@ -216,6 +216,11 @@ def write_data(config):
                                 DEFAULT_WRITE_OUTPUT)
 
 
+# KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
+# DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
+#                                               'csv_data_writer.py')
+# KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
+# KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 def instantiate_data_writer_module(config):
     pass
 

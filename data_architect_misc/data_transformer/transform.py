@@ -133,7 +133,10 @@ if __name__ == '__main__':
                 raise transform_errors.InvalidFileType(input_file)
 
 
-            if transform_utils.write_data(config):
+            if transform_utils.get_write_data_decision(config):
+                # data_writer = transform_utils.instantiate_data_writer_module(config)
+                # data_writer.write_data(df)
+
                 output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
 
 
