@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
         for input_file in transform_utils.get_input_files(config):
             print("Processing file:", input_file)
-            # TODO: Time the performance
+            # TODO: Time the performance and log it
             # t1 = time.time()
             # print('Read Excel file:', file_path_and_name)
             # print("It took this many seconds to read the file:", time.time() - t1, "\n")
@@ -63,7 +63,6 @@ if __name__ == '__main__':
                 # TODO: try out different Excel files to see how this skipping rows work
                 print("\nSkipping this many rows (including header row) from the top of the file:",
                       row_idx_where_data_starts)
-                # TODO: remove keep_default_na=False
                 cur_df = pd.read_excel(input_file,
                                        sheet_name=sheet,
                                        keep_default_na=keep_default_na,
@@ -83,15 +82,14 @@ if __name__ == '__main__':
                     cur_df = getattr(transform_funcs_instance,
                                      func_name)(cur_df, *func_args, **func_kwargs)
                     # print(cur_df)
-                    if func_name == 'update_str_value_in_col2_if_col1_has_one_of_given_values':
-                        cur_df.to_excel('shit.xlsx', index=False)
-                        sys.exit()
-                        import pdb
-                        pdb.set_trace()
-                        print('debug')
+                    # if func_name == 'update_str_value_in_col2_if_col1_has_one_of_given_values':
+                    #     cur_df.to_excel('shit.xlsx', index=False)
+                    #     sys.exit()
+                    #     import pdb
+                    #     pdb.set_trace()
+                    #     print('debug')
 
-                    # TODO: have output_function key in config file that allows user to
-                    # write custom function to throw the df to the desired destination (csv or SQL Server)
+                    # TODO: implement write_data for Excel function
                     # TODO: Logging, Mapping, CSV handling
                     # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
                     # if passing df in/out of function is memory expensive
@@ -134,11 +132,8 @@ if __name__ == '__main__':
 
 
             if transform_utils.get_write_data_decision(config):
-                # data_writer = transform_utils.instantiate_data_writer_module(config)
-                # data_writer.write_data(df)
-
-                output_file_prefix = transform_utils.get_output_file_path_with_name_prefix(config)
-
+                dwm = transform_utils.instantiate_data_writer_module(config)
+                dwm.write_data(cur_df)
 
         # 1. Read data in chunk (skipping x top rows; capturing header)
         # 2. For each chunk

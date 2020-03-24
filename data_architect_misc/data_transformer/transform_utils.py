@@ -36,6 +36,8 @@ KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
 DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
                                               'csv_data_writer.py')
 KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
+DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
+                                          'output')
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 
 KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE = 'custom_transform_functions_file'
@@ -67,6 +69,8 @@ KEY_OUTPUT_CSV_ENCODING = 'output_csv_file_encoding'
 DEFAULT_OUTPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 DEFAULT_OUTPUT_CSV_DELIMITER = '|'
+KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV = 'output_csv_file_include_csv'
+DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV = False
 
 KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
 DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
@@ -184,6 +188,13 @@ def validate_configurations(config):
     _assert_expected_data_types(config)
 
 
+def _append_sys_path(new_sys_path):
+    if new_sys_path not in sys.path:
+        sys.path.append(new_sys_path)
+        print("\nThis new sys path is appended:", new_sys_path)
+        print("Current sys path is:\n", sys.path, "\n")
+
+
 def get_input_files(config):
     """
     Returns input file(s) based on the file name/pattern
@@ -197,90 +208,6 @@ def get_input_files(config):
     if not input_files:
         raise transform_errors.FileNotFound(fn)
     return input_files
-
-
-def _append_sys_path(new_sys_path):
-    if new_sys_path not in sys.path:
-        sys.path.append(new_sys_path)
-        print("\nThis new sys path is appended:", new_sys_path)
-        print("Current sys path is:\n", sys.path, "\n")
-
-
-def get_write_data_decision(config):
-    """
-    Get boolean value that tells the program whether to
-    write the output (transformed dataframe) to somewhere.
-    """
-    return _get_value_from_dict(config,
-                                KEY_WRITE_OUTPUT,
-                                DEFAULT_WRITE_OUTPUT)
-
-
-# KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
-# DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
-#                                               'csv_data_writer.py')
-# KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
-# KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
-def instantiate_data_writer_module(config):
-    pass
-
-
-def get_output_file_path_with_name_prefix(config):
-    """
-    TODO: if this is not defined, we probably should default to output folder?
-    Returns output file path with file name prefix, if the latter
-    is provided in the config JSON. Before joining the path with
-    file name, output folder is created if it doesn't exist already.
-    """
-    if not os.path.exists(config[KEY_OUTPUT_FOLDER_PATH]):
-        os.makedirs(config[KEY_OUTPUT_FOLDER_PATH])
-        print("\nINFO: new folder created for output files =>",
-              config[KEY_OUTPUT_FOLDER_PATH])
-
-    file_prefix =  config[KEY_OUTPUT_FILE_PREFIX] if KEY_OUTPUT_FILE_PREFIX in config else ''
-    return os.path.join(config[KEY_OUTPUT_FOLDER_PATH], file_prefix)
-
-
-def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
-    if transform_funcs_file == DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE:
-        # Here, the config file does not define the file that has
-        # custom transform functions, so we are going to load (instantiate)
-        # the CommonTransformFunctions instance.
-        return transform_funcs_module.CommonTransformFunctions()
-    else:
-        return transform_funcs_module.CustomTransformFunctions()
-
-
-def instantiate_transform_functions_module(config):
-    """First, extract corresponding value from config file and
-    import the module that has either the common or the custom
-    (e.g., transform) functions. After importing the module,
-    call private function to instantiate that module.
-    """
-    transform_funcs_file = _get_value_from_dict(config,
-                                                KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
-                                                DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
-    if os.path.isfile(transform_funcs_file):
-        directory, file_name = os.path.split(transform_funcs_file)
-        _append_sys_path(directory)
-
-        file_name_without_extension = os.path.splitext(file_name)[0]
-        relative_module_name = ''.join(['.', file_name_without_extension])
-        # Note: we assume that all transform function modules are located in
-        # './transform_funcs' directory, which is used as package name below.
-        # Relative module name, the first argument, is either custom python file name
-        # (without extension) or the file with common transform functions
-        # (that is, 'transform_functions' python file) prefixed with '.' (dot).
-        # E.g., importlib.import_module('switzerland_transform_functions', package='transform_functions')
-        # OR importlib.import_module('transform_functions.switzerland_transform_functions')
-        # REF1: https://stackoverflow.com/a/10675081/1330974
-        # REF2: https://stackoverflow.com/a/8899345/1330974
-        return _instantiate_transform_module(transform_funcs_file,
-                                             importlib.import_module(
-                                                 relative_module_name,
-                                                 package=os.path.basename(directory)))
-    else:
-        raise transform_errors.FileNotFound(transform_funcs_file)
 
 
 def get_sheet(config):
@@ -310,6 +237,176 @@ def get_keep_default_na(config):
     return _get_value_from_dict(config,
                                 KEY_KEEP_DEFAULT_NA,
                                 DEFAULT_KEEP_DEFAULT_NA)
+
+
+def _get_relative_module_name(module_file):
+    """
+    Suppose we want to load Python module file in this relative path:
+    './transform_functions/swiss_transform_funcs.py', we can use
+    'importlib.import_module(...)' method in one of the two ways below.
+    1) import_module('.swiss_transform_funcs', package='transform_functions')
+    or
+    2) import_module('transform_functions.swiss_transform_funcs')
+
+    Assuming that we will be using method signature #1 above,
+    this method extracts and return relative module name (that is,
+    '.swiss_transform_funcs') from path and name of a module file.
+    """
+    # directory, file_name = os.path.split(module_file)
+    # file_name_without_extension = os.path.splitext(file_name)[0]
+    # relative_module_name = ''.join(['.', file_name_without_extension])
+    # package_name = os.path.basename(directory)
+    file_name = os.path.split(module_file)[1]
+    file_name_without_extension = os.path.splitext(file_name)[0]
+    relative_module_name = ''.join(['.', file_name_without_extension])
+
+    return relative_module_name
+
+
+def _get_package_name(module_file):
+    """
+    Suppose we want to load Python module file in this relative path:
+    './transform_functions/funcs/swiss_transform_funcs.py', we can use
+    'importlib.import_module(...)' method in one of the two ways below.
+    1) import_module('.swiss_transform_funcs', package='transform_functions')
+    or
+    2) import_module('transform_functions.swiss_transform_funcs')
+
+    Assuming that we will be using method signature #1 above,
+    this method extracts and return package name (that is,
+    'transform_functions.funcs') from the path and name of a module file.
+    """
+    directory_path = os.path.split(module_file)[0] # e.g., './transform_funcs/funcs'
+    if directory_path.startswith('./') or directory_path.startswith('.\\'):
+        directory_path = directory_path.replace('./', '').replace('.\\', '')
+
+    return directory_path.replace('/', '.').replace('\\', '.')
+
+
+def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
+    if transform_funcs_file == DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE:
+        # Here, the config file does not define the file that has
+        # custom transform functions, so we are going to load (instantiate)
+        # the CommonTransformFunctions instance.
+        return transform_funcs_module.CommonTransformFunctions()
+    else:
+        return transform_funcs_module.CustomTransformFunctions()
+
+
+def instantiate_transform_functions_module(config):
+    """
+    First, extract module path+file name from the config file
+    and import the module that has either the common or the custom
+    transform functions. After importing the module, instantiate
+    an object of that module.
+    """
+    transform_funcs_file = _get_value_from_dict(config,
+                                                KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
+                                                DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+    if os.path.isfile(transform_funcs_file):
+        # Note: we assume that all transform function modules are located in
+        # './transform_funcs' directory, which is used as package name below.
+        # Relative module name, the first argument of import_module() below,
+        # is either custom python file name (without extension) or
+        # the file with common transform functions (that is,
+        # 'transform_functions' python file) prefixed with '.' (dot).
+        #
+        # E.g., importlib.import_module('.switzerland_transform_functions', package='transform_functions')
+        # OR importlib.import_module('transform_functions.switzerland_transform_functions')
+        # REF1: https://stackoverflow.com/a/10675081/1330974
+        # REF2: https://stackoverflow.com/a/8899345/1330974
+        return _instantiate_transform_module(transform_funcs_file,
+                                             importlib.import_module(
+                                                 _get_relative_module_name(transform_funcs_file),
+                                                 package=_get_package_name(transform_funcs_file)))
+    else:
+        raise transform_errors.FileNotFound(transform_funcs_file)
+
+
+def get_write_data_decision(config):
+    """
+    Get boolean value that tells the program whether to
+    write the output (transformed dataframe) to somewhere.
+    """
+    return _get_value_from_dict(config,
+                                KEY_WRITE_OUTPUT,
+                                DEFAULT_WRITE_OUTPUT)
+
+
+def instantiate_data_writer_module(config):
+    """
+    This method will load the custom DataWriter module
+    if path to the custom DataWriter class (such as DataWriter for
+    SQL Server) is provided in the config file.
+    If that key in config file is not given, this method will load
+    default DataWriter module which will output CSV file for
+    transformed data.
+    Note: This method assumes that the DataWriter module file
+    is located in the same root folder as 'transform.py' file.
+    """
+    data_writer_class_file = _get_value_from_dict(config,
+                                                  KEY_DATA_WRITER_CLASS_FILE,
+                                                  DEFAULT_DATA_WRITER_CLASS_FILE)
+    if os.path.isfile(data_writer_class_file):
+        # Note: we assume that all data writer modules are located in
+        # the same root folder (i.e. 'data_transformer' folder).
+        # Thus, we will call import_module() like below
+        # importlib.import_module('.csv_data_writer')
+        data_writer_module = importlib.import_module\
+            (os.path.splitext(os.path.split(data_writer_class_file)[1])[0])
+
+        return data_writer_module.DataWriter(config)
+    else:
+        raise transform_errors.FileNotFound(data_writer_class_file)
+
+
+def get_output_folder(config):
+    """
+    Extracts and return the output folder path and name from the
+    config JSON. If the keys aren't defined in the JSON config
+    file, this method returns default output folder ('./output')
+    name.
+    """
+    return _get_value_from_dict(config,
+                                KEY_OUTPUT_FOLDER_PATH,
+                                DEFAULT_OUTPUT_FOLDER_PATH)
+
+
+def get_output_file_prefix(config):
+    """
+    Extracts and return the output file prefix, if any, from
+    the config file. If not given, returns empty string.
+    """
+    return _get_value_from_dict(config,
+                                KEY_OUTPUT_FILE_PREFIX,
+                                '')
+
+
+def get_include_index_column_in_output_csv_file(config):
+    """
+    Extracts and return boolean value to decide if output CSV
+    file should include index column from the dataframe.
+    """
+    return _get_value_from_dict(config,
+                                KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV,
+                                DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV)
+
+
+def get_output_csv_file_encoding(config):
+    """
+    Retrieves encoding for output CSV file.
+    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+    """
+    return _get_value_from_dict(config,
+                                KEY_OUTPUT_CSV_ENCODING,
+                                DEFAULT_OUTPUT_CSV_ENCODING)
+
+
+def get_output_csv_file_delimiter(config):
+    """Retrieves delimiter for output CSV file."""
+    return _get_value_from_dict(config,
+                                KEY_OUTPUT_CSV_DELIMITER,
+                                DEFAULT_OUTPUT_CSV_DELIMITER)
 
 
 def _extract_file_name(file_path_and_name):
@@ -526,72 +623,6 @@ def get_function_name(dict_of_func_and_params):
                                 None)
 
 
-# def get_transform_function_name(dict_of_func_and_params):
-#     """
-#     Extract and return function name (string type) from the dictionary
-#     that holds transform function name and parameters (args/kwargs), if any.
-#
-#     Args:
-#         dict_of_func_and_params: Dictionary that has function name and
-#         parameters like this:
-#           {
-#             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
-#             "transform_function_name": "drop_unnamed_columns",
-#             "transform_function_args": [["Unnamed 1", "Unnamed 2"]]
-#           }
-#
-#     Returns:
-#          Function name (string) that we will convert to attribute and invoke
-#          for data transformation.
-#
-#     Raises:
-#         RequiredKeyNotFound: Return this error if there is no expected function key
-#         in the dictionary.
-#     """
-#     if not _is_key_in_dict(dict_of_func_and_params, [KEY_TRANSFORM_FUNC_NAME]):
-#         # This means the user did not not provide function name
-#         # for us to apply in the transform process
-#         raise transform_errors.RequiredKeyNotFound(dict_of_func_and_params,
-#                                                    [KEY_TRANSFORM_FUNC_NAME])
-#
-#     return _get_value_from_dict(dict_of_func_and_params,
-#                                 KEY_TRANSFORM_FUNC_NAME,
-#                                 None)
-#
-#
-# def get_assert_function_name(dict_of_func_and_params):
-#     """
-#     Extract and return function name (string type) from the dictionary
-#     that holds assert function name and parameters (args/kwargs), if any.
-#
-#     Args:
-#         dict_of_func_and_params: Dictionary that has function name and
-#         parameters like this:
-#           {
-#             "__function_comment__": "Make sure the dataframe has 13 columns at this stage.",
-#             "assert_function_name": "assert_number_of_columns_equals",
-#             "assert_function_args": [10]
-#           }
-#
-#     Returns:
-#          Function name (string) that we will convert to attribute and invoke
-#          for data QA (assertions).
-#
-#     Raises:
-#         RequiredKeyNotFound: Return this error if there is no expected function key
-#         in the dictionary.
-#     """
-#     if not _is_key_in_dict(dict_of_func_and_params, [KEY_ASSERT_FUNC_NAME]):
-#         # This means the user did not not provide function name
-#         # for us to apply in the transform process
-#         raise transform_errors.RequiredKeyNotFound(dict_of_func_and_params,
-#                                                    [KEY_ASSERT_FUNC_NAME])
-#
-#     return _get_value_from_dict(dict_of_func_and_params,
-#                                 KEY_ASSERT_FUNC_NAME,
-#                                 None)
-
-
 def get_function_args(dict_of_func_and_params):
     """
     Extract and return list of arguments (*args) or an empty
@@ -640,100 +671,6 @@ def get_function_kwargs(dict_of_func_and_params):
                                 DEFAULT_FUNC_KWARGS)
 
 
-# def get_transform_function_args(dict_of_func_and_params):
-#     """
-#     Extract and return list of arguments (*args) or an empty list from
-#     the dictionary that holds transform function name and parameters
-#     (args and kwargs), if any.
-#
-#     Args:
-#         dict_of_func_and_params: Dictionary that has function name and
-#         parameters like this:
-#           {
-#             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
-#             "transform_function_name": "drop_unnamed_columns",
-#             "transform_function_args": [["Unnamed 1", "Unnamed 2"]]
-#           }
-#
-#     Returns:
-#          List of parameters like [param1, param2] or an empty list.
-#     """
-#     return _get_value_from_dict(dict_of_func_and_params,
-#                                 KEY_TRANSFORM_FUNC_ARGS,
-#                                 VALUE_TRANSFORM_FUNC_ARGS_DEFAULT)
-#
-#
-# def get_transform_function_kwargs(dict_of_func_and_params):
-#     """
-#     Extract and return list of keyword arguments (*kwargs) or an empty list
-#     from the dictionary that holds transform function name and parameters
-#     (args and kwargs), if any.
-#
-#     Args:
-#         dict_of_func_and_params: Dictionary that has function name and
-#         parameters like this:
-#           {
-#             "__function_comment__": "Drop empty columns in Budget roll up Excel file.",
-#             "transform_function_name": "map_channel_columns",
-#             "transform_function_kwargs": {"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}
-#           }
-#
-#     Returns:
-#          Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
-#          or an empty dictionary.
-#     """
-#     return _get_value_from_dict(dict_of_func_and_params,
-#                                 KEY_TRANSFORM_FUNC_KWARGS,
-#                                 VALUE_TRANSFORM_FUNC_KWARGS_DEFAULT)
-#
-#
-# def get_assert_function_args(dict_of_func_and_params):
-#     """
-#     Extract and return list of arguments (*args) or an empty list from
-#     the dictionary that holds assert function name and parameters
-#     (args and kwargs), if any.
-#
-#     Args:
-#         dict_of_func_and_params: Dictionary that has function name and
-#         parameters like this:
-#           {
-#             "__function_comment__": "Make sure the dataframe has 13 columns at this stage.",
-#             "assert_function_name": "assert_number_of_columns_equals",
-#             "assert_function_args": [10]
-#           }
-#
-#     Returns:
-#          List of parameters like [param1, param2] or an empty list.
-#     """
-#     return _get_value_from_dict(dict_of_func_and_params,
-#                                 KEY_ASSERT_FUNC_ARGS,
-#                                 VALUE_ASSERT_FUNC_ARGS_DEFAULT)
-#
-#
-# def get_assert_function_kwargs(dict_of_func_and_params):
-#     """
-#     Extract and return list of keyword arguments (*kwargs) or an empty list
-#     from the dictionary that holds assert function name and parameters
-#     (args and kwargs), if any.
-#
-#     Args:
-#         dict_of_func_and_params: Dictionary that has function name and
-#         parameters like this:
-#           {
-#             "__function_comment__": "Make sure if col1 is 'Amazon', col2's vlaue is 'E-Commerce'.",
-#             "transform_function_name": "assert_mapped_channel_columns",
-#             "transform_function_kwargs": {"Amazon": "E-Commerce"}
-#           }
-#
-#     Returns:
-#          Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
-#          or an empty dictionary.
-#     """
-#     return _get_value_from_dict(dict_of_func_and_params,
-#                                 KEY_ASSERT_FUNC_KWARGS,
-#                                 VALUE_ASSERT_FUNC_KWARGS_DEFAULT)
-
-
 def get_rows_per_chunk_for_csv(config):
     """
     Returns number of rows we should process (read and write)
@@ -762,19 +699,3 @@ def get_input_csv_delimiter(config):
                                 KEY_INPUT_CSV_DELIMITER,
                                 DEFAULT_INPUT_CSV_DELIMITER)
 
-
-def get_output_csv_encoding(config):
-    """
-    Retrieves encoding for output CSV file.
-    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
-    """
-    return _get_value_from_dict(config,
-                                KEY_OUTPUT_CSV_ENCODING,
-                                DEFAULT_OUTPUT_CSV_ENCODING)
-
-
-def get_output_csv_delimiter(config):
-    """Retrieves delimiter for output CSV file."""
-    return _get_value_from_dict(config,
-                                KEY_OUTPUT_CSV_DELIMITER,
-                                DEFAULT_OUTPUT_CSV_DELIMITER)

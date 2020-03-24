@@ -25,6 +25,9 @@
     "__comment__": "(Optional) Prefix for the output file name.",
     "output_file_name_prefix": "transformed_budget_",
 
+    "__comment__": "(Optional) Whether to include index column in writing the output dataframe to CSV file. Default is false.",
+    "output_csv_file_include_csv": false,
+
     "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/budget_transform_functions.py",
 
