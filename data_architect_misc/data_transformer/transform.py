@@ -51,7 +51,7 @@ if __name__ == '__main__':
             col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
 
             if transform_utils.is_excel(input_file):
-                sheet = transform_utils.get_sheet(config)
+                sheet = transform_utils.get_input_file_sheet_name(config)
                 keep_default_na = transform_utils.get_keep_default_na(config)
                 # Note: We will load everything on the sheet in Excel (i.e. no chunk processing).
                 # Excel, theoretically, can store up to a maximum of:

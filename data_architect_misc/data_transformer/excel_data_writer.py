@@ -6,25 +6,23 @@ import pandas as pd
 import transform_utils
 
 
-class CSVDataWriter:
+class ExcelDataWriter:
     """
     This class the parent class of DataWriter, which is required
-    to write data from Pandas dataframe to CSV file.
+    to write data from Pandas dataframe to Excel file.
     Here, we only use this class to set up necessary
-    parameters for pandas.to_csv method and implement
+    parameters for pandas.to_excel method and implement
     write_data() method in its child class, DataWriter.
-    (I admit it's a bit funny that the parent class has
-    more specific name than child class, but I figured
-    it's better to do it this way for a couple of
-    different reasons, which I will not explain further here.)
     """
     def __init__(self, config):
-        # We can later implement other pandas.to_csv parameters
-        # such as na_rep, compression, quoting, quotechar, etc.
+        # We can later implement other pandas.to_excel parameters
+        # such as na_rep, columns, header, etc.
         self.output_file_path_and_name = self.get_output_file_path_and_name(config)
-        self.include_index = self.get_include_index_column_in_output_csv_file(config)
-        self.output_file_encoding = self.get_output_csv_file_encoding(config)
-        self.output_file_delimiter = self.get_output_csv_file_delimiter(config)
+        self.include_index = self.get_include_index_column_in_output_excel_file(config)
+        # Encoding of the resulting excel file.
+        # Only necessary for xlwt, other writers support unicode natively.
+        self.output_file_encoding = self.get_output_excel_file_encoding(config)
+        self.sheet_name = self.get_output_excel_file_sheet_name(config)
 
 
     @staticmethod
@@ -41,24 +39,24 @@ class CSVDataWriter:
 
         file_prefix = transform_utils.get_output_file_prefix(config)
         file_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file_name = ''.join(['_'.join([file_prefix, file_suffix]), '.csv'])
+        output_file_name = ''.join(['_'.join([file_prefix, file_suffix]), '.xlsx'])
 
         return os.path.join(output_folder, output_file_name)
 
 
     @staticmethod
-    def get_include_index_column_in_output_csv_file(config):
+    def get_include_index_column_in_output_excel_file(config):
         """
-        Extracts and return boolean value to decide if output CSV
+        Extracts and return boolean value to decide if output Excel
         file should include index column from the dataframe.
         """
         return transform_utils.get_include_index_column_in_output_file(config)
 
 
     @staticmethod
-    def get_output_csv_file_encoding(config):
+    def get_output_excel_file_encoding(config):
         """
-        Extracts and return encoding string value for output CSV file.
+        Extracts and return encoding string value for output Excel file.
         Defaults to None because it is (strangely) equivalent to 'utf-8'
         in Pandas.
         """
@@ -66,17 +64,18 @@ class CSVDataWriter:
 
 
     @staticmethod
-    def get_output_csv_file_delimiter(config):
+    def get_output_excel_file_sheet_name(config):
         """
-        Extracts and return delimiter (string) value for output CSV file.
-        Defaults to ',' (comma).
+        Extracts and return sheet name (string) for output Excel file.
+        Defaults to None because it is (strangely) equivalent to 'utf-8'
+        in Pandas.
         """
-        return transform_utils.get_output_csv_file_delimiter(config)
+        return transform_utils.get_output_file_sheet_name(config)
 
 
-class DataWriter(CSVDataWriter):
+class DataWriter(ExcelDataWriter):
     """
-    This class is the child class of CSVDataWriter.
+    This class is the child class of ExcelDataWriter.
     Anyone who wants to implement other custom DataWriter class
     must make sure that it implements write_data(dataframe) method
     because it is expected in transform.py file.
@@ -88,9 +87,9 @@ class DataWriter(CSVDataWriter):
 
     def write_data(self, df):
         print("Writing data to:", self.output_file_path_and_name)
-        df.to_csv(
+        df.to_excel(
             self.output_file_path_and_name,
+            sheet_name=self.sheet_name,
             index=self.include_index,
-            sep=self.output_file_delimiter,
             encoding=self.output_file_encoding
         )

@@ -69,10 +69,10 @@
     "interpret_na_null_etc_from_raw_data": false,
 
     "__comment__": "(Optional) CSV encoding and delimiters. If empty, the program uses Pandas defaults (UTF-8 and comma).",
-    "input_csv_file_encoding": "",
-    "input_csv_file_delimiter": "",
-    "output_csv_file_encoding": "",
-    "output_csv_file_delimiter": "",
+    "input_file_encoding": "",
+    "input_file_delimiter": "",
+    "output_file_encoding": "",
+    "output_file_delimiter": "",
 
     "__comment__": "(Optional) For CSV files, Maximum number of rows to read, process and output in each program iteration (to not overload computer memory).",
     "__comment__": "If below field is deleted, we use 1,500,000 rows as default value, which is defined in transform_utils.py.",

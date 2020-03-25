@@ -46,8 +46,11 @@ DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
                                                        'transform_functions',
                                                        'transform_functions.py')
 
-KEY_SHEET_NAME = 'sheet_name_of_excel_file'
-DEFAULT_SHEET_NAME = 0
+KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file'
+DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0
+KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'
+DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
+
 # Pandas unfortunately has 'keep_default_na' option which tries to interpret
 # NaN, NULL, NA, N/A, etc. values in the raw data to NaN. We must turn it off
 # by default. REF: https://stackoverflow.com/a/41417295
@@ -57,20 +60,21 @@ DEFAULT_KEEP_DEFAULT_NA = False
 KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'
 DEFAULT_COLUMN_HEADER_ROW_NUM = -1
 
+KEY_INPUT_FILE_ENCODING = 'input_file_encoding'
+DEFAULT_INPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
+KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'
+DEFAULT_OUTPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
+
 # Note: we tested and found that pandas' csv sniffer isn't very good
 # (even when using 'Python' as parser engine) in detecting delimiters, so
 # setting this as None is not good enough. Thus we decided to set the default
-# for 'VALUE_INPUT_CSV_DELIMITER_DEFAULT' as comma.
-KEY_INPUT_CSV_ENCODING = 'input_csv_file_encoding'
-DEFAULT_INPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
+# for 'DEFAULT_INPUT_CSV_DELIMITER' as comma.
 KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
 DEFAULT_INPUT_CSV_DELIMITER = ','
-KEY_OUTPUT_CSV_ENCODING = 'output_csv_file_encoding'
-DEFAULT_OUTPUT_CSV_ENCODING = None # None defaults to 'utf-8' in pandas
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 DEFAULT_OUTPUT_CSV_DELIMITER = '|'
-KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV = 'output_csv_file_include_csv'
-DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV = False
+KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output_file'
+DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
 
 KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
 DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
@@ -100,16 +104,17 @@ KEY_ROWS_PER_CHUNK_FOR_CSV = 'rows_per_chunk_for_csv'
 DEFAULT_ROWS_PER_CHUNK_FOR_CSV = 1500000
 
 # Keys in config file and their expected data types
+# TODO: review the list of expected data types below and enter the new ones I've included since January 2020
 EXPECTED_CONFIG_DATA_TYPES = {
     KEY_INPUT_FOLDER_PATH: [str],
     KEY_INPUT_FILE_NAME_OR_PATTERN: [str],
     KEY_OUTPUT_FOLDER_PATH: [str],
     KEY_OUTPUT_FILE_PREFIX: [str],
-    KEY_SHEET_NAME: [str],
+    KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE: [str],
 
-    KEY_INPUT_CSV_ENCODING: [str],
+    KEY_INPUT_FILE_ENCODING: [str],
     KEY_INPUT_CSV_DELIMITER: [str],
-    KEY_OUTPUT_CSV_ENCODING: [str],
+    KEY_OUTPUT_FILE_ENCODING: [str],
     KEY_OUTPUT_CSV_DELIMITER: [str],
     KEY_ROW_INDEX_OF_COLUMN_HEADERS: [int],
     KEY_ROW_INDEX_WHERE_DATA_STARTS: [int],
@@ -210,16 +215,28 @@ def get_input_files(config):
     return input_files
 
 
-def get_sheet(config):
+def get_input_file_sheet_name(config):
     """
-    Returns the sheet name from the config JSON.
+    Returns the input file's sheet name from the config JSON.
     If the keys aren't defined in the JSON, returns default sheet
     (which is 0), which means Pandas will load the first sheet in
     Excel file.
     """
     return _get_value_from_dict(config,
-                                KEY_SHEET_NAME,
-                                DEFAULT_SHEET_NAME)
+                                KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE,
+                                DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE)
+
+
+def get_output_file_sheet_name(config):
+    """
+    Returns the output file's sheet name from the config JSON.
+    If the keys aren't defined in the JSON, returns default sheet
+    (which is 'Sheet1'), which means Pandas will write to 'Sheet1'
+    in output Excel file.
+    """
+    return _get_value_from_dict(config,
+                                KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
+                                DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
 
 
 def get_keep_default_na(config):
@@ -382,24 +399,24 @@ def get_output_file_prefix(config):
                                 '')
 
 
-def get_include_index_column_in_output_csv_file(config):
+def get_include_index_column_in_output_file(config):
     """
     Extracts and return boolean value to decide if output CSV
     file should include index column from the dataframe.
     """
     return _get_value_from_dict(config,
-                                KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV,
-                                DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_CSV)
+                                KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
+                                DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
 
 
-def get_output_csv_file_encoding(config):
+def get_output_file_encoding(config):
     """
     Retrieves encoding for output CSV file.
     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
     """
     return _get_value_from_dict(config,
-                                KEY_OUTPUT_CSV_ENCODING,
-                                DEFAULT_OUTPUT_CSV_ENCODING)
+                                KEY_OUTPUT_FILE_ENCODING,
+                                DEFAULT_OUTPUT_FILE_ENCODING)
 
 
 def get_output_csv_file_delimiter(config):
@@ -450,7 +467,7 @@ def read_data(file_name_with_path, config, rows_to_read,
                              names=custom_header_names,
                              usecols=column_names_or_indexes_to_use,
                              dtype=custom_data_types,
-                             sheet_name=get_sheet(config),
+                             sheet_name=get_input_file_sheet_name(config),
                              )
     elif is_csv(file_name_with_path):
         return pd.read_csv(file_name_with_path,
@@ -464,7 +481,7 @@ def read_data(file_name_with_path, config, rows_to_read,
                            usecols=column_names_or_indexes_to_use,
                            dtype=custom_data_types,
                            delimiter=get_input_csv_delimiter(config),
-                           encoding=get_input_csv_encoding(config),
+                           encoding=get_input_file_encoding(config),
                            # don't skip anything in input file and let programmer
                            # decide how to parse them later in transform_functions
                            #skip_blank_lines=False,
@@ -683,14 +700,14 @@ def get_rows_per_chunk_for_csv(config):
                                 DEFAULT_ROWS_PER_CHUNK_FOR_CSV)
 
 
-def get_input_csv_encoding(config):
+def get_input_file_encoding(config):
     """
-    Retrieves encoding for input CSV file.
+    Retrieves encoding for input data file.
     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
     """
     return _get_value_from_dict(config,
-                                KEY_INPUT_CSV_ENCODING,
-                                DEFAULT_INPUT_CSV_ENCODING)
+                                KEY_INPUT_FILE_ENCODING,
+                                DEFAULT_INPUT_FILE_ENCODING)
 
 
 def get_input_csv_delimiter(config):
