@@ -803,7 +803,3 @@ class CommonTransformFunctions(TransformFunctions):
 
     def parent_function(self) -> pd.DataFrame:
         print("calling parent")
-
-
-# if __name__ == '__main__':
-#     CommonTransformFunctions().__init__()

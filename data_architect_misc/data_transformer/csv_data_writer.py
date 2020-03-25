@@ -52,7 +52,7 @@ class CSVDataWriter:
         Extracts and return boolean value to decide if output CSV
         file should include index column from the dataframe.
         """
-        return transform_utils.get_include_index_column_in_output_file(config)
+        return transform_utils.get_include_index_column_in_output(config)
 
 
     @staticmethod

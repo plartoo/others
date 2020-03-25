@@ -19,7 +19,7 @@
     "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
     "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
     "__comment__": "This option is only for those who wants to write data to somewhere other than to a local file in CSV format.",
-    "data_writer_class_file": "./csv_data_writer.py",
+    "data_writer_class_file": "./mssql_data_writer.py",
 
     "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
     "__comment__": "Default is going to be the current working directory of transform.py",
@@ -28,8 +28,15 @@
     "__comment__": "(Optional) Prefix for the output file name.",
     "output_file_name_prefix": "transformed_budget_",
 
-    "__comment__": "(Optional) Whether to include index column in writing the dataframe to output file. Default is false.",
-    "include_index_column_in_output_file": false,
+    "__comment__": "(Optional although recommended) SQL table name to which the transformed data should be written.",
+    "__comment__": "Default name is 'default_transformed_sql_table_name' as defined in transform_utils.py",
+    "output_sql_table_name": "transformed_budget_table"
+
+    "__comment__": "(Required ONLY IF MSSQLDriver class is used) Database schema to use if we write transformed data to SQL table.",
+    "database_schema": "dbo",
+
+    "__comment__": "(Optional) Whether to include index column in writing the dataframe to output file or table. Default is false.",
+    "include_index_column_in_output": false,
 
     "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/budget_transform_functions.py",

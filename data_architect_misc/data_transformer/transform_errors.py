@@ -93,6 +93,14 @@ class ConfigFileInputDataTypeError(TransformError):
                          str(self.dt)])
 
 
+class DBSchemaNotDefinedError(TransformError):
+    """Raised when database schema is not defined
+    (is empty string) in the config file.
+    """
+    def __init__(self, error_msg):
+        super().__init__(error_msg)
+
+
 class InputDataTypeError(TransformError):
     """Raised when the data type of the input parameter do not match what is expected.
     """

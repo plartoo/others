@@ -6,72 +6,112 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 import transform_utils
+import transform_errors
 
 
 class MSSQLDataWriter:
-    """
-    This class the parent class of DataWriter, which is required
-    to write data from Pandas dataframe to a new Microsoft SQL
-    table. If a table with the same name as the destination table
-    already exist in the database,  an error will be thrown.
-    """
+    PYODBC_BASE_URL = "mssql+pyodbc:///?odbc_connect={}"
+    # Note: feel free to adjust other parameters below as needed
+    OTHER_URL_PARAMS = "TDS_Version=8.0;;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+
+    # Below are default values for other parameters for pandas dataframe.to_sql method.
+    # To keep parameters/options simple, I have decided to not integrate them as JSON
+    # config file parameters in transform.py, and opted to use them as default
+    # CONSTANT values in this mssql_data_writer.py module instead.
+    # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
+    REPLACE_IF_EXISTS = 'fail' # err on the side of throwing error rather than overwriting an existing table
+
+    # We will NOT be using CHUNK_SIZE and METHOD in the end because
+    # they are still throwing SQL Alchemy Error that varies based
+    # on the chunk size, and I'm not that excited about using this
+    # to_sql method, which seems to be not only slow, but too buggy.
+    # Also, if chunksize is not provided as parameter, all rows will
+    # be loaded at once, so that's better for us.
+    # CHUNKSIZE = None, METHOD = None => 850
+    # CHUNKSIZE = 100, METHOD = None => 892
+    # CHUNKSIZE = 10000, METHOD = None => 875
+    CHUNK_SIZE = None
+    # 'multi' means passing multiple values in a single INSERT clause
+    # and in practice, it is throwing error as shown below.
+    # REF: https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#insertion-method
+    # CHUNKSIZE = None, METHOD = 'multi' => sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('The SQL contains 4184 parameter markers, but 331864 parameters were supplied', 'HY000')
+    # CHUNKSIZE = 100, METHOD = 'multi' => sqlalchemy.exc.ProgrammingError (pyodbc.ProgrammingError) ('42000', '[42000] [Microsoft][ODBC Driver 13 for SQL Server][SQL Server]Error converting data type nvarchar to bigint. (8114) (SQLExecDirectW)')
+    # CHUNKSIZE = 10000, METHOD = 'multi' => sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('The SQL contains -1072 parameter markers, but 130000 parameters were supplied', 'HY000')
+    METHOD = 'multi' # to pass multiple values in a single INSERT clause (for better efficiency)
+
+
     def __init__(self, config):
-        # We can later implement other pandas.to_excel parameters
-        # such as na_rep, columns, header, etc.
-        self.output_file_path_and_name = self.get_output_file_path_and_name(config)
-        self.include_index = self.get_include_index_column_in_output_excel_file(config)
-        # Encoding of the resulting excel file.
-        # Only necessary for xlwt, other writers support unicode natively.
-        self.output_file_encoding = self.get_output_excel_file_encoding(config)
-        self.sheet_name = self.get_output_excel_file_sheet_name(config)
+        """
+        This class the parent class of DataWriter, which is required
+        to write data from Pandas dataframe to a new Microsoft SQL
+        table.
+
+        NOTE: In order to prevent SQL Server info from leaking,
+        user of this class needs to create 'sql_server_account_info.py'
+        file with a Python dictionary holding 'driver','server',
+        'database', 'driver', 'user_id', 'password' to construct
+        hostname-based PYODBC connection string for MS SQL Server
+        as mentioned in online SQL Alchemy documentation
+        (for example,
+        https://docs.sqlalchemy.org/en/13/dialects/mssql.html#module-sqlalchemy.dialects.mssql.pyodbc
+        or http://archive.ph/wip/lpsqN
+        or https://web.archive.org/web/20200325171111/https://code.google.com/archive/p/pyodbc/wikis/ConnectionStrings.wiki
+        ). An example sql_server_info dictionary would be like this:
+        sql_server_info = {
+            "protocol": "mssql+pyodbc://",
+            "user_id": "mydbid",
+            "password": "mypassword",
+            "server": "mydbserver",
+            "port": "1433",
+            "database": "mydb",
+            "driver": "ODBC Driver 13 for SQL Server",
+        }
+        """
+        from sql_server_account_info import sql_server_info
+        self.driver = sql_server_info['driver']
+        self.server = sql_server_info['server']
+        self.port = sql_server_info['port']
+        self.database = sql_server_info['database']
+        self.user_id = sql_server_info['user_id']
+        self.password = sql_server_info['password']
+
+        self.output_sql_table_name = self.get_output_sql_table_name(config)
+        self.db_schema = self.get_database_schema(config)
+        # We can implement other to_sql parameters like 'dtype' later
+        self.include_index = self.get_include_index_column_in_output_mssql_table(config)
 
 
     @staticmethod
-    def get_output_file_path_and_name(config):
+    def get_database_schema(config):
         """
-        Returns output file path with file name prefix, if the latter
-        is provided in the config JSON. Before joining the path with
-        file name, output folder is created if it doesn't exist already.
+        Returns output DB schema name provided in JSON config file.
+        If not provided (that is, empty string), throws DBSchemaNotDefinedError.
         """
-        output_folder = transform_utils.get_output_folder(config)
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-            print("\nINFO: new folder created for output files =>", output_folder)
+        if not transform_utils.get_database_schema(config):
+            err_msg = "Database schema must be defined in JSON config file to write " \
+                      "transformed data to SQL table."
+            raise transform_errors.DBSchemaNotDefinedError(err_msg)
 
-        file_prefix = transform_utils.get_output_file_prefix(config)
-        file_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file_name = ''.join(['_'.join([file_prefix, file_suffix]), '.xlsx'])
-
-        return os.path.join(output_folder, output_file_name)
+        return transform_utils.get_database_schema(config)
 
 
     @staticmethod
-    def get_include_index_column_in_output_excel_file(config):
+    def get_output_sql_table_name(config):
+        """
+        Returns output SQL table name provided in JSON config file.
+        If not provided, defaults to the name defined in
+        'transform_utils.py'.
+        """
+        return transform_utils.get_output_sql_table_name(config)
+
+
+    @staticmethod
+    def get_include_index_column_in_output_mssql_table(config):
         """
         Extracts and return boolean value to decide if output Excel
         file should include index column from the dataframe.
         """
-        return transform_utils.get_include_index_column_in_output_file(config)
-
-
-    @staticmethod
-    def get_output_excel_file_encoding(config):
-        """
-        Extracts and return encoding string value for output Excel file.
-        Defaults to None because it is (strangely) equivalent to 'utf-8'
-        in Pandas.
-        """
-        return transform_utils.get_output_file_encoding(config)
-
-
-    @staticmethod
-    def get_output_excel_file_sheet_name(config):
-        """
-        Extracts and return sheet name (string) for output Excel file.
-        Defaults to None because it is (strangely) equivalent to 'utf-8'
-        in Pandas.
-        """
-        return transform_utils.get_output_file_sheet_name(config)
+        return transform_utils.get_include_index_column_in_output(config)
 
 
 class DataWriter(MSSQLDataWriter):
@@ -83,16 +123,27 @@ class DataWriter(MSSQLDataWriter):
     """
 
     def __init__(self, config):
+        """
+        This class is taking 'config' as the input parameter
+        in which user can define parameters such as
+        'name', 'schema', 'if_exists', 'index', 'chunksize',
+        'method' from pandas to_sql method.
+        REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
+        """
         super().__init__(config)
 
 
-    def create_sqlalchemy_engine(self, url_of_sql_server):
+    def __get_sqlalchemy_engine(self):
         """
+        Create and return SQL Alchemy engine from hostname-based
+        PYODBC connection string for MS SQL Server.
+
         Although the following references (1, 2, 3, 4) are good to read,
-        they, in practice, didn't work as well as a comment on StackOverflow
-        in defining what string value to pass to create sqlalchemy engine
-        as well as how to pass in database schema name in 'to_sql'.
-        REF: https://stackoverflow.com/a/36531779/1330974
+        they, in practice, didn't work as well as a comment (REF#0 below)
+        on StackOverflow that explains how to define what string value
+        to pass to create sqlalchemy engine and how to pass database
+        schema name in pandas 'to_sql' method.
+        REF 0: https://stackoverflow.com/a/36531779/1330974
 
         REF 1: https://docs.sqlalchemy.org/en/13/core/engines.html [http://archive.ph/bf4fv]
         http://web.archive.org/web/20200325020538/https://docs.sqlalchemy.org/en/13/core/engines.html
@@ -105,29 +156,43 @@ class DataWriter(MSSQLDataWriter):
 
         REF 4: https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#engine-connection-examples
         https://web.archive.org/web/20200325023532/https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html
-
-        :param url_of_sql_server:
-        :return:
         """
-        # import sqlalchemy
-        # import pandas as pd
-        # import urllib
-        # server = "wm-rf-svr-colgate.database.windows.net"
-        # database = "WM_RF_DB_Colgate"
-        # user = "wm-rf-svr-usr-colgate"
-        # password = ""
-        # df = pd.DataFrame({'name': ['User 1', 'User 2', 'User 3']})
-        # engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(urllib.parse.quote_plus(
-        #     "DRIVER=ODBC Driver 13 for SQL Server;SERVER={0};PORT=1433;DATABASE={1};UID={2};PWD={3};TDS_Version=8.0;;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;".format(
-        #         server, database, user, password))), echo=False)
-        # df.to_sql(name='test', con=engine, if_exists='replace', schema='dbo')
-        pass
+
+        pyodbc_connection_str = self.PYODBC_BASE_URL.format(urllib.parse.quote_plus(
+            "DRIVER={0};SERVER={1};DATABASE={2};PORT={3};UID={4};PWD={5};{6}".format(self.driver,
+                                                                                     self.server,
+                                                                                     self.database,
+                                                                                     self.port,
+                                                                                     self.user_id,
+                                                                                     self.password,
+                                                                                     self.OTHER_URL_PARAMS)))
+        return create_engine(pyodbc_connection_str, echo=False)
+
 
     def write_data(self, df):
-        print("Writing data to:", self.output_file_path_and_name)
-        df.to_excel(
-            self.output_file_path_and_name,
-            sheet_name=self.sheet_name,
+        """
+        Write dataframe as a table in MS SQL Server database.
+
+        WARNING: Do NOT write data directly to SQL Server table because
+        it is painfully slow. For example, to write ~25K rows of 13
+        mostly string type (no more than 20 chars in each column)
+        columns, it takes ~15 minutes to finish.
+        """
+        print("Writing data to MSSQL at (server; database; schema; table):",
+              ''.join([self.server, '; ', self.database, '; ',
+                       self.db_schema, '; ', self.output_sql_table_name]))
+
+        df.to_sql(
+            name=self.output_sql_table_name,
+            con=self.__get_sqlalchemy_engine(),
+            schema=self.db_schema,
+            if_exists=self.REPLACE_IF_EXISTS,
             index=self.include_index,
-            encoding=self.output_file_encoding
+            # chunksize=self.CHUNK_SIZE,
+            # method=self.METHOD
         )
+
+# For Future:
+# A way to READ MSSQL data via pandas
+# >>> sql_conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=wm-rf-svr-colgate.database.windows.net;DATABASE=WM_RF_DB_Colgate;UID=wm-rf-svr-usr-colgate;PWD=C0lP4l*#;')
+# df1 = pd.read_sql("select top 100 * from dbo.bra", sql_conn)

@@ -89,7 +89,6 @@ if __name__ == '__main__':
                     #     pdb.set_trace()
                     #     print('debug')
 
-                    # TODO: implement write_data for Excel function
                     # TODO: Logging, Mapping, CSV handling
                     # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
                     # if passing df in/out of function is memory expensive

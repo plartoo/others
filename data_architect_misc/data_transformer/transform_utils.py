@@ -39,6 +39,9 @@ KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
 DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
                                           'output')
 KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
+KEY_DATABASE_SCHEMA = 'database_schema'
+KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'
+DEFAULT_OUTPUT_TABLE_NAME = 'default_transformed_sql_table_name'
 
 KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE = 'custom_transform_functions_file'
 # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
@@ -73,7 +76,7 @@ KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
 DEFAULT_INPUT_CSV_DELIMITER = ','
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 DEFAULT_OUTPUT_CSV_DELIMITER = '|'
-KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output_file'
+KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
 DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
 
 KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
@@ -399,10 +402,33 @@ def get_output_file_prefix(config):
                                 '')
 
 
-def get_include_index_column_in_output_file(config):
+def get_output_sql_table_name(config):
     """
-    Extracts and return boolean value to decide if output CSV
-    file should include index column from the dataframe.
+    Extracts and return the output SQL table name, if provided,
+    from the config file. If not given, defaults to
+    DEFAULT_OUTPUT_TABLE_NAME defined in this (transform_utils.py)
+    file.
+    """
+    return _get_value_from_dict(config,
+                                KEY_OUTPUT_TABLE_NAME,
+                                DEFAULT_OUTPUT_TABLE_NAME)
+
+
+def get_database_schema(config):
+    """
+    Extracts and return the DB schema for output SQL table from
+    the config file. If not given, defaults to empty string.
+    """
+    return _get_value_from_dict(config,
+                                KEY_DATABASE_SCHEMA,
+                                '')
+
+
+def get_include_index_column_in_output(config):
+    """
+    Extracts and return boolean value to decide if output (be it,
+    CSV file or SQL table) should include index column from
+    the dataframe.
     """
     return _get_value_from_dict(config,
                                 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
