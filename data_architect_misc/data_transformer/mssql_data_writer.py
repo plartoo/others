@@ -194,5 +194,5 @@ class DataWriter(MSSQLDataWriter):
 
 # For Future:
 # A way to READ MSSQL data via pandas
-# >>> sql_conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=wm-rf-svr-colgate.database.windows.net;DATABASE=WM_RF_DB_Colgate;UID=wm-rf-svr-usr-colgate;PWD=C0lP4l*#;')
+# >>> sql_conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=;DATABASE=;UID=;PWD=;')
 # df1 = pd.read_sql("select top 100 * from dbo.bra", sql_conn)
