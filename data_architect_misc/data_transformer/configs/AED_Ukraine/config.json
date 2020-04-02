@@ -1,0 +1,69 @@
+[
+  {
+    "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
+    "input_folder_path": "./input/AED_GCC/",
+    "input_file_name_or_pattern": "GCC_2019FY_20200326.xlsx",
+
+    "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
+    "sheet_name_of_input_excel_file": "2019-OFFLINE",
+
+    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
+    "sheet_name_of_output_excel_file": "Sheet1",
+
+    "__comment__": "(Optional) Decide if pandas should interpret 'NA', 'N/A', 'NULL', etc. to NaN value. Default is false",
+    "interpret_na_null_etc_from_raw_data": false,
+
+    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
+    "write_output": true,
+
+    "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
+    "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
+    "__comment__": "This option is only for those who wants to write data to somewhere other than to a local file in CSV format.",
+    "__comment__": "TODO: later change this to csv_data_writer",
+    "data_writer_class_file": "./excel_data_writer.py",
+
+    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
+    "__comment__": "Default is going to be the current working directory of transform.py",
+    "output_folder_path": "./output/AED_GCC/",
+
+    "__comment__": "(Optional) Prefix for the output file name.",
+    "output_file_name_prefix": "transformed_GCC_2019FY_",
+
+    "__comment__": "(Optional although recommended) SQL table name to which the transformed data should be written.",
+    "__comment__": "Default name is 'default_transformed_sql_table_name' as defined in transform_utils.py",
+    "output_sql_table_name": "transformed_budget_table",
+
+    "__comment__": "(Required ONLY IF MSSQLDriver class is used) Database schema to use if we write transformed data to SQL table.",
+    "database_schema": "dbo",
+
+    "__comment__": "(Optional) Whether to include index column in writing the dataframe to output file or table. Default is false.",
+    "include_index_column_in_output": false,
+
+    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
+    "custom_transform_functions_file": "./transform_functions/aed_gcc_transform_functions.py",
+
+    "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",
+    "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
+    "row_index_to_extract_column_headers": 0,
+
+    "__comment__": "(Optional) Specify which row index (starting from 0) the data begins. Default is 1 (the second row) because that's where the data usually begins in files.",
+    "row_index_where_data_starts": 1,
+
+    "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file. Default is 0.",
+    "num_of_rows_to_skip_from_the_bottom": 0,
+
+    "__comment__": "(Required) List of the functions and their parameters.",
+    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
+    "functions_to_apply": [
+      {
+        "__function_comment__": "Budget roll up Excel file has empty columns. We need to drop them first",
+        "function_name": "drop_unnamed_columns"
+      },
+      {
+        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
+        "function_name": "assert_number_of_columns_equals",
+        "function_args": [13]
+      }
+    ]
+  }
+]

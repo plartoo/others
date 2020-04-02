@@ -30,7 +30,7 @@
 
     "__comment__": "(Optional although recommended) SQL table name to which the transformed data should be written.",
     "__comment__": "Default name is 'default_transformed_sql_table_name' as defined in transform_utils.py",
-    "output_sql_table_name": "transformed_budget_table"
+    "output_sql_table_name": "transformed_budget_table",
 
     "__comment__": "(Required ONLY IF MSSQLDriver class is used) Database schema to use if we write transformed data to SQL table.",
     "database_schema": "dbo",
@@ -41,15 +41,15 @@
     "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/budget_transform_functions.py",
 
-    "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from.",
+    "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",
     "__comment__": "If this value is not provided, program will assume there is no header row in the input file",
     "row_index_to_extract_column_headers": 0,
 
     "__comment__": "(Optional) Specify which row index (starting from 0) the data begins.",
-    "__comment__": "Usually the data begins at row index=1 (row index=0 is for column headers), so we make the default as '1' below.",
+    "__comment__": "(Optional) Specify which row index (starting from 0) the data begins. Default is 1 (the second row) because that's where the data usually begins in files.",
     "row_index_where_data_starts": 1,
 
-    "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file.",
+    "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file. Default is 0.",
     "num_of_rows_to_skip_from_the_bottom": 0,
 
     "__comment__": "(Required) List of the functions and their parameters.",
