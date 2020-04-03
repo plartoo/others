@@ -109,7 +109,7 @@
         "function_args": [["Channel", "Macro Channel", "Segment Macro", "Region", "Market"]]
       },
       {
-        "function_name": "create_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_based_on_another_column_values",
         "function_args": ["MappedChannelNames", "Channel",
           {
             "GDN Display": "Display",

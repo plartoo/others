@@ -8,6 +8,7 @@ Author: Phyo Thiha
 Last Modified: Jan 30, 2020
 """
 
+import datetime
 import re
 
 import pandas as pd
@@ -442,7 +443,7 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_str_value_in_col2_based_on_col1_values(self,
+    def update_str_values_in_col2_based_on_col1_values(self,
                                                       df,
                                                       base_column_name,
                                                       target_column_name,
@@ -489,7 +490,7 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_str_value_in_col2_if_col1_has_one_of_given_values(self,
+    def update_str_values_in_col2_if_col1_has_one_of_given_values(self,
                                                                  df,
                                                                  col1_name,
                                                                  col2_name,
@@ -539,6 +540,59 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
+    def update_order_of_columns_in_dataframe(self,
+                                             df,
+                                             list_reordered_col_headers) -> pd.DataFrame:
+        """
+        Updates the ordering of existing columns in the dataframe.
+
+        For example, if the existing order of column headeres in the dataframe is:
+        ["Col3", "Col1", "Col2"], we can  rearrange ordering of columns
+        in the dataframe as below:
+        update_order_of_columns_in_dataframe(df, ["Col1", "Col2", "Col3"])
+
+        Args:
+            df: Raw dataframe to transform.
+            list_reordered_col_headers: List of column header names
+            in the order they are supposed to be reordered.
+
+        Returns:
+            The dataframe with newly added column with fixed string values.
+        """
+        if not isinstance(list_reordered_col_headers, list):
+            raise transform_errors.InputDataTypeError("list_reordered_col_headers must "
+                                                      "be of list type with individual "
+                                                      "names being string values.")
+
+        df = df[list_reordered_col_headers]
+
+        return df
+
+    def update_na_values_with_empty_str_values(self,
+                                               df,
+                                               list_of_col_names) -> pd.DataFrame:
+        """
+        Replace NaN values with empty string.
+        An example use of this method would be when we load a file that has
+        "NA" as values in some of its cells, but when Pandas read the file
+        with keep_default_na = True (which is default), then it will load
+        these values as pd.np.nan (i.e. NaN values). In instances like that,
+        we must use this method to replace these NaN values with empty string.
+
+        Args:
+            df: Raw dataframe.
+            list_of_col_names: List of column names (each is of string type)
+            in which we should look for NaN/NULL values to replace with
+            empty strings.
+            REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.fillna.html
+
+        Returns:
+            The dataframe whose NaN values are replaced with empty string.
+        """
+        df[list_of_col_names] = df[list_of_col_names].fillna('')
+
+        return df
+
 
     def copy_col1_value_to_col2_if_col2_has_specific_value(self,
                                                            df,
@@ -574,11 +628,11 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def create_new_column_based_on_another_column_values(self,
-                                                         df,
-                                                         new_col_name,
-                                                         existing_col_name,
-                                                         dictionary_of_mappings) -> pd.DataFrame:
+    def add_new_column_based_on_another_column_values(self,
+                                                      df,
+                                                      new_col_name,
+                                                      existing_col_name,
+                                                      dictionary_of_mappings) -> pd.DataFrame:
         """
         Creates a new column using dictionary of mappings in which keys represent
         values in existing column name and dict values representing values in
@@ -619,6 +673,165 @@ class CommonTransformFunctions(TransformFunctions):
                 "Mapping key-value pairs must be of dictionary type")
 
         df[new_col_name] = df[existing_col_name].map(dictionary_of_mappings)
+
+        return df
+
+
+    def add_new_column_with_fixed_str_value(self,
+                                            df,
+                                            new_col_name,
+                                            fixed_str_value) -> pd.DataFrame:
+        """
+        Creates a new column with constant string values.
+
+        For example, if we want to add 'Region' column in the dataframe
+        with values 'AED', we will call this function like below:
+        create_new_column_with_fixed_str_value(df, 'Region', 'AED')
+
+        Args:
+            df: Raw dataframe to transform.
+            new_col_name: Name of the new column to be added.
+            fixed_str_value: Value (string type) of each cell in the newly added column.
+
+        Returns:
+            The dataframe with newly added column with fixed string values.
+        """
+        if not (isinstance(new_col_name, str) and isinstance(fixed_str_value, str)):
+            raise transform_errors.InputDataTypeError("Column names and fixed_str_value "
+                                                      "must be of string type")
+
+        df[new_col_name] = fixed_str_value
+
+        return df
+
+
+    def add_year_column_with_fixed_int_value(self,
+                                             df,
+                                             year_int_value=None,
+                                             new_year_col_name='YEAR'
+                                             ) -> pd.DataFrame:
+        """
+        Creates a new column for YEAR column.
+
+        For example, if we want to add YEAR column with current year
+        as value, we call this method like below:
+        create_new_column_with_fixed_str_value(df)
+
+        If we want to use specific year value and custom column name for year,
+        we can call the method like below:
+        create_new_column_with_fixed_str_value(df, 'YYYY', 2019)
+
+        Args:
+            df: Raw dataframe to transform.
+            year_int_value: (Optional) If we want to assign custom year value instead
+            of the current year (which is default), we can pass in an integer for this
+            parameter.
+            new_year_col_name: Column name for new year column. Default is 'YEAR'.
+
+        Returns:
+            The dataframe with newly added YEAR column with integer year value.
+        """
+        if not isinstance(new_year_col_name, str):
+            raise transform_errors.InputDataTypeError("Column name for new year column "
+                                                      "must be string type.")
+        if year_int_value is not None:
+            if not isinstance(year_int_value, int):
+                raise transform_errors.InputDataTypeError("Year value must be integer type.")
+            df[new_year_col_name] = year_int_value
+        else:
+            now = datetime.datetime.now()
+            df[new_year_col_name] = now.year
+
+        return df
+
+
+    def add_month_column_with_int_value_referring_from_existing_col_with_full_month_names(
+            self,
+            df,
+            existing_col_name_with_full_month_names,
+            new_month_col_name='MONTH') -> pd.DataFrame:
+        """
+        Creates a new column for integer MONTH values using **data from an existing
+        month column which has full month name (such as 'January', 'February',
+        etc.)**.
+
+        For example, if we want to add a new integer month column named 'MM' using
+        an existing month column named 'Existing_Month' which has full month's names,
+        we will call this method like below:
+        add_month_column_with_int_value_referring_from_existing_col_with_full_month_names(df,
+        'MM', 'Existing_Month')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_col_name_with_full_month_names: Column name in the raw dataframe
+            that will be used as reference to assign integer month values in the new
+            month column.
+            new_month_col_name: (Optional) If we want to assign custom name for the
+            new month column, provide the new month column name (string type) using
+            this parameter. Otherwise, the default new month column name is 'MONTH'.
+
+        Returns:
+            The dataframe with newly added MONTH column with integer month value.
+        """
+        if not (isinstance(existing_col_name_with_full_month_names, str)
+                and isinstance(new_month_col_name, str)):
+            raise transform_errors.InputDataTypeError("Parameters for existing month column "
+                                                      "name and new month column name must be "
+                                                      "of string type.")
+        df[new_month_col_name] = df[existing_col_name_with_full_month_names].map(
+            lambda x: datetime.datetime.strptime(x, '%B').month)
+
+        return df
+
+
+    def add_date_column_with_date_value_referring_from_existing_cols_int_year_and_month_values(
+            self,
+            df,
+            existing_year_col_name_with_integer_year_values,
+            existing_month_col_name_with_integer_month_values,
+            new_date_col_name='DATE') -> pd.DataFrame:
+        """
+        Creates a new column for date with date data type values using
+        the **data from existing month and year columns both of which
+        have integer values representing Years and Months in them**.
+
+        For example, if we want to add a new date column named 'DatePurchased'
+        using an existing year column named 'Existing_Year', which has integer
+        year values (2018, 2019, etc.) for Year and an existing month column
+        named 'Existing_Month', which also has integer month values (such as
+        1 for 'January'; 2 for 'February'), we will call this method like
+        below:
+        add_date_column_with_date_value_referring_from_existing_cols_int_year_and_month_values(
+        df, 'Existing_Year', 'Existing_Month', 'DatePurchased')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_year_col_name_with_integer_year_values: Column name
+            with integer Year values in the raw dataframe that will be
+            used as reference to create date values in the new date column.
+            existing_month_col_name_with_integer_year_values: Column name
+            with integer Month values in the raw dataframe that will be
+            used as reference to create date values in the new date column.
+            new_date_col_name: (Optional) If we want to assign custom name for the
+            new month column, provide the new month column name (string type) using
+            this parameter. Otherwise, the default new month column name is 'DATE'.
+
+        Returns:
+            The dataframe with newly added DATE column with values of date type.
+        """
+        if not (isinstance(existing_year_col_name_with_integer_year_values, str)
+                and isinstance(existing_month_col_name_with_integer_month_values, str)):
+            raise transform_errors.InputDataTypeError("Parameters for existing year column "
+                                                      "name, new month column name and new "
+                                                      "date column name must be of "
+                                                      "string type.")
+
+        # REF: https://stackoverflow.com/a/37103131
+        df[new_date_col_name] = pd.to_datetime(
+            dict(year=df[existing_year_col_name_with_integer_year_values],
+                 month=df[existing_month_col_name_with_integer_month_values],
+                 day=1)
+        )
 
         return df
 
@@ -686,35 +899,9 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def replace_na_values_with_empty_string(self,
-                                            df,
-                                            list_of_col_names) -> pd.DataFrame:
-        """
-        Replace NaN values with empty string.
-        An example use of this method would be when we load a file that has
-        "NA" as values in some of its cells, but when Pandas read the file
-        with keep_default_na = True (which is default), then it will load
-        these values as pd.np.nan (i.e. NaN values). In instances like that,
-        we must use this method to replace these NaN values with empty string.
-
-        Args:
-            df: Raw dataframe.
-            list_of_col_names: List of column names (each is of string type)
-            in which we should look for NaN/NULL values to replace with
-            empty strings.
-            REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.fillna.html
-
-        Returns:
-            The dataframe whose NaN values are replaced with empty string.
-        """
-        df[list_of_col_names] = df[list_of_col_names].fillna('')
-
-        return df
-
-
-    def assert_no_empty_string_values_in_columns(self,
-                                                 df,
-                                                 list_of_col_names) -> pd.DataFrame:
+    def assert_no_empty_str_values_in_columns(self,
+                                              df,
+                                              list_of_col_names) -> pd.DataFrame:
         """
         Check if there is any empty string values in the list of
         columns provided. If there is any, raise EmptyStringFoundError.
@@ -789,7 +976,7 @@ class CommonTransformFunctions(TransformFunctions):
         return str(cell_str).strip()
 
 
-    def remove_dollars(self) -> pd.DataFrame:
+    def remove_dollar_sign(self) -> pd.DataFrame:
         """
         Remove the dollar sign given a data frame.
         :return:

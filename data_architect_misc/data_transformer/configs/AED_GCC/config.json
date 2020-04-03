@@ -54,13 +54,17 @@
 
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
-    "to_add": "TODO_ASK_JHOLMAN_DO_WE_HARMONIZE_ADVERTISERS",
-    "to_add": "TODO_ASK_JHOLMAN_WHAT_ARE_OUR_HARMONIZED_MEDIA_TYPE_VALUES",
-    "to_add": "TODO_ASK_JHOLMAN_WHAT_ARE_OUR_HARMONIZED_COUNTRY_ADVERTISER_CAT_SUBCAT_BRAND_SUBBRAND_PRODUCT_NAME_VALUES_IN_1PH_QuestionMark",
+    "__comment__": "ADVERTISERS => GM_CP_SCOPED_ADVERTISER_LIST; CP_COUNTRY_ADVERTISER_MAPPING",
+    "__comment__": "COUNTRY => CP_DIM_COUNTRY",
+    "__comment__": "MEDIA TYPES => CP_DIM_MEDIA (MEDIA_LVL1_TXT); CP_MASTER_MEDIA_MAPPNIG is for historic mapping for each country",
+    "__comment__": "CATEGORY => GM_CP_MASTER_PRODUCT_MAPPING has standard names for category as well as relationship between category and subcat",
+    "__comment__": "SUBCATEGORY => GM_CP_MASTER_SUBCATEGORY_MAPPING table CP_SUBCATEGORY_NAME is the one wew care",
+    "__comment__": "CP_DIM_PRODUCT_1PH table has all the standard name data",
     "to_add": "REGION_add_column_with_fixed_string_value",
+    "to_add": "CURRENCY_add_column_with_fixed_string_value",
     "to_add": "YEAR_column_with_fixed_int_value",
     "to_add": "MONTH_column_with_fixed_int_value",
-    "to_add": "CURRENCY_add_column_with_fixed_string_value",
+    "to_add": "DATE_column_with_fixed_date_value",
     "to_add": "PROCESSED_DATE_add_column_with_fixed_date_value",
     "to_add": "HARMONIZED_COUNTRY_remap_values_under_country_column_to_harmonized_ones_in_FX_file",
     "to_add": "HARMONIZED_ADVERTISER_remap_values_under_country_column_to_harmonized_ones_in_FX_file",
@@ -90,13 +94,60 @@
     "to_add": "Rearrange_columns_in_order_that_is_better_to_read",
     "functions_to_apply": [
       {
-        "__function_comment__": "Budget roll up Excel file has empty columns. We need to drop them first",
+        "__function_comment__": "Drop unnamed columns, if any, first.",
         "function_name": "drop_unnamed_columns"
       },
       {
-        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
+        "__function_comment__": "Check that there are originally only 10 columns from GCC data file.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [13]
+        "function_args": [10]
+      },
+      {
+        "__function_comment__": "Rename column 'SUBBRAND (Optional)' to 'SUBBRAND'.",
+        "function_name": "rename_columns",
+        "function_args": [{"SUBBRAND (Optional)": "SUBBRAND"}]
+      },
+      {
+        "__function_comment__": "Add REGION as a new column with 'AED' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["REGION","AED"]
+      },
+      {
+        "__function_comment__": "Add YEAR column with '2019' as value because that's what we received from local agencies.",
+        "function_name": "add_year_column_with_fixed_int_value",
+        "function_args": [2019]
+      },
+      {
+        "__function_comment__": "Add CURRENCY as a new column with 'USD' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["CURRENCY","USD"]
+      },
+      {
+        "__function_comment__": "Add MONTH column based on the values in YEAR_MONTH column.",
+        "function_name": "add_month_column_with_int_value_referring_from_existing_col_with_full_month_names",
+        "function_args": ["YEAR_MONTH","MONTH"]
+      },
+      {
+        "__function_comment__": "Add DATE column based on the values in YEAR and MONTH columns created above.",
+        "function_name": "add_date_column_with_date_value_referring_from_existing_cols_int_year_and_month_values",
+        "function_args": ["YEAR","MONTH"]
+      },
+      {
+        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
+        "function_name": "update_order_of_columns_in_dataframe",
+        "function_args":
+        [
+          [
+            "REGION", "COUNTRY",
+            "ADVERTISER",
+            "CATEGORY", "SUBCATEGORY",
+            "BRAND", "SUBBRAND",
+            "PRODUCT_NAME",
+            "MEDIA_TYPE",
+            "YEAR_MONTH", "YEAR", "MONTH", "DATE",
+            "GROSS_SPEND_IN_LOCAL_CURRENCY"
+          ]
+        ]
       }
     ]
   }
