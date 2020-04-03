@@ -6,6 +6,8 @@ import os
 import sys
 
 import pandas as pd
+import xlrd # As of April 2020, Pandas still uses xlrd to read Excel (xls and xlsx) files.
+import openpyxl # Excel file writing engine for Pandas' to_excel function.
 
 import transform_errors
 import transform_functions
