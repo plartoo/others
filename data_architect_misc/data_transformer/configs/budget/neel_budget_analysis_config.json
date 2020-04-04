@@ -110,7 +110,7 @@
       },
       {
         "function_name": "add_new_column_based_on_another_column_values",
-        "function_args": ["MappedChannelNames", "Channel",
+        "function_args": ["Channel", "MappedChannelNames",
           {
             "GDN Display": "Display",
             "GDN Video": "Online Video",

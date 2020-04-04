@@ -54,44 +54,6 @@
 
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
-    "__comment__": "ADVERTISERS => GM_CP_SCOPED_ADVERTISER_LIST; CP_COUNTRY_ADVERTISER_MAPPING",
-    "__comment__": "COUNTRY => CP_DIM_COUNTRY",
-    "__comment__": "MEDIA TYPES => CP_DIM_MEDIA (MEDIA_LVL1_TXT); CP_MASTER_MEDIA_MAPPNIG is for historic mapping for each country",
-    "__comment__": "CATEGORY => GM_CP_MASTER_PRODUCT_MAPPING has standard names for category as well as relationship between category and subcat",
-    "__comment__": "SUBCATEGORY => GM_CP_MASTER_SUBCATEGORY_MAPPING table CP_SUBCATEGORY_NAME is the one wew care",
-    "__comment__": "CP_DIM_PRODUCT_1PH table has all the standard name data",
-    "to_add": "REGION_add_column_with_fixed_string_value",
-    "to_add": "CURRENCY_add_column_with_fixed_string_value",
-    "to_add": "YEAR_column_with_fixed_int_value",
-    "to_add": "MONTH_column_with_fixed_int_value",
-    "to_add": "DATE_column_with_fixed_date_value",
-    "to_add": "PROCESSED_DATE_add_column_with_fixed_date_value",
-    "to_add": "HARMONIZED_COUNTRY_remap_values_under_country_column_to_harmonized_ones_in_FX_file",
-    "to_add": "HARMONIZED_ADVERTISER_remap_values_under_country_column_to_harmonized_ones_in_FX_file",
-    "to_add": "HARMONIZED_CATEGORY_remap_values_under_category_column_to_harmonized_ones",
-    "to_add": "HARMONIZED_SUBCATEGORY_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_BRAND_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_SUBBRAND_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_PRODUCT_NAME_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_MEDIA_TYPE_column_with_fixed_NA_value",
-    "to_add": "QA_REGION_col_must_exist_with_values",
-    "to_add": "QA_YEAR_col_must_exist_with_values",
-    "to_add": "QA_MONTH_col_must_exist_with_values",
-    "to_add": "QA_CURRENCY_col_must_exist_with_valid_value",
-    "to_add": "QA_PROCESSED_DATE_col_must_exist_with_values",
-    "to_add": "QA_YEAR_col_must_probably_have_current_year_value",
-    "to_add": "QA_MONTH_col_must_probably_have_last_months_value",
-    "to_add": "QA_HARMONIZED_COUNTRY_col_must_have_valid_value",
-    "to_add": "QA_HARMONIZED_ADVERTISER_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_CATEGORY_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_SUBCATEGORY_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_BRAND_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_SUBBRAND_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_PRODUCT_NAME_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_MEDIA_TYPE_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_equal_or_larger_than_zero",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_less_than_one_billion",
-    "to_add": "Rearrange_columns_in_order_that_is_better_to_read",
     "functions_to_apply": [
       {
         "__function_comment__": "Drop unnamed columns, if any, first.",
@@ -106,11 +68,6 @@
         "__function_comment__": "Rename column 'SUBBRAND (Optional)' to 'SUBBRAND'.",
         "function_name": "rename_columns",
         "function_args": [{"SUBBRAND (Optional)": "SUBBRAND"}]
-      },
-      {
-        "__function_comment__": "Add REGION as a new column with 'AED' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["REGION","AED"]
       },
       {
         "__function_comment__": "Add YEAR column with '2019' as value because that's what we received from local agencies.",
@@ -129,8 +86,77 @@
       },
       {
         "__function_comment__": "Add DATE column based on the values in YEAR and MONTH columns created above.",
-        "function_name": "add_date_column_with_date_value_referring_from_existing_cols_int_year_and_month_values",
+        "function_name": "add_date_column_with_date_value_derived_from_existing_year_and_month_cols_with_int_values",
         "function_args": ["YEAR","MONTH"]
+      },
+      {
+        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
+        "function_name": "add_date_column_with_current_date",
+        "function_args": []
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'AED' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_REGION","AED"]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_COUNTRY column that have standardized country names for GCC.",
+        "function_name": "add_new_column_based_on_another_column_values",
+        "function_args": [
+          "COUNTRY",
+          "HARMONIZED_COUNTRY",
+          {
+            "BAHRAIN": "Bahrain", "KSA": "Saudi Arabia", "KUWAIT": "Kuwait", "OMAN": "Oman",
+            "PAN ARAB": "Pan Arab", "PAN-ASIAN": "Pan Asia", "QATAR": "Qatar",
+            "UNITED ARAB EMIRATES": "United Arab Emirates"
+          },
+          true
+        ]
+      },
+      {
+        "__function_comment__": "TODO implement case insensitive version of the function below:::: Add HARMONIZED_CATEGORY column that have standardized category names.",
+        "function_name": "add_new_column_based_on_another_column_values",
+        "function_args": [
+          "CATEGORY",
+          "HARMONIZED_CATEGORY",
+          {
+            "HOME CARE": "Home Care", "ORAL CARE": "Oral Care", "OTHER": "Other", "PERSONAL CARE": "Personal Care"
+          },
+          true
+        ]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_MEDIA_TYPE column that have standardized Media Type names.",
+        "function_name": "add_new_column_based_on_another_column_values",
+        "function_args": [
+          "MEDIA_TYPE",
+          "HARMONIZED_MEDIA_TYPE",
+          {
+            "CINEMA": "Cinema", "MAGAZINE": "Print", "NEWSPAPER": "Print", "OUTDOOR": "OOH",
+            "RADIO": "Radio", "TV": "TV"
+          },
+          true
+        ]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_ADVERTISER column that have uppercased advertiser names with all global compete advertisers mapped to their standard names.",
+        "function_name": "add_new_column_based_on_another_column_values",
+        "function_args": [
+          "ADVERTISER",
+          "HARMONIZED_ADVERTISER",
+          {
+            "BEIERSDORF AG": "BEIERSDORF",
+            "GLAXOSMITHKLINE": "GSK",
+            "HENKEL": "HENKEL",
+            "JOHNSON & JOHNSON": "JOHNSON & JOHNSON",
+            "L'OREAL PARIS": "LOREAL",
+            "PROCTER & GAMBLE": "P&G",
+            "RECKITT-BENCKISER": "RECKITT BENCKISER",
+            "CLOROX": "THE CLOROX COMPANY",
+            "UNILEVER": "UNILEVER"
+          },
+          true
+        ]
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
@@ -138,17 +164,65 @@
         "function_args":
         [
           [
-            "REGION", "COUNTRY",
+            "COUNTRY",
             "ADVERTISER",
             "CATEGORY", "SUBCATEGORY",
             "BRAND", "SUBBRAND",
             "PRODUCT_NAME",
             "MEDIA_TYPE",
             "YEAR_MONTH", "YEAR", "MONTH", "DATE",
+            "DATA_PROCESSED_DATE",
+            "HARMONIZED_REGION",
+            "HARMONIZED_COUNTRY",
+            "HARMONIZED_CATEGORY",
+            "HARMONIZED_MEDIA_TYPE",
+            "HARMONIZED_ADVERTISER",
             "GROSS_SPEND_IN_LOCAL_CURRENCY"
           ]
         ]
       }
-    ]
+    ],
+    "__comment__": "ADVERTISERS => GM_CP_SCOPED_ADVERTISER_LIST; CP_COUNTRY_ADVERTISER_MAPPING",
+    "__comment__": "COUNTRY => CP_DIM_COUNTRY",
+    "__comment__": "MEDIA TYPES => CP_DIM_MEDIA (MEDIA_LVL1_TXT); CP_MASTER_MEDIA_MAPPNIG is for historic mapping for each country",
+    "__comment__": "CATEGORY => GM_CP_MASTER_PRODUCT_MAPPING has standard names for category as well as relationship between category and subcat",
+    "__comment__": "SUBCATEGORY => GM_CP_MASTER_SUBCATEGORY_MAPPING table CP_SUBCATEGORY_NAME is the one wew care",
+    "__comment__": "CP_DIM_PRODUCT_1PH table has all the standard name data",
+    "to_add": "REGION_add_column_with_fixed_string_value",
+    "to_add": "CURRENCY_add_column_with_fixed_string_value",
+    "to_add": "YEAR_column_with_fixed_int_value",
+    "to_add": "MONTH_column_with_fixed_int_value",
+    "to_add": "DATE_column_with_fixed_date_value",
+    "to_add": "DATE_PROCESSED_add_column_with_fixed_date_value",
+    "to_add": "HARMONIZED_COUNTRY_remap_values_under_country_column_to_harmonized_ones_in_FX_file",
+
+    "to_add": "HARMONIZED_CATEGORY_remap_values_under_category_column_to_harmonized_ones",
+    "to_add": "HARMONIZED_MEDIA_TYPE_column_with_fixed_NA_value",
+    "to_add": "HARMONIZED_ADVERTISER_remap_global_compete_advertisers to standard names and then the rest to uppercase",
+
+    "to_add": "HARMONIZED_SUBCATEGORY_column_with_fixed_NA_value",
+    "to_add": "HARMONIZED_BRAND_column_with_fixed_NA_value",
+    "to_add": "HARMONIZED_SUBBRAND_column_with_fixed_NA_value",
+    "to_add": "HARMONIZED_PRODUCT_NAME_column_with_fixed_NA_value",
+
+    "to_add": "QA_REGION_col_must_exist_with_values in constants.py",
+    "to_add": "QA_HARMONIZED_COUNTRY_col_must_exist_with_GCC_Countries in constants.py",
+    "to_add": "QA_YEAR_col_must_exist_with_values",
+    "to_add": "QA_MONTH_col_must_exist_with_values",
+    "to_add": "QA_CURRENCY_col_must_exist_with_valid_value",
+    "to_add": "QA_PROCESSED_DATE_col_must_exist_with_values",
+    "to_add": "QA_YEAR_col_must_probably_have_current_year_value",
+    "to_add": "QA_MONTH_col_must_probably_have_last_months_value",
+    "to_add": "QA_HARMONIZED_COUNTRY_col_must_have_valid_value",
+    "to_add": "QA_HARMONIZED_ADVERTISER_col_must_have_one_of_the_valid_values",
+    "to_add": "QA_HARMONIZED_CATEGORY_col_must_have_one_of_the_valid_values",
+    "to_add": "QA_HARMONIZED_SUBCATEGORY_col_must_have_one_of_the_valid_values",
+    "to_add": "QA_HARMONIZED_BRAND_col_must_have_one_of_the_valid_values",
+    "to_add": "QA_HARMONIZED_SUBBRAND_col_must_have_one_of_the_valid_values",
+    "to_add": "QA_HARMONIZED_PRODUCT_NAME_col_must_have_one_of_the_valid_values",
+    "to_add": "QA_MEDIA_TYPE_col_must_have_one_of_the_valid_values",
+    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_equal_or_larger_than_zero",
+    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_less_than_one_billion",
+    "to_add": "Rearrange_columns_in_order_that_is_better_to_read"
   }
 ]
