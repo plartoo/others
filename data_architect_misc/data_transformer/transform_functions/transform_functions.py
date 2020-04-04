@@ -630,15 +630,22 @@ class CommonTransformFunctions(TransformFunctions):
 
     def add_new_column_based_on_another_column_values(self,
                                                       df,
-                                                      new_col_name,
                                                       existing_col_name,
-                                                      dictionary_of_mappings) -> pd.DataFrame:
+                                                      new_col_name,
+                                                      dictionary_of_mappings,
+                                                      use_existing_col_values=False) -> pd.DataFrame:
         """
         Creates a new column using dictionary of mappings in which keys represent
         values in existing column name and dict values representing values in
         the new column.
 
-        For example, say we have a column named 'Channel' in our original
+        NOTE: If we want to use/borrow existing column's value when
+        there is no direct mapping available (i.e. mapping is not
+        defined/provided), then set 'use_existing_col_values'
+        parameter to True. Otherwise, default is to leave the
+        cells (without defined mapping) blank/empty.
+
+        For example, we have a column named 'Channel' in our original
         dataframe with values "GDN Display", "GDN Video" and "YouTube".
         We want to create a new column named "NewChannelNames" and in that
         column, whenever we see "GDN Display" in 'Channel' column, we want to
@@ -646,20 +653,35 @@ class CommonTransformFunctions(TransformFunctions):
         to enter "Online Video"; when we see "YouTube" in 'Channel' column,
         we want to enter "Online Video" in the new column, we call this method
         with parameters like this:
-        create_new_column_based_on_another_column_values(df, "NewChannelNames",
-        "Channel", {"GDN Display": "Display", "GDN Video": "Online Video",
-        "YouTube": "Online Video"}).
+        add_new_column_based_on_another_column_values(df, "Channel"
+        "NewChannelNames", "Channel", {"GDN Display": "Display",
+        "GDN Video": "Online Video", "YouTube": "Online Video"}).
+
+        As another example, if we want to created a harmonized category
+        name column by using existing/raw category column values such as
+        'HOME CARE' and 'ORAL CARE', but we want to copy the values from
+        existing column if unexpected value occurs in the raw data, then
+        we call this function like below:
+        add_new_column_based_on_another_column_values(df, "Category",
+        "Harmonized_Category", {"HOME CARE": "Home Care",
+        "ORAL CARE": "Oral Care"})
+        In the above call, if there is a value, say, "Personal Care",
+        then the new column will have corresponding value
+        "Personal Care".
 
         REF: https://stackoverflow.com/a/24216489
 
         Args:
             df: Raw dataframe to transform.
-            new_col_name: Name of the new column to be created.
             existing_col_name: Name of the column which already exist in
             the dataframe and the one we should use as a base to map from.
+            new_col_name: Name of the new column to be created.
             dictionary_of_mappings: Dictionary representing key-value pairs
             of existing column's values (as keys) and new column's values
             (as values).
+            use_existing_col_values: Set this to True if the existing
+            column's value must be copied when there's no mapping defined.
+            Default is False.
 
         Returns:
             The dataframe with new column attached which has values in the
@@ -672,7 +694,10 @@ class CommonTransformFunctions(TransformFunctions):
             raise transform_errors.InputDataTypeError(
                 "Mapping key-value pairs must be of dictionary type")
 
-        df[new_col_name] = df[existing_col_name].map(dictionary_of_mappings)
+        if use_existing_col_values:
+            df[new_col_name] = df[existing_col_name].replace(dictionary_of_mappings)
+        else:
+            df[new_col_name] = df[existing_col_name].map(dictionary_of_mappings)
 
         return df
 
@@ -784,7 +809,7 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def add_date_column_with_date_value_referring_from_existing_cols_int_year_and_month_values(
+    def add_date_column_with_date_value_derived_from_existing_year_and_month_cols_with_int_values(
             self,
             df,
             existing_year_col_name_with_integer_year_values,
@@ -817,10 +842,11 @@ class CommonTransformFunctions(TransformFunctions):
             this parameter. Otherwise, the default new month column name is 'DATE'.
 
         Returns:
-            The dataframe with newly added DATE column with values of date type.
+            The dataframe with newly added DATE column with values of date data type.
         """
         if not (isinstance(existing_year_col_name_with_integer_year_values, str)
-                and isinstance(existing_month_col_name_with_integer_month_values, str)):
+                and isinstance(existing_month_col_name_with_integer_month_values, str)
+                and isinstance(new_date_col_name, str)):
             raise transform_errors.InputDataTypeError("Parameters for existing year column "
                                                       "name, new month column name and new "
                                                       "date column name must be of "
@@ -832,6 +858,37 @@ class CommonTransformFunctions(TransformFunctions):
                  month=df[existing_month_col_name_with_integer_month_values],
                  day=1)
         )
+
+        return df
+
+
+    def add_date_column_with_current_date(self,
+                                          df,
+                                          new_date_col_name='DATA_PROCESSED_DATE') -> pd.DataFrame:
+        """
+        Creates a new column with date data type values.
+
+        For example, if we want to add a new date column named 'CURRENT_DATE',
+        we will call this method like below:
+        add_date_column_with_current_date(df, 'CURRENT_DATE')
+
+        Args:
+            df: Raw dataframe to transform.
+            new_date_col_name: (Optional) If we want to assign custom name for the
+            new date column, provide new column name (string type) using
+            this parameter. Otherwise, the default column name is
+            'DATA_PROCESSED_DATE'.
+
+        Returns:
+            The dataframe with newly added DATA_PROCESSED_DATE (or any other custom
+            column name provided as parameter) with current date values.
+        """
+        if not isinstance(new_date_col_name, str):
+            raise transform_errors.InputDataTypeError("New date column name must "
+                                                      "be of string type.")
+
+        # REF: https://stackoverflow.com/a/37103131
+        df[new_date_col_name] = pd.to_datetime(datetime.datetime.now().date())
 
         return df
 
