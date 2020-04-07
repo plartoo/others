@@ -1,3 +1,4 @@
+# TODO: Write description, last modified date etc.
 import pdb
 
 import argparse
@@ -20,15 +21,22 @@ if __name__ == '__main__':
                                      formatter_class = argparse.RawTextHelpFormatter,
                                      usage=argparse.SUPPRESS)
     parser.add_argument('-c', required=True, type=str,
-                        help=transform_utils.HELP)
+                        help=transform_utils.C_FLAG_HELP_TEXT)
+    parser.add_argument('-i', required=False, type=str,
+                        help=transform_utils.I_FLAG_HELP_TEXT)
     args = parser.parse_args()
 
-    # 2. Load JSON configuration file
-    if (not args.c) or (not os.path.exists(args.c)):
+    # 2. Make sure JSON configuration file exists
+    if not os.path.exists(args.c):
         raise transform_errors.ConfigFileError()
 
     # 3. Iterate through each transform procedure in config file
     for config in transform_utils.load_config(args.c):
+
+        if args.i:
+            # This hack allows user to provide input file as commandline parameter
+            config = transform_utils.insert_input_file_keys_values_to_config_json(args.i, config)
+
         # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
 
@@ -43,7 +51,6 @@ if __name__ == '__main__':
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
         for input_file in transform_utils.get_input_files(config):
-            print("Processing file:", input_file)
             # TODO: Time the performance and log it
             # t1 = time.time()
             # print('Read Excel file:', file_path_and_name)

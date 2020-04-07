@@ -4,11 +4,9 @@
     "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
     "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
     "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
-    "input_folder_path": "./input/AED_GCC/",
-    "input_file_name_or_pattern": "GCC_2019FY_20200326.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
-    "sheet_name_of_input_excel_file": "2019-OFFLINE",
+    "sheet_name_of_input_excel_file": "Sheet1",
 
     "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
     "sheet_name_of_output_excel_file": "Sheet1",

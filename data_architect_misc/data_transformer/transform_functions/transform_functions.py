@@ -545,6 +545,8 @@ class CommonTransformFunctions(TransformFunctions):
                                              list_reordered_col_headers) -> pd.DataFrame:
         """
         Updates the ordering of existing columns in the dataframe.
+        In addition to reordering columns, this method can be used
+        to exclude columns in the final dataframe.
 
         For example, if the existing order of column headeres in the dataframe is:
         ["Col3", "Col1", "Col2"], we can  rearrange ordering of columns
@@ -567,6 +569,42 @@ class CommonTransformFunctions(TransformFunctions):
         df = df[list_reordered_col_headers]
 
         return df
+
+
+    def update_decimal_places_in_columns(self,
+                                         df,
+                                         list_of_col_names,
+                                         number_of_decimal_places_to_round) -> pd.DataFrame:
+        """
+        Updates the decimal places of given columns to certain number.
+
+        For example, if we want to round up to 2 decimal places for
+        currency related columns such as 'Gross_Spend' and 'Net_Spend',
+        we can call this function as below:
+        update_decimal_places_in_columns(df, ['Gross_spend','Net_Spend'], 2)
+
+        Args:
+            df: Raw dataframe to transform.
+            list_of_col_names: List of column names to apply this the
+            decimal place rounding.
+            number_of_decimal_places_to_round: Number of decimal places to
+            round to.
+
+        Returns:
+            The dataframe with given columns rounded to specified decimal places.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("list_of_col_names must "
+                                                      "be of list type with individual "
+                                                      "column names being string values.")
+
+        if not isinstance(number_of_decimal_places_to_round, int):
+            raise transform_errors.InputDataTypeError("Value for number of decimal places "
+                                                      "must be of integer type.")
+
+        # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.round.html
+        return df.round({col: number_of_decimal_places_to_round for col in list_of_col_names})
+
 
     def update_na_values_with_empty_str_values(self,
                                                df,
@@ -864,7 +902,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def add_date_column_with_current_date(self,
                                           df,
-                                          new_date_col_name='DATA_PROCESSED_DATE') -> pd.DataFrame:
+                                          new_date_col_name='PROCESSED_DATE') -> pd.DataFrame:
         """
         Creates a new column with date data type values.
 
@@ -896,7 +934,7 @@ class CommonTransformFunctions(TransformFunctions):
     def assert_number_of_columns_equals(self, df, num_of_cols_expected) -> pd.DataFrame:
         """
         Assert that the total number of columns in the dataframe
-        is equal to num_of_cols (int).
+        is equal to num_of_cols_expected (int).
 
         Args:
             df: Raw dataframe to transform.

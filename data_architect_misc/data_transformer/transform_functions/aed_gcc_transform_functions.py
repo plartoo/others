@@ -36,7 +36,6 @@ class CustomTransformFunctions(CommonTransformFunctions):
 
         return df
 
-
     def add_char_in_front_of_region_names_in_total_rows(self,
                                                         df,
                                                         char_to_add_in_front):

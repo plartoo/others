@@ -136,16 +136,33 @@ CSV_FILE_EXTENSION = '.csv'
 EXCEL_FILE_EXTENSION_OLD = '.xls'
 EXCEL_FILE_EXTENSION_NEW = '.xlsx'
 
-DESC = """This program transform raw data files according to the procedures 
-and rules defined in the JSON configuration file (e.g., config.json), 
-which must be provided as input. Output from this transform process is 
-in CSV format (with '|' as default delimiter).
-\nUsage example:
+DESC = """This program is intended to take a JSON configuration file 
+(e.g., config.json) as its input. In that JSON config file, user can 
+define as instructions (such as location of the input raw data file,  
+where to write the output data to, etc.) as well as functions and 
+their associated parameters to be applied to and checked against the 
+input data. The processed/QA-ed data, if instructed in the config 
+file, can be written to an output CSV/Excel file or to a SQL Server 
+table or any other custom destination (such as Azure Blob, Amazon S3, 
+etc) as programmed in a custom writer module.
+\nUsage example #1 - If the input file's path and name are defined
+in the config file, run the program like below:
     >> python transform.py -c .\configs\china\config.json
+
+\nUsage example #2 - Alternatively input file's path and name can be 
+provided with 'i' flag to the program as below:
+    >> python transform.py -c .\configs\china\config.json 
+    -i ./input/switzerland/Monthly_Spend_20200229.xlsx
 """
 
-HELP ="""[Required] Configuration file (with full or relative path).
+C_FLAG_HELP_TEXT ="""[Required] Configuration file (with full or relative path).
 E.g., python transform.py -c .\configs\china\config.json
+"""
+
+I_FLAG_HELP_TEXT ="""[Optional] Input file (with full or relative path) that 
+has data to which the functions defined in the config file will be applied to.
+E.g., python transform.py -i ./input/switzerland/Monthly_Spend_20200229.xlsx 
+-c .\configs\china\config.json
 """
 
 
@@ -203,10 +220,28 @@ def _append_sys_path(new_sys_path):
         print("Current sys path is:\n", sys.path, "\n")
 
 
+def insert_input_file_keys_values_to_config_json(file_path_and_name, config):
+    """
+    Inserts input file's path and name as values to corresponding keys
+    in config JSON. This method is called if user provides input file
+    path and name info via commandline instead of via config file.
+
+    This is more like a hack because feeding input file information via
+    commandline is an afterthought (originally, I was not very keen on it,
+    but then I realized if we are to use one common config file to do,
+    for example, QA-testing of common patterns, this commandline feeding
+    of input file name can be much neater than creating similar config
+    file one per country.
+    """
+    config[KEY_INPUT_FOLDER_PATH] = os.path.split(file_path_and_name)[0]
+    config[KEY_INPUT_FILE_NAME_OR_PATTERN] = os.path.split(file_path_and_name)[1]
+    return config
+
+
 def get_input_files(config):
     """
-    Returns input file(s) based on the file name/pattern
-    in the input folder name provided in JSON config file.
+    Returns the input file(s) based on the file name/pattern
+    in the input folder name provided in the JSON config file.
     """
     fn = os.path.join(config[KEY_INPUT_FOLDER_PATH],
                       config[KEY_INPUT_FILE_NAME_OR_PATTERN])
