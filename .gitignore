@@ -1,5 +1,7 @@
 # REF: https://stackoverflow.com/a/14058267
 /data_architect_misc/data_transformer/input/
+output/
 .idea
 __pycache__/
 
+/data_architect_misc/data_transformer/
