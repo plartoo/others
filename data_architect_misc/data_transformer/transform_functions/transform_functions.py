@@ -129,8 +129,8 @@ class CommonTransformFunctions(TransformFunctions):
 
         Args:
             df: Raw dataframe to transform.
-            list_of_col_names: List of column names (string type).
-                                E.g., ['Channel', 'Network']
+            old_to_new_cols_dict: Dictionary of old to new column names.
+            E.g., {'old_col_name':'new_col_name', 'ChannelNames':'Channel_Names'}
 
         Returns:
             Dataframe with column headers renamed.

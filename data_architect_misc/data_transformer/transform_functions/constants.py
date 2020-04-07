@@ -2,7 +2,7 @@
 # that we support as of April, 2020.
 # Whenever we come across new data items for constants below, add them.
 
-REGIONS = {'AED', 'Asia Pacific', 'Europe', 'Latin America', 'North America'}
+REGIONS = {'Africa-Eurasia', 'Asia Pacific', 'Europe', 'Latin America', 'North America'}
 
 # Below are the countries that we support as of April, 2020.
 COUNTRIES = {
@@ -14,7 +14,7 @@ COUNTRIES = {
     'Finland', 'France',
     'Germany', 'Greece', 'Guatemala',
     'Honduras', 'Hong Kong', 'Hungary',
-    'India', 'Indonesia', 'Ireland', 'Italy',
+    'India', 'Indonesia', 'Ireland', 'Italy', "Israel",
     'Kuwait',
     'Latvia', 'Lithuania',
     'Malaysia', 'Mexico', 'Morocco',
@@ -38,6 +38,7 @@ MEDIA_TYPES = {'Cinema', 'Digital', 'Door drops', 'In-store', 'OOH', 'Print', 'R
 GLOBAL_COMPETE_ADVERTISERS = {
     'BEIERSDORF',
     'CHURCH & DWIGHT',
+    'COLGATE-PALMOLIVE',
     'GENOMMA LAB',
     'GSK',
     'HENKEL',
@@ -51,3 +52,4 @@ GLOBAL_COMPETE_ADVERTISERS = {
     'THE CLOROX COMPANY',
     'UNILEVER'
 }
+
