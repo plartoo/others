@@ -55,6 +55,11 @@
         "function_args": [12]
       },
       {
+        "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and leave it empty for mapping values to be filled out later.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_PRODUCT_NAME",""]
+      },
+      {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
         "function_name": "update_order_of_columns_in_dataframe",
         "function_args":
