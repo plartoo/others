@@ -67,15 +67,15 @@
       {
         "__function_comment__": "Add HARMONIZED_REGION as a new column with 'AED' as value.",
         "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_REGION","Africa-Eurasia"]
+        "function_args": ["HARMONIZED_REGION", "Africa-Eurasia"]
       },
       {
         "__function_comment__": "Add HARMONIZED_COUNTRY as a new column with 'AED' as value.",
         "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_COUNTRY","Russia"]
+        "function_args": ["HARMONIZED_COUNTRY", "Russia"]
       },
       {
-        "__function_comment__": "TODO: Later on replace this function below with case-insensitive one. Add HARMONIZED_ADVERTISER column that have uppercase-d advertiser names with all global compete advertisers mapped to their standard names.",
+        "__function_comment__": "Add HARMONIZED_ADVERTISER column that have uppercase-d advertiser names with all global compete advertisers mapped to their standard names.",
         "function_name": "add_new_column_based_on_another_column_values",
         "function_args": [
           "ADVERTISERS IN SCOPE",
@@ -138,7 +138,7 @@
         ]
       },
       {
-        "__function_comment__": "Rename original column headers to standard raw column headers.",
+        "__function_comment__": "Rename original column headers for Spend, Subcategory, Brand, Subbrand and Product Name to standard raw column headers.",
         "function_name": "rename_columns",
         "function_args": [
           {
