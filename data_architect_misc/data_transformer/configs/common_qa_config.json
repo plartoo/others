@@ -1,47 +1,11 @@
 [
   {
-    "__comment__": "(Required IF NOT provided as an argument via commandline)",
-    "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
-    "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
+    "__comment__": "This is the common QA functions that we must always run against output files after data transformation.",
+    "__comment__": "If the output file does NOT pass these QA tests, we must modify the config files of the respective country to update the transformation rules as needed.",
+    "__comment__": "Run this QA config from commandline like this >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "sheet_name_of_input_excel_file": "Sheet1",
-
-    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
-    "sheet_name_of_output_excel_file": "Sheet1",
-
-    "__comment__": "(Optional) Decide if pandas should interpret 'NA', 'N/A', 'NULL', etc. to NaN value. Default is false",
-    "interpret_na_null_etc_from_raw_data": false,
-
-    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
-    "write_output": true,
-
-    "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
-    "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
-    "__comment__": "This option is only for those who wants to write data to somewhere other than to a local file in CSV format.",
-    "__comment__": "TODO: later change this to csv_data_writer",
-    "data_writer_class_file": "./excel_data_writer.py",
-
-    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
-    "__comment__": "Default is going to be the current working directory of transform.py",
-    "output_folder_path": "./output/AED_GCC/",
-
-    "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "transformed_GCC_2019FY_",
-
-    "__comment__": "(Optional although recommended) SQL table name to which the transformed data should be written.",
-    "__comment__": "Default name is 'default_transformed_sql_table_name' as defined in transform_utils.py",
-    "output_sql_table_name": "transformed_budget_table",
-
-    "__comment__": "(Required ONLY IF MSSQLDriver class is used) Database schema to use if we write transformed data to SQL table.",
-    "database_schema": "dbo",
-
-    "__comment__": "(Optional) Whether to include index column in writing the dataframe to output file or table. Default is false.",
-    "include_index_column_in_output": false,
-
-    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
-    "custom_transform_functions_file": "./transform_functions/aed_gcc_transform_functions.py",
 
     "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",
     "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
@@ -191,48 +155,5 @@
       }
     ],
 
-    "__comment__": "ADVERTISERS => GM_CP_SCOPED_ADVERTISER_LIST; CP_COUNTRY_ADVERTISER_MAPPING",
-    "__comment__": "COUNTRY => CP_DIM_COUNTRY",
-    "__comment__": "MEDIA TYPES => CP_DIM_MEDIA (MEDIA_LVL1_TXT); CP_MASTER_MEDIA_MAPPNIG is for historic mapping for each country",
-    "__comment__": "CATEGORY => GM_CP_MASTER_PRODUCT_MAPPING has standard names for category as well as relationship between category and subcat",
-    "__comment__": "SUBCATEGORY => GM_CP_MASTER_SUBCATEGORY_MAPPING table CP_SUBCATEGORY_NAME is the one wew care",
-    "__comment__": "CP_DIM_PRODUCT_1PH table has all the standard name data",
-    "to_add": "REGION_add_column_with_fixed_string_value",
-    "to_add": "CURRENCY_add_column_with_fixed_string_value",
-    "to_add": "YEAR_column_with_fixed_int_value",
-    "to_add": "MONTH_column_with_fixed_int_value",
-    "to_add": "DATE_column_with_fixed_date_value",
-    "to_add": "DATE_PROCESSED_add_column_with_fixed_date_value",
-    "to_add": "HARMONIZED_COUNTRY_remap_values_under_country_column_to_harmonized_ones_in_FX_file",
-
-    "to_add": "HARMONIZED_CATEGORY_remap_values_under_category_column_to_harmonized_ones",
-    "to_add": "HARMONIZED_MEDIA_TYPE_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_ADVERTISER_remap_global_compete_advertisers to standard names and then the rest to uppercase",
-
-    "to_add": "HARMONIZED_SUBCATEGORY_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_BRAND_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_SUBBRAND_column_with_fixed_NA_value",
-    "to_add": "HARMONIZED_PRODUCT_NAME_column_with_fixed_NA_value",
-
-    "to_add": "QA_REGION_col_must_exist_with_values in constants.py",
-    "to_add": "QA_HARMONIZED_COUNTRY_col_must_exist_with_GCC_Countries in constants.py",
-    "to_add": "QA_YEAR_col_must_exist_with_values",
-    "to_add": "QA_MONTH_col_must_exist_with_values",
-    "to_add": "QA_CURRENCY_col_must_exist_with_valid_value",
-    "to_add": "QA_PROCESSED_DATE_col_must_exist_with_values",
-    "to_add": "QA_YEAR_col_must_probably_have_current_year_value",
-    "to_add": "QA_MONTH_col_must_probably_have_last_months_value",
-    "to_add": "QA_HARMONIZED_COUNTRY_col_must_have_valid_value",
-    "to_add": "QA_HARMONIZED_ADVERTISER_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_CATEGORY_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_SUBCATEGORY_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_BRAND_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_SUBBRAND_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_PRODUCT_NAME_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_MEDIA_TYPE_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_have no more than two digits as decimals",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_equal_or_larger_than_zero",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_less_than_one_billion",
-    "to_add": "Rearrange_columns_in_order_that_is_better_to_read"
   }
 ]
