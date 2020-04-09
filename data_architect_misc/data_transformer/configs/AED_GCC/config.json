@@ -73,7 +73,7 @@
       },
       {
         "__function_comment__": "Add MONTH column based on the values in YEAR_MONTH column.",
-        "function_name": "add_month_column_with_int_value_referring_from_existing_col_with_full_month_names",
+        "function_name": "add_month_column_with_int_values_derived_from_existing_month_col_with_full_month_names",
         "function_args": ["YEAR_MONTH","MONTH"]
       },
       {
