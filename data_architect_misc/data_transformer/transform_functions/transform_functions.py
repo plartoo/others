@@ -1028,7 +1028,6 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    # TODO: assert_no_negative_values_in_columns(['local_spend'])
     def assert_no_less_than_values_in_columns(self,
                                               df,
                                               threshold_value,
