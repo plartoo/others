@@ -331,7 +331,7 @@ def _get_package_name(module_file):
     this method extracts and return package name (that is,
     'transform_functions.funcs') from the path and name of a module file.
     """
-    directory_path = os.path.split(module_file)[0] # e.g., './transform_funcs/funcs'
+    directory_path = os.path.split(os.path.relpath(module_file))[0] # e.g., './transform_funcs/funcs'
     if directory_path.startswith('./') or directory_path.startswith('.\\'):
         directory_path = directory_path.replace('./', '').replace('.\\', '')
 
@@ -358,6 +358,7 @@ def instantiate_transform_functions_module(config):
     transform_funcs_file = _get_value_from_dict(config,
                                                 KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
                                                 DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+
     if os.path.isfile(transform_funcs_file):
         # Note: we assume that all transform function modules are located in
         # './transform_funcs' directory, which is used as package name below.
