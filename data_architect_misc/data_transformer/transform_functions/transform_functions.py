@@ -138,13 +138,13 @@ class CommonTransformFunctions(TransformFunctions):
         return df.rename(columns=old_to_new_cols_dict)
 
 
-    def check_possible_duplicates_in_one_column(self,
-                                                df,
-                                                col_name) -> pd.DataFrame:
+    def check_possible_duplicates_in_columns(self,
+                                             df,
+                                             list_of_col_names) -> pd.DataFrame:
         """
-        This method will make sure that the given column (col_name)
-        does NOT have duplicate values. It will do so by first
-        turning all letters of each value in the column to small case.
+        This method will check if any of the given list of columns
+        has duplicate values in it. It will do so by first
+        turning all letters of each value in individual column to small case.
         Then it will retain alpha-numerical values of the aforementioned
         values. Then by comparing the difference between the set of
         original values vs. that of modified values, this method will
@@ -163,43 +163,8 @@ class CommonTransformFunctions(TransformFunctions):
 
         Args:
             df: Raw dataframe to search for duplicates.
-            col_name:   Column name in the dataframe in which we should
-                        look for duplicates.
-
-        Returns:
-            Original dataframe if no duplicates are found.
-
-        Raises:
-            PossibleDuplicateError, if there's a possible duplicate values.
-        """
-        orig_values = set(df[col_name].values)
-        non_alpha_numerical_chars_pattern = re.compile(r'\W', re.UNICODE)
-        simplified_values = {non_alpha_numerical_chars_pattern.sub('', s).lower()
-                             for s in orig_values}
-        if len(orig_values) != len(simplified_values):
-            err_msg = ''.join(["Possible duplicates found in the values of column, '",
-                               col_name, "':\n", str(sorted(orig_values)),
-                               ".\nPlease update/map these values to new, standardized values."
-                               ])
-            raise transform_errors.PossibleDuplicateError(err_msg)
-
-        return df
-
-
-    def check_possible_duplicates_in_multiple_columns(self,
-                                                      df,
-                                                      list_of_col_names) -> pd.DataFrame:
-        """
-        This method will check if any of the given list of columns
-        has duplicate values in it. It will do so by first
-        turning all letters of each value in individual column to small case.
-        See description of "check_possible_duplicates_in_one_column" for
-        more detail.
-
-        Args:
-            df: Raw dataframe to search for duplicates.
-            col_name:   Column name in the dataframe in which we should
-                        look for duplicates.
+            list_of_col_names: List of column names in which
+             the code will look for duplicates.
 
         Returns:
             Original dataframe if no duplicates are found.
@@ -222,12 +187,12 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def capitalize_first_letter_of_each_word_in_one_column(self,
-                                                           df,
-                                                           col_name) -> pd.DataFrame:
+    def capitalize_first_letter_of_each_word_in_columns(self,
+                                                        df,
+                                                        list_of_col_names) -> pd.DataFrame:
         """
-        This method will make sure the first letter of every word
-        of the values in a given column (col_name) will be capitalized.
+        This method will capitalize the first letter of every word
+        in a given list of columns (list_of_col_names).
         For example, suppose we have these values for 'col1':
         ['Other social', 'Other Social', 'Female body cleansers',
         'Female Body cleansers'], this method will transform these
@@ -236,39 +201,8 @@ class CommonTransformFunctions(TransformFunctions):
 
         Args:
             df: Raw dataframe to capitalize the beginning of each word.
-            col_name:   Column name in the dataframe in which we should
-                        look to capitalize the beginning of each word.
-        Returns:
-            Dataframe with the column values where the first letter of
-            each word is capitalized.
-        """
-        if not isinstance(col_name, str):
-            raise transform_errors.InputDataTypeError("Column name must be of string type")
-
-        df[col_name] = df[col_name].apply(lambda s: self._cap_sentence(s))
-
-        return df
-
-
-    def capitalize_first_letter_of_each_word_in_multiple_columns(self,
-                                                                 df,
-                                                                 list_of_col_names) -> pd.DataFrame:
-        """
-        This method will capitalize the first letter of every word
-        in a given list of columns (list_of_col_names).
-        This method is basically a modified version of
-        "capitalize_first_letter_of_each_word_in_column_values" to transform
-        more than one column.
-
-        NOTE: I have decided to not call "capitalize_first_letter_of_each_word_in_one_column"
-        from this method because I don't want to pass in the dataframe
-        many times (which is inefficient in terms of memory  consumption)
-        into another method although it'd have been a better coding practice.
-
-        Args:
-            df: Raw dataframe to capitalize the beginning of each word.
             list_of_col_names:  List of column names in the dataframe
-                                in which we should look to capitalize
+                                in which this code will look to capitalize
                                 the beginning of each word.
         Returns:
             Dataframe with the column values (for each of the columns in
@@ -286,13 +220,13 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def capitalize_all_letters_of_each_word_in_multiple_columns(self,
-                                                                df,
-                                                                list_of_col_names) -> pd.DataFrame:
+    def capitalize_all_letters_of_each_word_in_columns(self,
+                                                       df,
+                                                       list_of_col_names) -> pd.DataFrame:
         """
         This method will capitalize all letters of each word in a given
         list of columns (list_of_col_names). This method is basically a modified
-        version of "capitalize_first_letter_of_each_word_in_multiple_columns"
+        version of "capitalize_first_letter_of_each_word_in_columns"
         to capitalize every letter in each word.
 
         For example, suppose we have these values for 'col1':
@@ -304,7 +238,7 @@ class CommonTransformFunctions(TransformFunctions):
         Args:
             df: Raw dataframe to capitalize the words.
             list_of_col_names:  List of column names in the dataframe
-                                in which we should look to capitalize
+                                in which this code will look to capitalize
                                 each word.
         Returns:
             Dataframe with the column values (for each of the columns in
@@ -321,63 +255,26 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_str_values_in_column(self,
-                                    df,
-                                    col_name,
-                                    dictionary_of_value_mappings)  -> pd.DataFrame:
-        """
-        Given a dataframe, column name and dictionary representing
-        old-to-new-value mappings for the column, apply the mappings.
-        **Note that if this column holds non-string type data,
-        this method will NOT work as intended because in JSON config file
-        we can only use string as keys. To update non-string values in
-        columns, please use another method.
-
-        For example, if we want 'Ecommerce' and 'Amazon' values in 'col1' of the
-        dataframe to be updated to 'E-Commerce', we would call this method like this:
-        update_values_in_columns(df, "col1", {"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"}).
-        REF: https://stackoverflow.com/a/20250996
-
-        Args:
-            df: Raw dataframe to transform.
-            col_name: Column to update values at.
-            dictionary_of_value_mappings: Dictionary which represents mappings between
-            original values and desired (updated) values.
-            E.g., if we want 'Amazon' and 'Ecommerce' to be mapped to 'E-Commerce'
-            we should provide {"Amazon": "E-Commerce", "Ecommerce": "E-Commerce"}.
-
-        Returns:
-            Dataframe with updated values based on the provided arguments.
-        """
-        if not isinstance(col_name, str):
-            raise transform_errors.InputDataTypeError("Column name must be of string type")
-
-        if not isinstance(dictionary_of_value_mappings, dict):
-            raise transform_errors.InputDataTypeError(
-                "Value (old to new) mappings must be of dictionary type")
-
-        df[col_name] = df[col_name].map(dictionary_of_value_mappings).fillna(df[col_name])
-
-        return df
-
-
-    def update_str_values_in_multiple_columns(self,
-                                              df,
-                                              list_of_col_names,
-                                              list_of_dictionary_of_value_mappings)  -> pd.DataFrame:
+    def update_str_values_in_columns_to_str_values(self,
+                                                   df,
+                                                   list_of_col_names,
+                                                   list_of_dictionary_of_value_mappings)  -> pd.DataFrame:
         """
         Given a dataframe, list of columns and corresponding list of dictionaries
-        representing old-to-new-value mappings for each column, apply these
+        representing old-to-new-value mappings for each column, apply the provided
         mappings to each column.
-        **Note that if this column holds non-string type data,
-        this method will NOT work as intended because in JSON config file
-        we can only use string as keys. To update non-string values in
-        columns, please use another method.
 
         For example, if we want 'Ecommerce' and 'Amazon' values in 'col1' of the
         dataframe to be updated to 'E-Commerce', we would call this method like this:
-        update_values_in_columns(df, ["col1"], {"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"}).
+        update_str_values_in_columns_to_str_values(df, ["col1"],
+        {"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"}).
         REF: https://stackoverflow.com/a/20250996
+
+        **Note that if any of the columns holds non-string type data,
+        this method will NOT work as intended because in JSON config file
+        we can only use string as keys. To update non-string values in
+        columns, please use another method for specific data type such as
+        'update_int_values_in_columns_to_str_values'.
 
         Args:
             df: Raw dataframe to transform.
@@ -404,10 +301,10 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def update_int_values_in_multiple_columns_to_str_values(self,
-                                                            df,
-                                                            list_of_col_names,
-                                                            list_of_dictionary_of_value_mappings) -> pd.DataFrame:
+    def update_int_values_in_columns_to_str_values(self,
+                                                   df,
+                                                   list_of_col_names,
+                                                   list_of_dictionary_of_value_mappings) -> pd.DataFrame:
         """
         Sometimes, we need to convert integer values in certain columns
         to string values. For example, if we don't have full year data
@@ -455,7 +352,7 @@ class CommonTransformFunctions(TransformFunctions):
         E.g., whenever we see 'Ecommerce' or 'Amazon' in column named, 'Channel',
         we want to update values in 'Macro Channel' column to 'E-Commerce'.
         In this case, we provide following args to this method:
-        update_values_in_col2_based_on_col1_values(df, "Channel", "Macro Channel",
+        update_str_values_in_col2_based_on_col1_values(df, "Channel", "Macro Channel",
         {"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"})
         REF: https://stackoverflow.com/a/19226745/1330974
 
@@ -503,7 +400,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         E.g., Whenever value in Market column is ' AFRICA-EURASIA', ' EUROPE',
         or ' HILLS', we want to update Brand column to " All Brands". Then,
-        update_str_value_in_col2_if_col1_has_one_of_given_values(df, "Market", "Brand",
+        update_str_values_in_col2_if_col1_has_one_of_given_values(df, "Market", "Brand",
         [" AFRICA-EURASIA", " EUROPE", " HILLS" ], " All Brands")
 
         REF: How to use isin() in pandas
@@ -749,7 +646,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         For example, if we want to add 'Region' column in the dataframe
         with values 'AED', we will call this function like below:
-        create_new_column_with_fixed_str_value(df, 'Region', 'AED')
+        add_new_column_with_fixed_str_value(df, 'Region', 'AED')
 
         Args:
             df: Raw dataframe to transform.
@@ -774,7 +671,7 @@ class CommonTransformFunctions(TransformFunctions):
                                              new_year_col_name='YEAR'
                                              ) -> pd.DataFrame:
         """
-        Creates a new column for YEAR column.
+        Creates a new column for YEAR column with integer value provided as parameter.
 
         For example, if we want to add YEAR column with current year
         as value, we call this method like below:
@@ -782,7 +679,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         If we want to use specific year value and custom column name for year,
         we can call the method like below:
-        create_new_column_with_fixed_str_value(df, 'YYYY', 2019)
+        add_year_column_with_fixed_int_value(df, 'YYYY', 2019)
 
         Args:
             df: Raw dataframe to transform.
@@ -808,10 +705,72 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def add_month_column_with_int_value_referring_from_existing_col_with_full_month_names(
+    def add_year_column_with_year_value_derived_from_existing_date_column_with_date_values(
             self,
             df,
-            existing_col_name_with_full_month_names,
+            existing_date_col_name,
+            new_date_col_name='YEAR') -> pd.DataFrame:
+        """
+        Creates a new column for YEAR column by inferring from
+        the existing date column in the dataframe.
+
+        For example, if we want to add 'YEAR' column by using
+        the date column in the dataframe called 'YEAR_MONTH',
+        we call this method like below:
+        add_year_column_with_year_value_derived_from_existing_date_column_with_date_values(
+        df, 'YEAR_MONTH')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_date_col_name: Column name in the dataframe
+            that has date data from which this code will infer
+            the YEAR information from.
+            new_year_col_name: Column name for the new year column.
+            Default is 'YEAR'.
+
+        Returns:
+            The dataframe with newly added YEAR column with integer year value.
+        """
+        df[new_date_col_name] = df[existing_date_col_name].dt.year
+
+        return df
+
+
+    def add_month_column_with_month_value_derived_from_existing_date_column_with_date_values(
+            self,
+            df,
+            existing_date_col_name,
+            new_date_col_name='MONTH') -> pd.DataFrame:
+        """
+        Creates a new column for MONTH column by inferring from
+        the existing date column in the dataframe.
+
+        For example, if we want to add 'MONTH' column by using
+        the date column in the dataframe called 'YEAR_MONTH',
+        we call this method like below:
+        add_month_column_with_month_value_derived_from_existing_date_column_with_date_values(
+        df, 'YEAR_MONTH')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_date_col_name: Column name in the dataframe
+            that has date data from which this code will infer
+            the MONTH information from.
+            new_year_col_name: Column name for the new year column.
+            Default is 'MONTH'.
+
+        Returns:
+            The dataframe with newly added YEAR column with integer year value.
+        """
+        df[new_date_col_name] = df[existing_date_col_name].dt.month
+
+        return df
+
+
+    def add_month_column_with_int_values_derived_from_existing_month_col_with_full_month_names(
+            self,
+            df,
+            existing_month_col_name_with_full_month_names,
             new_month_col_name='MONTH') -> pd.DataFrame:
         """
         Creates a new column for integer MONTH values using **data from an existing
@@ -821,7 +780,7 @@ class CommonTransformFunctions(TransformFunctions):
         For example, if we want to add a new integer month column named 'MM' using
         an existing month column named 'Existing_Month' which has full month's names,
         we will call this method like below:
-        add_month_column_with_int_value_referring_from_existing_col_with_full_month_names(df,
+        add_month_column_with_int_values_derived_from_existing_month_col_with_full_month_names(df,
         'MM', 'Existing_Month')
 
         Args:
@@ -836,12 +795,12 @@ class CommonTransformFunctions(TransformFunctions):
         Returns:
             The dataframe with newly added MONTH column with integer month value.
         """
-        if not (isinstance(existing_col_name_with_full_month_names, str)
+        if not (isinstance(existing_month_col_name_with_full_month_names, str)
                 and isinstance(new_month_col_name, str)):
             raise transform_errors.InputDataTypeError("Parameters for existing month column "
                                                       "name and new month column name must be "
                                                       "of string type.")
-        df[new_month_col_name] = df[existing_col_name_with_full_month_names].map(
+        df[new_month_col_name] = df[existing_month_col_name_with_full_month_names].map(
             lambda x: datetime.datetime.strptime(x, '%B').month)
 
         return df
