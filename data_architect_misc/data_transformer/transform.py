@@ -32,7 +32,6 @@ if __name__ == '__main__':
 
     # 3. Iterate through each transform procedure in config file
     for config in transform_utils.load_config(args.c):
-
         if args.i:
             # This hack allows user to provide input file as commandline parameter
             config = transform_utils.insert_input_file_keys_values_to_config_json(args.i, config)
@@ -56,6 +55,7 @@ if __name__ == '__main__':
             # print('Read Excel file:', file_path_and_name)
             # print("It took this many seconds to read the file:", time.time() - t1, "\n")
 
+            # TODO: maybe create a data_reader class that will decide which file type (xlsx, csv, parquet) input file is and call read_next_chunk() to yield the read data
             # TODO: maybe combine get_raw_column_headers with read_data because I use the latter just for the former
             col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
 
@@ -69,7 +69,6 @@ if __name__ == '__main__':
                 # using this program nor no one in their right mind should be storing that much
                 # data in an Excel file.
 
-                # TODO: try out different Excel files to see how this skipping rows work
                 print("\nSkipping this many rows (including header row) from the top of the file:",
                       row_idx_where_data_starts)
                 cur_df = pd.read_excel(input_file,
@@ -98,7 +97,7 @@ if __name__ == '__main__':
                     #     pdb.set_trace()
                     #     print('debug')
 
-                    # TODO: Logging, Mapping, CSV handling
+                    # TODO: Logging, Mapping, CSV handling (data reader module)
                     # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
                     # if passing df in/out of function is memory expensive
 
