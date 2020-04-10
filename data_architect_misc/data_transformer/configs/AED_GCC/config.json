@@ -93,50 +93,59 @@
       },
       {
         "__function_comment__": "Add HARMONIZED_COUNTRY column that have standardized country names for GCC.",
-        "function_name": "add_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
         "function_args": [
           "COUNTRY",
           "HARMONIZED_COUNTRY",
           {
-            "BAHRAIN": "Bahrain", "KSA": "Saudi Arabia", "KUWAIT": "Kuwait", "OMAN": "Oman",
-            "PAN ARAB": "Pan Arab", "PAN-ASIAN": "Pan Asia", "QATAR": "Qatar",
-            "UNITED ARAB EMIRATES": "United Arab Emirates"
-          },
-          true
+            "(i?)BAHRAIN.*": "Bahrain", "(i?)KSA.*": "Saudi Arabia", "(i?)KUWAIT.*": "Kuwait", "(i?)OMAN.*": "Oman",
+            "(i?)PAN.*ARAB.*": "Pan Arab", "(i?)PAN.*ASIAN.*": "Pan Asian", "(i?)QATAR.*": "Qatar",
+            "(i?)UNITED ARAB EMIRATES.*": "United Arab Emirates",
+            "(i?)UAE.*": "United Arab Emirates"
+
+          }
         ]
       },
       {
         "__function_comment__": "Add HARMONIZED_ADVERTISER column that have uppercased advertiser names with all global compete advertisers mapped to their standard names.",
-        "function_name": "add_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
         "function_args": [
           "ADVERTISER",
           "HARMONIZED_ADVERTISER",
           {
-            "BEIERSDORF AG": "BEIERSDORF",
-            "COLGATE-PALMOLIVE COMPANY": "COLGATE-PALMOLIVE",
-            "GLAXOSMITHKLINE": "GSK",
-            "HENKEL": "HENKEL",
-            "JOHNSON & JOHNSON": "JOHNSON & JOHNSON",
-            "L'OREAL PARIS": "LOREAL",
-            "PROCTER & GAMBLE": "P&G",
-            "RECKITT-BENCKISER": "RECKITT BENCKISER",
-            "CLOROX": "THE CLOROX COMPANY",
-            "UNILEVER": "UNILEVER"
-          },
-          true
+            "(?i)BDF.*": "BEIERSDORF",
+            "(?i)BEIERSDORF.*": "BEIERSDORF",
+            "(?i)COLGATE.*": "COLGATE-PALMOLIVE",
+            "(?i)^CP$": "COLGATE-PALMOLIVE",
+            "(?i)GLAXO.*": "GSK",
+            "(?i)^GSK": "GSK",
+            "(?i)HENKEL.*": "HENKEL",
+            "(?i)JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
+            "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
+            "(?i)L'?OREAL.*": "LOREAL",
+            "(?i)PROCTER.*&.*GAMBLE": "P&G",
+            "(?i)P.*&.*G": "P&G",
+            "(?i)RECKITT.*": "RECKITT BENCKISER",
+            "(?i)^RB$": "RECKITT BENCKISER",
+            "(?i).*CLOROX.*": "THE CLOROX COMPANY",
+            "(?i).*UNILEVER.*": "UNILEVER"
+          }
         ]
       },
       {
         "__function_comment__": "Add HARMONIZED_MEDIA_TYPE column that have standardized Media Type names.",
-        "function_name": "add_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
         "function_args": [
           "MEDIA_TYPE",
           "HARMONIZED_MEDIA_TYPE",
           {
-            "CINEMA": "Cinema", "MAGAZINE": "Print", "NEWSPAPER": "Print", "OUTDOOR": "OOH",
-            "RADIO": "Radio", "TV": "TV"
-          },
-          true
+            "(?i)CINEMA.*": "Cinema",
+            "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
+            "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH",
+            "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
+            "(?i)TV": "TV", "(?i)Television.*": "TV",
+            "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital"
+          }
         ]
       },
       {
@@ -151,14 +160,22 @@
       },
       {
         "__function_comment__": "Add HARMONIZED_CATEGORY column that have standardized category names.",
-        "function_name": "add_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
         "function_args": [
           "CATEGORY",
           "HARMONIZED_CATEGORY",
           {
-            "HOME CARE": "Home Care", "ORAL CARE": "Oral Care", "OTHER": "Other", "PERSONAL CARE": "Personal Care"
-          },
-          true
+            "(?i)^HC$": "Home Care",
+            "(?i)HOME.*CARE.*": "Home Care",
+            "(?i)^OC$": "Oral Care",
+            "(?i)ORAL.*CARE.*": "Oral Care",
+            "(?i)^PC$": "Personal Care",
+            "(?i).*PERSONAL.*CARE.*": "Personal Care",
+            "(?i).*BABY.*CARE.*": "Personal Care",
+            "(?i)HAIR.*CARE.*": "Personal Care",
+            "(?i)OTHER.*": "Other",
+            "(?i)ALL.*OTHER.*": "Other"
+          }
         ]
       },
       {
@@ -226,8 +243,6 @@
     "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_less_than_one_billion",
     "to_add": "Rearrange_columns_in_order_that_is_better_to_read",
 
-	"no negative values in local spend  column assert_no_negative_values_in_columns(['local_spend'])": "",
-	"add_new_column_based_on_another_column_values case insensitive version": "",
-	"merge Maicol's GCC mapping with my transform.py output for GCC": ""
+	"no negative values in local spend  column assert_no_negative_values_in_columns(['local_spend'])": ""
   }
 ]
