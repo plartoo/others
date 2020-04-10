@@ -563,80 +563,6 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def add_new_column_based_on_another_column_values(self,
-                                                      df,
-                                                      existing_col_name,
-                                                      new_col_name,
-                                                      dictionary_of_mappings,
-                                                      use_existing_col_values=False) -> pd.DataFrame:
-        """
-        Creates a new column using dictionary of mappings in which keys represent
-        values in existing column name and dict values representing values in
-        the new column.
-
-        NOTE: If we want to use/borrow existing column's value when
-        there is no direct mapping available (i.e. mapping is not
-        defined/provided), then set 'use_existing_col_values'
-        parameter to True. Otherwise, default is to leave the
-        cells (without defined mapping) blank/empty.
-
-        For example, we have a column named 'Channel' in our original
-        dataframe with values "GDN Display", "GDN Video" and "YouTube".
-        We want to create a new column named "NewChannelNames" and in that
-        column, whenever we see "GDN Display" in 'Channel' column, we want to
-        enter "Display"; when we see "GDN Video" in 'Channel' column, we want
-        to enter "Online Video"; when we see "YouTube" in 'Channel' column,
-        we want to enter "Online Video" in the new column, we call this method
-        with parameters like this:
-        add_new_column_based_on_another_column_values(df, "Channel"
-        "NewChannelNames", "Channel", {"GDN Display": "Display",
-        "GDN Video": "Online Video", "YouTube": "Online Video"}).
-
-        As another example, if we want to created a harmonized category
-        name column by using existing/raw category column values such as
-        'HOME CARE' and 'ORAL CARE', but we want to copy the values from
-        existing column if unexpected value occurs in the raw data, then
-        we call this function like below:
-        add_new_column_based_on_another_column_values(df, "Category",
-        "Harmonized_Category", {"HOME CARE": "Home Care",
-        "ORAL CARE": "Oral Care"})
-        In the above call, if there is a value, say, "Personal Care",
-        then the new column will have corresponding value
-        "Personal Care".
-
-        REF: https://stackoverflow.com/a/24216489
-
-        Args:
-            df: Raw dataframe to transform.
-            existing_col_name: Name of the column which already exist in
-            the dataframe and the one we should use as a base to map from.
-            new_col_name: Name of the new column to be created.
-            dictionary_of_mappings: Dictionary representing key-value pairs
-            of existing column's values (as keys) and new column's values
-            (as values).
-            use_existing_col_values: Set this to True if the existing
-            column's value must be copied when there's no mapping defined.
-            Default is False.
-
-        Returns:
-            The dataframe with new column attached which has values in the
-            mapping provided.
-        """
-        if not (isinstance(new_col_name, str) and isinstance(existing_col_name, str)):
-            raise transform_errors.InputDataTypeError("Column names must be of string type")
-
-        if not isinstance(dictionary_of_mappings, dict):
-            raise transform_errors.InputDataTypeError(
-                "Mapping key-value pairs must be of dictionary type")
-
-        if use_existing_col_values:
-            df[new_col_name] = df[existing_col_name].replace(dictionary_of_mappings)
-        else:
-            df[new_col_name] = df[existing_col_name].map(dictionary_of_mappings)
-
-        return df
-
-
     def add_new_column_with_fixed_str_value(self,
                                             df,
                                             new_col_name,
@@ -661,6 +587,144 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "must be of string type")
 
         df[new_col_name] = fixed_str_value
+
+        return df
+
+
+    def add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            self,
+            df,
+            existing_col_name,
+            new_col_name,
+            dictionary_of_mappings) -> pd.DataFrame:
+        """
+        Creates a new column with values based on the dictionary of
+        mappings in which keys represent **REGULAR EXPRESSION** values
+        in existing column and values represent values in the new column.
+        Whenever the regular expression key matches the value in the
+        existing column, the new column will be assigned corresponding
+        value from the dictionary. If regular expression does NOT match
+        the original value from the existing column will be copied to the
+        new column.
+
+        Suppose we want to create a new column named "Harmonized_Advertiser"
+        based on "Advertiser" column. When we see "L'OREAL PARIS",
+        "L'oreal Paris" and "l'oreal" in 'Advertiser' column, we want to
+        assign in the value "LOREAL" in 'Harmonized_Advertiser' column.
+        Then we can call this method with parameters like this:
+        add_new_column_with_values_based_on_another_column_values_using_regex_match(
+        df, "Advertiser", "Harmonized_Advertiser", {"(i?)l\'oreal.*": "LOREAL"}).
+
+        For Python Regular Expression Syntax,
+        REF 1: https://docs.python.org/3/library/re.html
+
+        How to use regular expression in Pandas's replace method:
+        REF 2: https://stackoverflow.com/a/54464222/1330974
+        REF 3: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.replace.html
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_col_name: Name of the column which already exist in
+            the dataframe and the one we should use as reference in creating
+            the new column.
+            new_col_name: Name of the new column to be created.
+            dictionary_of_mappings: Dictionary representing key-value pairs
+            in which keys represent **regular expression** values to look for
+            in existing column and values representing the ones to be assigned
+            in the new column.
+
+        Returns:
+            The dataframe with the new column attached with values either from
+            the value of the dictionary or the corresponding value from the existing
+            column.
+        """
+        if not (isinstance(new_col_name, str) and isinstance(existing_col_name, str)):
+            raise transform_errors.InputDataTypeError("Column names must be of string type")
+
+        if not isinstance(dictionary_of_mappings, dict):
+            raise transform_errors.InputDataTypeError(
+                "Mapping key-value pairs must be of dictionary type with keys representing "
+                "the regular expressions and values the desired final string values for the "
+                "new column.")
+
+        df[new_col_name] = df[existing_col_name].replace(regex=dictionary_of_mappings)
+
+        return df
+
+
+    def add_new_column_with_values_based_on_another_column_values_using_exact_str_match(
+            self,
+            df,
+            existing_col_name,
+            new_col_name,
+            dictionary_of_mappings,
+            use_existing_col_values=False) -> pd.DataFrame:
+        """
+        Creates a new column with values based on the dictionary of
+        mappings in which keys represent values in existing column
+        and values represent values in the new column. Whenever the key
+        **EXACTLY** matches the value in the existing column, the new
+        column will be assigned corresponding value from the dictionary.
+
+        NOTE: If we want to use/borrow existing column's value when
+        there is no direct mapping available (i.e. mapping is not
+        defined/provided), then set 'use_existing_col_values'
+        parameter to True. Otherwise, default is to leave the
+        cells (without defined mapping) blank/empty.
+
+        For example, we have a column named 'Channel' in our original
+        dataframe with values "GDN Display", "GDN Video" and "YouTube".
+        We want to create a new column named "NewChannelNames" and in that
+        column, whenever we see "GDN Display" in 'Channel' column, we want to
+        enter "Display"; when we see "GDN Video" in 'Channel' column, we want
+        to enter "Online Video"; when we see "YouTube" in 'Channel' column,
+        we want to enter "Online Video" in the new column, we call this method
+        with parameters like this:
+        add_new_column_with_values_based_on_another_column_values_using_exact_str_match(
+        df, "Channel", "NewChannelNames", {"GDN Display": "Display",
+        "GDN Video": "Online Video", "YouTube": "Online Video"}).
+
+        As another example, if we want to created a harmonized category
+        name column by using existing/raw category column values such as
+        'HOME CARE' and 'ORAL CARE', but we want to copy the values from
+        existing column if unexpected value occurs in the raw data, then
+        we call this function like below:
+        add_new_column_with_values_based_on_another_column_values_using_exact_str_match(
+        df, "Category", "Harmonized_Category", {"HOME CARE": "Home Care",
+        "ORAL CARE": "Oral Care"}).
+        In the above method call, if there is a value, say, "Personal Care",
+        then the new column will have corresponding value "Personal Care".
+
+        REF: https://stackoverflow.com/a/24216489
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_col_name: Name of the column which already exist in
+            the dataframe and the one we should use as reference in creating
+            the new column.
+            new_col_name: Name of the new column to be created.
+            dictionary_of_mappings: Dictionary representing key-value pairs
+            in which keys representing the values from the existing column
+            and values representing the ones to be assigned to the new column.
+            use_existing_col_values: Set this to True if the existing
+            column's value must be copied when there's no mapping defined.
+            Default is False.
+
+        Returns:
+            The dataframe with new column attached which has values in the
+            mapping provided.
+        """
+        if not (isinstance(new_col_name, str) and isinstance(existing_col_name, str)):
+            raise transform_errors.InputDataTypeError("Column names must be of string type")
+
+        if not isinstance(dictionary_of_mappings, dict):
+            raise transform_errors.InputDataTypeError(
+                "Mapping key-value pairs must be of dictionary type")
+
+        if use_existing_col_values:
+            df[new_col_name] = df[existing_col_name].replace(dictionary_of_mappings)
+        else:
+            df[new_col_name] = df[existing_col_name].map(dictionary_of_mappings)
 
         return df
 
