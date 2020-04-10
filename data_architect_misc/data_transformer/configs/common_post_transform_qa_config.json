@@ -1,7 +1,7 @@
 [
   {
     "__comment__": "This is the common QA functions that we must always run against output files after data transformation.",
-    "__comment__": "If the output file does NOT pass these QA tests, we must modify the config files of the respective country to update the transformation rules as needed.",
+    "__comment__": "If any of the QA tests doesn't pass, we must modify the config file of the respective country to update the transformation rules as needed.",
     "__comment__": "Run this QA config from commandline like this >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
@@ -21,13 +21,13 @@
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
     "functions_to_apply": [
       {
-        "__function_comment__": "Drop unnamed columns, if any, first.",
-        "function_name": "drop_unnamed_columns"
+        "__function_comment__": "Transformed file must have 16 standard columns only.",
+        "function_name": "assert_number_of_columns_equals",
+        "function_args": [16]
       },
       {
-        "__function_comment__": "Check that there are originally only 10 columns from GCC data file.",
-        "function_name": "assert_number_of_columns_equals",
-        "function_args": [10]
+        "__function_comment__": "Transform file must have expected column names.",
+        "function_name": "assert_only_expected_standard_column_names_exist"
       },
       {
         "__function_comment__": "Rename column 'SUBBRAND (Optional)' to 'SUBBRAND'.",
