@@ -1,8 +1,8 @@
 [
   {
     "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "input_folder_path": "./input/AED_Morroco/",
-    "input_file_name_or_pattern": "Morroco_2019FY_20200330.xlsx",
+    "input_folder_path": "./input/AED_Morocco/",
+    "input_file_name_or_pattern": "Morocco_2019FY_20200330.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "sheet_name_of_input_excel_file": "MOROCCO",
@@ -37,7 +37,7 @@
     "num_of_rows_to_skip_from_the_bottom": 0,
 
     "__comment__": "(Required) List of the functions and their parameters.",
-    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
+    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_morocco_transform_functions.py",
     "functions_to_apply": [
       {
         "__function_comment__": "Budget roll up Excel file has empty columns. We need to drop them first",
@@ -80,36 +80,44 @@
       },
       {
         "__function_comment__": "Add HARMONIZED_ADVERTISER column that have uppercase-d advertiser names with all global compete advertisers mapped to their standard names.",
-        "function_name": "add_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
         "function_args": [
           "ADVERTISER",
           "HARMONIZED_ADVERTISER",
           {
-            "BEIERSDORF": "BEIERSDORF",
-            "COLGATE PALMOLIVE": "COLGATE-PALMOLIVE",
-            "GLAXO SMITHKLINE MAROC": "GSK",
-            "Johnson & Johnson": "JOHNSON & JOHNSON",
-            "L'OREAL MAROC": "LOREAL",
-            "PROCTER & GAMBLE": "P&G",
-            "UNILEVER": "UNILEVER"
-          },
-          true
+            "(?i)BDF.*": "BEIERSDORF",
+            "(?i)BEIERSDORF.*": "BEIERSDORF",
+            "(?i)COLGATE.*": "COLGATE-PALMOLIVE",
+            "(?i)^CP$": "COLGATE-PALMOLIVE",
+            "(?i)GLAXO.*": "GSK",
+            "(?i)^GSK": "GSK",
+            "(?i)HENKEL.*": "HENKEL",
+            "(?i)JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
+            "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
+            "(?i)L'?OREAL.*": "LOREAL",
+            "(?i)PROCTER.*&.*GAMBLE": "P&G",
+            "(?i)P.*&.*G": "P&G",
+            "(?i)RECKITT.*": "RECKITT BENCKISER",
+            "(?i)^RB$": "RECKITT BENCKISER",
+            "(?i).*CLOROX.*": "THE CLOROX COMPANY",
+            "(?i).*UNILEVER.*": "UNILEVER"
+          }
         ]
       },
       {
         "__function_comment__": "Add HARMONIZED_MEDIA_TYPE column that have standardized category names.",
-        "function_name": "add_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
         "function_args": [
           "MEDIA_TYPE",
           "HARMONIZED_MEDIA_TYPE",
           {
-            "OOH": "OOH",
-            "Print": "Print",
-            "RADIO": "Radio",
-            "TV": "TV",
-            "RD": "Radio"
-          },
-          true
+            "(?i)CINEMA.*": "Cinema",
+            "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
+            "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH",
+            "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
+            "(?i)TV": "TV", "(?i)Television.*": "TV",
+            "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital"
+          }
         ]
       },
       {
@@ -129,21 +137,22 @@
       },
       {
         "__function_comment__": "Add HARMONIZED_CATEGORY column that have standardized category names.",
-        "function_name": "add_new_column_based_on_another_column_values",
+        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
         "function_args": [
           "CATEGORY",
           "HARMONIZED_CATEGORY",
           {
-            "Baby Care": "Personal Care",
-            "HAIR CARE": "Personal Care",
-            "Home Care": "Home Care",
-            "ORAL CARE": "Oral Care",
-            "ORAL CARE ": "Oral Care",
-            "Other": "Other",
-            "Personal Care ": "Personal Care",
-            "Personal Care": "Personal Care"
-          },
-          true
+            "(?i)^HC$": "Home Care",
+            "(?i)HOME.*CARE.*": "Home Care",
+            "(?i)^OC$": "Oral Care",
+            "(?i)ORAL.*CARE.*": "Oral Care",
+            "(?i)^PC$": "Personal Care",
+            "(?i).*PERSONAL.*CARE.*": "Personal Care",
+            "(?i).*BABY.*CARE.*": "Personal Care",
+            "(?i)HAIR.*CARE.*": "Personal Care",
+            "(?i)OTHER.*": "Other",
+            "(?i)ALL.*OTHER.*": "Other"
+          }
         ]
       },
       {
