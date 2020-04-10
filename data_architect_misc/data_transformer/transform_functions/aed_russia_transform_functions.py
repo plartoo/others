@@ -11,7 +11,7 @@ import pandas as pd
 from transform_functions.transform_functions import CommonTransformFunctions
 
 
-class CustomTransformFunctions(CommonTransformFunctions):
+class CustomFunctions(CommonTransformFunctions):
     """
     All custom (uncommon) transform functions **SPECIFIC to
     individual processing task** must be defined as part
@@ -19,9 +19,7 @@ class CustomTransformFunctions(CommonTransformFunctions):
     """
 
     def implement_gcc_specific_functions_in_this_file(self,
-                                                       df,
-                                                       list_of_col_names_to_group_by,
-                                                       col_name_to_sum
+                                                       df
                                                        )  -> pd.DataFrame:
         """
         """
