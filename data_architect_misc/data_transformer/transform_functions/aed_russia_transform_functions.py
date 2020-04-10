@@ -18,10 +18,12 @@ class CustomTransformFunctions(CommonTransformFunctions):
     of this class.
     """
 
-    def to_do_function(self, df)  -> pd.DataFrame:
+    def implement_gcc_specific_functions_in_this_file(self,
+                                                       df,
+                                                       list_of_col_names_to_group_by,
+                                                       col_name_to_sum
+                                                       )  -> pd.DataFrame:
         """
-        TODO: We will start adding functions specific to Russia processing here
         """
         return df
-
 
