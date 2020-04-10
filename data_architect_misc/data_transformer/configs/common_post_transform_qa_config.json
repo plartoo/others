@@ -2,7 +2,7 @@
   {
     "__comment__": "This is the common QA functions that we must always run against output files after data transformation.",
     "__comment__": "If any of the QA tests doesn't pass, we must modify the config file of the respective country to update the transformation rules as needed.",
-    "__comment__": "Run this QA config from commandline like this >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
+    "__comment__": "Run this QA config from commandline like this >> python transform.py -c configs/common_post_transform_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "sheet_name_of_input_excel_file": "Sheet1",
@@ -17,9 +17,15 @@
     "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file. Default is 0.",
     "num_of_rows_to_skip_from_the_bottom": 0,
 
+    "__comment__": "(Required) Path+name of the module with **COMMON** QA functions.",
+    "custom_transform_functions_file": "./qa_functions/common_post_transform_qa_functions.py",
+
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
     "functions_to_apply": [
+      {
+        "function_name": "test_qa"
+      },
       {
         "__function_comment__": "Transformed file must have 16 standard columns only.",
         "function_name": "assert_number_of_columns_equals",
@@ -153,7 +159,6 @@
           ]
         ]
       }
-    ],
-
+    ]
   }
 ]
