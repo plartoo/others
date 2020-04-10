@@ -43,7 +43,7 @@ KEY_DATABASE_SCHEMA = 'database_schema'
 KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'
 DEFAULT_OUTPUT_TABLE_NAME = 'default_transformed_sql_table_name'
 
-KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE = 'custom_transform_functions_file'
+KEY_CUSTOM_FUNCTIONS_FILE = 'custom_transform_functions_file'
 # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
 DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
                                                        'transform_functions',
@@ -345,21 +345,26 @@ def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
         # the CommonTransformFunctions instance.
         return transform_funcs_module.CommonTransformFunctions()
     else:
-        return transform_funcs_module.CustomTransformFunctions()
+        return transform_funcs_module.CustomFunctions()
 
 
-def instantiate_transform_functions_module(config):
+def instantiate_custom_functions_module(config):
     """
-    First, extract module path+file name from the config file
-    and import the module that has either the common or the custom
-    transform functions. After importing the module, instantiate
-    an object of that module.
-    """
-    transform_funcs_file = _get_value_from_dict(config,
-                                                KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
-                                                DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+    This function is used to load the module that includes
+    all custom functions be it for data transformation or for
+    data QA-ing.
 
-    if os.path.isfile(transform_funcs_file):
+    It first extracts the module's path+file name from the config
+    file and imports the module that has either the custom functions
+    or the common transform functions (default). After importing
+    the module, this function instantiates and return that module
+    as an object.
+    """
+    custom_funcs_file = _get_value_from_dict(config,
+                                             KEY_CUSTOM_FUNCTIONS_FILE,
+                                             DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+
+    if os.path.isfile(custom_funcs_file):
         # Note: we assume that all transform function modules are located in
         # './transform_funcs' directory, which is used as package name below.
         # Relative module name, the first argument of import_module() below,
@@ -371,12 +376,12 @@ def instantiate_transform_functions_module(config):
         # OR importlib.import_module('transform_functions.switzerland_transform_functions')
         # REF1: https://stackoverflow.com/a/10675081/1330974
         # REF2: https://stackoverflow.com/a/8899345/1330974
-        return _instantiate_transform_module(transform_funcs_file,
+        return _instantiate_transform_module(custom_funcs_file,
                                              importlib.import_module(
-                                                 _get_relative_module_name(transform_funcs_file),
-                                                 package=_get_package_name(transform_funcs_file)))
+                                                 _get_relative_module_name(custom_funcs_file),
+                                                 package=_get_package_name(custom_funcs_file)))
     else:
-        raise transform_errors.FileNotFound(transform_funcs_file)
+        raise transform_errors.FileNotFound(custom_funcs_file)
 
 
 def get_write_data_decision(config):

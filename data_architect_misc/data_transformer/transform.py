@@ -39,13 +39,9 @@ if __name__ == '__main__':
         # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
 
-        # TODO: We need to think about renaming this transform_funcs_instance as custom_module_instance
-        # because we might want to use this pattern for logging; QA-ing and mapping tasks
-        #
         # Before writing custom functions to transform data, please read
         # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
-        transform_funcs_instance = transform_utils.instantiate_transform_functions_module(config)
-
+        custom_funcs_instance = transform_utils.instantiate_custom_functions_module(config)
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
@@ -87,7 +83,7 @@ if __name__ == '__main__':
                     func_name = transform_utils.get_function_name(func_and_params)
                     func_args = transform_utils.get_function_args(func_and_params)
                     func_kwargs = transform_utils.get_function_kwargs(func_and_params)
-                    cur_df = getattr(transform_funcs_instance,
+                    cur_df = getattr(custom_funcs_instance,
                                      func_name)(cur_df, *func_args, **func_kwargs)
                     # print(cur_df)
                     # if func_name == 'update_str_value_in_col2_if_col1_has_one_of_given_values':
