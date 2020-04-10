@@ -102,7 +102,6 @@
             "(i?)PAN.*ARAB.*": "Pan Arab", "(i?)PAN.*ASIAN.*": "Pan Asian", "(i?)QATAR.*": "Qatar",
             "(i?)UNITED ARAB EMIRATES.*": "United Arab Emirates",
             "(i?)UAE.*": "United Arab Emirates"
-
           }
         ]
       },
