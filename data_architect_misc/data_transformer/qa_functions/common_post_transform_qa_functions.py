@@ -22,6 +22,21 @@ class CustomFunctions:
     This class is the collection of QA functions that must be run
     against the transformed data. The QA functions here will either
     give warnings or throw errors (if the impact is serious).
+
+    Note: This class is named 'CustomFunctions' instead of
+    'CustomQAFunctions' because the way we load custom function
+    modules (in transform_utils.py) is expecting a class named,
+    'CustomFunctions' if any custom function file is provided.
+
+    Technically, we can create a 'CustomQAFunctions' class first
+    and then have 'CustomFunctions' class inherit the former
+    in this module. That is, create
+    class CustomFunctions(CustomQAFunctions).
+
+    But I personally don't like creating multiple-layered
+    classes just because it follows OOP best practices.
+    As a result, I have decided not inherit 'CustomFunctions' from
+    'CustomQAFunctions'.
     """
     EXPECTED_COLUMNS = {
         "YEAR",
