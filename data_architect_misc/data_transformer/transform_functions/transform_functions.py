@@ -136,7 +136,6 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.rename(columns=old_to_new_cols_dict)
 
-
     def capitalize_first_letter_of_each_word_in_columns(self,
                                                         df,
                                                         list_of_col_names) -> pd.DataFrame:
@@ -703,7 +702,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def add_year_column_with_year_value_derived_from_existing_date_column_with_date_values(
+    def add_year_column_using_existing_date_column_with_date_values(
             self,
             df,
             existing_date_col_name,
@@ -715,7 +714,7 @@ class CommonTransformFunctions(TransformFunctions):
         For example, if we want to add 'YEAR' column by using
         the date column in the dataframe called 'YEAR_MONTH',
         we call this method like below:
-        add_year_column_with_year_value_derived_from_existing_date_column_with_date_values(
+        add_year_column_using_existing_date_column_with_date_values(
         df, 'YEAR_MONTH')
 
         Args:
@@ -733,7 +732,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def add_month_column_with_month_value_derived_from_existing_date_column_with_date_values(
+    def add_month_column_using_existing_date_column_with_date_values(
             self,
             df,
             existing_date_col_name,
@@ -745,7 +744,7 @@ class CommonTransformFunctions(TransformFunctions):
         For example, if we want to add 'MONTH' column by using
         the date column in the dataframe called 'YEAR_MONTH',
         we call this method like below:
-        add_month_column_with_month_value_derived_from_existing_date_column_with_date_values(
+        add_month_column_using_existing_date_column_with_date_values(
         df, 'YEAR_MONTH')
 
         Args:
@@ -763,7 +762,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def add_month_column_with_int_values_derived_from_existing_month_col_with_full_month_names(
+    def add_integer_month_column_using_existing_month_col_with_full_month_names(
             self,
             df,
             existing_month_col_name_with_full_month_names,
@@ -776,7 +775,7 @@ class CommonTransformFunctions(TransformFunctions):
         For example, if we want to add a new integer month column named 'MM' using
         an existing month column named 'Existing_Month' which has full month's names,
         we will call this method like below:
-        add_month_column_with_int_values_derived_from_existing_month_col_with_full_month_names(df,
+        add_integer_month_column_using_existing_month_col_with_full_month_names(df,
         'MM', 'Existing_Month')
 
         Args:
@@ -801,7 +800,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def add_date_column_with_date_value_derived_from_existing_year_and_month_cols_with_int_values(
+    def add_date_column_using_existing_year_and_month_columns_with_integer_values(
             self,
             df,
             existing_year_col_name_with_integer_year_values,
@@ -818,7 +817,7 @@ class CommonTransformFunctions(TransformFunctions):
         named 'Existing_Month', which also has integer month values (such as
         1 for 'January'; 2 for 'February'), we will call this method like
         below:
-        add_date_column_with_date_value_referring_from_existing_cols_int_year_and_month_values(
+        add_date_column_using_existing_year_and_month_columns_with_integer_values(
         df, 'Existing_Year', 'Existing_Month', 'DatePurchased')
 
         Args:
@@ -871,8 +870,9 @@ class CommonTransformFunctions(TransformFunctions):
             'DATA_PROCESSED_DATE'.
 
         Returns:
-            The dataframe with newly added DATA_PROCESSED_DATE (or any other custom
-            column name provided as parameter) with current date values.
+            The dataframe with PROCESSED_DATE (or any other custom
+            column name provided as parameter) column that has
+            with current date values (of date type).
         """
         if not isinstance(new_date_col_name, str):
             raise transform_errors.InputDataTypeError("New date column name must "
