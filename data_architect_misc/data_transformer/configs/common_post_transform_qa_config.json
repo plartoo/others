@@ -2,7 +2,7 @@
   {
     "__comment__": "This is the common QA functions that we must always run against output files after data transformation.",
     "__comment__": "If any of the QA tests doesn't pass, we must modify the config file of the respective country to update the transformation rules as needed.",
-    "__comment__": "Run this QA config from commandline like this >> python transform.py -c configs/common_post_transform_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
+    "__comment__": "Run this QA config from commandline like this >> python transform.py -c configs/common_post_transform_qa_config.json -i output/AED_GCC/transformed_GCC_2019FY__20200407_170849.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "sheet_name_of_input_excel_file": "Sheet1",
@@ -17,6 +17,9 @@
     "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file. Default is 0.",
     "num_of_rows_to_skip_from_the_bottom": 0,
 
+    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
+    "write_output": false,
+
     "__comment__": "(Required) Path+name of the module with **COMMON** QA functions.",
     "custom_transform_functions_file": "./qa_functions/common_post_transform_qa_functions.py",
 
@@ -24,140 +27,11 @@
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
     "functions_to_apply": [
       {
-        "function_name": "test_qa"
+        "function_name": "check_expected_columns"
       },
       {
-        "__function_comment__": "Transformed file must have 16 standard columns only.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [16]
-      },
-      {
-        "__function_comment__": "Transform file must have expected column names.",
-        "function_name": "assert_only_expected_standard_column_names_exist"
-      },
-      {
-        "__function_comment__": "Rename column 'SUBBRAND (Optional)' to 'SUBBRAND'.",
-        "function_name": "rename_columns",
-        "function_args": [{"SUBBRAND (Optional)": "SUBBRAND"}]
-      },
-      {
-        "__function_comment__": "Add YEAR column with '2019' as value because that's what we received from local agencies.",
-        "function_name": "add_year_column_with_fixed_int_value",
-        "function_args": [2019]
-      },
-      {
-        "__function_comment__": "Add MONTH column based on the values in YEAR_MONTH column.",
-        "function_name": "add_month_column_with_int_value_referring_from_existing_col_with_full_month_names",
-        "function_args": ["YEAR_MONTH","MONTH"]
-      },
-      {
-        "__function_comment__": "Add DATE column based on the values in YEAR and MONTH columns created above.",
-        "function_name": "add_date_column_with_date_value_derived_from_existing_year_and_month_cols_with_int_values",
-        "function_args": ["YEAR","MONTH"]
-      },
-      {
-        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
-        "function_name": "add_date_column_with_current_date",
-        "function_args": []
-      },
-      {
-        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'AED' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_REGION","AED"]
-      },
-      {
-        "__function_comment__": "Add HARMONIZED_COUNTRY column that have standardized country names for GCC.",
-        "function_name": "add_new_column_based_on_another_column_values",
-        "function_args": [
-          "COUNTRY",
-          "HARMONIZED_COUNTRY",
-          {
-            "BAHRAIN": "Bahrain", "KSA": "Saudi Arabia", "KUWAIT": "Kuwait", "OMAN": "Oman",
-            "PAN ARAB": "Pan Arab", "PAN-ASIAN": "Pan Asia", "QATAR": "Qatar",
-            "UNITED ARAB EMIRATES": "United Arab Emirates"
-          },
-          true
-        ]
-      },
-      {
-        "__function_comment__": "TODO implement case insensitive version of the function below:::: Add HARMONIZED_CATEGORY column that have standardized category names.",
-        "function_name": "add_new_column_based_on_another_column_values",
-        "function_args": [
-          "CATEGORY",
-          "HARMONIZED_CATEGORY",
-          {
-            "HOME CARE": "Home Care", "ORAL CARE": "Oral Care", "OTHER": "Other", "PERSONAL CARE": "Personal Care"
-          },
-          true
-        ]
-      },
-      {
-        "__function_comment__": "Add HARMONIZED_MEDIA_TYPE column that have standardized Media Type names.",
-        "function_name": "add_new_column_based_on_another_column_values",
-        "function_args": [
-          "MEDIA_TYPE",
-          "HARMONIZED_MEDIA_TYPE",
-          {
-            "CINEMA": "Cinema", "MAGAZINE": "Print", "NEWSPAPER": "Print", "OUTDOOR": "OOH",
-            "RADIO": "Radio", "TV": "TV"
-          },
-          true
-        ]
-      },
-      {
-        "__function_comment__": "Add HARMONIZED_ADVERTISER column that have uppercased advertiser names with all global compete advertisers mapped to their standard names.",
-        "function_name": "add_new_column_based_on_another_column_values",
-        "function_args": [
-          "ADVERTISER",
-          "HARMONIZED_ADVERTISER",
-          {
-            "BEIERSDORF AG": "BEIERSDORF",
-            "GLAXOSMITHKLINE": "GSK",
-            "HENKEL": "HENKEL",
-            "JOHNSON & JOHNSON": "JOHNSON & JOHNSON",
-            "L'OREAL PARIS": "LOREAL",
-            "PROCTER & GAMBLE": "P&G",
-            "RECKITT-BENCKISER": "RECKITT BENCKISER",
-            "CLOROX": "THE CLOROX COMPANY",
-            "UNILEVER": "UNILEVER"
-          },
-          true
-        ]
-      },
-      {
-        "__function_comment__": "Add CURRENCY as a new column with 'USD' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["CURRENCY","USD"]
-      },
-      {
-        "__function_comment__": "Round values in GROSS_SPEND_IN_LOCAL_CURRENCY to two digits.",
-        "function_name": "update_decimal_places_in_columns",
-        "function_args": [["GROSS_SPEND_IN_LOCAL_CURRENCY"], 2]
-      },
-      {
-        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
-        "function_name": "update_order_of_columns_in_dataframe",
-        "function_args":
-        [
-          [
-            "COUNTRY",
-            "ADVERTISER",
-            "CATEGORY", "SUBCATEGORY",
-            "BRAND", "SUBBRAND",
-            "PRODUCT_NAME",
-            "MEDIA_TYPE",
-            "YEAR_MONTH",
-            "YEAR", "MONTH", "DATE",
-            "PROCESSED_DATE",
-            "HARMONIZED_REGION",
-            "HARMONIZED_COUNTRY",
-            "HARMONIZED_CATEGORY",
-            "HARMONIZED_MEDIA_TYPE",
-            "HARMONIZED_ADVERTISER",
-            "CURRENCY",
-            "GROSS_SPEND_IN_LOCAL_CURRENCY"
-          ]
-        ]
+        "function_args": [10]
       }
     ]
   }
