@@ -1,47 +1,57 @@
 class TransformError(Exception):
-   """Base class for exceptions."""
-   def __str__(self):
-       return '-> '.join(self.args)
+    """Base class for transform class related exceptions."""
+
+    def __str__(self):
+        return f"\nERROR: {''.join(self.args)}"
 
 
 class ConfigFileError(TransformError):
-    """Raised when JSON config file is not found or its path is not provided."""
+    """
+    Raised when JSON config file is not found
+    or its path is not provided.
+    """
+
     def __str__(self):
-        return "You must provide valid path AND name of " \
-               "the JSON configuration file. Try \n>> python " \
-               "transform.py -h \nto learn the proper usage."
+        return f"You must provide valid path AND name of " \
+               f"the JSON configuration file. Try \n>> python " \
+               f"transform.py -h \nto learn the proper usage."
 
 
 class FileNotFound(TransformError):
     """Raised when file(s) is not found."""
+
     def __init__(self, filename):
-        super().__init__("Please make sure that the following file(s) exists ",
-                          filename)
+        super().__init__(f"Please make sure that the following "
+                         f"file(s) exists: {filename}")
 
 
 class InvalidFileType(TransformError):
-    """Raised when the user provide input file that is NOT Excel or CSV."""
+    """
+    Raised when the user provide input file
+    that is NOT Excel or CSV.
+    """
+
     def __init__(self, file_name):
         self.file_name = file_name
 
     def __str__(self):
-        return ' '.join(["This program only accepts either Excel or CSV files.",
-                        "But the input file type does not match what's expected:",
-                        self.file_name])
+        return f"This program only accepts either Excel or CSV files. " \
+               f"Here, this input file type is neither Excel nor CSV: " \
+               f"{self.file_name}"
 
 
 class RequiredKeyNotFound(TransformError):
     """
     Raised when we do NOT find required key in a dictionary.
     """
+
     def __init__(self, dictionary, key_names):
         self.dictionary = dictionary
         self.key_names = key_names
 
     def __str__(self):
-        return ' '.join(["In dictionary: ", str(self.dictionary),
-                         ", at least one of the following required key(s) must exist: ",
-                         str(self.key_names)])
+        return f"In dictionary: {self.dictionary}, at least one of the " \
+               f"following required keys(s) must exist: {self.key_names}"
 
 
 class RequiredKeyNotFoundInConfigFile(TransformError):
@@ -49,30 +59,13 @@ class RequiredKeyNotFoundInConfigFile(TransformError):
     Raised when config file does not have required key
     (more specific version of RequiredKeyNotFound error).
     """
+
     def __init__(self, key_name):
         self.key_name = key_name
 
     def __str__(self):
-        return ' '.join(["Please make sure to include and provide value for this "
-                         "required key in JSON config file:", self.key_name])
-
-
-class MutuallyExclusiveKeyError(TransformError):
-    """
-    Raised when config file has more than one key that serves the same
-    purpose. For example, we must only provide either the sheet name
-    OR sheet index. NOT both.
-    """
-    def __init__(self, key1, key2):
-        self.k1 = key1
-        self.k2 = key2
-
-    def __str__(self):
-        return ' '.join(["You can provide EITHER '",
-                         self.k1,
-                        "' OR '",
-                         self.k2,
-                        "' in JSON configuration file. NOT both."])
+        return f"Please make sure to include and provide value for this " \
+               f"required key in JSON config file: {self.key_name}"
 
 
 class ConfigFileInputDataTypeError(TransformError):
@@ -82,28 +75,20 @@ class ConfigFileInputDataTypeError(TransformError):
     *all* integers) are allowed for column name and column index
     keys in the config file.
     """
+
     def __init__(self, key, expected_data_types):
         self.k = key
         self.dt = expected_data_types
 
     def __str__(self):
-        return ''.join(["For '",
-                         self.k,
-                         "' key in JSON config file, the data type must be one of the followings: ",
-                         str(self.dt)])
-
-
-class DBSchemaNotDefinedError(TransformError):
-    """Raised when database schema is not defined
-    (is empty string) in the config file.
-    """
-    def __init__(self, error_msg):
-        super().__init__(error_msg)
+        return f"For {self.k} key in JSON config file, the data type " \
+               f"must be one of the followings: {self.dt}"
 
 
 class InputDataTypeError(TransformError):
     """Raised when the data type of the input parameter do not match what is expected.
     """
+
     def __init__(self, error_msg):
         super().__init__(error_msg)
 
@@ -111,55 +96,32 @@ class InputDataTypeError(TransformError):
 class InputDataLengthError(TransformError):
     """Raised when the length of the input parameter do not match what is expected.
     """
+
     def __init__(self, error_msg):
         super().__init__(error_msg)
 
 
 class ListEmptyError(TransformError):
     """Raised when the provided list is empty."""
+
     def __init__(self, key_name):
-        super().__init__("Please make sure that non-empty list is provided for the following key in the config file ",
-                          key_name)
+        super().__init__(f"Please make sure that non-empty list "
+                         f"is provided for the following key "
+                         f"in the config file: {key_name}")
 
-
-class ColumnCountError(TransformError):
-    """Raised when the number of columns in a dataframe is not according to expectation"""
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-class PossibleDuplicateError(TransformError):
-    """
-    Raised when there is a possibility of duplicate values in a given column.
-    This should alert the programmer to check the values in the column again
-    and apply necessary mapping to remove the duplicate values.
-    """
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-class NaNFoundError(TransformError):
-    """Raised when there is any nan value in the given (part of) the dataframe."""
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-class EmptyStringFoundError(TransformError):
-    """Raised when there is an empty string in a given column of the dataframe."""
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-class LessThanThresholdValueFoundError(TransformError):
-    """
-    Raised when there is value that is less than the given threshold value
-    found in a given column of the dataframe.
-    """
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-# COLUMNS_TO_USE_TYPE_ERROR = """ERROR: For '""" + KEY_COLUMN_NAMES_TO_USE
-# + """' and '""" + KEY_COLUMN_INDEXES_TO_USE + """' keys in JSON
-# configuration file, you must provide either 'None' OR
-# a list (of *all* strings or *all* integers) for their corresponding values"""
+# class MutuallyExclusiveKeyError(TransformError):
+#     """
+#     Raised when config file has more than one key that serves the same
+#     purpose. For example, we must only provide either the sheet name
+#     OR sheet index. NOT both.
+#
+#     NOTE: No longer used because I redesigned the config file keys
+#     so that we don't need to have mutually exclusive keys anymore.
+#     """
+#     def __init__(self, key1, key2):
+#         self.k1 = key1
+#         self.k2 = key2
+#
+#     def __str__(self):
+#         return f"You can provide EITHER {self.k1} OR {self.k2}" \
+#                f"in JSON configuration file. NOT BOTH."
