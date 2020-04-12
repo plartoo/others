@@ -29,6 +29,7 @@ def return_value_type_check(f):
                             f"and/or its subclasses must return pandas' dataframe, "
                             f"but this function, '{f.__name__}', is returning: {r!r}")
         return r
+
     return check_callable
 
 
@@ -42,6 +43,7 @@ class TransformFunctions:
     which does NOT necessarily return dataframe and can be used
     by transform functions.
     """
+
     def __init_subclass__(cls, **kwargs):
         """
         Run time check to see if functions in this class
@@ -53,7 +55,6 @@ class TransformFunctions:
         for k, v in cls.__dict__.items():
             if callable(v):
                 setattr(cls, k, return_value_type_check(v))
-
 
     def _cap_sentence(self, s):
         """
@@ -74,6 +75,7 @@ class CommonTransformFunctions(TransformFunctions):
     REF: https://stackoverflow.com/a/2203479
          https://stackoverflow.com/a/6322114
     """
+
     def drop_columns_by_index(self, df, list_of_col_idx) -> pd.DataFrame:
         """
         Drop columns from a dataframe using a list of indexes.
@@ -88,7 +90,6 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with columns dropped.
         """
         return df.drop(df.columns[list_of_col_idx], axis=1)
-
 
     def drop_columns_by_name(self, df, list_of_col_names) -> pd.DataFrame:
         """
@@ -105,7 +106,6 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.drop(list_of_col_names, axis=1)
 
-
     def drop_unnamed_columns(self, df) -> pd.DataFrame:
         """
         Drop columns that have 'Unnamed' as column header, which is a usual
@@ -119,7 +119,6 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe whose 'Unnamed' columns are dropped.
         """
         return df.loc[:, ~df.columns.str.contains(r'Unnamed')]
-
 
     def rename_columns(self, df, old_to_new_cols_dict) -> pd.DataFrame:
         """
@@ -136,55 +135,6 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with column headers renamed.
         """
         return df.rename(columns=old_to_new_cols_dict)
-
-
-    def check_possible_duplicates_in_columns(self,
-                                             df,
-                                             list_of_col_names) -> pd.DataFrame:
-        """
-        This method will check if any of the given list of columns
-        has duplicate values in it. It will do so by first
-        turning all letters of each value in individual column to small case.
-        Then it will retain alpha-numerical values of the aforementioned
-        values. Then by comparing the difference between the set of
-        original values vs. that of modified values, this method will
-        raise an Alert/Error message telling user that they should
-        look at possible duplicate values and re-map them as necessary.
-
-        For example, these values in 'Channel' column are possible
-        duplicates: ['YouTube', 'Youtube', 'Other social', 'other social',
-        'E-commerce',' ECommerce']. This method will create a new set of
-        values like this: {'youtube', 'other social', 'ecommerce'} and
-        by comparing it against the original set of values, it will detect
-        possible duplicates
-
-        NOTE: In Python, \W = [^a-zA-Z0-9_]
-        REF: https://docs.python.org/3/library/re.html
-
-        Args:
-            df: Raw dataframe to search for duplicates.
-            list_of_col_names: List of column names in which
-             the code will look for duplicates.
-
-        Returns:
-            Original dataframe if no duplicates are found.
-
-        Raises:
-            PossibleDuplicateError, if there's a possible duplicate values.
-        """
-        non_alpha_numerical_chars_pattern = re.compile(r'\W', re.UNICODE)
-        for col_name in list_of_col_names:
-            orig_values = set(df[col_name].values)
-            simplified_values = {non_alpha_numerical_chars_pattern.sub('', s).lower()
-                                 for s in orig_values}
-            if len(orig_values) != len(simplified_values):
-                err_msg = ''.join(["Possible duplicates found in the values of column, '",
-                                   col_name, "':\n", str(sorted(orig_values)),
-                                   ".\nPlease update/map these values to new, standardized values."
-                                   ])
-                raise transform_errors.PossibleDuplicateError(err_msg)
-
-        return df
 
 
     def capitalize_first_letter_of_each_word_in_columns(self,
@@ -213,12 +163,10 @@ class CommonTransformFunctions(TransformFunctions):
             raise transform_errors.InputDataTypeError("List of column names must "
                                                       "be of list type with individual "
                                                       "names being string values.")
-
         for col_name in list_of_col_names:
             df[col_name] = df[col_name].apply(lambda s: self._cap_sentence(s))
 
         return df
-
 
     def capitalize_all_letters_of_each_word_in_columns(self,
                                                        df,
@@ -248,17 +196,15 @@ class CommonTransformFunctions(TransformFunctions):
             raise transform_errors.InputDataTypeError("List of column names must "
                                                       "be of list type with individual "
                                                       "names being string values.")
-
         for col_name in list_of_col_names:
             df[col_name] = df[col_name].apply(lambda s: s.upper())
 
         return df
 
-
     def update_str_values_in_columns_to_str_values(self,
                                                    df,
                                                    list_of_col_names,
-                                                   list_of_dictionary_of_value_mappings)  -> pd.DataFrame:
+                                                   list_of_dictionary_of_value_mappings) -> pd.DataFrame:
         """
         Given a dataframe, list of columns and corresponding list of dictionaries
         representing old-to-new-value mappings for each column, apply the provided
@@ -290,16 +236,15 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with updated values based on the provided arguments.
         """
         if len(list_of_col_names) != len(list_of_dictionary_of_value_mappings):
-            raise transform_errors.InputDataLengthError("The length of column list:",
-                                                    len(list_of_col_names),
-                                                    "is NOT the same as the length of",
-                                                    "list of dictionaries of update values:",
-                                                    len(list_of_dictionary_of_value_mappings))
+            raise transform_errors.InputDataLengthError(
+                f"The length of column list: {len(list_of_col_names)} "
+                f"is NOT the same as the length of the list of dictionaries "
+                f"of update values: {len(list_of_dictionary_of_value_mappings)}")
+
         for i, col in enumerate(list_of_col_names):
             df[col] = df[col].map(list_of_dictionary_of_value_mappings[i]).fillna(df[col])
 
         return df
-
 
     def update_int_values_in_columns_to_str_values(self,
                                                    df,
@@ -327,11 +272,11 @@ class CommonTransformFunctions(TransformFunctions):
             instead of original integer columns.
         """
         if len(list_of_col_names) != len(list_of_dictionary_of_value_mappings):
-            raise transform_errors.InputDataLengthError("The length of column list:",
-                                                    len(list_of_col_names),
-                                                    "is NOT the same as the length of",
-                                                    "list of dictionaries of update values:",
-                                                    len(list_of_dictionary_of_value_mappings))
+            raise transform_errors.InputDataLengthError(
+                f"The length of column list: {len(list_of_col_names)} "
+                f"is NOT the same as the length of the list of dictionaries "
+                f"of update values: {len(list_of_dictionary_of_value_mappings)}")
+
         for i, col in enumerate(list_of_col_names):
             # first, convert the data type of the column to string
             df[col] = df[col].apply(str)
@@ -339,12 +284,11 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def update_str_values_in_col2_based_on_col1_values(self,
-                                                      df,
-                                                      base_column_name,
-                                                      target_column_name,
-                                                      dictionary_of_value_pairs)  -> pd.DataFrame:
+                                                       df,
+                                                       base_column_name,
+                                                       target_column_name,
+                                                       dictionary_of_value_pairs) -> pd.DataFrame:
         """
         Given a dataframe, two column names (col1 and col2) and a dictionary
         representing col1-values-to-new-col2-values mappings, apply the mappings.
@@ -386,13 +330,12 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def update_str_values_in_col2_if_col1_has_one_of_given_values(self,
-                                                                 df,
-                                                                 col1_name,
-                                                                 col2_name,
-                                                                 list_of_values_in_col1,
-                                                                 final_val_in_col2)  -> pd.DataFrame:
+                                                                  df,
+                                                                  col1_name,
+                                                                  col2_name,
+                                                                  list_of_values_in_col1,
+                                                                  final_val_in_col2) -> pd.DataFrame:
         """
         Update the string value column 2 to 'final_val_in_col1'
         if column 1's value is one of the items in the given
@@ -436,7 +379,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def update_order_of_columns_in_dataframe(self,
                                              df,
                                              list_reordered_col_headers) -> pd.DataFrame:
@@ -466,7 +408,6 @@ class CommonTransformFunctions(TransformFunctions):
         df = df[list_reordered_col_headers]
 
         return df
-
 
     def update_decimal_places_in_columns(self,
                                          df,
@@ -502,7 +443,6 @@ class CommonTransformFunctions(TransformFunctions):
         # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.round.html
         return df.round({col: number_of_decimal_places_to_round for col in list_of_col_names})
 
-
     def update_na_values_with_empty_str_values(self,
                                                df,
                                                list_of_col_names) -> pd.DataFrame:
@@ -527,7 +467,6 @@ class CommonTransformFunctions(TransformFunctions):
         df[list_of_col_names] = df[list_of_col_names].fillna('')
 
         return df
-
 
     def copy_col1_value_to_col2_if_col2_has_specific_value(self,
                                                            df,
@@ -562,7 +501,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def add_new_column_with_fixed_str_value(self,
                                             df,
                                             new_col_name,
@@ -589,7 +527,6 @@ class CommonTransformFunctions(TransformFunctions):
         df[new_col_name] = fixed_str_value
 
         return df
-
 
     def add_new_column_with_values_based_on_another_column_values_using_regex_match(
             self,
@@ -650,7 +587,6 @@ class CommonTransformFunctions(TransformFunctions):
         df[new_col_name] = df[existing_col_name].replace(regex=dictionary_of_mappings)
 
         return df
-
 
     def add_new_column_with_values_based_on_another_column_values_using_exact_str_match(
             self,
@@ -728,7 +664,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def add_year_column_with_fixed_int_value(self,
                                              df,
                                              year_int_value=None,
@@ -768,7 +703,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def add_year_column_with_year_value_derived_from_existing_date_column_with_date_values(
             self,
             df,
@@ -799,7 +733,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def add_month_column_with_month_value_derived_from_existing_date_column_with_date_values(
             self,
             df,
@@ -829,7 +762,6 @@ class CommonTransformFunctions(TransformFunctions):
         df[new_date_col_name] = df[existing_date_col_name].dt.month
 
         return df
-
 
     def add_month_column_with_int_values_derived_from_existing_month_col_with_full_month_names(
             self,
@@ -868,7 +800,6 @@ class CommonTransformFunctions(TransformFunctions):
             lambda x: datetime.datetime.strptime(x, '%B').month)
 
         return df
-
 
     def add_date_column_with_date_value_derived_from_existing_year_and_month_cols_with_int_values(
             self,
@@ -922,7 +853,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
     def add_date_column_with_current_date(self,
                                           df,
                                           new_date_col_name='PROCESSED_DATE') -> pd.DataFrame:
@@ -953,145 +883,8 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-
-    def assert_number_of_columns_equals(self, df, num_of_cols_expected) -> pd.DataFrame:
-        """
-        Assert that the total number of columns in the dataframe
-        is equal to num_of_cols_expected (int).
-
-        Args:
-            df: Raw dataframe to transform.
-            num_of_cols_expected: Number of columns expected (int).
-
-        Returns:
-            The original dataframe is returned if the assertion is successful.
-
-        Raises:
-            ColumnCountMismatchError: If the number of columns found
-            does not equal to what is expected.
-        """
-        if df.shape[1] != num_of_cols_expected:
-            raise transform_errors.ColumnCountError(
-                ' '.join(["Expected column count of:", str(num_of_cols_expected),
-                          "but found:", str(df.shape[1]), "in the current dataframe."])
-            )
-        else:
-            print("Successfully check that the current dataframe has:", num_of_cols_expected, "columns.")
-
-        return df
-
-
-    def assert_no_na_values_in_columns(self,
-                                         df,
-                                         list_of_col_names) -> pd.DataFrame:
-        """
-        Check if there is any NaN/Null/None values in the list of
-        columns provided. If there is any, raise NaNFoundError.
-
-        Args:
-            df: Raw dataframe to check for Nan values.
-            list_of_col_names: List of column names (each is of string type)
-            in which we should look for NaN/NULL values.
-            REF1: https://stackoverflow.com/a/42923089
-            REF2: https://stackoverflow.com/a/27159258
-            REF3: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.isnull.html
-
-        Returns:
-            The original dataframe is returned if the assertion is successful.
-
-        Raises:
-            NaNFoundError: If there is any NaN/NULL value in the given list
-            of columns.
-        """
-        if not isinstance(list_of_col_names, list):
-            raise transform_errors.InputDataTypeError("List of column names must "
-                                                      "be of list type with individual "
-                                                      "column names being string values.")
-
-        if df[list_of_col_names].isnull().values.any():
-            raise transform_errors.NaNFoundError(''.join([
-                "NaN/None/NaT value is found in one of these columns:",
-                str(list_of_col_names)
-            ]))
-
-        return df
-
-
-    def assert_no_empty_str_values_in_columns(self,
-                                              df,
-                                              list_of_col_names) -> pd.DataFrame:
-        """
-        Check if there is any empty string values in the list of
-        columns provided. If there is any, raise EmptyStringFoundError.
-
-        Args:
-            df: Raw dataframe to check for empty string values.
-            list_of_col_names: List of column names (each is of string type)
-            in which we should look for empty string values.
-            REF1: https://stackoverflow.com/a/52843708
-
-        Returns:
-            The original dataframe is returned if the assertion is successful.
-
-        Raises:
-            EmptyStringFoundError: If there is any empty string value
-            in the given list of columns.
-        """
-        if not isinstance(list_of_col_names, list):
-            raise transform_errors.InputDataTypeError("List of column names must "
-                                                      "be of list type with individual "
-                                                      "column names being string values.")
-
-        for col_name in list_of_col_names:
-            if df[df[col_name] == ''].index.any():
-                raise transform_errors.EmptyStringFoundError(''.join([
-                    "Empty string value is found in this column:", col_name
-                ]))
-
-        return df
-
-
-    def assert_no_less_than_values_in_columns(self,
-                                              df,
-                                              threshold_value,
-                                              list_of_col_names) -> pd.DataFrame:
-        """
-        Check if there is any value which is less than the threshold_value
-        in the list of columns provided.
-        If there is any, raise LessThanThresholdValueFoundError.
-
-        Args:
-            df: Raw dataframe to check for values less than the threshold values.
-            threshold_value: Value to compare against individual values in
-            the dataframe's columns.
-            list_of_col_names: List of column names (each is of string type)
-            whose values we should compare against the threshold value.
-
-        Returns:
-            The original dataframe is returned if the assertion is successful.
-
-        Raises:
-            LessThanThresholdValueFoundError: If there is any empty string value
-            in the given list of columns.
-        """
-        if not isinstance(list_of_col_names, list):
-            raise transform_errors.InputDataTypeError("List of column names must "
-                                                      "be of list type with individual "
-                                                      "column names being string values.")
-
-        for col_name in list_of_col_names:
-            if any(df[col_name] < threshold_value):
-                raise transform_errors.LessThanThresholdValueFoundError(''.join([
-                    "There is at least one value less than this threshold value: '" ,
-                    str(threshold_value),
-                    "' found in this column: ", col_name]))
-
-        return df
-
-
     def _trim_space(self, cell_str) -> pd.DataFrame:
         return str(cell_str).strip()
-
 
     def remove_dollar_sign(self) -> pd.DataFrame:
         """
@@ -1100,10 +893,8 @@ class CommonTransformFunctions(TransformFunctions):
         """
         pass
 
-
     def multiply_by_thousand(self) -> pd.DataFrame:
         pass
-
 
     def parent_function(self) -> pd.DataFrame:
         print("calling parent")
