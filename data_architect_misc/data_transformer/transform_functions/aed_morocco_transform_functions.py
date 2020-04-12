@@ -1,9 +1,9 @@
-"""This is the subclass of Transform function for GCC (AED division).
+"""This is the subclass of Transform function for Morocco (AED division).
 
-We will define transform functions specific to GCC here.
+We will define transform functions specific to Morocco here.
 
 Author: Phyo Thiha
-Last Modified: March 30, 2020
+Last Modified: April 12, 2020
 """
 
 import pandas as pd
@@ -24,3 +24,5 @@ class CustomFunctions(CommonCompHarmTransformFunctions):
     ) -> pd.DataFrame:
         """Insert description here."""
         return df
+
+
