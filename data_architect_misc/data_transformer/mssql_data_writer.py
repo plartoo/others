@@ -1,12 +1,18 @@
-from datetime import datetime
-import os
+import logging
 import urllib
 
-import pandas as pd
 from sqlalchemy import create_engine
 
 import transform_utils
-import transform_errors
+
+
+class DBSchemaNotDefinedError(Exception):
+
+    """Raised when database schema is not defined
+    (is empty string) in the config file.
+    """
+    def __str__(self):
+        return f"ERROR: {self.args}"
 
 
 class MSSQLDataWriter:
@@ -26,13 +32,15 @@ class MSSQLDataWriter:
     # on the chunk size, and I'm not that excited about using this
     # to_sql method, which seems to be not only slow, but too buggy.
     # Also, if chunksize is not provided as parameter, all rows will
-    # be loaded at once, so that's better for us.
-    # CHUNKSIZE = None, METHOD = None => 850
-    # CHUNKSIZE = 100, METHOD = None => 892
-    # CHUNKSIZE = 10000, METHOD = None => 875
+    # be loaded at once, and based on some experiments below, that
+    # approach is better for us.
+    # CHUNKSIZE = None, METHOD = None => 850 secs
+    # CHUNKSIZE = 100, METHOD = None => 892 secs
+    # CHUNKSIZE = 10000, METHOD = None => 875 secs
     CHUNK_SIZE = None
     # 'multi' means passing multiple values in a single INSERT clause
-    # and in practice, it is throwing error as shown below.
+    # and in practice, it is throwing the errors as shown below.
+    # I think Pandas and/or SQL Alchemy needs to sort out these glitches.
     # REF: https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#insertion-method
     # CHUNKSIZE = None, METHOD = 'multi' => sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('The SQL contains 4184 parameter markers, but 331864 parameters were supplied', 'HY000')
     # CHUNKSIZE = 100, METHOD = 'multi' => sqlalchemy.exc.ProgrammingError (pyodbc.ProgrammingError) ('42000', '[42000] [Microsoft][ODBC Driver 13 for SQL Server][SQL Server]Error converting data type nvarchar to bigint. (8114) (SQLExecDirectW)')
@@ -88,9 +96,9 @@ class MSSQLDataWriter:
         If not provided (that is, empty string), throws DBSchemaNotDefinedError.
         """
         if not transform_utils.get_database_schema(config):
-            err_msg = "Database schema must be defined in JSON config file to write " \
-                      "transformed data to SQL table."
-            raise transform_errors.DBSchemaNotDefinedError(err_msg)
+            err_msg = f"Database schema must be defined in JSON config file " \
+                      f"to write transformed data to SQL table."
+            raise DBSchemaNotDefinedError(err_msg)
 
         return transform_utils.get_database_schema(config)
 
@@ -131,6 +139,7 @@ class DataWriter(MSSQLDataWriter):
         REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
         """
         super().__init__(config)
+        self.logger = logging.getLogger(__name__)
 
 
     def __get_sqlalchemy_engine(self):
@@ -171,16 +180,18 @@ class DataWriter(MSSQLDataWriter):
 
     def write_data(self, df):
         """
-        Write dataframe as a table in MS SQL Server database.
+        Write Pandas dataframe as a table in MS SQL Server database
+        using Pandas' to_sql method.
 
         WARNING: Do NOT write data directly to SQL Server table because
         it is painfully slow. For example, to write ~25K rows of 13
         mostly string type (no more than 20 chars in each column)
         columns, it takes ~15 minutes to finish.
         """
-        print("Writing data to MSSQL at (server; database; schema; table):",
-              ''.join([self.server, '; ', self.database, '; ',
-                       self.db_schema, '; ', self.output_sql_table_name]))
+        self.logger.info(
+            f"Writing data to MSSQL at (server; database; schema; table): "
+            f"{self.server}; {self.database}; {self.db_schema}; "
+            f"{self.output_sql_table_name}")
 
         df.to_sql(
             name=self.output_sql_table_name,
@@ -192,7 +203,7 @@ class DataWriter(MSSQLDataWriter):
             # method=self.METHOD
         )
 
-# For Future:
+# For future reference in other projects:
 # A way to READ MSSQL data via pandas
 # >>> sql_conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=;DATABASE=;UID=;PWD=;')
 # df1 = pd.read_sql("select top 100 * from dbo.bra", sql_conn)
