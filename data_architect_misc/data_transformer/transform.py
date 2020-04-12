@@ -1,8 +1,7 @@
 # TODO: Write description, last modified date etc.
-import pdb
-
 import argparse
-import json
+# import json
+import logging
 import os
 import sys
 
@@ -11,11 +10,21 @@ import xlrd # As of April 2020, Pandas still uses xlrd to read Excel (xls and xl
 import openpyxl # Excel file writing engine for Pandas' to_excel function.
 
 import transform_errors
-import transform_functions
+# import transform_functions
 import transform_utils
 
 
 if __name__ == '__main__':
+    # 0. Set logging config
+    # REF 1: https://stackoverflow.com/a/15729700/1330974
+    # REF 2a: https://web.archive.org/save/https://www.loggly.com/ultimate-guide/python-logging-basics/
+    # REF 2b: http://archive.ph/0Uf6u
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                        format="\n%(levelname)s: %(message)s")
+    logger = logging.getLogger(__name__)#('transform.py')
+
+
+
     # 1. Process arguments passed into the program
     parser = argparse.ArgumentParser(description=transform_utils.DESC,
                                      formatter_class = argparse.RawTextHelpFormatter,
@@ -65,8 +74,8 @@ if __name__ == '__main__':
                 # using this program nor no one in their right mind should be storing that much
                 # data in an Excel file.
 
-                print("\nSkipping this many rows (including header row) from the top of the file:",
-                      row_idx_where_data_starts)
+                logger.info(f"Skipping this many rows (including header row)"
+                            f"from the top of the file: {row_idx_where_data_starts}")
                 cur_df = pd.read_excel(input_file,
                                        sheet_name=sheet,
                                        keep_default_na=keep_default_na,
@@ -77,9 +86,9 @@ if __name__ == '__main__':
                                        )
 
                 for func_and_params in transform_utils.get_functions_to_apply(config):
-                    print("\n=> Invoking transform function:\n", json.dumps(func_and_params,
-                                                                          sort_keys=True,
-                                                                          indent=4))
+                    logger.info(f"Invoking function: {func_and_params['function_name']}")
+                    # print("\n=> Invoking function:", json.dumps(func_and_params, sort_keys=True, indent=4),"\n")
+
                     func_name = transform_utils.get_function_name(func_and_params)
                     func_args = transform_utils.get_function_args(func_and_params)
                     func_kwargs = transform_utils.get_function_kwargs(func_and_params)

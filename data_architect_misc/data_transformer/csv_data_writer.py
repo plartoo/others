@@ -1,7 +1,6 @@
 from datetime import datetime
+import logging
 import os
-
-import pandas as pd
 
 import transform_utils
 
@@ -25,6 +24,7 @@ class CSVDataWriter:
         self.include_index = self.get_include_index_column_in_output_csv_file(config)
         self.output_file_encoding = self.get_output_csv_file_encoding(config)
         self.output_file_delimiter = self.get_output_csv_file_delimiter(config)
+        self.logger = logging.getLogger(__name__)
 
 
     @staticmethod
@@ -34,10 +34,11 @@ class CSVDataWriter:
         is provided in the config JSON. Before joining the path with
         file name, output folder is created if it doesn't exist already.
         """
+        logger = logging.getLogger(__name__)
         output_folder = transform_utils.get_output_folder(config)
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
-            print("\nINFO: new folder created for output files =>", output_folder)
+            logger.info(f"New folder created for output files: {output_folder}")
 
         file_prefix = transform_utils.get_output_file_prefix(config)
         file_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -87,7 +88,7 @@ class DataWriter(CSVDataWriter):
 
 
     def write_data(self, df):
-        print("Writing data to:", self.output_file_path_and_name)
+        self.logger.info(f"Writing data to: {self.output_file_path_and_name}")
         df.to_csv(
             self.output_file_path_and_name,
             index=self.include_index,
