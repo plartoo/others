@@ -10,12 +10,6 @@
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "sheet_name_of_input_excel_file": "2019-OFFLINE",
 
-    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
-    "sheet_name_of_output_excel_file": "Sheet1",
-
-    "__comment__": "(Optional) Decide if pandas should interpret 'NA', 'N/A', 'NULL', etc. to NaN value. Default is false",
-    "interpret_na_null_etc_from_raw_data": false,
-
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,
 
@@ -24,25 +18,15 @@
     "__comment__": "This option is only for those who wants to write data to somewhere other than to a local file in CSV format.",
     "data_writer_class_file": "./excel_data_writer.py",
 
+    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
+    "sheet_name_of_output_excel_file": "Sheet1",
+
     "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
     "__comment__": "Default is going to be the current working directory of transform.py",
     "output_folder_path": "./output/AED_GCC/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
     "output_file_name_prefix": "transformed_GCC_2019FY_",
-
-    "__comment__": "(Optional although recommended) SQL table name to which the transformed data should be written.",
-    "__comment__": "Default name is 'default_transformed_sql_table_name' as defined in transform_utils.py",
-    "output_sql_table_name": "transformed_budget_table",
-
-    "__comment__": "(Required ONLY IF MSSQLDriver class is used) Database schema to use if we write transformed data to SQL table.",
-    "database_schema": "dbo",
-
-    "__comment__": "(Optional) Whether to include index column in writing the dataframe to output file or table. Default is false.",
-    "include_index_column_in_output": false,
-
-    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
-    "custom_transform_functions_file": "./transform_functions/aed_gcc_transform_functions.py",
 
     "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",
     "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
@@ -53,6 +37,9 @@
 
     "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file. Default is 0.",
     "num_of_rows_to_skip_from_the_bottom": 0,
+
+    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
+    "custom_transform_functions_file": "./transform_functions/aed_gcc_transform_functions.py",
 
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
@@ -67,181 +54,86 @@
         "function_args": [10]
       },
       {
-        "__function_comment__": "Add YEAR column with '2019' as value because that's what we received from local agencies.",
-        "function_name": "add_year_column_with_fixed_int_value",
+        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
+        "function_name": "add_PROCESSED_DATE_column_with_current_date"
+      },
+      {
+        "__function_comment__": "WARNING: Make sure the value of year is kept updated/relevant.",
+        "function_name": "add_HARMONIZED_YEAR_column_with_constant_integer_value",
         "function_args": [2019]
       },
       {
         "__function_comment__": "Add MONTH column based on the values in YEAR_MONTH column.",
-        "function_name": "add_month_column_with_int_values_derived_from_existing_month_col_with_full_month_names",
-        "function_args": ["YEAR_MONTH","MONTH"]
+        "function_name": "add_HARMONIZED_MONTH_column_using_existing_month_column_with_full_month_names",
+        "function_args": ["YEAR_MONTH"]
       },
       {
-        "__function_comment__": "Add DATE column based on the values in YEAR and MONTH columns created above.",
-        "function_name": "add_date_column_with_date_value_derived_from_existing_year_and_month_cols_with_int_values",
-        "function_args": ["YEAR","MONTH"]
+        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
+        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
       },
       {
-        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
-        "function_name": "add_date_column_with_current_date",
-        "function_args": []
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Africa-Eurasia' as value.",
+        "function_name": "add_HARMONIZED_REGION_column",
+        "function_args": ["Africa-Eurasia"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'AED' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_REGION","Africa-Eurasia"]
+        "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_existing_country_column",
+        "function_args": ["COUNTRY"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_COUNTRY column that have standardized country names for GCC.",
-        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
-        "function_args": [
-          "COUNTRY",
-          "HARMONIZED_COUNTRY",
-          {
-            "(i?)BAHRAIN.*": "Bahrain", "(i?)KSA.*": "Saudi Arabia", "(i?)KUWAIT.*": "Kuwait", "(i?)OMAN.*": "Oman",
-            "(i?)PAN.*ARAB.*": "Pan Arab", "(i?)PAN.*ASIAN.*": "Pan Asian", "(i?)QATAR.*": "Qatar",
-            "(i?)UNITED ARAB EMIRATES.*": "United Arab Emirates",
-            "(i?)UAE.*": "United Arab Emirates"
-          }
-        ]
+        "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
+        "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
+        "function_args": ["ADVERTISER"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_ADVERTISER column that have uppercased advertiser names with all global compete advertisers mapped to their standard names.",
-        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
-        "function_args": [
-          "ADVERTISER",
-          "HARMONIZED_ADVERTISER",
-          {
-            "(?i)BDF.*": "BEIERSDORF",
-            "(?i)BEIERSDORF.*": "BEIERSDORF",
-            "(?i)COLGATE.*": "COLGATE-PALMOLIVE",
-            "(?i)^CP$": "COLGATE-PALMOLIVE",
-            "(?i)GLAXO.*": "GSK",
-            "(?i)^GSK": "GSK",
-            "(?i)HENKEL.*": "HENKEL",
-            "(?i)JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
-            "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
-            "(?i)L'?OREAL.*": "LOREAL",
-            "(?i)PROCTER.*&.*GAMBLE": "P&G",
-            "(?i)P.*&.*G": "P&G",
-            "(?i)RECKITT.*": "RECKITT BENCKISER",
-            "(?i)^RB$": "RECKITT BENCKISER",
-            "(?i).*CLOROX.*": "THE CLOROX COMPANY",
-            "(?i).*UNILEVER.*": "UNILEVER"
-          }
-        ]
-      },
-      {
-        "__function_comment__": "Add HARMONIZED_MEDIA_TYPE column that have standardized Media Type names.",
-        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
-        "function_args": [
-          "MEDIA_TYPE",
-          "HARMONIZED_MEDIA_TYPE",
-          {
-            "(?i)CINEMA.*": "Cinema",
-            "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
-            "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH",
-            "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-            "(?i)TV": "TV", "(?i)Television.*": "TV",
-            "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital"
-          }
-        ]
+        "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
+        "function_args": ["MEDIA_TYPE"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'USD' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["CURRENCY","USD"]
+        "function_name": "add_HARMONIZED_CURRENCY_column",
+        "function_args": ["USD"]
       },
       {
-        "__function_comment__": "Round values in GROSS_SPEND_IN_LOCAL_CURRENCY to two digits.",
-        "function_name": "update_decimal_places_in_columns",
-        "function_args": [["GROSS_SPEND_IN_LOCAL_CURRENCY"], 2]
+        "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
+        "function_name": "add_HARMONIZED_GROSS_SPEND_column",
+        "function_args": ["GROSS_SPEND_IN_LOCAL_CURRENCY"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_CATEGORY column that have standardized category names.",
-        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
-        "function_args": [
-          "CATEGORY",
-          "HARMONIZED_CATEGORY",
-          {
-            "(?i)^HC$": "Home Care",
-            "(?i)HOME.*CARE.*": "Home Care",
-            "(?i)^OC$": "Oral Care",
-            "(?i)ORAL.*CARE.*": "Oral Care",
-            "(?i)^PC$": "Personal Care",
-            "(?i).*PERSONAL.*CARE.*": "Personal Care",
-            "(?i).*BABY.*CARE.*": "Personal Care",
-            "(?i)HAIR.*CARE.*": "Personal Care",
-            "(?i)OTHER.*": "Other",
-            "(?i)ALL.*OTHER.*": "Other"
-          }
-        ]
+        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
+        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
+        "function_args": ["CATEGORY"]
       },
       {
-        "__function_comment__": "Rename original column headers to standard raw column headers.",
-        "function_name": "rename_columns",
-        "function_args": [
-          {
-            "SUBCATEGORY": "RAW_SUBCATEGORY",
-            "BRAND": "RAW_BRAND",
-            "SUBBRAND (Optional)": "RAW_SUBBRAND",
-            "PRODUCT_NAME": "RAW_PRODUCT_NAME"
-          }
-        ]
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
+        "function_args": ["SUBCATEGORY"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and leave it empty for mapping values to be filled out later.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_PRODUCT_NAME",""]
+        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
+        "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
+        "function_args": ["BRAND"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "function_name": "add_RAW_SUBBRAND_column_by_renaming_existing_column",
+        "function_args": ["SUBBRAND (Optional)"]
+      },
+      {
+        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
+        "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
+        "function_args": ["PRODUCT_NAME"]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
+        "function_name": "add_empty_HARMONIZED_PRODUCT_NAME_column"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
-        "function_name": "update_order_of_columns_in_dataframe",
-        "function_args":
-        [
-          [
-            "YEAR",
-            "MONTH",
-            "DATE",
-            "PROCESSED_DATE",
-            "HARMONIZED_REGION",
-            "HARMONIZED_COUNTRY",
-            "HARMONIZED_ADVERTISER",
-            "HARMONIZED_MEDIA_TYPE",
-            "CURRENCY",
-            "GROSS_SPEND_IN_LOCAL_CURRENCY",
-            "HARMONIZED_CATEGORY",
-            "RAW_SUBCATEGORY",
-            "RAW_BRAND",
-            "RAW_SUBBRAND",
-            "RAW_PRODUCT_NAME",
-            "HARMONIZED_PRODUCT_NAME"
-          ]
-        ]
+        "function_name": "filter_and_rearrange_columns_for_final_output"
       }
-    ],
-
-    "to_add": "QA_REGION_col_must_exist_with_values in constants.py",
-    "to_add": "QA_HARMONIZED_COUNTRY_col_must_exist_with_GCC_Countries in constants.py",
-    "to_add": "QA_YEAR_col_must_exist_with_values; warn if year is different from current",
-    "to_add": "QA_MONTH_col_must_exist_with_values; warn if month is different from last month",
-    "to_add": "QA_CURRENCY_col_must_exist_with_valid_value; ",
-    "to_add": "QA_PROCESSED_DATE_col_must_exist_with_values",
-    "to_add": "QA_YEAR_col_must_probably_have_current_year_value",
-    "to_add": "QA_MONTH_col_must_probably_have_last_months_value",
-    "to_add": "QA_HARMONIZED_COUNTRY_col_must_have_valid_value",
-    "to_add": "QA_HARMONIZED_ADVERTISER_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_CATEGORY_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_SUBCATEGORY_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_BRAND_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_SUBBRAND_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_HARMONIZED_PRODUCT_NAME_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_MEDIA_TYPE_col_must_have_one_of_the_valid_values",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_have no more than two digits as decimals",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_equal_or_larger_than_zero",
-    "to_add": "QA_GROSS_SPEND_IN_LOCAL_CURRENCY_col_must_be_less_than_one_billion",
-    "to_add": "Rearrange_columns_in_order_that_is_better_to_read",
-
-	"no negative values in local spend  column assert_no_negative_values_in_columns(['local_spend'])": ""
+    ]
   }
 ]

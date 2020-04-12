@@ -10,9 +10,6 @@
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "sheet_name_of_input_excel_file": "Base ",
 
-    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
-    "sheet_name_of_output_excel_file": "Sheet1",
-
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,
 
@@ -29,9 +26,6 @@
     "__comment__": "(Optional) Prefix for the output file name.",
     "output_file_name_prefix": "transformed_Russia_2019FY_",
 
-    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
-    "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
-
     "__comment__": "(Optional) Enter the row index (starting from 0) to extract column headers from. Default is 0 (the first row).",
     "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
     "row_index_to_extract_column_headers": 0,
@@ -41,6 +35,9 @@
 
     "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file. Default is 0.",
     "num_of_rows_to_skip_from_the_bottom": 0,
+
+    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
+    "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
 
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_russia_transform_functions.py",
@@ -55,139 +52,85 @@
         "function_args": [12]
       },
       {
-        "__function_comment__": "Add DATE column by combining YEAR and MONTH columns in Russia raw data file.",
-        "function_name": "add_date_column_with_date_value_derived_from_existing_year_and_month_cols_with_int_values",
-        "function_args": ["YEAR", "MONTH"]
+        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
+        "function_name": "add_PROCESSED_DATE_column_with_current_date"
       },
       {
-        "__function_comment__": "Add PROCESSED_DATE column representing today's date.",
-        "function_name": "add_date_column_with_current_date",
-        "function_args": []
+        "__function_comment__": "Create HARMONIZED_YEAR column from existing YEAR column name.",
+        "function_name": "add_HARMONIZED_YEAR_column_by_renaming_existing_column",
+        "function_args": ["YEAR"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'AED' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_REGION", "Africa-Eurasia"]
+        "__function_comment__": "Create HARMONIZED_MONTH column from existing MONTH column name.",
+        "function_name": "add_HARMONIZED_MONTH_column_by_renaming_existing_column",
+        "function_args": ["MONTH"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_COUNTRY as a new column with 'AED' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_COUNTRY", "Russia"]
+        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
+        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
       },
       {
-        "__function_comment__": "Add HARMONIZED_ADVERTISER column that have uppercase-d advertiser names with all global compete advertisers mapped to their standard names.",
-        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
-        "function_args": [
-          "ADVERTISERS IN SCOPE",
-          "HARMONIZED_ADVERTISER",
-          {
-            "(?i)BDF.*": "BEIERSDORF",
-            "(?i)BEIERSDORF.*": "BEIERSDORF",
-            "(?i)COLGATE.*": "COLGATE-PALMOLIVE",
-            "(?i)^CP$": "COLGATE-PALMOLIVE",
-            "(?i)GLAXO.*": "GSK",
-            "(?i)^GSK": "GSK",
-            "(?i)HENKEL.*": "HENKEL",
-            "(?i)JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
-            "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
-            "(?i)L'?OREAL.*": "LOREAL",
-            "(?i)PROCTER.*&.*GAMBLE": "P&G",
-            "(?i)P.*&.*G": "P&G",
-            "(?i)RECKITT.*": "RECKITT BENCKISER",
-            "(?i)^RB$": "RECKITT BENCKISER",
-            "(?i).*CLOROX.*": "THE CLOROX COMPANY",
-            "(?i).*UNILEVER.*": "UNILEVER"
-          }
-        ]
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Africa-Eurasia' as value.",
+        "function_name": "add_HARMONIZED_REGION_column",
+        "function_args": ["Africa-Eurasia"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_MEDIA_TYPES column that have standardized category names.",
-        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
-        "function_args": [
-          "MEDIA_TYPES IN SCOPE",
-          "HARMONIZED_MEDIA_TYPE",
-          {
-            "(?i)CINEMA.*": "Cinema",
-            "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
-            "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH",
-            "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-            "(?i)TV": "TV", "(?i)Television.*": "TV",
-            "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital"
-          }
-        ]
+        "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_existing_country_column",
+        "function_args": ["AED COUNTRIES IN SCOPE"]
       },
       {
-        "__function_comment__": "Add CURRENCY as a new column with 'AED' as value.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["CURRENCY","RUB"]
+        "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
+        "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
+        "function_args": ["ADVERTISERS IN SCOPE"]
       },
       {
-        "__function_comment__": "Round values in GROSS_SPEND_IN_LOCAL_CURRENCY to two digits.",
-        "function_name": "update_decimal_places_in_columns",
-        "function_args": [["GROSS_SPEND_IN_RUSSIAN RUBLE"], 2]
+        "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
+        "function_args": ["MEDIA_TYPES IN SCOPE"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_CATEGORY column that have standardized category names.",
-        "function_name": "add_new_column_with_values_based_on_another_column_values_using_regex_match",
-        "function_args": [
-          "CATEGORIES IN SCOPE",
-          "HARMONIZED_CATEGORY",
-          {
-            "(?i)^HC$": "Home Care",
-            "(?i)HOME.*CARE.*": "Home Care",
-            "(?i)^OC$": "Oral Care",
-            "(?i)ORAL.*CARE.*": "Oral Care",
-            "(?i)^PC$": "Personal Care",
-            "(?i).*PERSONAL.*CARE.*": "Personal Care",
-            "(?i).*BABY.*CARE.*": "Personal Care",
-            "(?i)HAIR.*CARE.*": "Personal Care",
-            "(?i)OTHER.*": "Other",
-            "(?i)ALL.*OTHER.*": "Other"
-          }
-        ]
+        "__function_comment__": "Add CURRENCY as a new column with 'RUB' (Russian Ruble) as value.",
+        "function_name": "add_HARMONIZED_CURRENCY_column",
+        "function_args": ["RUB"]
       },
       {
-        "__function_comment__": "Rename original column headers for Spend, Subcategory, Brand, Subbrand and Product Name to standard raw column headers.",
-        "function_name": "rename_columns",
-        "function_args": [
-          {
-            "GROSS_SPEND_IN_RUSSIAN RUBLE": "GROSS_SPEND_IN_LOCAL_CURRENCY",
-            "SUBCATEGORIES IN SCOPE": "RAW_SUBCATEGORY",
-            "BRANDS IN SCOPE": "RAW_BRAND",
-            "SUBBRAND (optional) IN SCOPE": "RAW_SUBBRAND",
-            "PRODUCT_NAMES IN SCOPE": "RAW_PRODUCT_NAME"
-          }
-        ]
+        "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
+        "function_name": "add_HARMONIZED_GROSS_SPEND_column",
+        "function_args": ["GROSS_SPEND_IN_RUSSIAN RUBLE"]
       },
       {
-        "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and leave it empty for mapping values to be filled out later.",
-        "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["HARMONIZED_PRODUCT_NAME",""]
+        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
+        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
+        "function_args": ["CATEGORIES IN SCOPE"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
+        "function_args": ["SUBCATEGORIES IN SCOPE"]
+      },
+      {
+        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
+        "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
+        "function_args": ["BRANDS IN SCOPE"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "function_name": "add_RAW_SUBBRAND_column_by_renaming_existing_column",
+        "function_args": ["SUBBRAND (optional) IN SCOPE"]
+      },
+      {
+        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
+        "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
+        "function_args": ["PRODUCT_NAMES IN SCOPE"]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
+        "function_name": "add_empty_HARMONIZED_PRODUCT_NAME_column"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
-        "function_name": "update_order_of_columns_in_dataframe",
-        "function_args":
-        [
-          [
-            "YEAR",
-            "MONTH",
-            "DATE",
-            "PROCESSED_DATE",
-            "HARMONIZED_REGION",
-            "HARMONIZED_COUNTRY",
-            "HARMONIZED_ADVERTISER",
-            "HARMONIZED_MEDIA_TYPE",
-            "CURRENCY",
-            "GROSS_SPEND_IN_LOCAL_CURRENCY",
-            "HARMONIZED_CATEGORY",
-            "RAW_SUBCATEGORY",
-            "RAW_BRAND",
-            "RAW_SUBBRAND",
-            "RAW_PRODUCT_NAME",
-            "HARMONIZED_PRODUCT_NAME"
-          ]
-        ]
+        "function_name": "filter_and_rearrange_columns_for_final_output"
       }
     ]
   }
