@@ -61,7 +61,7 @@ if __name__ == '__main__':
             # print("It took this many seconds to read the file:", time.time() - t1, "\n")
 
             # TODO: maybe create a data_reader class that will decide which file type (xlsx, csv, parquet) input file is and call read_next_chunk() to yield the read data
-            # TODO: maybe combine get_raw_column_headers with read_data because I use the latter just for the former
+            # TODO: maybe refactor get_raw_column_headers into data reader module because I use the latter just for the former
             col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
 
             if transform_utils.is_excel(input_file):
@@ -102,8 +102,10 @@ if __name__ == '__main__':
                     #     pdb.set_trace()
                     #     print('debug')
 
-                    # TODO: Logging, Mapping, CSV handling (data reader module)
+                    # TODO: Mapping, CSV handling (data reader module)
                     # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
+                    # I can use Russia raw data file to test the memory usage
+
                     # if passing df in/out of function is memory expensive
 
                     # if transform_utils.KEY_TRANSFORM_FUNC_NAME in func_and_params:
