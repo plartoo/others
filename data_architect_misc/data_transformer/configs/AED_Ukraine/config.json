@@ -1,11 +1,11 @@
 [
   {
     "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "input_folder_path": "./input/AED_GCC/",
-    "input_file_name_or_pattern": "GCC_2019FY_20200326.xlsx",
+    "input_folder_path": "./input/AED_Ukraine/",
+    "input_file_name_or_pattern": "Ukraine_2019FY_20200327.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
-    "sheet_name_of_input_excel_file": "2019-OFFLINE",
+    "sheet_name_of_input_excel_file": "DataTemplate",
 
     "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
     "sheet_name_of_output_excel_file": "Sheet1",
@@ -24,23 +24,13 @@
 
     "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
     "__comment__": "Default is going to be the current working directory of transform.py",
-    "output_folder_path": "./output/AED_GCC/",
+    "output_folder_path": "./output/AED_Ukraine/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "transformed_GCC_2019FY_",
-
-    "__comment__": "(Optional although recommended) SQL table name to which the transformed data should be written.",
-    "__comment__": "Default name is 'default_transformed_sql_table_name' as defined in transform_utils.py",
-    "output_sql_table_name": "transformed_budget_table",
-
-    "__comment__": "(Required ONLY IF MSSQLDriver class is used) Database schema to use if we write transformed data to SQL table.",
-    "database_schema": "dbo",
-
-    "__comment__": "(Optional) Whether to include index column in writing the dataframe to output file or table. Default is false.",
-    "include_index_column_in_output": false,
+    "output_file_name_prefix": "transformed_Ukraine_2019FY_",
 
     "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
-    "custom_transform_functions_file": "./transform_functions/aed_gcc_transform_functions.py",
+    "custom_transform_functions_file": "./transform_functions/aed_ukraine_transform_functions.py",
 
     "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",
     "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
@@ -56,13 +46,156 @@
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
     "functions_to_apply": [
       {
-        "__function_comment__": "Budget roll up Excel file has empty columns. We need to drop them first",
+        "__function_comment__": "Excel file has empty columns. We need to drop them first",
         "function_name": "drop_unnamed_columns"
       },
       {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [13]
+        "function_args": [10]
+      },
+      {
+        "__function_comment__": "Add PROCESSED_DATE column representing today's date.",
+        "function_name": "add_date_column_with_current_date",
+        "function_args": []
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'AED' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_REGION","Africa-Eurasia"]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_COUNTRY as a new column with 'Ukraine' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_COUNTRY","Ukraine"]
+      },
+
+      {
+        "__function_comment__": "Rename SUBBRAND (Optional) column to SUBBRAND.",
+        "function_name": "rename_columns",
+        "function_args": [{"SUBBRAND (Optional)": "SUBBRAND"}]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_CATEGORY column that have standardized category names.",
+        "function_name": "add_new_column_based_on_another_column_values",
+        "function_args": [
+          "CATEGORY",
+          "HARMONIZED_CATEGORY",
+          {
+            "OTHER": "Other",
+            "PERSONAL CARE": "Personal Care",
+            "ORAL": "Oral Care",
+            "ORAL CARE": "Oral Care",
+            "HOME CARE": "Home Care"
+          },
+          true
+        ]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_CATEGORY column that have standardized category names.",
+        "function_name": "add_new_column_based_on_another_column_values",
+        "function_args": [
+          "MEDIA_TYPE",
+          "HARMONIZED_MEDIA_TYPE",
+          {
+            "Outdoor": "OOH",
+            "Press": "Print",
+            "Radio": "Radio",
+            "TV": "TV",
+            "Internet": "Digital"
+          },
+          true
+        ]
+      },
+      {
+        "__function_comment__": "TODO: Later on replace this function below with case-insensitive one. Add HARMONIZED_ADVERTISER column that have uppercase-d advertiser names with all global compete advertisers mapped to their standard names.",
+        "function_name": "add_new_column_based_on_another_column_values",
+        "function_args": [
+          "ADVERTISER",
+          "HARMONIZED_ADVERTISER",
+          {
+            "Beiersdorf": "BEIERSDORF",
+            "CP": "COLGATE-PALMOLIVE",
+            "GSK": "GSK",
+            "Henkel": "HENKEL",
+            "J&J": "JOHNSON & JOHNSON",
+            "Loreal": "LOREAL",
+            "RB": "RECKITT BENCKISER",
+            "P&G": "P&G",
+            "Philips": "PHILIPS",
+            "Unilever": "UNILEVER"
+          },
+          true
+        ]
+      },
+      {
+        "__function_comment__": "Add CURRENCY as a new column with 'UAH' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["CURRENCY","UAH"]
+      },
+      {
+        "__function_comment__": "Rename GROSS_SPEND_IN_LOCAL_CURRENCY (UAH) column to GROSS_SPEND_IN_LOCAL_CURRENCY.",
+        "function_name": "rename_columns",
+        "function_args": [{"GROSS_SPEND_IN_LOCAL_CURRENCY (UAH)": "GROSS_SPEND_IN_LOCAL_CURRENCY"}]
+      },
+      {
+        "__function_comment__": "Round values in GROSS_SPEND_IN_LOCAL_CURRENCY to two digits.",
+        "function_name": "update_decimal_places_in_columns",
+        "function_args": [["GROSS_SPEND_IN_LOCAL_CURRENCY"], 2]
+      },
+      {
+        "__function_comment__": "Add Year values in YEAR from YEAR_MONTH.",
+        "function_name": "add_year_column_with_year_value_derived_from_existing_date_cols_with_date_values",
+        "function_args": ["YEAR_MONTH"]
+      },
+      {
+        "__function_comment__": "Add Month values in YEAR from YEAR_MONTH.",
+        "function_name": "add_month_column_with_year_value_derived_from_existing_date_cols_with_date_values",
+        "function_args": ["YEAR_MONTH"]
+      },
+      {
+        "__function_comment__": "Rename YEAR_MONTH column to DATE.",
+        "function_name": "rename_columns",
+        "function_args": [{"YEAR_MONTH": "DATE"}]
+      },
+      {
+        "__function_comment__": "Add CURRENCY as a new column with 'UAH' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["CURRENCY","UAH"]
+      },
+      {
+        "__function_comment__": "Add CURRENCY as a new column with 'UAH' as value.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_PRODUCT_NAME",""]
+      },
+      {
+        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
+        "function_name": "update_order_of_columns_in_dataframe",
+        "function_args":
+        [
+          [
+            "COUNTRY",
+            "ADVERTISER",
+            "CATEGORY",
+            "SUBCATEGORY",
+            "BRAND",
+            "SUBBRAND",
+            "PRODUCT_NAME",
+            "MEDIA_TYPE",
+            "YEAR",
+            "MONTH",
+            "DATE",
+            "PROCESSED_DATE",
+            "HARMONIZED_REGION",
+            "HARMONIZED_COUNTRY",
+            "HARMONIZED_CATEGORY",
+            "HARMONIZED_MEDIA_TYPE",
+            "HARMONIZED_ADVERTISER",
+            "CURRENCY",
+            "GROSS_SPEND_IN_LOCAL_CURRENCY",
+            "HARMONIZED_PRODUCT_NAME"
+          ]
+        ]
       }
     ]
   }
