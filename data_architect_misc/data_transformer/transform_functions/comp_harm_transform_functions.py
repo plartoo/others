@@ -1,6 +1,3 @@
-import datetime
-import re
-
 import pandas as pd
 
 import comp_harm_constants
@@ -22,22 +19,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
     we want to make sure the column names stand out for
     our team members when they use them.
     """
-    PROCESSED_DATE_COLUMN = 'PROCESSED_DATE'
-    YEAR_COLUMN = 'HARMONIZED_YEAR'
-    MONTH_COLUMN = 'HARMONIZED_MONTH'
-    DATE_COLUMN = 'HARMONIZED_DATE'
-    REGION_COLUMN = 'HARMONIZED_REGION'
-    COUNTRY_COLUMN = 'HARMONIZED_COUNTRY'
-    ADVERTISER_COLUMN = 'HARMONIZED_ADVERTISER'
-    MEDIA_TYPE_COLUMN = 'HARMONIZED_MEDIA_TYPE'
-    CURRENCY_COLUMN = 'HARMONIZED_CURRENCY'
-    GROSS_SPEND_COLUMN = 'HARMONIZED_GROSS_SPEND'
-    CATEGORY_COLUMN = 'HARMONIZED_CATEGORY'
-    RAW_SUBCATEGORY_COLUMN = 'RAW_SUBCATEGORY'
-    RAW_BRAND_COLUMN = 'RAW_BRAND'
-    RAW_SUBBRAND_COLUMN = 'RAW_SUBBRAND'
-    RAW_PRODUCT_NAME_COLUMN = 'RAW_PRODUCT_NAME'
-    PRODUCT_NAME_COLUMN = 'HARMONIZED_PRODUCT_NAME'
 
     def add_PROCESSED_DATE_column_with_current_date(self, df) -> pd.DataFrame:
         """
@@ -50,7 +31,9 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         Returns:
             The dataframe with PROCESSED_DATE with current date values.
         """
-        return self.add_date_column_with_current_date(df, self.PROCESSED_DATE_COLUMN)
+        return self.add_date_column_with_current_date(
+            df,
+            comp_harm_constants.PROCESSED_DATE_COLUMN)
 
     def add_HARMONIZED_YEAR_column_with_constant_integer_value(
             self,
@@ -66,9 +49,10 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         Returns:
             Dataframe with HARMONIZED_YEAR column holding integer values.
         """
-        return self.add_year_column_with_fixed_int_value(df,
-                                                         int_year_value,
-                                                         self.YEAR_COLUMN)
+        return self.add_year_column_with_fixed_int_value(
+            df,
+            int_year_value,
+            comp_harm_constants.YEAR_COLUMN)
 
     def add_HARMONIZED_YEAR_column_by_renaming_existing_column(
             self,
@@ -90,7 +74,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         """
         return self.rename_columns(
             df,
-            {raw_year_col_name: self.YEAR_COLUMN})
+            {raw_year_col_name: comp_harm_constants.YEAR_COLUMN})
 
     def add_HARMONIZED_YEAR_column_using_existing_date_column_values(
             self,
@@ -111,7 +95,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         return self.add_year_column_using_existing_date_column_with_date_values(
             df,
             date_col_name,
-            self.YEAR_COLUMN)
+            comp_harm_constants.YEAR_COLUMN)
 
     def add_HARMONIZED_MONTH_column_by_renaming_existing_column(
             self,
@@ -133,7 +117,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         """
         return self.rename_columns(
             df,
-            {raw_month_col_name: self.MONTH_COLUMN})
+            {raw_month_col_name: comp_harm_constants.MONTH_COLUMN})
 
     def add_HARMONIZED_MONTH_column_using_existing_date_column_values(
             self,
@@ -154,7 +138,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         return self.add_month_column_using_existing_date_column_with_date_values(
             df,
             date_col_name,
-            self.MONTH_COLUMN)
+            comp_harm_constants.MONTH_COLUMN)
 
     def add_HARMONIZED_MONTH_column_using_existing_month_column_with_full_month_names(
             self,
@@ -176,7 +160,9 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
                 with integer month value.
         """
         return self.add_integer_month_column_using_existing_month_col_with_full_month_names(
-            df, existing_month_col_name_with_full_month_names, self.MONTH_COLUMN)
+            df,
+            existing_month_col_name_with_full_month_names,
+            comp_harm_constants.MONTH_COLUMN)
 
     def add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values(
             self,
@@ -196,7 +182,10 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
                 values of date type.
         """
         return self.add_date_column_using_existing_year_and_month_columns_with_integer_values(
-            df, self.YEAR_COLUMN, self.MONTH_COLUMN, self.DATE_COLUMN)
+            df,
+            comp_harm_constants.YEAR_COLUMN,
+            comp_harm_constants.MONTH_COLUMN,
+            comp_harm_constants.DATE_COLUMN)
 
     def add_HARMONIZED_REGION_column(self, df, region_name) -> pd.DataFrame:
         """
@@ -210,9 +199,10 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         Returns:
             Dataframe with HARMONIZED_REGION column added.
         """
-        return self.add_new_column_with_fixed_str_value(df,
-                                                        self.REGION_COLUMN,
-                                                        region_name)
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.REGION_COLUMN,
+            region_name)
 
     def add_HARMONIZED_COUNTRY_column_using_existing_country_column(
             self,
@@ -241,8 +231,32 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
                 (df,
                  existing_country_col_name,
-                 self.COUNTRY_COLUMN,
+                 comp_harm_constants.COUNTRY_COLUMN,
                  comp_harm_constants.COUNTRY_MAPPINGS)
+
+    def add_HARMONIZED_COUNTRY_column_using_fixed_str_value(
+            self,
+            df,
+            fixed_str_value: str) -> pd.DataFrame:
+        """
+        Add HARMONIZED_COUNTRY column based on string values provided
+        as parameter (standard name of a country used in competitive
+        harmonization project) to this function.
+
+        Args:
+            df: Raw dataframe to transform.
+            fixed_str_value: Name of the country that is to be used
+            in the new HARMONIZED_COUNTRY column.
+
+        Returns:
+            Dataframe with HARMONIZED_COUNTRY column which holds
+            standardized country names used by competitive harmonization
+            project.
+        """
+        return self.add_new_column_with_fixed_str_value\
+                (df,
+                 comp_harm_constants.COUNTRY_COLUMN,
+                 fixed_str_value)
 
     def add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column(
             self,
@@ -271,7 +285,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
                 (df,
                  existing_advertiser_col_name,
-                 self.ADVERTISER_COLUMN,
+                 comp_harm_constants.ADVERTISER_COLUMN,
                  comp_harm_constants.ADVERTISER_MAPPINGS)
 
     def add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column(
@@ -301,7 +315,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
                 (df,
                  existing_media_type_col_name,
-                 self.MEDIA_TYPE_COLUMN,
+                 comp_harm_constants.MEDIA_TYPE_COLUMN,
                  comp_harm_constants.MEDIA_TYPE_MAPPINGS)
 
     def add_HARMONIZED_CURRENCY_column(self,
@@ -318,9 +332,10 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         Returns:
             Dataframe with HARMONIZED_CURRENCY column added.
         """
-        return self.add_new_column_with_fixed_str_value(df,
-                                                        self.CURRENCY_COLUMN,
-                                                        currency_name)
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.CURRENCY_COLUMN,
+            currency_name)
 
     def add_HARMONIZED_GROSS_SPEND_column(
             self,
@@ -339,11 +354,12 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
             from the original (raw) gross spend column trimmed to just
             two decimal digits.
         """
-        df[self.GROSS_SPEND_COLUMN] = df[existing_gross_spend_col_name]
+        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[existing_gross_spend_col_name]
 
-        return self.update_decimal_places_in_columns(df,
-                                                     [self.GROSS_SPEND_COLUMN],
-                                                     2)
+        return self.update_decimal_places_in_columns(
+            df,
+            [comp_harm_constants.GROSS_SPEND_COLUMN],
+            2)
 
     def add_HARMONIZED_CATEGORY_column_using_existing_category_column(
             self,
@@ -372,7 +388,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
                 (df,
                  existing_category_col_name,
-                 self.CATEGORY_COLUMN,
+                 comp_harm_constants.CATEGORY_COLUMN,
                  comp_harm_constants.CATEGORY_MAPPINGS)
 
     def add_RAW_SUBCATEGORY_column_by_renaming_existing_column(
@@ -399,7 +415,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         """
         return self.rename_columns(
             df,
-            {raw_subcategory_col_name: self.RAW_SUBCATEGORY_COLUMN})
+            {raw_subcategory_col_name: comp_harm_constants.RAW_SUBCATEGORY_COLUMN})
 
     def add_RAW_BRAND_column_by_renaming_existing_column(
             self,
@@ -426,7 +442,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         """
         return self.rename_columns(
             df,
-            {raw_brand_col_name: self.RAW_BRAND_COLUMN})
+            {raw_brand_col_name: comp_harm_constants.RAW_BRAND_COLUMN})
 
     def add_RAW_SUBBRAND_column_by_renaming_existing_column(
             self,
@@ -450,7 +466,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         """
         return self.rename_columns(
             df,
-            {raw_subbrand_col_name: self.RAW_SUBBRAND_COLUMN})
+            {raw_subbrand_col_name: comp_harm_constants.RAW_SUBBRAND_COLUMN})
 
     def add_RAW_PRODUCT_NAME_column_by_renaming_existing_column(
             self,
@@ -471,7 +487,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         """
         return self.rename_columns(
             df,
-            {raw_product_col_name: self.RAW_PRODUCT_NAME_COLUMN})
+            {raw_product_col_name: comp_harm_constants.RAW_PRODUCT_NAME_COLUMN})
 
     def add_empty_HARMONIZED_PRODUCT_NAME_column(
             self,
@@ -490,7 +506,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         """
         return self.add_new_column_with_fixed_str_value(
             df,
-            self.PRODUCT_NAME_COLUMN,
+            comp_harm_constants.PRODUCT_NAME_COLUMN,
             "")
 
     def filter_and_rearrange_columns_for_final_output(self,
@@ -511,21 +527,21 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctio
         return self.update_order_of_columns_in_dataframe(
             df,
             [
-                self.PROCESSED_DATE_COLUMN,
-                self.YEAR_COLUMN,
-                self.MONTH_COLUMN,
-                self.DATE_COLUMN,
-                self.REGION_COLUMN,
-                self.COUNTRY_COLUMN,
-                self.ADVERTISER_COLUMN,
-                self.MEDIA_TYPE_COLUMN,
-                self.CURRENCY_COLUMN,
-                self.GROSS_SPEND_COLUMN,
-                self.CATEGORY_COLUMN,
-                self.RAW_SUBCATEGORY_COLUMN,
-                self.RAW_BRAND_COLUMN,
-                self.RAW_SUBBRAND_COLUMN,
-                self.RAW_PRODUCT_NAME_COLUMN,
-                self.PRODUCT_NAME_COLUMN
+                comp_harm_constants.PROCESSED_DATE_COLUMN,
+                comp_harm_constants.YEAR_COLUMN,
+                comp_harm_constants.MONTH_COLUMN,
+                comp_harm_constants.DATE_COLUMN,
+                comp_harm_constants.REGION_COLUMN,
+                comp_harm_constants.COUNTRY_COLUMN,
+                comp_harm_constants.ADVERTISER_COLUMN,
+                comp_harm_constants.MEDIA_TYPE_COLUMN,
+                comp_harm_constants.CURRENCY_COLUMN,
+                comp_harm_constants.GROSS_SPEND_COLUMN,
+                comp_harm_constants.CATEGORY_COLUMN,
+                comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
+                comp_harm_constants.RAW_BRAND_COLUMN,
+                comp_harm_constants.RAW_SUBBRAND_COLUMN,
+                comp_harm_constants.RAW_PRODUCT_NAME_COLUMN,
+                comp_harm_constants.PRODUCT_NAME_COLUMN
             ]
         )
