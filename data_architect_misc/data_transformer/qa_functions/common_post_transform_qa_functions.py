@@ -7,13 +7,14 @@ and run the transform.py like this:
 >> python transform.py
 
 Author: Phyo Thiha
-Last Modified: April 10, 2020
+Last Modified: April 12, 2020
 """
 import logging
 import re
 
 import pandas as pd
 
+import comp_harm_constants
 import qa_errors
 
 
@@ -39,22 +40,22 @@ class CustomFunctions:
     'CustomQAFunctions'.
     """
     EXPECTED_COLUMNS = {
-        "YEAR",
-        "MONTH",
-        "DATE",
-        "PROCESSED_DATE",
-        "HARMONIZED_REGION",
-        "HARMONIZED_COUNTRY",
-        "HARMONIZED_ADVERTISER",
-        "HARMONIZED_MEDIA_TYPE",
-        "CURRENCY",
-        "GROSS_SPEND_IN_LOCAL_CURRENCY",
-        "HARMONIZED_CATEGORY",
-        "RAW_SUBCATEGORY",
-        "RAW_BRAND",
-        "RAW_SUBBRAND",
-        "RAW_PRODUCT_NAME",
-        "HARMONIZED_PRODUCT_NAME"
+        comp_harm_constants.PROCESSED_DATE_COLUMN,
+        comp_harm_constants.YEAR_COLUMN,
+        comp_harm_constants.MONTH_COLUMN,
+        comp_harm_constants.DATE_COLUMN,
+        comp_harm_constants.REGION_COLUMN,
+        comp_harm_constants.COUNTRY_COLUMN,
+        comp_harm_constants.ADVERTISER_COLUMN,
+        comp_harm_constants.MEDIA_TYPE_COLUMN,
+        comp_harm_constants.CURRENCY_COLUMN,
+        comp_harm_constants.GROSS_SPEND_COLUMN,
+        comp_harm_constants.CATEGORY_COLUMN,
+        comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
+        comp_harm_constants.RAW_BRAND_COLUMN,
+        comp_harm_constants.RAW_SUBBRAND_COLUMN,
+        comp_harm_constants.RAW_PRODUCT_NAME_COLUMN,
+        comp_harm_constants.PRODUCT_NAME_COLUMN
     }
 
     def __init__(self):
@@ -137,8 +138,6 @@ class CustomFunctions:
             raise qa_errors.NaNFoundError(f"\nQA => NaN/None/NaT value is "
                                                  f"found in one of these columns: "
                                                  f"{list_of_col_names}")
-        # self.logger.info(f"QA => Successfully confirmed that there is no NA/NULL/empty "
-        #                  f"value in these columns: {str(list_of_col_names)}")
 
         return df
 
