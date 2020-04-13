@@ -1,7 +1,23 @@
+PROCESSED_DATE_COLUMN = 'PROCESSED_DATE'
+YEAR_COLUMN = 'HARMONIZED_YEAR'
+MONTH_COLUMN = 'HARMONIZED_MONTH'
+DATE_COLUMN = 'HARMONIZED_DATE'
+REGION_COLUMN = 'HARMONIZED_REGION'
+COUNTRY_COLUMN = 'HARMONIZED_COUNTRY'
+ADVERTISER_COLUMN = 'HARMONIZED_ADVERTISER'
+MEDIA_TYPE_COLUMN = 'HARMONIZED_MEDIA_TYPE'
+CURRENCY_COLUMN = 'HARMONIZED_CURRENCY'
+GROSS_SPEND_COLUMN = 'HARMONIZED_GROSS_SPEND'
+CATEGORY_COLUMN = 'HARMONIZED_CATEGORY'
+RAW_SUBCATEGORY_COLUMN = 'RAW_SUBCATEGORY'
+RAW_BRAND_COLUMN = 'RAW_BRAND'
+RAW_SUBBRAND_COLUMN = 'RAW_SUBBRAND'
+RAW_PRODUCT_NAME_COLUMN = 'RAW_PRODUCT_NAME'
+PRODUCT_NAME_COLUMN = 'HARMONIZED_PRODUCT_NAME'
+
 # Below are the regions, countries, categories, media types
 # and globally competing advertisers that we support as of April, 2020.
 # Whenever we come across new data items for constants below, add them.
-
 REGIONS = {'Africa-Eurasia', 'Asia Pacific', 'Europe', 'Latin America', 'North America'}
 
 COUNTRIES = {
@@ -86,8 +102,9 @@ MEDIA_TYPE_MAPPINGS = {
 COUNTRY_MAPPINGS = {
     # Mapping between raw country names in regular expression to standardized country names
     "(?i)BAHRAIN.*": "Bahrain",
-    "(?i)KSA.*": "Saudi Arabia",
+    "(?i)KENYA.*": "Kenya",
     "(?i)KUWAIT.*": "Kuwait",
+    "(?i)KSA.*": "Saudi Arabia",
     "(?i)MOROCCO.*": "Morocco",
     "(?i)MORROCO.*": "Morocco",
     "(?i)MORROCCO.*": "Morocco",
@@ -95,7 +112,9 @@ COUNTRY_MAPPINGS = {
     "(?i)PAN.*ARAB.*": "Pan Arab",
     "(?i)PAN.*ASIAN.*": "Pan Asian",
     "(?i)QATAR.*": "Qatar",
-    "(?i)Russia.*": "Russia",
+    "(?i)RUSSIA.*": "Russia",
+    "(?i)TURKEY.*": "Turkey",
+    "(?i)UKRAINE.*": "Ukraine",
     "(?i)UNITED ARAB EMIRATES.*": "United Arab Emirates",
     "(?i)UAE.*": "United Arab Emirates"
 }
@@ -104,18 +123,19 @@ ADVERTISER_MAPPINGS = {
     # Mapping between raw advertiser names in regular expression to standardized advertiser names
     # This list will grow to a big one and must be kept maintained/updated constantly.
     "(?i)BDF.*": "BEIERSDORF",
-    "(?i)BEIERSDORF.*": "BEIERSDORF",
-    "(?i)COLGATE.*": "COLGATE-PALMOLIVE",
+    "(?i).*BEIERSDORF.*": "BEIERSDORF",
+    "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
-    "(?i)GLAXO.*": "GSK",
+    "(?i).*GLAXO.*": "GSK", # also catches "\u200EGlaxoSmithKline"
     "(?i)^GSK": "GSK",
-    "(?i)HENKEL.*": "HENKEL",
-    "(?i)JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
+    "(?i).*HENKEL.*": "HENKEL",
+    "(?i).*JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
-    "(?i)L'?OREAL.*": "LOREAL",
-    "(?i)PROCTER.*&.*GAMBLE": "P&G",
+    "(?i).*L'?OREAL.*": "LOREAL", # also catches 'LOREAL'
+    "(?i).*PHILIPS.*": "PHILIPS",
+    "(?i).*PROCTER.*&.*GAMBLE": "P&G",
     "(?i)P.*&.*G": "P&G",
-    "(?i)RECKITT.*": "RECKITT BENCKISER",
+    "(?i).*RECKITT.*": "RECKITT BENCKISER",
     "(?i)^RB$": "RECKITT BENCKISER",
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i).*UNILEVER.*": "UNILEVER"
@@ -123,13 +143,16 @@ ADVERTISER_MAPPINGS = {
 
 CATEGORY_MAPPINGS = {
     "(?i)^HC$": "Home Care",
-    "(?i)HOME.*CARE.*": "Home Care",
+    "(?i)HOME.*": "Home Care",
+    "(?i).*HOME.*CARE.*": "Home Care",
+    "(?i).*HOUSEHOLD.*CARE.*": "Home Care",
     "(?i)^OC$": "Oral Care",
-    "(?i)ORAL.*CARE.*": "Oral Care",
+    "(?i).*ORAL.*": "Oral Care",
+    "(?i).*ORAL.*CARE.*": "Oral Care",
     "(?i)^PC$": "Personal Care",
     "(?i).*PERSONAL.*CARE.*": "Personal Care",
     "(?i).*BABY.*CARE.*": "Personal Care",
-    "(?i)HAIR.*CARE.*": "Personal Care",
+    "(?i).*HAIR.*CARE.*": "Personal Care",
     "(?i)OTHER.*": "Other",
     "(?i)ALL.*OTHER.*": "Other"
 }
