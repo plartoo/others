@@ -35,7 +35,7 @@ COUNTRIES = {
     'Malaysia', 'Mexico', 'Morocco',
     'Netherlands', 'New Zealand', 'Nicaragua', 'Norway',
     'Oman',
-    'Pan Arab', 'Pan Asia', 'Panama', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Puerto Rico',
+    'Pan Arab', 'Pan Asian', 'Panama', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Puerto Rico',
     'Qatar',
     'Romania', 'Russia',
     'Saudi Arabia', 'Singapore', 'Slovakia', 'Spain', 'Sweden', 'Switzerland',
@@ -47,6 +47,8 @@ COUNTRIES = {
 MEDIA_TYPES = {'Cinema', 'Digital', 'Door drops', 'In-store', 'OOH', 'Print', 'Radio', 'TV'}
 
 GLOBAL_COMPETE_ADVERTISERS = {
+    # This list is used only as a reference for new team members
+    # It is not used in the code.
     'BEIERSDORF',
     'CHURCH & DWIGHT',
     'COLGATE-PALMOLIVE',
