@@ -157,7 +157,7 @@ if __name__ == '__main__':
         #   apply functions (add columns, etc.)
         # df = pd.read_excel(input_file,sheet_name=sheet)
 
-        print('Program finished.')
+        print('\n====Program finished.')
         #     df = transform_utils.get_data_frame()
         #
         # For CSV,
