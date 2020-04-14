@@ -30,7 +30,7 @@ COUNTRIES = {
     'Germany', 'Greece', 'Guatemala',
     'Honduras', 'Hong Kong', 'Hungary',
     'India', 'Indonesia', 'Ireland', 'Italy', "Israel",
-    'Kuwait',
+    'Kazakhstan','Kuwait',
     'Latvia', 'Lithuania',
     'Malaysia', 'Mexico', 'Morocco',
     'Netherlands', 'New Zealand', 'Nicaragua', 'Norway',
@@ -38,7 +38,7 @@ COUNTRIES = {
     'Pan Arab', 'Pan Asian', 'Panama', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Puerto Rico',
     'Qatar',
     'Romania', 'Russia',
-    'Saudi Arabia', 'Singapore', 'Slovakia', 'Spain', 'Sweden', 'Switzerland',
+    'Saudi Arabia', 'Singapore', 'Slovakia', 'South Africa', 'Spain', 'Sweden', 'Switzerland',
     'Taiwan', 'Thailand', 'Turkey',
     'Ukraine', 'United Arab Emirates', 'United Kingdom', 'Uruguay', 'USA',
     'Venezuela', 'Vietnam'
@@ -66,11 +66,6 @@ GLOBAL_COMPETE_ADVERTISERS = {
     'UNILEVER'
 }
 
-CURRENCIES = {
-    # Standard currency names we support in competitive harmonization project
-    'USD'
-}
-
 CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition'}
 
 # Minimum set of output columns expected after data transformation
@@ -95,7 +90,7 @@ EXPECTED_STANDARD_OUTPUT_COLUMNS = {
 MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
     "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
-    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH",
+    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
     "(?i)TV": "TV", "(?i)Television.*": "TV",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital"
@@ -104,6 +99,9 @@ MEDIA_TYPE_MAPPINGS = {
 COUNTRY_MAPPINGS = {
     # Mapping between raw country names in regular expression to standardized country names
     "(?i)BAHRAIN.*": "Bahrain",
+    "(?i)KENYA.*": "Kenya",
+    "(?i)KAZAK.*": "Kazakhstan",
+    "(?i)KAZAKHSTAN.*": "Kazakhstan",
     "(?i)KENYA.*": "Kenya",
     "(?i)KUWAIT.*": "Kuwait",
     "(?i)KSA.*": "Saudi Arabia",
@@ -115,6 +113,7 @@ COUNTRY_MAPPINGS = {
     "(?i)PAN.*ASIAN.*": "Pan Asian",
     "(?i)QATAR.*": "Qatar",
     "(?i)RUSSIA.*": "Russia",
+    "(?i)SOUTH.*AFRICA.*": "South Africa",
     "(?i)TURKEY.*": "Turkey",
     "(?i)UKRAINE.*": "Ukraine",
     "(?i)UNITED ARAB EMIRATES.*": "United Arab Emirates",
