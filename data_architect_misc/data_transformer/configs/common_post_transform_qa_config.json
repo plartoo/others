@@ -27,11 +27,56 @@
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
     "functions_to_apply": [
       {
-        "function_name": "check_expected_columns"
+        "function_name": "check_expected_columns_are_present"
       },
       {
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [10]
+        "function_args": [16]
+      },
+      {
+        "function_name": "assert_no_null_value_in_some_essential_columns"
+      },
+      {
+        "function_name": "assert_no_empty_string_in_some_essential_columns"
+      },
+      {
+        "function_name": "check_distinct_year_values_in_year_column"
+      },
+      {
+        "function_name": "assert_if_year_values_are_within_valid_range"
+      },
+      {
+        "function_name": "check_distinct_month_values_in_month_column"
+      },
+      {
+        "function_name": "assert_if_month_values_are_within_valid_range"
+      },
+      {
+        "function_name": "assert_if_date_values_matches_with_year_and_month_column_values"
+      },
+      {
+        "function_name": "assert_REGION_values_are_valid"
+      },
+      {
+        "function_name": "assert_COUNTRY_values_are_valid"
+      },
+      {
+        "function_name": "checks_ADVERTISER_values_that_do_not_have_mapping"
+      },
+      {
+        "function_name": "assert_MEDIA_TYPE_values_are_valid"
+      },
+      {
+        "function_name": "assert_CATEGORY_values_are_valid"
+      },
+      {
+        "function_name": "assert_GROSS_SPEND_column_has_no_negative_value"
+      },
+      {
+        "function_name": "assert_GROSS_SPEND_column_has_no_ridiculously_high_spend_value"
+      },
+      {
+        "function_name": "assert_GROSS_SPEND_column_values_have_two_decimals"
       }
     ]
   }
