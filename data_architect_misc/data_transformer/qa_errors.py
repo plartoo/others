@@ -26,19 +26,36 @@ class PossibleDuplicateError(QAError):
     pass
 
 
-class NaNFoundError(QAError):
+class NullValueFoundError(QAError):
     """
-    Raised when there is any nan value in the given
-    the dataframe (entire dataframe or just within a
-    column).
+    Raised when there is any NULL/NaN value is
+    found in the given dataframe (entire dataframe
+    or just within a few given columns).
     """
     pass
 
 
 class EmptyStringFoundError(QAError):
     """
-    Raised when there is an empty string in a given
-    column of the dataframe.
+    Raised when there is an empty string (blank)
+    in a given column of the dataframe.
+    """
+    pass
+
+
+class InvalidValueFoundError(QAError):
+    """
+    Raised when there is a value that is invalid
+    in the data.
+    """
+    pass
+
+
+class ValueComparisonError(QAError):
+    """
+    Raised when there is value in one column
+    does not match corresponding value in
+    another column of the dataframe.
     """
     pass
 
@@ -50,3 +67,5 @@ class LessThanThresholdValueFoundError(QAError):
     column of the dataframe.
     """
     pass
+
+
