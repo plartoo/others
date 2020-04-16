@@ -1,18 +1,48 @@
-# TODO: Write description, last modified date etc.
+"""
+Read 'DESC' in the code below to see what this script is for.
+
+Author: Phyo Thiha
+Last Modified Date: April 14, 2020
+"""
+
 import argparse
-# import json
 import logging
 import os
 import sys
 
 import pandas as pd
-import xlrd # As of April 2020, Pandas still uses xlrd to read Excel (xls and xlsx) files.
-import openpyxl # Excel file writing engine for Pandas' to_excel function.
 
 import transform_errors
-# import transform_functions
 import transform_utils
 
+DESC = """This program is intended to take a JSON configuration file 
+(e.g., config.json) as its input. In that JSON config file, user can 
+define as instructions (such as location of the input raw data file,  
+where to write the output data to, etc.) as well as functions and 
+their associated parameters to be applied to and checked against the 
+input data. The processed/QA-ed data, if instructed in the config 
+file, can be written to an output CSV/Excel file or to a SQL Server 
+table or any other custom destination (such as Azure Blob, Amazon S3, 
+etc) as programmed in a custom writer module.
+\nUsage example #1 - If the input file's path and name are defined
+in the config file, run the program like below:
+    >> python transform.py -c .\configs\china\config.json
+
+\nUsage example #2 - Alternatively input file's path and name can be 
+provided with 'i' flag to the program as below:
+    >> python transform.py -c .\configs\china\config.json 
+    -i ./input/switzerland/Monthly_Spend_20200229.xlsx
+"""
+
+C_FLAG_HELP_TEXT = """[Required] Configuration file (with full or relative path).
+E.g., python transform.py -c .\configs\china\config.json
+"""
+
+I_FLAG_HELP_TEXT = """[Optional] Input file (with full or relative path) that 
+has data to which the functions defined in the config file will be applied to.
+E.g., python transform.py -i ./input/switzerland/Monthly_Spend_20200229.xlsx 
+-c .\configs\china\config.json
+"""
 
 if __name__ == '__main__':
     # 0. Set logging config
@@ -21,18 +51,17 @@ if __name__ == '__main__':
     # REF 2b: http://archive.ph/0Uf6u
     logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                         format="\n%(levelname)s: %(message)s")
-    logger = logging.getLogger(__name__)#('transform.py')
-
-
+    logger = logging.getLogger(__name__)  # ('transform.py')
 
     # 1. Process arguments passed into the program
-    parser = argparse.ArgumentParser(description=transform_utils.DESC,
-                                     formatter_class = argparse.RawTextHelpFormatter,
-                                     usage=argparse.SUPPRESS)
+    parser = argparse.ArgumentParser(
+        description=DESC,
+        formatter_class=argparse.RawTextHelpFormatter,
+        usage=argparse.SUPPRESS)
     parser.add_argument('-c', required=True, type=str,
-                        help=transform_utils.C_FLAG_HELP_TEXT)
+                        help=C_FLAG_HELP_TEXT)
     parser.add_argument('-i', required=False, type=str,
-                        help=transform_utils.I_FLAG_HELP_TEXT)
+                        help=I_FLAG_HELP_TEXT)
     args = parser.parse_args()
 
     # 2. Make sure JSON configuration file exists
@@ -144,7 +173,6 @@ if __name__ == '__main__':
             else:
                 raise transform_errors.InvalidFileType(input_file)
 
-
             if transform_utils.get_write_data_decision(config):
                 dwm = transform_utils.instantiate_data_writer_module(config)
                 dwm.write_data(cur_df)
@@ -167,7 +195,7 @@ if __name__ == '__main__':
         # df1 = pd.read_csv('test.csv',header=None,skiprows=rows_to_skip+header_row_if_any)
 
     # REF: reduce memory use Pandas: https://towardsdatascience.com/why-and-how-to-use-pandas-with-large-data-9594dda2ea4c
-    #https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+    # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
     # REF: pandas snippets: https://jeffdelaney.me/blog/useful-snippets-in-pandas/
     # # REF: https://stackoverflow.com/q/14262433
     # Drop columns
@@ -203,5 +231,3 @@ if __name__ == '__main__':
     #     exit(1)
     #
     #
-
-
