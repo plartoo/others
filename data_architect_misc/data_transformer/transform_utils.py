@@ -129,11 +129,6 @@ REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
                  KEY_INPUT_FILE_NAME_OR_PATTERN,
                  KEY_FUNCTIONS_TO_APPLY]
 
-# Other constants
-CSV_FILE_EXTENSION = '.csv'
-EXCEL_FILE_EXTENSION_OLD = '.xls'
-EXCEL_FILE_EXTENSION_NEW = '.xlsx'
-
 
 def _get_value_from_dict(dictionary, key, default_value):
     """
@@ -460,30 +455,6 @@ def get_output_csv_file_delimiter(config):
     return _get_value_from_dict(config,
                                 KEY_OUTPUT_CSV_DELIMITER,
                                 DEFAULT_OUTPUT_CSV_DELIMITER)
-
-
-def _extract_file_name(file_path_and_name):
-    """Extracts file name from path+filename string."""
-    return os.path.split(file_path_and_name)[-1]
-
-
-def _get_file_extension(file_name):
-    """Extracts file extension from filename string."""
-    return os.path.splitext(file_name)[1]
-
-
-def is_excel(file_name_with_path):
-    """Checks if file is Excel file type."""
-    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
-    return ((EXCEL_FILE_EXTENSION_NEW == file_extension.lower()) or
-            (EXCEL_FILE_EXTENSION_OLD == file_extension.lower()))
-
-
-def is_csv(file_name_with_path):
-    """Checks if file is CSV file type."""
-    file_extension = _get_file_extension(_extract_file_name(file_name_with_path))
-    return CSV_FILE_EXTENSION == file_extension.lower()
-
 
 def read_data(file_name_with_path, config, rows_to_read,
               skip_leading_rows=0, skip_trailing_rows=0,
