@@ -539,9 +539,11 @@ class CommonTransformFunctions(TransformFunctions):
         in existing column and values represent values in the new column.
         Whenever the regular expression key matches the value in the
         existing column, the new column will be assigned corresponding
-        value from the dictionary. If regular expression does NOT match
-        the original value from the existing column will be copied to the
-        new column.
+        value from the dictionary.
+
+        **If regular expression does NOT match the value in the existing
+        column, original value from the existing column will be copied
+        to the new column.**
 
         Suppose we want to create a new column named "Harmonized_Advertiser"
         based on "Advertiser" column. When we see "L'OREAL PARIS",

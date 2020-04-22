@@ -104,8 +104,9 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
-        "function_args": ["CATEGORY"]
+        "__function_comment__": "See detail implementation of this method and mappings in aed_south_africa_transform_functions.py",
+        "function_name": "add_HARMONIZED_CATEGORY_column_using_raw_SUBCATEGORY_column_values",
+        "function_args": ["SUBCATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",

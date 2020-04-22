@@ -107,125 +107,126 @@ if __name__ == '__main__':
         print('\n====Program finished.')
 
 
-        ## Existing code checkpointed April 21, 2020
-        # # 3. Iterate through each transform procedure in config file
-        # for config in transform_utils.load_config(args.c):
-        #     if args.i:
-        #         # This hack allows user to provide input file as commandline parameter
-        #         config = transform_utils.insert_input_file_keys_values_to_config_json(args.i, config)
-        #
-        #     # Make sure config JSON has no conflicting keys and invalid data types
-        #     transform_utils.validate_configurations(config)
-        #
-        #     # Before writing custom functions to transform data, please read
-        #     # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
-        #     custom_funcs_instance = transform_utils.instantiate_custom_functions_module(config)
-        #     row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
-        #     footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
-        #
-        #     for input_file in transform_utils.get_input_files(config):
-        #         # TODO: Time the performance and log it
-        #         # t1 = time.time()
-        #         # print('Read Excel file:', file_path_and_name)
-        #         # print("It took this many seconds to read the file:", time.time() - t1, "\n")
-        #
-        #         # TODO: maybe create a data_reader class that will decide which file type (xlsx, csv, parquet) input file is and call read_next_chunk() to yield the read data
-        #         # TODO: maybe refactor get_raw_column_headers into data reader module because I use the latter just for the former
-        #         col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
-        #
-        #         if transform_utils.is_excel(input_file):
-        #             sheet = transform_utils.get_input_file_sheet_name(config)
-        #             keep_default_na = transform_utils.get_keep_default_na(config)
-        #             # Note: We will load everything on the sheet in Excel (i.e. no chunk processing).
-        #             # Excel, theoretically, can store up to a maximum of:
-        #             # 1048576 (rows) * 16384 (cols) 32767 (chars/cell) * 32 (bits/char for encoding like UTF-8)
-        #             # = 4.5 petabytes of data, but we sure shouldn't be processing a file of such size
-        #             # using this program nor no one in their right mind should be storing that much
-        #             # data in an Excel file.
-        #
-        #             logger.info(f"Skipping this many rows (including header row)"
-        #                         f"from the top of the file: {row_idx_where_data_starts}")
-        #             cur_df = pd.read_excel(input_file,
-        #                                    sheet_name=sheet,
-        #                                    keep_default_na=keep_default_na,
-        #                                    skiprows=row_idx_where_data_starts,
-        #                                    skipfooter=footer_rows_to_skip,
-        #                                    header=None,
-        #                                    names=col_headers_from_input_file
-        #                                    )
-        #
-        #             for func_and_params in transform_utils.get_functions_to_apply(config):
-        #                 logger.info(f"Invoking function: {func_and_params['function_name']}")
-        #                 # print("\n=> Invoking function:", json.dumps(func_and_params, sort_keys=True, indent=4),"\n")
-        #
-        #                 func_name = transform_utils.get_function_name(func_and_params)
-        #                 func_args = transform_utils.get_function_args(func_and_params)
-        #                 func_kwargs = transform_utils.get_function_kwargs(func_and_params)
-        #                 cur_df = getattr(custom_funcs_instance,
-        #                                  func_name)(cur_df, *func_args, **func_kwargs)
-        #                 # print(cur_df)
-        #                 # if func_name == 'update_str_value_in_col2_if_col1_has_one_of_given_values':
-        #                 #     cur_df.to_excel('shit.xlsx', index=False)
-        #                 #     sys.exit()
-        #                 #     import pdb
-        #                 #     pdb.set_trace()
-        #                 #     print('debug')
-        #
-        #                 # TODO: Mapping, CSV handling (data reader module)
-        #                 # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
-        #                 # I can use Russia raw data file to test the memory usage
-        #
-        #                 # if passing df in/out of function is memory expensive
-        #
-        #                 # if transform_utils.KEY_TRANSFORM_FUNC_NAME in func_and_params:
-        #                 #     # REF1: https://stackoverflow.com/a/12025554
-        #                 #     # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
-        #                 #     # REF3: Passing variable length args in getattr - https://stackoverflow.com/q/6321940
-        #                 #     print("=>Invoking transform function:", func_and_params)
-        #                 #     func_args = transform_utils.get_transform_function_args(func_and_params)
-        #                 #     func_kwargs = transform_utils.get_transform_function_kwargs(func_and_params)
-        #                 #     cur_df = getattr(custom_funcs_instance,
-        #                 #                      transform_utils.get_transform_function_name(
-        #                 #                          func_and_params))(cur_df,*func_args,**func_kwargs)
-        #                 #     import pdb
-        #                 #     pdb.set_trace()
-        #                 #     print('transform func')
-        #                 # elif transform_utils.KEY_ASSERT_FUNC_NAME in func_and_params:
-        #                 #     # and if not, merge assert and transform
-        #                 #     # if so, ask question on SO like this: "Is passing around dataframes into functions in pandas memory intensive/expensive?"
-        #                 #     print("=>Invoking assert function:", func_and_params)
-        #                 #     func_args = transform_utils.get_assert_function_args(func_and_params)
-        #                 #     func_kwargs = transform_utils.get_assert_function_kwargs(func_and_params)
-        #                 #     getattr(custom_funcs_instance,
-        #                 #             transform_utils.get_assert_function_name(
-        #                 #                 func_and_params))(cur_df, *func_args, **func_kwargs)
-        #                 #     import pdb
-        #                 #     pdb.set_trace()
-        #                 #     print('assert func')
-        #
-        #
-        #
-        #         elif transform_utils.is_csv(input_file):
-        #             # REF: how to chunk process CSV files https://pythonspeed.com/articles/chunking-pandas/
-        #             rows_per_chunk = transform_utils.get_rows_per_chunk_for_csv(config)
-        #             encoding = transform_utils.get_input_csv_encoding(config)
-        #             input_csv_delimiter = transform_utils.get_input_csv_delimiter(config)
-        #         else:
-        #             raise transform_errors.InvalidFileType(input_file)
-        #
-        #         if transform_utils.get_write_data_decision(config):
-        #             dwm = transform_utils.instantiate_data_writer_module(config)
-        #             dwm.write_data(cur_df)
-        #
-        #     # 1. Read data in chunk (skipping x top rows; capturing header)
-        #     # 2. For each chunk
-        #     #   apply original column names to the chunk
-        #     #   choose only columns to use
-        #     #   rename columns if necessary
-        #     #   apply functions (add columns, etc.)
-        #     # df = pd.read_excel(input_file,sheet_name=sheet)
-        #
-        #     print('\n====Program finished.')
+    # # Existing code checkpointed April 21, 2020
+    # # 3. Iterate through each transform procedure in config file
+    # for config in transform_utils.load_config(args.c):
+    #     if args.i:
+    #         # This hack allows user to provide input file as commandline parameter
+    #         config = transform_utils.insert_input_file_keys_values_to_config_json(args.i, config)
+    #
+    #     # Make sure config JSON has no conflicting keys and invalid data types
+    #     transform_utils.validate_configurations(config)
+    #
+    #     # Before writing custom functions to transform data, please read
+    #     # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
+    #     custom_funcs_instance = transform_utils.instantiate_custom_functions_module(config)
+    #     row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
+    #     footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
+    #
+    #     for input_file in transform_utils.get_input_files(config):
+    #         # TODO: Time the performance and log it
+    #         # t1 = time.time()
+    #         # print('Read Excel file:', file_path_and_name)
+    #         # print("It took this many seconds to read the file:", time.time() - t1, "\n")
+    #
+    #         # TODO: maybe create a data_reader class that will decide which file type (xlsx, csv, parquet) input file is and call read_next_chunk() to yield the read data
+    #         # TODO: maybe refactor get_raw_column_headers into data reader module because I use the latter just for the former
+    #         col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
+    #
+    #         if transform_utils.is_excel(input_file):
+    #             sheet = transform_utils.get_input_file_sheet_name(config)
+    #             keep_default_na = transform_utils.get_keep_default_na(config)
+    #             # Note: We will load everything on the sheet in Excel (i.e. no chunk processing).
+    #             # Excel, theoretically, can store up to a maximum of:
+    #             # 1048576 (rows) * 16384 (cols) 32767 (chars/cell) * 32 (bits/char for encoding like UTF-8)
+    #             # = 4.5 petabytes of data, but we sure shouldn't be processing a file of such size
+    #             # using this program nor no one in their right mind should be storing that much
+    #             # data in an Excel file.
+    #
+    #             logger.info(f"Skipping this many rows (including header row)"
+    #                         f"from the top of the file: {row_idx_where_data_starts}")
+    #             import pandas as pd
+    #             cur_df = pd.read_excel(input_file,
+    #                                    sheet_name=sheet,
+    #                                    keep_default_na=keep_default_na,
+    #                                    skiprows=row_idx_where_data_starts,
+    #                                    skipfooter=footer_rows_to_skip,
+    #                                    header=None,
+    #                                    names=col_headers_from_input_file
+    #                                    )
+    #
+    #             for func_and_params in transform_utils.get_functions_to_apply(config):
+    #                 logger.info(f"Invoking function: {func_and_params['function_name']}")
+    #                 # print("\n=> Invoking function:", json.dumps(func_and_params, sort_keys=True, indent=4),"\n")
+    #
+    #                 func_name = transform_utils.get_function_name(func_and_params)
+    #                 func_args = transform_utils.get_function_args(func_and_params)
+    #                 func_kwargs = transform_utils.get_function_kwargs(func_and_params)
+    #                 cur_df = getattr(custom_funcs_instance,
+    #                                  func_name)(cur_df, *func_args, **func_kwargs)
+    #                 # print(cur_df)
+    #                 # if func_name == 'update_str_value_in_col2_if_col1_has_one_of_given_values':
+    #                 #     cur_df.to_excel('shit.xlsx', index=False)
+    #                 #     sys.exit()
+    #                 #     import pdb
+    #                 #     pdb.set_trace()
+    #                 #     print('debug')
+    #
+    #                 # TODO: Mapping, CSV handling (data reader module)
+    #                 # TODO: investigate by measuring memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
+    #                 # I can use Russia raw data file to test the memory usage
+    #
+    #                 # if passing df in/out of function is memory expensive
+    #
+    #                 # if transform_utils.KEY_TRANSFORM_FUNC_NAME in func_and_params:
+    #                 #     # REF1: https://stackoverflow.com/a/12025554
+    #                 #     # REF2: Partial approach - https://stackoverflow.com/a/56675539/1330974
+    #                 #     # REF3: Passing variable length args in getattr - https://stackoverflow.com/q/6321940
+    #                 #     print("=>Invoking transform function:", func_and_params)
+    #                 #     func_args = transform_utils.get_transform_function_args(func_and_params)
+    #                 #     func_kwargs = transform_utils.get_transform_function_kwargs(func_and_params)
+    #                 #     cur_df = getattr(custom_funcs_instance,
+    #                 #                      transform_utils.get_transform_function_name(
+    #                 #                          func_and_params))(cur_df,*func_args,**func_kwargs)
+    #                 #     import pdb
+    #                 #     pdb.set_trace()
+    #                 #     print('transform func')
+    #                 # elif transform_utils.KEY_ASSERT_FUNC_NAME in func_and_params:
+    #                 #     # and if not, merge assert and transform
+    #                 #     # if so, ask question on SO like this: "Is passing around dataframes into functions in pandas memory intensive/expensive?"
+    #                 #     print("=>Invoking assert function:", func_and_params)
+    #                 #     func_args = transform_utils.get_assert_function_args(func_and_params)
+    #                 #     func_kwargs = transform_utils.get_assert_function_kwargs(func_and_params)
+    #                 #     getattr(custom_funcs_instance,
+    #                 #             transform_utils.get_assert_function_name(
+    #                 #                 func_and_params))(cur_df, *func_args, **func_kwargs)
+    #                 #     import pdb
+    #                 #     pdb.set_trace()
+    #                 #     print('assert func')
+    #
+    #
+    #
+    #         elif transform_utils.is_csv(input_file):
+    #             # REF: how to chunk process CSV files https://pythonspeed.com/articles/chunking-pandas/
+    #             rows_per_chunk = transform_utils.get_rows_per_chunk_for_csv(config)
+    #             encoding = transform_utils.get_input_csv_encoding(config)
+    #             input_csv_delimiter = transform_utils.get_input_csv_delimiter(config)
+    #         else:
+    #             raise transform_errors.InvalidFileType(input_file)
+    #
+    #         if transform_utils.get_write_data_decision(config):
+    #             dwm = transform_utils.instantiate_data_writer_module(config)
+    #             dwm.write_data(cur_df)
+    #
+    #     # 1. Read data in chunk (skipping x top rows; capturing header)
+    #     # 2. For each chunk
+    #     #   apply original column names to the chunk
+    #     #   choose only columns to use
+    #     #   rename columns if necessary
+    #     #   apply functions (add columns, etc.)
+    #     # df = pd.read_excel(input_file,sheet_name=sheet)
+    #
+    #     print('\n====Program finished.')
 
 
         #     df = transform_utils.get_data_frame()
