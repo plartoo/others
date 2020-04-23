@@ -84,8 +84,6 @@ if __name__ == '__main__':
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
         for input_file in transform_utils.get_input_files(config):
-            col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
-
             reader = DataReader(input_file, config)
             cur_df = reader.get_next_dataframe()
 
