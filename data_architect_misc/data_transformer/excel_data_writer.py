@@ -13,64 +13,117 @@ class ExcelDataWriter:
     parameters for pandas.to_excel method and implement
     write_data() method in its child class, DataWriter.
     """
+    DEFAULT_OUTPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
+    KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
+    DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
+
+    KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
+    DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
+                                              'output')
+    KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
+    KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'
+    KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'
+    DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
+
     def __init__(self, config):
+        self.logger = logging.getLogger(__name__)
+        self.output_folder = self._get_output_folder(config)
+        self.output_file_prefix = self._get_output_file_name_prefix(config)
         # We can later implement other pandas.to_excel parameters
         # such as na_rep, columns, header, etc.
-        self.output_file_path_and_name = self.get_output_file_path_and_name(config)
-        self.include_index = self.get_include_index_column_in_output_excel_file(config)
+        self.include_index = self._get_include_index_column_in_output_excel_file(config)
         # Encoding of the resulting excel file.
         # Only necessary for xlwt, other writers support unicode natively.
-        self.output_file_encoding = self.get_output_excel_file_encoding(config)
-        self.sheet_name = self.get_output_excel_file_sheet_name(config)
-        self.logger = logging.getLogger(__name__)
-
+        self.output_file_encoding = self._get_output_excel_file_encoding(config)
+        self.sheet_name = self._get_output_excel_file_sheet_name(config)
 
     @staticmethod
-    def get_output_file_path_and_name(config):
+    def get_value_from_dict(dictionary, key, default_value):
         """
-        Returns output file path with file name prefix, if the latter
-        is provided in the config JSON. Before joining the path with
-        file name, output folder is created if it doesn't exist already.
+        Returns associated value of a given key from dict.
+        If the key doesn't exist, returns default_value.
         """
-        logger = logging.getLogger(__name__)
-        output_folder = transform_utils.get_output_folder(config)
+        if dictionary.get(key) is None:
+            return default_value
+        elif (isinstance(dictionary.get(key), str)) and (not dictionary.get(key)):
+            return default_value
+        else:
+            return dictionary.get(key)
+
+    def _get_output_folder(self, config):
+        """
+        Extracts the output folder path and name from the config JSON.
+        If the output folder does NOT exist already, this method
+        creates one.
+
+        If the keys aren't defined in the JSON config file,
+        this method returns default output folder value: ./output
+        """
+        output_folder = self.get_value_from_dict(
+            config,
+            self.KEY_OUTPUT_FOLDER_PATH,
+            self.DEFAULT_OUTPUT_FOLDER_PATH)
+
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
-            logger.info(f"New folder created for output files: {output_folder}")
+            self.logger.info(f"New folder created for output files: "
+                             f"{output_folder}")
+        return output_folder
 
-        file_prefix = transform_utils.get_output_file_prefix(config)
+    def _get_output_file_name_prefix(self, config):
+        return self.get_value_from_dict(
+            config,
+            self.KEY_OUTPUT_FILE_PREFIX,
+            '')
+
+    def _get_output_file_name(self):
+        """
+        Joins output file name prefix, if any, from config JSON
+        with current datetime in YYYYMMDD_HHMMSS format and
+        returns the result as output file name.
+        """
         file_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file_name = ''.join(['_'.join([file_prefix, file_suffix]), '.xlsx'])
+        return f"{self.output_file_prefix}_{file_suffix}.xlsx"
 
-        return os.path.join(output_folder, output_file_name)
+    def _get_output_file_path_and_name(self):
+        """
+        Returns the full output file path and name by joining
+        output folder; file name prefix, if any; and file name
+        suffix, which is just timestamp in the form of
+        YYYYMMDD_HHMMSS.
+        """
+        return os.path.join(self.output_folder,
+                            self._get_output_file_name())
 
-
-    @staticmethod
-    def get_include_index_column_in_output_excel_file(config):
+    def _get_include_index_column_in_output_excel_file(self, config):
         """
         Extracts and return boolean value to decide if output Excel
         file should include index column from the dataframe.
         """
-        return transform_utils.get_include_index_column_in_output(config)
+        return self.get_value_from_dict(config,
+                                        self.KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
+                                        self.DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
 
-
-    @staticmethod
-    def get_output_excel_file_encoding(config):
+    def _get_output_excel_file_encoding(self, config):
         """
         Extracts and return encoding string value for output Excel file.
         Defaults to None because it is (strangely) equivalent to 'utf-8'
         in Pandas.
         """
-        return transform_utils.get_output_file_encoding(config)
+        return self.get_value_from_dict(config,
+                                        self.KEY_OUTPUT_FILE_ENCODING,
+                                        self.DEFAULT_OUTPUT_FILE_ENCODING)
 
-
-    @staticmethod
-    def get_output_excel_file_sheet_name(config):
+    def _get_output_excel_file_sheet_name(self, config):
         """
         Extracts and return sheet name (string) for output Excel file.
         Defaults to None because it is (strangely) equivalent to 'utf-8'
         in Pandas.
         """
+        return self.get_value_from_dict(config,
+                                        self.KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
+                                        self.DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
+
         return transform_utils.get_output_file_sheet_name(config)
 
 
@@ -81,15 +134,14 @@ class DataWriter(ExcelDataWriter):
     must make sure that it implements write_data(dataframe) method
     because it is expected in transform.py file.
     """
-
     def __init__(self, config):
         super().__init__(config)
 
-
     def write_data(self, df):
-        self.logger.info(f"Writing data to: {self.output_file_path_and_name}")
+        output_file_path_and_name = self._get_output_file_path_and_name()
+        self.logger.info(f"Writing data to: {output_file_path_and_name}")
         df.to_excel(
-            self.output_file_path_and_name,
+            output_file_path_and_name,
             sheet_name=self.sheet_name,
             index=self.include_index,
             encoding=self.output_file_encoding
