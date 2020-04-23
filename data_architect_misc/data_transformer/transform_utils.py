@@ -47,31 +47,34 @@ DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
                                                        'transform_functions',
                                                        'transform_functions.py')
 
-KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file'
-DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0
-KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'
-DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
+KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file' # TODO: remove
+DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0 # TODO: remove
 
 # Pandas unfortunately has 'keep_default_na' option which tries to interpret
 # NaN, NULL, NA, N/A, etc. values in the raw data to NaN. We must turn it off
 # by default. REF: https://stackoverflow.com/a/41417295
-KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan'
-DEFAULT_KEEP_DEFAULT_NA = False
+KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan' # TODO: remove
+DEFAULT_KEEP_DEFAULT_NA = False # TODO: remove
 
-KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'
-DEFAULT_COLUMN_HEADER_ROW_NUM = -1
+KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers' # TODO: remove
+DEFAULT_COLUMN_HEADER_ROW_NUM = -1 # TODO: remove
 
+
+KEY_ROWS_PER_READ_ITERATION = 'rows_per_read'
+DEFAULT_ROWS_PER_READ_ITERATION = 500000
 KEY_INPUT_FILE_ENCODING = 'input_file_encoding'
 DEFAULT_INPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
-KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'
-DEFAULT_OUTPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
-
 # Note: we tested and found that pandas' csv sniffer isn't very good
 # (even when using 'Python' as parser engine) in detecting delimiters, so
 # setting this as None is not good enough. Thus we decided to set the default
 # for 'DEFAULT_INPUT_CSV_DELIMITER' as comma.
 KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
 DEFAULT_INPUT_CSV_DELIMITER = ','
+
+KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'
+DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
+KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'
+DEFAULT_OUTPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
 KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
 DEFAULT_OUTPUT_CSV_DELIMITER = '|'
 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
@@ -90,20 +93,6 @@ DEFAULT_FUNC_ARGS = []
 KEY_FUNC_KWARGS = 'function_kwargs'
 DEFAULT_FUNC_KWARGS = {}
 
-KEY_TRANSFORM_FUNC_NAME = 'transform_function_name'
-KEY_TRANSFORM_FUNC_ARGS = 'transform_function_args'
-DEFAULT_TRANSFORM_FUNC_ARGS = []
-KEY_TRANSFORM_FUNC_KWARGS = 'transform_function_kwargs'
-DEFAULT_TRANSFORM_FUNC_KWARGS = {}
-KEY_ASSERT_FUNC_NAME = 'assert_function_name'
-KEY_ASSERT_FUNC_ARGS = 'assert_function_args'
-DEFAULT_ASSERT_FUNC_ARGS = []
-KEY_ASSERT_FUNC_KWARGS = 'assert_function_kwargs'
-DEFAULT_ASSERT_FUNC_KWARGS = {}
-
-KEY_ROWS_PER_CHUNK_FOR_CSV = 'rows_per_chunk_for_csv'
-DEFAULT_ROWS_PER_CHUNK_FOR_CSV = 1500000
-
 # Keys in config file and their expected data types
 # TODO: review the list of expected data types below and enter the new ones I've included since January 2020
 EXPECTED_CONFIG_DATA_TYPES = {
@@ -121,7 +110,7 @@ EXPECTED_CONFIG_DATA_TYPES = {
     KEY_ROW_INDEX_WHERE_DATA_STARTS: [int],
     KEY_BOTTOM_ROWS_TO_SKIP: [int],
     KEY_FUNCTIONS_TO_APPLY: [list],
-    KEY_ROWS_PER_CHUNK_FOR_CSV: [int],
+    KEY_ROWS_PER_READ_ITERATION: [int],
 }
 
 # Keys in config file that must exist (required keys)
@@ -703,8 +692,8 @@ def get_rows_per_chunk_for_csv(config):
     VALUE_ROWS_PER_CHUNK_DEFAULT as default.
     """
     return _get_value_from_dict(config,
-                                KEY_ROWS_PER_CHUNK_FOR_CSV,
-                                DEFAULT_ROWS_PER_CHUNK_FOR_CSV)
+                                KEY_ROWS_PER_READ_ITERATION,
+                                DEFAULT_ROWS_PER_READ_ITERATION)
 
 
 def get_input_file_encoding(config):
