@@ -33,10 +33,6 @@ DEFAULT_WRITE_OUTPUT = True
 KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
 DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
                                               'csv_data_writer.py')
-KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
-DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
-                                          'output')
-KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
 KEY_DATABASE_SCHEMA = 'database_schema'
 KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'
 DEFAULT_OUTPUT_TABLE_NAME = 'default_transformed_sql_table_name'
@@ -47,6 +43,24 @@ DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
                                                        'transform_functions',
                                                        'transform_functions.py')
 
+
+
+### WRITER related constants. will be removed after refactoring
+KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix' # TODO: map to csv_data_writer and excel_data_writer
+KEY_OUTPUT_FOLDER_PATH = 'output_folder_path' # TODO: map to csv_data_writer and excel_data_writer
+DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(), # TODO: map to csv_data_writer and excel_data_writer
+                                          'output')
+KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file' # TODO: map to excel_data_writer
+DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1' # TODO: map to excel_data_writer
+KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding' # TODO: map to csv_data_writer and excel_data_writer
+DEFAULT_OUTPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas # TODO: map to csv_data_writer and excel_data_writer
+KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter' # TODO: map to csv_data_writer
+DEFAULT_OUTPUT_CSV_DELIMITER = '|' # # TODO: map to csv_data_writer
+KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output' # TODO: map to csv_data_writer and excel_data_writer
+DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False # TODO: map to csv_data_writer and excel_data_writer
+
+
+### READER related constants. will be removed after refactoring
 KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file' # TODO: remove
 DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0 # TODO: remove
 
@@ -59,7 +73,6 @@ DEFAULT_KEEP_DEFAULT_NA = False # TODO: remove
 KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers' # TODO: remove
 DEFAULT_COLUMN_HEADER_ROW_NUM = -1 # TODO: remove
 
-
 KEY_ROWS_PER_READ_ITERATION = 'rows_per_read'
 DEFAULT_ROWS_PER_READ_ITERATION = 500000
 KEY_INPUT_FILE_ENCODING = 'input_file_encoding'
@@ -71,19 +84,17 @@ DEFAULT_INPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
 KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
 DEFAULT_INPUT_CSV_DELIMITER = ','
 
-KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'
-DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
-KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'
-DEFAULT_OUTPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
-KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
-DEFAULT_OUTPUT_CSV_DELIMITER = '|'
-KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
-DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
-
 KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
 DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
+
+
+
+
+
+
+
 
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
 DEFAULT_FUNCTIONS_TO_APPLY = []
@@ -119,6 +130,10 @@ REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
                  KEY_FUNCTIONS_TO_APPLY]
 
 
+# TODO: remove this because now I'm 100% sure we are going to
+#  go with JSON config and the keys are now only going to be
+#  of string type. So delete this and its uses throughout the
+#  codebase
 def _get_value_from_dict(dictionary, key, default_value):
     """
     Returns associated value of a given key from dict.
@@ -438,7 +453,7 @@ def get_output_file_encoding(config):
                                 KEY_OUTPUT_FILE_ENCODING,
                                 DEFAULT_OUTPUT_FILE_ENCODING)
 
-
+# TODO: delete after testing CSV writer module
 def get_output_csv_file_delimiter(config):
     """Retrieves delimiter for output CSV file."""
     return _get_value_from_dict(config,

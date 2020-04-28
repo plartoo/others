@@ -83,6 +83,7 @@ if __name__ == '__main__':
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
+        dw = transform_utils.instantiate_data_writer_module(config)
         for input_file in transform_utils.get_input_files(config):
             reader = DataReader(input_file, config)
             cur_df = reader.get_next_dataframe()
@@ -99,8 +100,8 @@ if __name__ == '__main__':
                                      func_name)(cur_df, *func_args, **func_kwargs)
 
             if transform_utils.get_write_data_decision(config):
-                dwm = transform_utils.instantiate_data_writer_module(config)
-                dwm.write_data(cur_df)
+                dw.set_output_file_name_suffix('line_number')
+                dw.write_data(cur_df)
 
         print('\n====Program finished.')
 
