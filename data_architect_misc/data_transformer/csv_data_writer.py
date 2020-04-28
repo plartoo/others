@@ -2,30 +2,59 @@ from datetime import datetime
 import logging
 import os
 
-import transform_utils
-
 
 class CSVDataWriter:
     """
     This class the parent class of DataWriter, which is required
     to write data from Pandas dataframe to CSV file.
+
     Here, we only use this class to set up necessary
-    parameters for pandas.to_csv method and implement
-    write_data() method in its child class, DataWriter.
-    (I admit it's a bit funny that the parent class has
-    more specific name than child class, but I figured
-    it's better to do it this way for a couple of
-    different reasons, which I will not explain further here.)
+    parameters including the ones for pandas.to_csv method.
+    We will implement write_data() method in its child class, DataWriter.
+
+    Then we can import and instantiate a specific DataWriter
+    module dynamically in another Python module and call write_data().
+    An example usage of this class can be found in one of the Python
+    modules named 'data_tranformer' in my Github repo.
     """
+
+    # TODO: later, move the following constants into constants_writers.py to be used in both CSV, Excel and so on writers.
+    KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'
+    DEFAULT_OUTPUT_CSV_DELIMITER = '|'
+    KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
+    DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
+    KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'
+    DEFAULT_OUTPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
+
+    # Parameters for output file name and path.
+    KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
+    DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
+                                              'output')
+    KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
+    KEY_OUTPUT_FILE_SUFFIX = 'output_file_name_suffix'
+
     def __init__(self, config):
+        self.logger = logging.getLogger(__name__)
+
         # We can later implement other pandas.to_csv parameters
         # such as na_rep, compression, quoting, quotechar, etc.
         self.output_file_path_and_name = self.get_output_file_path_and_name(config)
-        self.include_index = self.get_include_index_column_in_output_csv_file(config)
-        self.output_file_encoding = self.get_output_csv_file_encoding(config)
-        self.output_file_delimiter = self.get_output_csv_file_delimiter(config)
-        self.logger = logging.getLogger(__name__)
 
+        self.output_file_delimiter = config.get(
+            self.KEY_OUTPUT_CSV_DELIMITER,
+            self.DEFAULT_OUTPUT_CSV_DELIMITER)
+
+        # boolean to decide if output file should have index column from the dataframe
+        self.include_index = config.get(
+            self.KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
+            self.DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
+
+        # Encoding of the resulting excel file.
+        # Only necessary for xlwt writer engine.
+        # Other writers support unicode natively.
+        self.output_file_encoding = config.get(
+            self.KEY_OUTPUT_FILE_ENCODING,
+            self.DEFAULT_OUTPUT_FILE_ENCODING)
 
     @staticmethod
     def get_output_file_path_and_name(config):
@@ -47,33 +76,6 @@ class CSVDataWriter:
         return os.path.join(output_folder, output_file_name)
 
 
-    @staticmethod
-    def get_include_index_column_in_output_csv_file(config):
-        """
-        Extracts and return boolean value to decide if output CSV
-        file should include index column from the dataframe.
-        """
-        return transform_utils.get_include_index_column_in_output(config)
-
-
-    @staticmethod
-    def get_output_csv_file_encoding(config):
-        """
-        Extracts and return encoding string value for output CSV file.
-        Defaults to None because it is (strangely) equivalent to 'utf-8'
-        in Pandas.
-        """
-        return transform_utils.get_output_file_encoding(config)
-
-
-    @staticmethod
-    def get_output_csv_file_delimiter(config):
-        """
-        Extracts and return delimiter (string) value for output CSV file.
-        Defaults to ',' (comma).
-        """
-        return transform_utils.get_output_csv_file_delimiter(config)
-
 
 class DataWriter(CSVDataWriter):
     """
@@ -86,12 +88,16 @@ class DataWriter(CSVDataWriter):
     def __init__(self, config):
         super().__init__(config)
 
+    def write_data(self, df, output_file_path_and_name=None):
+        if not output_file_path_and_name:
+            out_file = self._get_output_file_path_and_name()
+        else:
+            out_file = output_file_path_and_name
 
-    def write_data(self, df):
-        self.logger.info(f"Writing data to: {self.output_file_path_and_name}")
+        self.logger.info(f"Writing data to: {out_file}")
         df.to_csv(
-            self.output_file_path_and_name,
-            index=self.include_index,
+            out_file,
             sep=self.output_file_delimiter,
+            index=self.include_index,
             encoding=self.output_file_encoding
         )
