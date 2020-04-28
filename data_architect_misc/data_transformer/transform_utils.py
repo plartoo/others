@@ -25,58 +25,41 @@ import transform_errors
 # https://jeffdelaney.me/blog/useful-snippets-in-pandas/
 # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
 
-# Constants for config file
-KEY_INPUT_FOLDER_PATH = 'input_folder_path'
-KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
-KEY_WRITE_OUTPUT = 'write_output'
-DEFAULT_WRITE_OUTPUT = True
-KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
-DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
-                                              'csv_data_writer.py')
-KEY_DATABASE_SCHEMA = 'database_schema'
-KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'
-DEFAULT_OUTPUT_TABLE_NAME = 'default_transformed_sql_table_name'
-
 KEY_CUSTOM_FUNCTIONS_FILE = 'custom_transform_functions_file'
 # We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
 DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
                                                        'transform_functions',
                                                        'transform_functions.py')
 
+KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
+DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
+                                              'csv_data_writer.py')
 
 
-### WRITER related constants. will be removed after refactoring
-KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix' # TODO: map to csv_data_writer and excel_data_writer
-KEY_OUTPUT_FOLDER_PATH = 'output_folder_path' # TODO: map to csv_data_writer and excel_data_writer
-DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(), # TODO: map to csv_data_writer and excel_data_writer
-                                          'output')
-KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file' # TODO: map to excel_data_writer
-DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1' # TODO: map to excel_data_writer
-KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding' # TODO: map to csv_data_writer and excel_data_writer
-DEFAULT_OUTPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas # TODO: map to csv_data_writer and excel_data_writer
-KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter' # TODO: map to csv_data_writer
-DEFAULT_OUTPUT_CSV_DELIMITER = '|' # # TODO: map to csv_data_writer
-KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output' # TODO: map to csv_data_writer and excel_data_writer
-DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False # TODO: map to csv_data_writer and excel_data_writer
 
 
 ### READER related constants. will be removed after refactoring
-KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file' # TODO: remove
-DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0 # TODO: remove
-
 # Pandas unfortunately has 'keep_default_na' option which tries to interpret
 # NaN, NULL, NA, N/A, etc. values in the raw data to NaN. We must turn it off
 # by default. REF: https://stackoverflow.com/a/41417295
-KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan' # TODO: remove
-DEFAULT_KEEP_DEFAULT_NA = False # TODO: remove
+KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan'  # TODO: remove
+DEFAULT_KEEP_DEFAULT_NA = False  # TODO: remove
 
-KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers' # TODO: remove
-DEFAULT_COLUMN_HEADER_ROW_NUM = -1 # TODO: remove
+KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'  # TODO: remove
+DEFAULT_COLUMN_HEADER_ROW_NUM = -1  # TODO: remove
+
+KEY_INPUT_FOLDER_PATH = 'input_folder_path'
+KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
+KEY_WRITE_OUTPUT = 'write_output'
+DEFAULT_WRITE_OUTPUT = True
+
+KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file'  # TODO: remove
+DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0  # TODO: remove
 
 KEY_ROWS_PER_READ_ITERATION = 'rows_per_read'
 DEFAULT_ROWS_PER_READ_ITERATION = 500000
 KEY_INPUT_FILE_ENCODING = 'input_file_encoding'
-DEFAULT_INPUT_FILE_ENCODING = None # None defaults to 'utf-8' in pandas
+DEFAULT_INPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
 # Note: we tested and found that pandas' csv sniffer isn't very good
 # (even when using 'Python' as parser engine) in detecting delimiters, so
 # setting this as None is not good enough. Thus we decided to set the default
@@ -91,6 +74,23 @@ DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
 
 
 
+### WRITER related constants. will be removed after refactoring
+KEY_DATABASE_SCHEMA = 'database_schema'  # TODO: map to mssql_data_writer
+KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'  # TODO: map to mssql_data_writer
+DEFAULT_OUTPUT_TABLE_NAME = 'default_transformed_sql_table_name'  # TODO: map to mssql_data_writer
+
+KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'  # TODO: map to csv_data_writer and excel_data_writer
+KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'  # TODO: map to csv_data_writer and excel_data_writer
+DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),  # TODO: map to csv_data_writer and excel_data_writer
+                                          'output')
+KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'  # TODO: map to excel_data_writer
+DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'  # TODO: map to excel_data_writer
+KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'  # TODO: map to csv_data_writer and excel_data_writer
+DEFAULT_OUTPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas # TODO: map to csv_data_writer and excel_data_writer
+KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'  # TODO: map to csv_data_writer
+DEFAULT_OUTPUT_CSV_DELIMITER = '|'  # # TODO: map to csv_data_writer
+KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
+DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
 
 
 
@@ -233,18 +233,6 @@ def get_input_file_sheet_name(config):
                                 DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE)
 
 
-def get_output_file_sheet_name(config):
-    """
-    Returns the output file's sheet name from the config JSON.
-    If the keys aren't defined in the JSON, returns default sheet
-    (which is 'Sheet1'), which means Pandas will write to 'Sheet1'
-    in output Excel file.
-    """
-    return _get_value_from_dict(config,
-                                KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
-                                DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
-
-
 def get_keep_default_na(config):
     """
     Pandas somehow decided that it's okay to try to interpret
@@ -260,6 +248,18 @@ def get_keep_default_na(config):
     return _get_value_from_dict(config,
                                 KEY_KEEP_DEFAULT_NA,
                                 DEFAULT_KEEP_DEFAULT_NA)
+
+
+# def get_output_file_sheet_name(config):
+#     """
+#     Returns the output file's sheet name from the config JSON.
+#     If the keys aren't defined in the JSON, returns default sheet
+#     (which is 'Sheet1'), which means Pandas will write to 'Sheet1'
+#     in output Excel file.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
+#                                 DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
 
 
 def _get_relative_module_name(module_file):
@@ -299,7 +299,7 @@ def _get_package_name(module_file):
     this method extracts and return package name (that is,
     'transform_functions.funcs') from the path and name of a module file.
     """
-    directory_path = os.path.split(os.path.relpath(module_file))[0] # e.g., './transform_funcs/funcs'
+    directory_path = os.path.split(os.path.relpath(module_file))[0]  # e.g., './transform_funcs/funcs'
     if directory_path.startswith('./') or directory_path.startswith('.\\'):
         directory_path = directory_path.replace('./', '').replace('.\\', '')
 
@@ -381,7 +381,7 @@ def instantiate_data_writer_module(config):
         # the same root folder (i.e. 'data_transformer' folder).
         # Thus, we will call import_module() like below
         # importlib.import_module('.csv_data_writer')
-        data_writer_module = importlib.import_module\
+        data_writer_module = importlib.import_module \
             (os.path.splitext(os.path.split(data_writer_class_file)[1])[0])
 
         return data_writer_module.DataWriter(config)
@@ -389,76 +389,74 @@ def instantiate_data_writer_module(config):
         raise transform_errors.FileNotFound(data_writer_class_file)
 
 
-def get_output_folder(config):
-    """
-    Extracts and return the output folder path and name from the
-    config JSON. If the keys aren't defined in the JSON config
-    file, this method returns default output folder ('./output')
-    name.
-    """
-    return _get_value_from_dict(config,
-                                KEY_OUTPUT_FOLDER_PATH,
-                                DEFAULT_OUTPUT_FOLDER_PATH)
+# def get_output_folder(config):
+#     """
+#     Extracts and return the output folder path and name from the
+#     config JSON. If the keys aren't defined in the JSON config
+#     file, this method returns default output folder ('./output')
+#     name.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_FOLDER_PATH,
+#                                 DEFAULT_OUTPUT_FOLDER_PATH)
+#
+#
+# def get_output_file_prefix(config):
+#     """
+#     Extracts and return the output file prefix, if any, from
+#     the config file. If not given, returns empty string.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_FILE_PREFIX,
+#                                 '')
+
+# def get_output_sql_table_name(config):
+#     """
+#     Extracts and return the output SQL table name, if provided,
+#     from the config file. If not given, defaults to
+#     DEFAULT_OUTPUT_TABLE_NAME defined in this (transform_utils.py)
+#     file.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_TABLE_NAME,
+#                                 DEFAULT_OUTPUT_TABLE_NAME)
 
 
-def get_output_file_prefix(config):
-    """
-    Extracts and return the output file prefix, if any, from
-    the config file. If not given, returns empty string.
-    """
-    return _get_value_from_dict(config,
-                                KEY_OUTPUT_FILE_PREFIX,
-                                '')
+# def get_database_schema(config):
+#     """
+#     Extracts and return the DB schema for output SQL table from
+#     the config file. If not given, defaults to empty string.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_DATABASE_SCHEMA,
+#                                 '')
 
 
-def get_output_sql_table_name(config):
-    """
-    Extracts and return the output SQL table name, if provided,
-    from the config file. If not given, defaults to
-    DEFAULT_OUTPUT_TABLE_NAME defined in this (transform_utils.py)
-    file.
-    """
-    return _get_value_from_dict(config,
-                                KEY_OUTPUT_TABLE_NAME,
-                                DEFAULT_OUTPUT_TABLE_NAME)
+# def get_include_index_column_in_output(config):
+#     """
+#     Extracts and return boolean value to decide if output (be it,
+#     CSV file or SQL table) should include index column from
+#     the dataframe.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
+#                                 DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
 
+#
+# def get_output_file_encoding(config):
+#     """
+#     Retrieves encoding for output CSV file.
+#     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_FILE_ENCODING,
+#                                 DEFAULT_OUTPUT_FILE_ENCODING)
 
-def get_database_schema(config):
-    """
-    Extracts and return the DB schema for output SQL table from
-    the config file. If not given, defaults to empty string.
-    """
-    return _get_value_from_dict(config,
-                                KEY_DATABASE_SCHEMA,
-                                '')
-
-
-def get_include_index_column_in_output(config):
-    """
-    Extracts and return boolean value to decide if output (be it,
-    CSV file or SQL table) should include index column from
-    the dataframe.
-    """
-    return _get_value_from_dict(config,
-                                KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
-                                DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
-
-
-def get_output_file_encoding(config):
-    """
-    Retrieves encoding for output CSV file.
-    REF: https://docs.python.org/3/library/codecs.html#standard-encodings
-    """
-    return _get_value_from_dict(config,
-                                KEY_OUTPUT_FILE_ENCODING,
-                                DEFAULT_OUTPUT_FILE_ENCODING)
-
-# TODO: delete after testing CSV writer module
-def get_output_csv_file_delimiter(config):
-    """Retrieves delimiter for output CSV file."""
-    return _get_value_from_dict(config,
-                                KEY_OUTPUT_CSV_DELIMITER,
-                                DEFAULT_OUTPUT_CSV_DELIMITER)
+# def get_output_csv_file_delimiter(config):
+#     """Retrieves delimiter for output CSV file."""
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_CSV_DELIMITER,
+#                                 DEFAULT_OUTPUT_CSV_DELIMITER)
 
 def read_data(file_name_with_path, config, rows_to_read,
               skip_leading_rows=0, skip_trailing_rows=0,
@@ -484,7 +482,7 @@ def read_data(file_name_with_path, config, rows_to_read,
         return pd.read_csv(file_name_with_path,
                            skiprows=skip_leading_rows,
                            # below causes error if we tries to read chunk=x and there's < x rows left in the last chunk
-                           #nrows=rows_to_read,
+                           # nrows=rows_to_read,
                            chunksize=rows_to_read,
                            skipfooter=skip_trailing_rows,
                            header=header_row_index,
@@ -495,7 +493,7 @@ def read_data(file_name_with_path, config, rows_to_read,
                            encoding=get_input_file_encoding(config),
                            # don't skip anything in input file and let programmer
                            # decide how to parse them later in transform_functions
-                           #skip_blank_lines=False,
+                           # skip_blank_lines=False,
                            )
     else:
         raise transform_errors.InvalidFileType(file_name_with_path)
@@ -726,4 +724,3 @@ def get_input_csv_delimiter(config):
     return _get_value_from_dict(config,
                                 KEY_INPUT_CSV_DELIMITER,
                                 DEFAULT_INPUT_CSV_DELIMITER)
-
