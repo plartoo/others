@@ -3,3 +3,4 @@
 output/
 .idea
 __pycache__/
+/data_architect_misc/data_transformer/sql_server_account_info.py
