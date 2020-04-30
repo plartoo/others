@@ -4,11 +4,11 @@ Last Modified Date: April 14, 2020
 """
 import os
 
-from excel_data_reader import ExcelDataReader
-from csv_data_reader import CSVDataReader
+from data_readers.excel_data_reader import ExcelDataReader
+from data_readers.csv_data_reader import CSVDataReader
 
 
-class DataReader:
+class FileDataReader:
     """
     This Factory class will be used to generate and
     return different kind of Reader classes such as
