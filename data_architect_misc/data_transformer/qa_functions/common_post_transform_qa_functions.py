@@ -16,7 +16,7 @@ import re
 import pandas as pd
 
 import comp_harm_constants
-import qa_errors
+from qa_functions import qa_errors
 
 
 class CustomFunctions:
