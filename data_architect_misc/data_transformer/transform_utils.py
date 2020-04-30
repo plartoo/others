@@ -33,10 +33,8 @@ DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
 
 KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
 DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
+                                              'data_writers'
                                               'csv_data_writer.py')
-
-
-
 
 ### READER related constants. will be removed after refactoring
 # Pandas unfortunately has 'keep_default_na' option which tries to interpret
@@ -72,8 +70,6 @@ DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
 
-
-
 ### WRITER related constants. will be removed after refactoring
 KEY_DATABASE_SCHEMA = 'database_schema'  # TODO: map to mssql_data_writer
 KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'  # TODO: map to mssql_data_writer
@@ -91,10 +87,6 @@ KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'  # TODO: map to csv_data_
 DEFAULT_OUTPUT_CSV_DELIMITER = '|'  # # TODO: map to csv_data_writer
 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
 DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
-
-
-
-
 
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
 DEFAULT_FUNCTIONS_TO_APPLY = []
@@ -286,21 +278,16 @@ def _get_relative_module_name(module_file):
     return relative_module_name
 
 
-def _get_package_name(module_file):
+def _get_package_name(module_file_path_and_name):
     """
-    Suppose we want to load Python module file in this relative path:
-    './transform_functions/funcs/swiss_transform_funcs.py', we can use
-    'importlib.import_module(...)' method in one of the two ways below.
-    1) import_module('.swiss_transform_funcs', package='transform_functions')
-    or
-    2) import_module('transform_functions.swiss_transform_funcs')
 
     Assuming that we will be using method signature #1 above,
     this method extracts and return package name (that is,
     'transform_functions.funcs') from the path and name of a module file.
     """
-    directory_path = os.path.split(os.path.relpath(module_file))[0]  # e.g., './transform_funcs/funcs'
+    directory_path = os.path.split(os.path.relpath(module_file_path_and_name))[0]  # e.g., './transform_funcs/funcs'
     if directory_path.startswith('./') or directory_path.startswith('.\\'):
+        # remove leading characters that represent root directory
         directory_path = directory_path.replace('./', '').replace('.\\', '')
 
     return directory_path.replace('/', '.').replace('\\', '.')
@@ -328,9 +315,9 @@ def instantiate_custom_functions_module(config):
     the module, this function instantiates and return that module
     as an object.
     """
-    custom_funcs_file = _get_value_from_dict(config,
-                                             KEY_CUSTOM_FUNCTIONS_FILE,
-                                             DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+    custom_funcs_file = config.get(
+        KEY_CUSTOM_FUNCTIONS_FILE,
+        DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
 
     if os.path.isfile(custom_funcs_file):
         # Note: we assume that all transform function modules are located in
@@ -362,31 +349,125 @@ def get_write_data_decision(config):
                                 DEFAULT_WRITE_OUTPUT)
 
 
-def instantiate_data_writer_module(config):
-    """
-    This method will load the custom DataWriter module
-    if path to the custom DataWriter class (such as DataWriter for
-    SQL Server) is provided in the config file.
-    If that key in config file is not given, this method will load
-    default DataWriter module which will output CSV file for
-    transformed data.
-    Note: This method assumes that the DataWriter module file
-    is located in the same root folder as 'transform.py' file.
-    """
-    data_writer_class_file = _get_value_from_dict(config,
-                                                  KEY_DATA_WRITER_CLASS_FILE,
-                                                  DEFAULT_DATA_WRITER_CLASS_FILE)
-    if os.path.isfile(data_writer_class_file):
-        # Note: we assume that all data writer modules are located in
-        # the same root folder (i.e. 'data_transformer' folder).
-        # Thus, we will call import_module() like below
-        # importlib.import_module('.csv_data_writer')
-        data_writer_module = importlib.import_module \
-            (os.path.splitext(os.path.split(data_writer_class_file)[1])[0])
+def _get_classes_defined_in_module(python_module):
+    # REF: https://stackoverflow.com/a/61471777/1330974
+    return [v for k, v in vars(python_module).items() if isinstance(v, type)]
 
-        return data_writer_module.DataWriter(config)
+
+def _extract_possible_primary_class_name_from_module_name(abs_or_rel_module_name):
+    """
+    Given a Python module name (be it in absolute terms like
+    'data_writers.excel_data_writer' or in relative terms like
+    '.excel_data_writer' or just 'excel_data_writer'),
+    this method will extract the real module in this name
+    (in the above example, it is 'excel_data_writer'),
+    camelcase it and return it as possible primary class
+    name.
+
+    Note: This assume that the programmer who wrote
+    the module named the Python module file and the
+    class names according to Python widely accepted
+    naming convention.
+    """
+    last_module_name = abs_or_rel_module_name.split('.')[-1]
+    return ''.join([w.capitalize() for w in last_module_name.split('_')])
+
+
+def _get_primary_class(list_of_classes_in_module, primary_class_name):
+    return [kls for kls in list_of_classes_in_module
+            if kls.__name__==primary_class_name][0]
+
+
+def _get_primary_class_from_module(python_module):
+    """
+    Given a Python module, try to predict its main/primary
+    class from the module and return it (by assuming that
+    the programmer gave module and class names according
+    to Python standard naming convention (i.e. CamelCase
+    for class names and underscore for module_or_file_names).
+    """
+    classes = _get_classes_defined_in_module(python_module)
+    primary_class_name = _extract_possible_primary_class_name_from_module_name(
+        python_module.__name__)
+    return [kls for kls in classes
+            if kls.__name__==primary_class_name][0]
+
+
+# def instantiate_data_writer_module(config):
+#     """
+#     This method will load the custom data writer module
+#     (such as SQLServerDataWriter) if path to the custom
+#     data writer class is provided in the config file.
+#
+#     If that key in config file is not given, this method will load
+#     default data writer module, defined as DEFAULT_DATA_WRITER_CLASS_FILE
+#     which will output CSV file for the transformed data.
+#     """
+#     data_writer_class_file = config.get(
+#         KEY_DATA_WRITER_CLASS_FILE,
+#         DEFAULT_DATA_WRITER_CLASS_FILE)
+#
+#     if os.path.isfile(data_writer_class_file):
+#         # Suppose the module file is:
+#         # C://Users/lachee/data_transformer/reader_writers/data_writers/excel_writer.py
+#         # we can use import_module in the two ways as below
+#         # importlib.import_module('reader_writers.data_writers.excel_writer')
+#         # or
+#         # importlib.import_module('.excel_writer', package='reader_writers.data_writers')
+#         # My personal preference is to go with the first method signature.
+#         data_writer_module = importlib.import_module \
+#             (os.path.splitext
+#              (os.path.split(data_writer_class_file)[1])[0])
+#
+#         return _get_primary_class_from_module(data_writer_module)(config)
+#     else:
+#         raise transform_errors.FileNotFound(data_writer_class_file)
+
+
+def _get_module_name_in_absolute_term(module_file_path_and_name):
+    # Using relpath sanitize module file path and name (regardless of
+    # whether the input parameter is an absolute or relative path)
+    # into something like 'data_writers/excel_data_writer.py',
+    # which makes it easier to transform that into parameter for
+    # import_module function.
+    rel_path_and_file_name = os.path.relpath(module_file_path_and_name)
+    # Then, we remove the file extension like below and are left with
+    # something like: 'data_writers/excel_data_writer'
+    rel_path_and_file_name_without_file_ext = os.path.splitext(
+        rel_path_and_file_name)[0]
+    return rel_path_and_file_name_without_file_ext.replace(os.sep, '.')
+
+
+def instantiate_class_in_module_file(module_file_path_and_name):
+    """
+    This method will return the class with the matching
+    name in the module file. For example, if the module file
+    is 'excel_data_writer.py', this method will try to
+    import the module and return ExcelDataWriter class
+    in that module file.
+    """
+    if os.path.isfile(module_file_path_and_name):
+        # Suppose the module file is:
+        # C://Users/lachee/data_transformer/reader_writers/data_writers/excel_writer.py
+        # we can use import_module in the two ways as below
+        # importlib.import_module('reader_writers.data_writers.excel_writer')
+        # or
+        # importlib.import_module('.excel_writer', package='reader_writers.data_writers')
+        # I decided to go with my personal preference below,
+        # by using the first method signature.
+        module = importlib.import_module(
+            _get_module_name_in_absolute_term(module_file_path_and_name))
+
+        return _get_primary_class_from_module(module)
     else:
-        raise transform_errors.FileNotFound(data_writer_class_file)
+        raise transform_errors.FileNotFound(module_file_path_and_name)
+
+
+def instantiate_data_writer_module(config):
+    data_writer_class_file = config.get(
+        KEY_DATA_WRITER_CLASS_FILE,
+        DEFAULT_DATA_WRITER_CLASS_FILE)
+    return instantiate_class_in_module_file(data_writer_class_file)(config)
 
 
 # def get_output_folder(config):
