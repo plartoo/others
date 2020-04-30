@@ -1,6 +1,6 @@
 import logging
 
-from file_data_writer import FileDataWriter
+from data_writers.file_data_writer import FileDataWriter
 
 
 class CSVDataWriter(FileDataWriter):

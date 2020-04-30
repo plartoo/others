@@ -36,7 +36,7 @@ class FileDataWriter:
 
         # Encoding of the resulting excel file.
         # Only necessary for xlwt writer engine.
-        # Other writers support unicode natively.
+        # Other data_writers support unicode natively.
         self.output_file_encoding = config.get(
             self.KEY_OUTPUT_FILE_ENCODING,
             self.DEFAULT_OUTPUT_FILE_ENCODING)
