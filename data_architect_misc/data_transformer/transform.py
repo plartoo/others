@@ -10,7 +10,7 @@ import logging
 import os
 import sys
 
-from data_reader import DataReader
+from data_readers.file_data_reader import FileDataReader
 import transform_errors
 import transform_utils
 
@@ -79,13 +79,14 @@ if __name__ == '__main__':
 
         # Before writing custom functions to transform data, please read
         # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
+        # TODO: refactor below line so that it uses instantiate_class_in_module_file
         custom_funcs_instance = transform_utils.instantiate_custom_functions_module(config)
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
         dw = transform_utils.instantiate_data_writer_module(config)
         for input_file in transform_utils.get_input_files(config):
-            reader = DataReader(input_file, config)
+            reader = FileDataReader(input_file, config)
             cur_df = reader.get_next_dataframe()
 
             while not cur_df.empty:
