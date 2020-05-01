@@ -8,6 +8,16 @@ from data_readers.excel_data_reader import ExcelDataReader
 from data_readers.csv_data_reader import CSVDataReader
 
 
+def _extract_file_name(file_path_and_name):
+    """Extracts file name from path+filename string."""
+    return os.path.split(file_path_and_name)[-1]
+
+
+def _get_file_extension(file_name):
+    """Extracts file extension from filename string."""
+    return os.path.splitext(file_name)[1]
+
+
 class FileDataReader:
     """
     This Factory class will be used to generate and
@@ -38,23 +48,15 @@ class FileDataReader:
         elif self._is_csv(input_file_path_and_name):
             return CSVDataReader(input_file_path_and_name, configs)
 
-    def _extract_file_name(self, file_path_and_name):
-        """Extracts file name from path+filename string."""
-        return os.path.split(file_path_and_name)[-1]
-
-    def _get_file_extension(self, file_name):
-        """Extracts file extension from filename string."""
-        return os.path.splitext(file_name)[1]
-
     def _is_excel(self, file_name_with_path):
         """Checks if file is an Excel file *by checking its file extension*"""
-        file_extension = self._get_file_extension(
-            self._extract_file_name(file_name_with_path))
+        file_extension = _get_file_extension(
+            _extract_file_name(file_name_with_path))
         return ((self.EXCEL_FILE_EXTENSION_NEW == file_extension.lower()) or
                 (self.EXCEL_FILE_EXTENSION_OLD == file_extension.lower()))
 
     def _is_csv(self, file_name_with_path):
         """Checks if file is a CSV file *by checking its file extension*"""
-        file_extension = self._get_file_extension(
-            self._extract_file_name(file_name_with_path))
+        file_extension = _get_file_extension(
+            _extract_file_name(file_name_with_path))
         return self.CSV_FILE_EXTENSION == file_extension.lower()
