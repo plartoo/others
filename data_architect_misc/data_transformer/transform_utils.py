@@ -25,16 +25,21 @@ import transform_errors
 # https://jeffdelaney.me/blog/useful-snippets-in-pandas/
 # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
 
-KEY_CUSTOM_FUNCTIONS_FILE = 'custom_transform_functions_file'
-# We will assume the transform_functions.py file is: './transform_functions/transform_functions.py'
+KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE = 'custom_transform_functions_file'
+# We will assume the common_transform_functions.py file is: './transform_functions/common_transform_functions.py'
 DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
                                                        'transform_functions',
-                                                       'transform_functions.py')
+                                                       'common_transform_functions.py')
 
-KEY_DATA_WRITER_CLASS_FILE = 'data_writer_class_file'
-DEFAULT_DATA_WRITER_CLASS_FILE = os.path.join(os.getcwd(),
+KEY_DATA_WRITER_MODULE_FILE = 'data_writer_module_file'
+DEFAULT_DATA_WRITER_MODULE_FILE = os.path.join(os.getcwd(),
                                               'data_writers'
                                               'csv_data_writer.py')
+
+
+
+
+
 
 ### READER related constants. will be removed after refactoring
 # Pandas unfortunately has 'keep_default_na' option which tries to interpret
@@ -70,6 +75,11 @@ DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
 KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
 DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
 
+
+
+
+
+
 ### WRITER related constants. will be removed after refactoring
 KEY_DATABASE_SCHEMA = 'database_schema'  # TODO: map to mssql_data_writer
 KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'  # TODO: map to mssql_data_writer
@@ -87,6 +97,11 @@ KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'  # TODO: map to csv_data_
 DEFAULT_OUTPUT_CSV_DELIMITER = '|'  # # TODO: map to csv_data_writer
 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
 DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
+
+
+
+
+
 
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
 DEFAULT_FUNCTIONS_TO_APPLY = []
@@ -173,11 +188,11 @@ def validate_configurations(config):
     _assert_expected_data_types(config)
 
 
-def _append_sys_path(new_sys_path):
-    if new_sys_path not in sys.path:
-        sys.path.append(new_sys_path)
-        print("\nThis new sys path is appended:", new_sys_path)
-        print("Current sys path is:\n", sys.path, "\n")
+# def _append_sys_path(new_sys_path):
+#     if new_sys_path not in sys.path:
+#         sys.path.append(new_sys_path)
+#         print("\nThis new sys path is appended:", new_sys_path)
+#         print("Current sys path is:\n", sys.path, "\n")
 
 
 def insert_input_file_keys_values_to_config_json(file_path_and_name, config):
@@ -252,91 +267,115 @@ def get_keep_default_na(config):
 #     return _get_value_from_dict(config,
 #                                 KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
 #                                 DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
-
-
-def _get_relative_module_name(module_file):
-    """
-    Suppose we want to load Python module file in this relative path:
-    './transform_functions/swiss_transform_funcs.py', we can use
-    'importlib.import_module(...)' method in one of the two ways below.
-    1) import_module('.swiss_transform_funcs', package='transform_functions')
-    or
-    2) import_module('transform_functions.swiss_transform_funcs')
-
-    Assuming that we will be using method signature #1 above,
-    this method extracts and return relative module name (that is,
-    '.swiss_transform_funcs') from path and name of a module file.
-    """
-    # directory, file_name = os.path.split(module_file)
-    # file_name_without_extension = os.path.splitext(file_name)[0]
-    # relative_module_name = ''.join(['.', file_name_without_extension])
-    # package_name = os.path.basename(directory)
-    file_name = os.path.split(module_file)[1]
-    file_name_without_extension = os.path.splitext(file_name)[0]
-    relative_module_name = ''.join(['.', file_name_without_extension])
-
-    return relative_module_name
-
-
-def _get_package_name(module_file_path_and_name):
-    """
-
-    Assuming that we will be using method signature #1 above,
-    this method extracts and return package name (that is,
-    'transform_functions.funcs') from the path and name of a module file.
-    """
-    directory_path = os.path.split(os.path.relpath(module_file_path_and_name))[0]  # e.g., './transform_funcs/funcs'
-    if directory_path.startswith('./') or directory_path.startswith('.\\'):
-        # remove leading characters that represent root directory
-        directory_path = directory_path.replace('./', '').replace('.\\', '')
-
-    return directory_path.replace('/', '.').replace('\\', '.')
-
-
-def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
-    if transform_funcs_file == DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE:
-        # Here, the config file does not define the file that has
-        # custom transform functions, so we are going to load (instantiate)
-        # the CommonTransformFunctions instance.
-        return transform_funcs_module.CommonTransformFunctions()
-    else:
-        return transform_funcs_module.CustomFunctions()
-
-
-def instantiate_custom_functions_module(config):
-    """
-    This function is used to load the module that includes
-    all custom functions be it for data transformation or for
-    data QA-ing.
-
-    It first extracts the module's path+file name from the config
-    file and imports the module that has either the custom functions
-    or the common transform functions (default). After importing
-    the module, this function instantiates and return that module
-    as an object.
-    """
-    custom_funcs_file = config.get(
-        KEY_CUSTOM_FUNCTIONS_FILE,
-        DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
-
-    if os.path.isfile(custom_funcs_file):
-        # Note: we assume that all transform function modules are located in
-        # './transform_funcs' directory, which is used as package name below.
-        # Relative module name, the first argument of import_module() below,
-        # is either custom python file name (without extension) or
-        # the file with common transform functions (that is,
-        # 'transform_functions' python file) prefixed with '.' (dot).
-        #
-        # E.g., importlib.import_module('.switzerland_transform_functions', package='transform_functions')
-        # OR importlib.import_module('transform_functions.switzerland_transform_functions')
-        # REF1: https://stackoverflow.com/a/10675081/1330974
-        # REF2: https://stackoverflow.com/a/8899345/1330974
-        return _instantiate_transform_module(custom_funcs_file,
-                                             importlib.import_module(
-                                                 _get_relative_module_name(custom_funcs_file),
-                                                 package=_get_package_name(custom_funcs_file)))
-    else:
-        raise transform_errors.FileNotFound(custom_funcs_file)
+# def _get_relative_module_name(module_file):
+#     """
+#     Suppose we want to load Python module file in this relative path:
+#     './transform_functions/swiss_transform_funcs.py', we can use
+#     'importlib.import_module(...)' method in one of the two ways below.
+#     1) import_module('.swiss_transform_funcs', package='transform_functions')
+#     or
+#     2) import_module('transform_functions.swiss_transform_funcs')
+#
+#     Assuming that we will be using method signature #1 above,
+#     this method extracts and return relative module name (that is,
+#     '.swiss_transform_funcs') from path and name of a module file.
+#     """
+#     # directory, file_name = os.path.split(module_file)
+#     # file_name_without_extension = os.path.splitext(file_name)[0]
+#     # relative_module_name = ''.join(['.', file_name_without_extension])
+#     # package_name = os.path.basename(directory)
+#     file_name = os.path.split(module_file)[1]
+#     file_name_without_extension = os.path.splitext(file_name)[0]
+#     relative_module_name = ''.join(['.', file_name_without_extension])
+#
+#     return relative_module_name
+# def _get_package_name(module_file_path_and_name):
+#     """
+#
+#     Assuming that we will be using method signature #1 above,
+#     this method extracts and return package name (that is,
+#     'transform_functions.funcs') from the path and name of a module file.
+#     """
+#     directory_path = os.path.split(os.path.relpath(module_file_path_and_name))[0]  # e.g., './transform_funcs/funcs'
+#     if directory_path.startswith('./') or directory_path.startswith('.\\'):
+#         # remove leading characters that represent root directory
+#         directory_path = directory_path.replace('./', '').replace('.\\', '')
+#
+#     return directory_path.replace('/', '.').replace('\\', '.')
+# def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
+#     if transform_funcs_file == DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE:
+#         # If the config file does not provide a file with
+#         # custom transform functions, we will load (instantiate)
+#         # the CommonTransformFunctions instance.
+#         return transform_funcs_module.CommonTransformFunctions()
+#     else:
+#         return transform_funcs_module.CustomFunctions()
+# def instantiate_custom_functions_module(config):
+#     """
+#     This function is used to load the module that includes
+#     all custom functions be it for data transformation or for
+#     data QA-ing.
+#
+#     It first extracts the module's path+file name from the config
+#     file and imports the module that has either the custom functions
+#     or the common transform functions (default). After importing
+#     the module, this function instantiates and return that module
+#     as an object.
+#     """
+#     custom_funcs_file = config.get(
+#         KEY_CUSTOM_FUNCTIONS_FILE,
+#         DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+#
+#     if os.path.isfile(custom_funcs_file):
+#         # Note: we assume that all transform function modules are located in
+#         # './transform_funcs' directory, which is used as package name below.
+#         # Relative module name, the first argument of import_module() below,
+#         # is either custom python file name (without extension) or
+#         # the file with common transform functions (that is,
+#         # 'transform_functions' python file) prefixed with '.' (dot).
+#         #
+#         # E.g., importlib.import_module('.switzerland_transform_functions', package='transform_functions')
+#         # OR importlib.import_module('transform_functions.switzerland_transform_functions')
+#         # REF1: https://stackoverflow.com/a/10675081/1330974
+#         # REF2: https://stackoverflow.com/a/8899345/1330974
+#         return _instantiate_transform_module(custom_funcs_file,
+#                                              importlib.import_module(
+#                                                  _get_relative_module_name(custom_funcs_file),
+#                                                  package=_get_package_name(custom_funcs_file)))
+#     else:
+#         raise transform_errors.FileNotFound(custom_funcs_file)
+# def _get_primary_class(list_of_classes_in_module, primary_class_name):
+#     return [kls for kls in list_of_classes_in_module
+#             if kls.__name__==primary_class_name][0]
+# def instantiate_data_writer_module(config):
+#     """
+#     This method will load the custom data writer module
+#     (such as SQLServerDataWriter) if path to the custom
+#     data writer class is provided in the config file.
+#
+#     If that key in config file is not given, this method will load
+#     default data writer module, defined as DEFAULT_DATA_WRITER_CLASS_FILE
+#     which will output CSV file for the transformed data.
+#     """
+#     data_writer_class_file = config.get(
+#         KEY_DATA_WRITER_CLASS_FILE,
+#         DEFAULT_DATA_WRITER_CLASS_FILE)
+#
+#     if os.path.isfile(data_writer_class_file):
+#         # Suppose the module file is:
+#         # C://Users/lachee/data_transformer/reader_writers/data_writers/excel_writer.py
+#         # we can use import_module in the two ways as below
+#         # importlib.import_module('reader_writers.data_writers.excel_writer')
+#         # or
+#         # importlib.import_module('.excel_writer', package='reader_writers.data_writers')
+#         # My personal preference is to go with the first method signature.
+#         data_writer_module = importlib.import_module \
+#             (os.path.splitext
+#              (os.path.split(data_writer_class_file)[1])[0])
+#
+#         return _get_primary_class_from_module(data_writer_module)(config)
+#     else:
+#         raise transform_errors.FileNotFound(data_writer_class_file)
 
 
 def get_write_data_decision(config):
@@ -373,11 +412,6 @@ def _extract_possible_primary_class_name_from_module_name(abs_or_rel_module_name
     return ''.join([w.capitalize() for w in last_module_name.split('_')])
 
 
-def _get_primary_class(list_of_classes_in_module, primary_class_name):
-    return [kls for kls in list_of_classes_in_module
-            if kls.__name__==primary_class_name][0]
-
-
 def _get_primary_class_from_module(python_module):
     """
     Given a Python module, try to predict its main/primary
@@ -391,37 +425,6 @@ def _get_primary_class_from_module(python_module):
         python_module.__name__)
     return [kls for kls in classes
             if kls.__name__==primary_class_name][0]
-
-
-# def instantiate_data_writer_module(config):
-#     """
-#     This method will load the custom data writer module
-#     (such as SQLServerDataWriter) if path to the custom
-#     data writer class is provided in the config file.
-#
-#     If that key in config file is not given, this method will load
-#     default data writer module, defined as DEFAULT_DATA_WRITER_CLASS_FILE
-#     which will output CSV file for the transformed data.
-#     """
-#     data_writer_class_file = config.get(
-#         KEY_DATA_WRITER_CLASS_FILE,
-#         DEFAULT_DATA_WRITER_CLASS_FILE)
-#
-#     if os.path.isfile(data_writer_class_file):
-#         # Suppose the module file is:
-#         # C://Users/lachee/data_transformer/reader_writers/data_writers/excel_writer.py
-#         # we can use import_module in the two ways as below
-#         # importlib.import_module('reader_writers.data_writers.excel_writer')
-#         # or
-#         # importlib.import_module('.excel_writer', package='reader_writers.data_writers')
-#         # My personal preference is to go with the first method signature.
-#         data_writer_module = importlib.import_module \
-#             (os.path.splitext
-#              (os.path.split(data_writer_class_file)[1])[0])
-#
-#         return _get_primary_class_from_module(data_writer_module)(config)
-#     else:
-#         raise transform_errors.FileNotFound(data_writer_class_file)
 
 
 def _get_module_name_in_absolute_term(module_file_path_and_name):
@@ -453,6 +456,8 @@ def instantiate_class_in_module_file(module_file_path_and_name):
         # importlib.import_module('reader_writers.data_writers.excel_writer')
         # or
         # importlib.import_module('.excel_writer', package='reader_writers.data_writers')
+        # REF1: https://stackoverflow.com/a/10675081/1330974
+        # REF2: https://stackoverflow.com/a/8899345/1330974
         # I decided to go with my personal preference below,
         # by using the first method signature.
         module = importlib.import_module(
@@ -463,11 +468,18 @@ def instantiate_class_in_module_file(module_file_path_and_name):
         raise transform_errors.FileNotFound(module_file_path_and_name)
 
 
-def instantiate_data_writer_module(config):
-    data_writer_class_file = config.get(
-        KEY_DATA_WRITER_CLASS_FILE,
-        DEFAULT_DATA_WRITER_CLASS_FILE)
-    return instantiate_class_in_module_file(data_writer_class_file)(config)
+def instantiate_data_writer_class(config):
+    data_writer_module_file = config.get(
+        KEY_DATA_WRITER_MODULE_FILE,
+        DEFAULT_DATA_WRITER_MODULE_FILE)
+    return instantiate_class_in_module_file(data_writer_module_file)(config)
+
+
+def instantiate_transform_functions_class(config):
+    transform_funcs_module_file = config.get(
+        KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
+        DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+    return instantiate_class_in_module_file(transform_funcs_module_file)()
 
 
 # def get_output_folder(config):

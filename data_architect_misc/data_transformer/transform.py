@@ -79,12 +79,15 @@ if __name__ == '__main__':
 
         # Before writing custom functions to transform data, please read
         # https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
-        # TODO: refactor below line so that it uses instantiate_class_in_module_file
-        custom_funcs_instance = transform_utils.instantiate_custom_functions_module(config)
+        transform_funcs_kls = transform_utils.instantiate_transform_functions_class(config)
+        data_writer_kls = transform_utils.instantiate_data_writer_class(config)
+
+        # import pdb
+        # pdb.set_trace()
+        # print('debug')
         row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
         footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
-        dw = transform_utils.instantiate_data_writer_module(config)
         for input_file in transform_utils.get_input_files(config):
             reader = FileDataReader(input_file, config)
             cur_df = reader.get_next_dataframe()
@@ -97,12 +100,12 @@ if __name__ == '__main__':
                     func_name = transform_utils.get_function_name(func_and_params)
                     func_args = transform_utils.get_function_args(func_and_params)
                     func_kwargs = transform_utils.get_function_kwargs(func_and_params)
-                    cur_df = getattr(custom_funcs_instance,
+                    cur_df = getattr(transform_funcs_kls,
                                      func_name)(cur_df, *func_args, **func_kwargs)
 
             if transform_utils.get_write_data_decision(config):
-                dw.set_output_file_name_suffix('line_number')
-                dw.write_data(cur_df)
+                data_writer_kls.set_output_file_name_suffix('line_number')
+                data_writer_kls.write_data(cur_df)
 
         print('\n====Program finished.')
 
