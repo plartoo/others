@@ -8,7 +8,7 @@ Last Modified: Jan 30, 2020
 
 import pandas as pd
 
-from transform_functions.transform_functions import CommonTransformFunctions
+from transform_functions.common_transform_functions import CommonTransformFunctions
 
 
 class CustomFunctions(CommonTransformFunctions):

@@ -9,10 +9,10 @@ Last Modified: April 13, 2020
 import pandas as pd
 
 import comp_harm_constants
-from transform_functions.comp_harm_transform_functions import CommonCompHarmTransformFunctions
+from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
-class CustomFunctions(CommonCompHarmTransformFunctions):
+class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
     """
     All custom (uncommon) transform functions **SPECIFIC to
     individual processing task** must be defined as part
