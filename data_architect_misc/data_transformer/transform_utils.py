@@ -137,23 +137,6 @@ REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
                  KEY_FUNCTIONS_TO_APPLY]
 
 
-# TODO: remove this because now I'm 100% sure we are going to
-#  go with JSON config and the keys are now only going to be
-#  of string type. So delete this and its uses throughout the
-#  codebase
-def _get_value_from_dict(dictionary, key, default_value):
-    """
-    Returns associated value of a given key from dict.
-    If the key doesn't exist, returns default_value.
-    """
-    if dictionary.get(key) is None:
-        return default_value
-    elif (isinstance(dictionary.get(key), str)) and (not dictionary.get(key)):
-        return default_value
-    else:
-        return dictionary.get(key)
-
-
 def load_config(config_file):
     """
     Loads the config file as JSON.
@@ -235,9 +218,8 @@ def get_input_file_sheet_name(config):
     (which is 0), which means Pandas will load the first sheet in
     Excel file.
     """
-    return _get_value_from_dict(config,
-                                KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE,
-                                DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE)
+    return config.get(KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE,
+                      DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE)
 
 
 def get_keep_default_na(config):
@@ -252,11 +234,21 @@ def get_keep_default_na(config):
     True.
     REF: https://stackoverflow.com/q/41417214
     """
-    return _get_value_from_dict(config,
-                                KEY_KEEP_DEFAULT_NA,
-                                DEFAULT_KEEP_DEFAULT_NA)
+    return config.get(KEY_KEEP_DEFAULT_NA,
+                      DEFAULT_KEEP_DEFAULT_NA)
 
 
+# def _get_value_from_dict(dictionary, key, default_value):
+#     """
+#     Returns associated value of a given key from dict.
+#     If the key doesn't exist, returns default_value.
+#     """
+#     if dictionary.get(key) is None:
+#         return default_value
+#     elif (isinstance(dictionary.get(key), str)) and (not dictionary.get(key)):
+#         return default_value
+#     else:
+#         return dictionary.get(key)
 # def get_output_file_sheet_name(config):
 #     """
 #     Returns the output file's sheet name from the config JSON.
@@ -383,9 +375,8 @@ def get_write_data_decision(config):
     Get boolean value that tells the program whether to
     write the output (transformed dataframe) to somewhere.
     """
-    return _get_value_from_dict(config,
-                                KEY_WRITE_OUTPUT,
-                                DEFAULT_WRITE_OUTPUT)
+    return config.get(KEY_WRITE_OUTPUT,
+                      DEFAULT_WRITE_OUTPUT)
 
 
 def _get_classes_defined_in_module(python_module):
@@ -598,9 +589,8 @@ def _get_row_index_to_extract_column_headers(config):
     in the input file. If the keys aren't defined in
     the JSON, returns 0 as default.
     """
-    return _get_value_from_dict(config,
-                                KEY_ROW_INDEX_OF_COLUMN_HEADERS,
-                                DEFAULT_COLUMN_HEADER_ROW_NUM)
+    return config.get(KEY_ROW_INDEX_OF_COLUMN_HEADERS,
+                      DEFAULT_COLUMN_HEADER_ROW_NUM)
 
 
 def get_raw_column_headers(input_file, config):
@@ -631,9 +621,8 @@ def get_row_index_where_data_starts(config):
     Returns the row index where the data lines begin in the input file.
     If key not provided in the JSON config file, returns 0 as default.
     """
-    return _get_value_from_dict(config,
-                                KEY_ROW_INDEX_WHERE_DATA_STARTS,
-                                DEFAULT_ROW_INDEX_WHERE_DATA_STARTS)
+    return config.get(KEY_ROW_INDEX_WHERE_DATA_STARTS,
+                      DEFAULT_ROW_INDEX_WHERE_DATA_STARTS)
 
 
 def get_number_of_rows_to_skip_from_bottom(config):
@@ -642,9 +631,8 @@ def get_number_of_rows_to_skip_from_bottom(config):
     the input file. If the key not provided in the JSON config file,
     returns 0 as default.
     """
-    return _get_value_from_dict(config,
-                                KEY_BOTTOM_ROWS_TO_SKIP,
-                                DEFAULT_BOTTOM_ROWS_TO_SKIP)
+    return config.get(KEY_BOTTOM_ROWS_TO_SKIP,
+                      DEFAULT_BOTTOM_ROWS_TO_SKIP)
 
 
 def get_number_of_rows_to_skip_from_bottom(config):
@@ -653,9 +641,8 @@ def get_number_of_rows_to_skip_from_bottom(config):
     the input file. If key is not provided in the JSON config file,
     returns 0 as default.
     """
-    return _get_value_from_dict(config,
-                                KEY_BOTTOM_ROWS_TO_SKIP,
-                                DEFAULT_BOTTOM_ROWS_TO_SKIP)
+    return config.get(KEY_BOTTOM_ROWS_TO_SKIP,
+                      DEFAULT_BOTTOM_ROWS_TO_SKIP)
 
 
 def _is_key_in_dict(dictionary, list_of_keys):
@@ -692,9 +679,9 @@ def get_functions_to_apply(config):
         },
     ]
     """
-    funcs_list = _get_value_from_dict(config,
-                                      KEY_FUNCTIONS_TO_APPLY,
-                                      DEFAULT_FUNCTIONS_TO_APPLY)
+    funcs_list = config.get(KEY_FUNCTIONS_TO_APPLY,
+                            DEFAULT_FUNCTIONS_TO_APPLY)
+
     if not funcs_list:
         # Function list must NOT be empty
         raise transform_errors.ListEmptyError(KEY_FUNCTIONS_TO_APPLY)
@@ -737,9 +724,7 @@ def get_function_name(dict_of_func_and_params):
         raise transform_errors.RequiredKeyNotFound(dict_of_func_and_params,
                                                    [KEY_FUNC_NAME])
 
-    return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_FUNC_NAME,
-                                None)
+    return dict_of_func_and_params.get(KEY_FUNC_NAME, None)
 
 
 def get_function_args(dict_of_func_and_params):
@@ -761,9 +746,7 @@ def get_function_args(dict_of_func_and_params):
          List of parameters like [param1, param2] or an empty list if
          "function_args" key does not exists in the dictionary.
     """
-    return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_FUNC_ARGS,
-                                DEFAULT_FUNC_ARGS)
+    return dict_of_func_and_params.get(KEY_FUNC_ARGS, DEFAULT_FUNC_ARGS)
 
 
 def get_function_kwargs(dict_of_func_and_params):
@@ -785,9 +768,7 @@ def get_function_kwargs(dict_of_func_and_params):
          Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
          or an empty dictionary if "function_kwargs" key does not exist in the dictionary.
     """
-    return _get_value_from_dict(dict_of_func_and_params,
-                                KEY_FUNC_KWARGS,
-                                DEFAULT_FUNC_KWARGS)
+    return dict_of_func_and_params.get(KEY_FUNC_KWARGS, DEFAULT_FUNC_KWARGS)
 
 
 def get_rows_per_chunk_for_csv(config):
@@ -797,9 +778,8 @@ def get_rows_per_chunk_for_csv(config):
     not provided in the JSON config file, returns
     VALUE_ROWS_PER_CHUNK_DEFAULT as default.
     """
-    return _get_value_from_dict(config,
-                                KEY_ROWS_PER_READ_ITERATION,
-                                DEFAULT_ROWS_PER_READ_ITERATION)
+    return config.get(KEY_ROWS_PER_READ_ITERATION,
+                      DEFAULT_ROWS_PER_READ_ITERATION)
 
 
 def get_input_file_encoding(config):
@@ -807,13 +787,11 @@ def get_input_file_encoding(config):
     Retrieves encoding for input data file.
     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
     """
-    return _get_value_from_dict(config,
-                                KEY_INPUT_FILE_ENCODING,
-                                DEFAULT_INPUT_FILE_ENCODING)
+    return config.get(KEY_INPUT_FILE_ENCODING,
+                      DEFAULT_INPUT_FILE_ENCODING)
 
 
 def get_input_csv_delimiter(config):
     """Retrieves delimiter for input CSV file."""
-    return _get_value_from_dict(config,
-                                KEY_INPUT_CSV_DELIMITER,
-                                DEFAULT_INPUT_CSV_DELIMITER)
+    return config.get(KEY_INPUT_CSV_DELIMITER,
+                      DEFAULT_INPUT_CSV_DELIMITER)
