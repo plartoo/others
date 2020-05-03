@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
         for input_file in transform_utils.get_input_files(config):
             reader = FileDataReader(input_file, config)
-            cur_df = reader.get_next_dataframe()
+            cur_df = reader.reader_next_dataframe()
 
             while not cur_df.empty:
                 for func_and_params in transform_utils.get_functions_to_apply(config):

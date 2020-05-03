@@ -36,33 +36,31 @@ DEFAULT_DATA_WRITER_MODULE_FILE = os.path.join(os.getcwd(),
                                               'data_writers'
                                               'csv_data_writer.py')
 
-
-
-
-
-
-### READER related constants. will be removed after refactoring
-# Pandas unfortunately has 'keep_default_na' option which tries to interpret
-# NaN, NULL, NA, N/A, etc. values in the raw data to NaN. We must turn it off
-# by default. REF: https://stackoverflow.com/a/41417295
-KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan'  # TODO: remove
-DEFAULT_KEEP_DEFAULT_NA = False  # TODO: remove
-
-KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'  # TODO: remove
-DEFAULT_COLUMN_HEADER_ROW_NUM = -1  # TODO: remove
-
+# The constants below should be kept in transform_utils.py
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
 KEY_WRITE_OUTPUT = 'write_output'
 DEFAULT_WRITE_OUTPUT = True
 
+
+### READER related constants. will be removed after refactoring
+# KEY_ROWS_PER_READ_ITERATION = 'rows_per_read'
+# DEFAULT_ROWS_PER_READ_ITERATION = 500000
+# KEY_KEEP_DEFAULT_NA = 'interpret_na_null_etc_values_from_raw_data_as_nan'  # TODO: remove
+# DEFAULT_KEEP_DEFAULT_NA = False  # TODO: remove
+# KEY_ROW_INDEX_OF_COLUMN_HEADERS = 'row_index_to_extract_column_headers'  # TODO: remove
+# DEFAULT_COLUMN_HEADER_ROW_NUM = -1  # TODO: remove
+# KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
+# DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
+# KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
+# DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
+
+
+# TODO: Below are for PandasExcelDataReader
 KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file'  # TODO: remove
 DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0  # TODO: remove
 
-KEY_ROWS_PER_READ_ITERATION = 'rows_per_read'
-DEFAULT_ROWS_PER_READ_ITERATION = 500000
-KEY_INPUT_FILE_ENCODING = 'input_file_encoding'
-DEFAULT_INPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
+# TODO: Below are for PandasCSVDataReader
 # Note: we tested and found that pandas' csv sniffer isn't very good
 # (even when using 'Python' as parser engine) in detecting delimiters, so
 # setting this as None is not good enough. Thus we decided to set the default
@@ -70,17 +68,14 @@ DEFAULT_INPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
 KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
 DEFAULT_INPUT_CSV_DELIMITER = ','
 
-KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
-DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
-KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
-DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
+KEY_INPUT_FILE_ENCODING = 'input_file_encoding'
+DEFAULT_INPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
 
 
 
 
 
-
-### WRITER related constants. will be removed after refactoring
+### TODO: WRITER related constants. will be removed after refactoring
 KEY_DATABASE_SCHEMA = 'database_schema'  # TODO: map to mssql_data_writer
 KEY_OUTPUT_TABLE_NAME = 'output_sql_table_name'  # TODO: map to mssql_data_writer
 DEFAULT_OUTPUT_TABLE_NAME = 'default_transformed_sql_table_name'  # TODO: map to mssql_data_writer
@@ -124,11 +119,11 @@ EXPECTED_CONFIG_DATA_TYPES = {
     KEY_INPUT_CSV_DELIMITER: [str],
     KEY_OUTPUT_FILE_ENCODING: [str],
     KEY_OUTPUT_CSV_DELIMITER: [str],
-    KEY_ROW_INDEX_OF_COLUMN_HEADERS: [int],
-    KEY_ROW_INDEX_WHERE_DATA_STARTS: [int],
-    KEY_BOTTOM_ROWS_TO_SKIP: [int],
+    # KEY_ROW_INDEX_OF_COLUMN_HEADERS: [int],
+    # KEY_ROW_INDEX_WHERE_DATA_STARTS: [int],
+    # KEY_BOTTOM_ROWS_TO_SKIP: [int],
     KEY_FUNCTIONS_TO_APPLY: [list],
-    KEY_ROWS_PER_READ_ITERATION: [int],
+    # KEY_ROWS_PER_READ_ITERATION: [int],
 }
 
 # Keys in config file that must exist (required keys)
@@ -221,153 +216,21 @@ def get_input_file_sheet_name(config):
     return config.get(KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE,
                       DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE)
 
-
-def get_keep_default_na(config):
-    """
-    Pandas somehow decided that it's okay to try to interpret
-    values like 'NA','N/A','NULL','NaN', etc. to NaN value
-    by default (that is, 'keep_default_na' option in pandas'
-    read_excel/read_csv methods is True by default).
-
-    So when we read raw data files using pandas, we must turn
-    it off by default unless user explicitly set this flag to
-    True.
-    REF: https://stackoverflow.com/q/41417214
-    """
-    return config.get(KEY_KEEP_DEFAULT_NA,
-                      DEFAULT_KEEP_DEFAULT_NA)
-
-
-# def _get_value_from_dict(dictionary, key, default_value):
-#     """
-#     Returns associated value of a given key from dict.
-#     If the key doesn't exist, returns default_value.
-#     """
-#     if dictionary.get(key) is None:
-#         return default_value
-#     elif (isinstance(dictionary.get(key), str)) and (not dictionary.get(key)):
-#         return default_value
-#     else:
-#         return dictionary.get(key)
-# def get_output_file_sheet_name(config):
-#     """
-#     Returns the output file's sheet name from the config JSON.
-#     If the keys aren't defined in the JSON, returns default sheet
-#     (which is 'Sheet1'), which means Pandas will write to 'Sheet1'
-#     in output Excel file.
-#     """
-#     return _get_value_from_dict(config,
-#                                 KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
-#                                 DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
-# def _get_relative_module_name(module_file):
-#     """
-#     Suppose we want to load Python module file in this relative path:
-#     './transform_functions/swiss_transform_funcs.py', we can use
-#     'importlib.import_module(...)' method in one of the two ways below.
-#     1) import_module('.swiss_transform_funcs', package='transform_functions')
-#     or
-#     2) import_module('transform_functions.swiss_transform_funcs')
 #
-#     Assuming that we will be using method signature #1 above,
-#     this method extracts and return relative module name (that is,
-#     '.swiss_transform_funcs') from path and name of a module file.
+# def get_keep_default_na(config):
 #     """
-#     # directory, file_name = os.path.split(module_file)
-#     # file_name_without_extension = os.path.splitext(file_name)[0]
-#     # relative_module_name = ''.join(['.', file_name_without_extension])
-#     # package_name = os.path.basename(directory)
-#     file_name = os.path.split(module_file)[1]
-#     file_name_without_extension = os.path.splitext(file_name)[0]
-#     relative_module_name = ''.join(['.', file_name_without_extension])
+#     Pandas somehow decided that it's okay to try to interpret
+#     values like 'NA','N/A','NULL','NaN', etc. to NaN value
+#     by default (that is, 'keep_default_na' option in pandas'
+#     read_excel/read_csv methods is True by default).
 #
-#     return relative_module_name
-# def _get_package_name(module_file_path_and_name):
+#     So when we read raw data files using pandas, we must turn
+#     it off by default unless user explicitly set this flag to
+#     True.
+#     REF: https://stackoverflow.com/q/41417214
 #     """
-#
-#     Assuming that we will be using method signature #1 above,
-#     this method extracts and return package name (that is,
-#     'transform_functions.funcs') from the path and name of a module file.
-#     """
-#     directory_path = os.path.split(os.path.relpath(module_file_path_and_name))[0]  # e.g., './transform_funcs/funcs'
-#     if directory_path.startswith('./') or directory_path.startswith('.\\'):
-#         # remove leading characters that represent root directory
-#         directory_path = directory_path.replace('./', '').replace('.\\', '')
-#
-#     return directory_path.replace('/', '.').replace('\\', '.')
-# def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
-#     if transform_funcs_file == DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE:
-#         # If the config file does not provide a file with
-#         # custom transform functions, we will load (instantiate)
-#         # the CommonTransformFunctions instance.
-#         return transform_funcs_module.CommonTransformFunctions()
-#     else:
-#         return transform_funcs_module.CustomFunctions()
-# def instantiate_custom_functions_module(config):
-#     """
-#     This function is used to load the module that includes
-#     all custom functions be it for data transformation or for
-#     data QA-ing.
-#
-#     It first extracts the module's path+file name from the config
-#     file and imports the module that has either the custom functions
-#     or the common transform functions (default). After importing
-#     the module, this function instantiates and return that module
-#     as an object.
-#     """
-#     custom_funcs_file = config.get(
-#         KEY_CUSTOM_FUNCTIONS_FILE,
-#         DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
-#
-#     if os.path.isfile(custom_funcs_file):
-#         # Note: we assume that all transform function modules are located in
-#         # './transform_funcs' directory, which is used as package name below.
-#         # Relative module name, the first argument of import_module() below,
-#         # is either custom python file name (without extension) or
-#         # the file with common transform functions (that is,
-#         # 'transform_functions' python file) prefixed with '.' (dot).
-#         #
-#         # E.g., importlib.import_module('.switzerland_transform_functions', package='transform_functions')
-#         # OR importlib.import_module('transform_functions.switzerland_transform_functions')
-#         # REF1: https://stackoverflow.com/a/10675081/1330974
-#         # REF2: https://stackoverflow.com/a/8899345/1330974
-#         return _instantiate_transform_module(custom_funcs_file,
-#                                              importlib.import_module(
-#                                                  _get_relative_module_name(custom_funcs_file),
-#                                                  package=_get_package_name(custom_funcs_file)))
-#     else:
-#         raise transform_errors.FileNotFound(custom_funcs_file)
-# def _get_primary_class(list_of_classes_in_module, primary_class_name):
-#     return [kls for kls in list_of_classes_in_module
-#             if kls.__name__==primary_class_name][0]
-# def instantiate_data_writer_module(config):
-#     """
-#     This method will load the custom data writer module
-#     (such as SQLServerDataWriter) if path to the custom
-#     data writer class is provided in the config file.
-#
-#     If that key in config file is not given, this method will load
-#     default data writer module, defined as DEFAULT_DATA_WRITER_CLASS_FILE
-#     which will output CSV file for the transformed data.
-#     """
-#     data_writer_class_file = config.get(
-#         KEY_DATA_WRITER_CLASS_FILE,
-#         DEFAULT_DATA_WRITER_CLASS_FILE)
-#
-#     if os.path.isfile(data_writer_class_file):
-#         # Suppose the module file is:
-#         # C://Users/lachee/data_transformer/reader_writers/data_writers/excel_writer.py
-#         # we can use import_module in the two ways as below
-#         # importlib.import_module('reader_writers.data_writers.excel_writer')
-#         # or
-#         # importlib.import_module('.excel_writer', package='reader_writers.data_writers')
-#         # My personal preference is to go with the first method signature.
-#         data_writer_module = importlib.import_module \
-#             (os.path.splitext
-#              (os.path.split(data_writer_class_file)[1])[0])
-#
-#         return _get_primary_class_from_module(data_writer_module)(config)
-#     else:
-#         raise transform_errors.FileNotFound(data_writer_class_file)
+#     return config.get(KEY_KEEP_DEFAULT_NA,
+#                       DEFAULT_KEEP_DEFAULT_NA)
 
 
 def get_write_data_decision(config):
@@ -473,75 +336,6 @@ def instantiate_transform_functions_class(config):
     return instantiate_class_in_module_file(transform_funcs_module_file)()
 
 
-# def get_output_folder(config):
-#     """
-#     Extracts and return the output folder path and name from the
-#     config JSON. If the keys aren't defined in the JSON config
-#     file, this method returns default output folder ('./output')
-#     name.
-#     """
-#     return _get_value_from_dict(config,
-#                                 KEY_OUTPUT_FOLDER_PATH,
-#                                 DEFAULT_OUTPUT_FOLDER_PATH)
-#
-#
-# def get_output_file_prefix(config):
-#     """
-#     Extracts and return the output file prefix, if any, from
-#     the config file. If not given, returns empty string.
-#     """
-#     return _get_value_from_dict(config,
-#                                 KEY_OUTPUT_FILE_PREFIX,
-#                                 '')
-
-# def get_output_sql_table_name(config):
-#     """
-#     Extracts and return the output SQL table name, if provided,
-#     from the config file. If not given, defaults to
-#     DEFAULT_OUTPUT_TABLE_NAME defined in this (transform_utils.py)
-#     file.
-#     """
-#     return _get_value_from_dict(config,
-#                                 KEY_OUTPUT_TABLE_NAME,
-#                                 DEFAULT_OUTPUT_TABLE_NAME)
-
-
-# def get_database_schema(config):
-#     """
-#     Extracts and return the DB schema for output SQL table from
-#     the config file. If not given, defaults to empty string.
-#     """
-#     return _get_value_from_dict(config,
-#                                 KEY_DATABASE_SCHEMA,
-#                                 '')
-
-
-# def get_include_index_column_in_output(config):
-#     """
-#     Extracts and return boolean value to decide if output (be it,
-#     CSV file or SQL table) should include index column from
-#     the dataframe.
-#     """
-#     return _get_value_from_dict(config,
-#                                 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
-#                                 DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
-
-#
-# def get_output_file_encoding(config):
-#     """
-#     Retrieves encoding for output CSV file.
-#     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
-#     """
-#     return _get_value_from_dict(config,
-#                                 KEY_OUTPUT_FILE_ENCODING,
-#                                 DEFAULT_OUTPUT_FILE_ENCODING)
-
-# def get_output_csv_file_delimiter(config):
-#     """Retrieves delimiter for output CSV file."""
-#     return _get_value_from_dict(config,
-#                                 KEY_OUTPUT_CSV_DELIMITER,
-#                                 DEFAULT_OUTPUT_CSV_DELIMITER)
-
 def read_data(file_name_with_path, config, rows_to_read,
               skip_leading_rows=0, skip_trailing_rows=0,
               header_row_index=0, custom_header_names=None,
@@ -582,15 +376,15 @@ def read_data(file_name_with_path, config, rows_to_read,
     else:
         raise transform_errors.InvalidFileType(file_name_with_path)
 
-
-def _get_row_index_to_extract_column_headers(config):
-    """
-    Retrieves row number where we can fetch column headers
-    in the input file. If the keys aren't defined in
-    the JSON, returns 0 as default.
-    """
-    return config.get(KEY_ROW_INDEX_OF_COLUMN_HEADERS,
-                      DEFAULT_COLUMN_HEADER_ROW_NUM)
+#
+# def _get_row_index_to_extract_column_headers(config):
+#     """
+#     Retrieves row number where we can fetch column headers
+#     in the input file. If the keys aren't defined in
+#     the JSON, returns 0 as default.
+#     """
+#     return config.get(KEY_ROW_INDEX_OF_COLUMN_HEADERS,
+#                       DEFAULT_COLUMN_HEADER_ROW_NUM)
 
 
 def get_raw_column_headers(input_file, config):
@@ -771,15 +565,15 @@ def get_function_kwargs(dict_of_func_and_params):
     return dict_of_func_and_params.get(KEY_FUNC_KWARGS, DEFAULT_FUNC_KWARGS)
 
 
-def get_rows_per_chunk_for_csv(config):
-    """
-    Returns number of rows we should process (read and write)
-    per each iteration (for each input file). If the key is
-    not provided in the JSON config file, returns
-    VALUE_ROWS_PER_CHUNK_DEFAULT as default.
-    """
-    return config.get(KEY_ROWS_PER_READ_ITERATION,
-                      DEFAULT_ROWS_PER_READ_ITERATION)
+# def get_rows_per_chunk_for_csv(config):
+#     """
+#     Returns number of rows we should process (read and write)
+#     per each iteration (for each input file). If the key is
+#     not provided in the JSON config file, returns
+#     VALUE_ROWS_PER_CHUNK_DEFAULT as default.
+#     """
+#     return config.get(KEY_ROWS_PER_READ_ITERATION,
+#                       DEFAULT_ROWS_PER_READ_ITERATION)
 
 
 def get_input_file_encoding(config):
@@ -795,3 +589,206 @@ def get_input_csv_delimiter(config):
     """Retrieves delimiter for input CSV file."""
     return config.get(KEY_INPUT_CSV_DELIMITER,
                       DEFAULT_INPUT_CSV_DELIMITER)
+
+
+# def get_output_folder(config):
+#     """
+#     Extracts and return the output folder path and name from the
+#     config JSON. If the keys aren't defined in the JSON config
+#     file, this method returns default output folder ('./output')
+#     name.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_FOLDER_PATH,
+#                                 DEFAULT_OUTPUT_FOLDER_PATH)
+#
+#
+# def get_output_file_prefix(config):
+#     """
+#     Extracts and return the output file prefix, if any, from
+#     the config file. If not given, returns empty string.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_FILE_PREFIX,
+#                                 '')
+
+# def get_output_sql_table_name(config):
+#     """
+#     Extracts and return the output SQL table name, if provided,
+#     from the config file. If not given, defaults to
+#     DEFAULT_OUTPUT_TABLE_NAME defined in this (transform_utils.py)
+#     file.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_TABLE_NAME,
+#                                 DEFAULT_OUTPUT_TABLE_NAME)
+
+
+# def get_database_schema(config):
+#     """
+#     Extracts and return the DB schema for output SQL table from
+#     the config file. If not given, defaults to empty string.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_DATABASE_SCHEMA,
+#                                 '')
+
+
+# def get_include_index_column_in_output(config):
+#     """
+#     Extracts and return boolean value to decide if output (be it,
+#     CSV file or SQL table) should include index column from
+#     the dataframe.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
+#                                 DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
+
+#
+# def get_output_file_encoding(config):
+#     """
+#     Retrieves encoding for output CSV file.
+#     REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_FILE_ENCODING,
+#                                 DEFAULT_OUTPUT_FILE_ENCODING)
+
+# def get_output_csv_file_delimiter(config):
+#     """Retrieves delimiter for output CSV file."""
+#     return _get_value_from_dict(config,
+#                                 KEY_OUTPUT_CSV_DELIMITER,
+#                                 DEFAULT_OUTPUT_CSV_DELIMITER)
+
+
+
+# def _get_value_from_dict(dictionary, key, default_value):
+#     """
+#     Returns associated value of a given key from dict.
+#     If the key doesn't exist, returns default_value.
+#     """
+#     if dictionary.get(key) is None:
+#         return default_value
+#     elif (isinstance(dictionary.get(key), str)) and (not dictionary.get(key)):
+#         return default_value
+#     else:
+#         return dictionary.get(key)
+# def get_output_file_sheet_name(config):
+#     """
+#     Returns the output file's sheet name from the config JSON.
+#     If the keys aren't defined in the JSON, returns default sheet
+#     (which is 'Sheet1'), which means Pandas will write to 'Sheet1'
+#     in output Excel file.
+#     """
+#     return _get_value_from_dict(config,
+#                                 KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
+#                                 DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
+# def _get_relative_module_name(module_file):
+#     """
+#     Suppose we want to load Python module file in this relative path:
+#     './transform_functions/swiss_transform_funcs.py', we can use
+#     'importlib.import_module(...)' method in one of the two ways below.
+#     1) import_module('.swiss_transform_funcs', package='transform_functions')
+#     or
+#     2) import_module('transform_functions.swiss_transform_funcs')
+#
+#     Assuming that we will be using method signature #1 above,
+#     this method extracts and return relative module name (that is,
+#     '.swiss_transform_funcs') from path and name of a module file.
+#     """
+#     # directory, file_name = os.path.split(module_file)
+#     # file_name_without_extension = os.path.splitext(file_name)[0]
+#     # relative_module_name = ''.join(['.', file_name_without_extension])
+#     # package_name = os.path.basename(directory)
+#     file_name = os.path.split(module_file)[1]
+#     file_name_without_extension = os.path.splitext(file_name)[0]
+#     relative_module_name = ''.join(['.', file_name_without_extension])
+#
+#     return relative_module_name
+# def _get_package_name(module_file_path_and_name):
+#     """
+#
+#     Assuming that we will be using method signature #1 above,
+#     this method extracts and return package name (that is,
+#     'transform_functions.funcs') from the path and name of a module file.
+#     """
+#     directory_path = os.path.split(os.path.relpath(module_file_path_and_name))[0]  # e.g., './transform_funcs/funcs'
+#     if directory_path.startswith('./') or directory_path.startswith('.\\'):
+#         # remove leading characters that represent root directory
+#         directory_path = directory_path.replace('./', '').replace('.\\', '')
+#
+#     return directory_path.replace('/', '.').replace('\\', '.')
+# def _instantiate_transform_module(transform_funcs_file, transform_funcs_module):
+#     if transform_funcs_file == DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE:
+#         # If the config file does not provide a file with
+#         # custom transform functions, we will load (instantiate)
+#         # the CommonTransformFunctions instance.
+#         return transform_funcs_module.CommonTransformFunctions()
+#     else:
+#         return transform_funcs_module.CustomFunctions()
+# def instantiate_custom_functions_module(config):
+#     """
+#     This function is used to load the module that includes
+#     all custom functions be it for data transformation or for
+#     data QA-ing.
+#
+#     It first extracts the module's path+file name from the config
+#     file and imports the module that has either the custom functions
+#     or the common transform functions (default). After importing
+#     the module, this function instantiates and return that module
+#     as an object.
+#     """
+#     custom_funcs_file = config.get(
+#         KEY_CUSTOM_FUNCTIONS_FILE,
+#         DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
+#
+#     if os.path.isfile(custom_funcs_file):
+#         # Note: we assume that all transform function modules are located in
+#         # './transform_funcs' directory, which is used as package name below.
+#         # Relative module name, the first argument of import_module() below,
+#         # is either custom python file name (without extension) or
+#         # the file with common transform functions (that is,
+#         # 'transform_functions' python file) prefixed with '.' (dot).
+#         #
+#         # E.g., importlib.import_module('.switzerland_transform_functions', package='transform_functions')
+#         # OR importlib.import_module('transform_functions.switzerland_transform_functions')
+#         # REF1: https://stackoverflow.com/a/10675081/1330974
+#         # REF2: https://stackoverflow.com/a/8899345/1330974
+#         return _instantiate_transform_module(custom_funcs_file,
+#                                              importlib.import_module(
+#                                                  _get_relative_module_name(custom_funcs_file),
+#                                                  package=_get_package_name(custom_funcs_file)))
+#     else:
+#         raise transform_errors.FileNotFound(custom_funcs_file)
+# def _get_primary_class(list_of_classes_in_module, primary_class_name):
+#     return [kls for kls in list_of_classes_in_module
+#             if kls.__name__==primary_class_name][0]
+# def instantiate_data_writer_module(config):
+#     """
+#     This method will load the custom data writer module
+#     (such as SQLServerDataWriter) if path to the custom
+#     data writer class is provided in the config file.
+#
+#     If that key in config file is not given, this method will load
+#     default data writer module, defined as DEFAULT_DATA_WRITER_CLASS_FILE
+#     which will output CSV file for the transformed data.
+#     """
+#     data_writer_class_file = config.get(
+#         KEY_DATA_WRITER_CLASS_FILE,
+#         DEFAULT_DATA_WRITER_CLASS_FILE)
+#
+#     if os.path.isfile(data_writer_class_file):
+#         # Suppose the module file is:
+#         # C://Users/lachee/data_transformer/reader_writers/data_writers/excel_writer.py
+#         # we can use import_module in the two ways as below
+#         # importlib.import_module('reader_writers.data_writers.excel_writer')
+#         # or
+#         # importlib.import_module('.excel_writer', package='reader_writers.data_writers')
+#         # My personal preference is to go with the first method signature.
+#         data_writer_module = importlib.import_module \
+#             (os.path.splitext
+#              (os.path.split(data_writer_class_file)[1])[0])
+#
+#         return _get_primary_class_from_module(data_writer_module)(config)
+#     else:
+#         raise transform_errors.FileNotFound(data_writer_class_file)

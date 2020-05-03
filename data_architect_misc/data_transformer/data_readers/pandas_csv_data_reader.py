@@ -3,8 +3,10 @@ Author: Phyo Thiha
 Last Modified Date: April 22, 2020
 """
 
+from data_readers.pandas_file_data_reader import PandasFileDataReader
 
-class CSVDataReader:
+
+class PandasCSVDataReader(PandasFileDataReader):
     """
     TODO:
     """
@@ -14,7 +16,7 @@ class CSVDataReader:
     DEFAULT_OUTPUT_CSV_DELIMITER = '|'
     DEFAULT_SHEET_INDEX_TO_READ = 0
 
-    def __init__(self, input_file_path_and_name, **configs):
+    def __init__(self, input_file_path_and_name, config):
         import pdb
         pdb.set_trace()
         print("Hey it's Excel reader class")

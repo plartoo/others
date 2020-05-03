@@ -4,8 +4,8 @@ Last Modified Date: April 14, 2020
 """
 import os
 
-from data_readers.excel_data_reader import ExcelDataReader
-from data_readers.csv_data_reader import CSVDataReader
+from data_readers.pandas_excel_data_reader import PandasExcelDataReader
+from data_readers.pandas_csv_data_reader import PandasCSVDataReader
 
 
 def _extract_file_name(file_path_and_name):
@@ -44,9 +44,9 @@ class FileDataReader:
         input file.
         """
         if self._is_excel(input_file_path_and_name):
-            return ExcelDataReader(input_file_path_and_name, configs)
+            return PandasExcelDataReader(input_file_path_and_name, configs)
         elif self._is_csv(input_file_path_and_name):
-            return CSVDataReader(input_file_path_and_name, configs)
+            return PandasCSVDataReader(input_file_path_and_name, configs)
 
     def _is_excel(self, file_name_with_path):
         """Checks if file is an Excel file *by checking its file extension*"""
