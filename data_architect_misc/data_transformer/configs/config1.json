@@ -1,0 +1,48 @@
+[
+  {
+    "__comment__": "(Required IF NOT provided as an argument via commandline)",
+    "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
+    "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
+    "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
+    "input_folder_path": "./",
+    "input_file_name_or_pattern": "excel1.xlsx",
+
+    "__comment__": "(Optional) Specify the row index (>= 0) where the data, *not including the column headers*, begins.",
+    "__comment__": "Default is 1 (the second row) because that's where the data usually begins in files (the first row is almost always the column headers).",
+    "skiprows": 0,
+
+    "__comment__": "(Optional) Specify the index (>=0) of rows we should ignore from the bottom of the data file.",
+    "__comment__": "Default is 0, meaning there's no rows at the end to skip.",
+    "skipfooter": 0,
+
+
+
+
+
+    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
+    "write_output": false,
+
+    "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
+    "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
+    "data_writer_module_file": "./data_writers/excel_data_writer.py",
+
+    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
+    "sheet_name_of_output_excel_file": "Sheet1",
+
+    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
+    "__comment__": "Default is going to be the current working directory of transform.py",
+    "output_folder_path": "./output/test/",
+
+    "__comment__": "(Optional) Prefix for the output file name.",
+    "output_file_name_prefix": "transformed_test_",
+
+    "__comment__": "(Required) List of the functions and their parameters.",
+    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
+    "functions_to_apply": [
+      {
+        "__function_comment__": "Drop unnamed columns, if any, first.",
+        "function_name": "drop_unnamed_columns"
+      }
+    ]
+  }
+]
