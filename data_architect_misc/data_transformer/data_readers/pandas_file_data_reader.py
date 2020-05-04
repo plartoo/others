@@ -19,7 +19,7 @@ class PandasFileDataReader:
     reading data via Pandas methods.
     """
     KEY_ROWS_PER_READ = 'rows_per_read'
-    DEFAULT_ROWS_PER_READ = 500000
+    DEFAULT_ROWS_PER_READ = 5#500000
 
     # Parameters below are pandas-related parameters
     # supported by this file reader class' children.
@@ -39,7 +39,7 @@ class PandasFileDataReader:
         self.logger = logging.getLogger(__name__)
         self.rows_per_read = self._get_rows_per_read(config)
         self.keep_default_na = self._get_keep_default_na(config)
-        self.header = self._get_row_index_to_read_column_header(config)
+        self.header_row_index = self._get_row_index_to_read_column_header(config)
         self.skip_rows = self._get_leading_rows_to_skip(config)
         self.skip_footer = self._get_bottom_rows_to_skip(config)
 

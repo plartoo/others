@@ -34,19 +34,22 @@ class FileDataReader:
     EXCEL_FILE_EXTENSION_OLD = '.xls'
     EXCEL_FILE_EXTENSION_NEW = '.xlsx'
 
-    def __init__(self, input_file_path_and_name, configs):
-        self._get_data_reader(input_file_path_and_name, configs)
+    def __init__(self, input_file_path_and_name, config):
+        self.input_file_path_and_name = input_file_path_and_name
+        self.config = config
 
-    def _get_data_reader(self, input_file_path_and_name, configs):
+    def get_data_reader(self):
         """
         Factory method that returns the fitting
         data reader object based on the type of
         input file.
         """
-        if self._is_excel(input_file_path_and_name):
-            return PandasExcelDataReader(input_file_path_and_name, configs)
-        elif self._is_csv(input_file_path_and_name):
-            return PandasCSVDataReader(input_file_path_and_name, configs)
+        if self._is_excel(self.input_file_path_and_name):
+            return PandasExcelDataReader(self.input_file_path_and_name,
+                                         self.config)
+        elif self._is_csv(self.input_file_path_and_name):
+            return PandasCSVDataReader(self.input_file_path_and_name,
+                                       self.config)
 
     def _is_excel(self, file_name_with_path):
         """Checks if file is an Excel file *by checking its file extension*"""
