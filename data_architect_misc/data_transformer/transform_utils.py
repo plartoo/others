@@ -3,7 +3,6 @@ import json
 import pandas as pd
 import pathlib
 import os
-import sys
 
 import transform_errors
 
@@ -56,9 +55,9 @@ DEFAULT_WRITE_OUTPUT = True
 # DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
 
 
-# TODO: Below are for PandasExcelDataReader
-KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file'  # TODO: remove
-DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0  # TODO: remove
+# # TODO: Below are for PandasExcelDataReader
+# KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE = 'sheet_name_of_input_excel_file'  # TODO: remove
+# DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE = 0  # TODO: remove
 
 # TODO: Below are for PandasCSVDataReader
 # Note: we tested and found that pandas' csv sniffer isn't very good
@@ -97,7 +96,6 @@ DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False  # TODO: map to mssql_data_w
 
 
 
-
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
 DEFAULT_FUNCTIONS_TO_APPLY = []
 KEY_FUNC_NAME = 'function_name'
@@ -113,7 +111,7 @@ EXPECTED_CONFIG_DATA_TYPES = {
     KEY_INPUT_FILE_NAME_OR_PATTERN: [str],
     KEY_OUTPUT_FOLDER_PATH: [str],
     KEY_OUTPUT_FILE_PREFIX: [str],
-    KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE: [str],
+    # KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE: [str],
 
     KEY_INPUT_FILE_ENCODING: [str],
     KEY_INPUT_CSV_DELIMITER: [str],
@@ -204,33 +202,6 @@ def get_input_files(config):
     if not input_files:
         raise transform_errors.FileNotFound(fn)
     return input_files
-
-
-def get_input_file_sheet_name(config):
-    """
-    Returns the input file's sheet name from the config JSON.
-    If the keys aren't defined in the JSON, returns default sheet
-    (which is 0), which means Pandas will load the first sheet in
-    Excel file.
-    """
-    return config.get(KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE,
-                      DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE)
-
-#
-# def get_keep_default_na(config):
-#     """
-#     Pandas somehow decided that it's okay to try to interpret
-#     values like 'NA','N/A','NULL','NaN', etc. to NaN value
-#     by default (that is, 'keep_default_na' option in pandas'
-#     read_excel/read_csv methods is True by default).
-#
-#     So when we read raw data files using pandas, we must turn
-#     it off by default unless user explicitly set this flag to
-#     True.
-#     REF: https://stackoverflow.com/q/41417214
-#     """
-#     return config.get(KEY_KEEP_DEFAULT_NA,
-#                       DEFAULT_KEEP_DEFAULT_NA)
 
 
 def get_write_data_decision(config):
@@ -336,6 +307,16 @@ def instantiate_transform_functions_class(config):
     return instantiate_class_in_module_file(transform_funcs_module_file)()
 
 
+
+# def _get_row_index_to_extract_column_headers(config):
+#     """
+#     Retrieves row number where we can fetch column headers
+#     in the input file. If the keys aren't defined in
+#     the JSON, returns 0 as default.
+#     """
+#     return config.get(KEY_ROW_INDEX_OF_COLUMN_HEADERS,
+#                       DEFAULT_COLUMN_HEADER_ROW_NUM)
+
 def read_data(file_name_with_path, config, rows_to_read,
               skip_leading_rows=0, skip_trailing_rows=0,
               header_row_index=0, custom_header_names=None,
@@ -376,16 +357,6 @@ def read_data(file_name_with_path, config, rows_to_read,
     else:
         raise transform_errors.InvalidFileType(file_name_with_path)
 
-#
-# def _get_row_index_to_extract_column_headers(config):
-#     """
-#     Retrieves row number where we can fetch column headers
-#     in the input file. If the keys aren't defined in
-#     the JSON, returns 0 as default.
-#     """
-#     return config.get(KEY_ROW_INDEX_OF_COLUMN_HEADERS,
-#                       DEFAULT_COLUMN_HEADER_ROW_NUM)
-
 
 def get_raw_column_headers(input_file, config):
     """
@@ -408,35 +379,6 @@ def get_raw_column_headers(input_file, config):
                          ).columns.to_list()
     else:
         return None
-
-
-def get_row_index_where_data_starts(config):
-    """
-    Returns the row index where the data lines begin in the input file.
-    If key not provided in the JSON config file, returns 0 as default.
-    """
-    return config.get(KEY_ROW_INDEX_WHERE_DATA_STARTS,
-                      DEFAULT_ROW_INDEX_WHERE_DATA_STARTS)
-
-
-def get_number_of_rows_to_skip_from_bottom(config):
-    """
-    Returns number of rows we should ignore/skip at the bottom of
-    the input file. If the key not provided in the JSON config file,
-    returns 0 as default.
-    """
-    return config.get(KEY_BOTTOM_ROWS_TO_SKIP,
-                      DEFAULT_BOTTOM_ROWS_TO_SKIP)
-
-
-def get_number_of_rows_to_skip_from_bottom(config):
-    """
-    Returns number of rows we should ignore/skip at the bottom of
-    the input file. If key is not provided in the JSON config file,
-    returns 0 as default.
-    """
-    return config.get(KEY_BOTTOM_ROWS_TO_SKIP,
-                      DEFAULT_BOTTOM_ROWS_TO_SKIP)
 
 
 def _is_key_in_dict(dictionary, list_of_keys):
@@ -792,3 +734,47 @@ def get_input_csv_delimiter(config):
 #         return _get_primary_class_from_module(data_writer_module)(config)
 #     else:
 #         raise transform_errors.FileNotFound(data_writer_class_file)
+
+# def get_row_index_where_data_starts(config):
+#     """
+#     Returns the row index where the data lines begin in the input file.
+#     If key not provided in the JSON config file, returns 0 as default.
+#     """
+#     return config.get(KEY_ROW_INDEX_WHERE_DATA_STARTS,
+#                       DEFAULT_ROW_INDEX_WHERE_DATA_STARTS)
+#
+#
+# def get_number_of_rows_to_skip_from_bottom(config):
+#     """
+#     Returns number of rows we should ignore/skip at the bottom of
+#     the input file. If the key not provided in the JSON config file,
+#     returns 0 as default.
+#     """
+#     return config.get(KEY_BOTTOM_ROWS_TO_SKIP,
+#                       DEFAULT_BOTTOM_ROWS_TO_SKIP)
+
+# def get_input_file_sheet_name(config):
+#     """
+#     Returns the input file's sheet name from the config JSON.
+#     If the keys aren't defined in the JSON, returns default sheet
+#     (which is 0), which means Pandas will load the first sheet in
+#     Excel file.
+#     """
+#     return config.get(KEY_SHEET_NAME_OF_INPUT_EXCEL_FILE,
+#                       DEFAULT_SHEET_NAME_OF_INPUT_EXCEL_FILE)
+#
+#
+# def get_keep_default_na(config):
+#     """
+#     Pandas somehow decided that it's okay to try to interpret
+#     values like 'NA','N/A','NULL','NaN', etc. to NaN value
+#     by default (that is, 'keep_default_na' option in pandas'
+#     read_excel/read_csv methods is True by default).
+#
+#     So when we read raw data files using pandas, we must turn
+#     it off by default unless user explicitly set this flag to
+#     True.
+#     REF: https://stackoverflow.com/q/41417214
+#     """
+#     return config.get(KEY_KEEP_DEFAULT_NA,
+#                       DEFAULT_KEEP_DEFAULT_NA)

@@ -85,27 +85,31 @@ if __name__ == '__main__':
         # import pdb
         # pdb.set_trace()
         # print('debug')
-        row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
-        footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
+        # row_idx_where_data_starts = transform_utils.get_row_index_where_data_starts(config)
+        # footer_rows_to_skip = transform_utils.get_number_of_rows_to_skip_from_bottom(config)
 
         for input_file in transform_utils.get_input_files(config):
-            reader = FileDataReader(input_file, config)
-            cur_df = reader.reader_next_dataframe()
+            reader = FileDataReader(input_file, config).get_data_reader()
+            cur_df = reader.read_next_dataframe()
 
             while not cur_df.empty:
-                for func_and_params in transform_utils.get_functions_to_apply(config):
-                    logger.info(f"Invoking function: {func_and_params['function_name']}")
-                    # print("\n=> Invoking function:", json.dumps(func_and_params, sort_keys=True, indent=4),"\n")
+                print("\n==========\n")
+                cur_df = reader.read_next_dataframe()
 
-                    func_name = transform_utils.get_function_name(func_and_params)
-                    func_args = transform_utils.get_function_args(func_and_params)
-                    func_kwargs = transform_utils.get_function_kwargs(func_and_params)
-                    cur_df = getattr(transform_funcs_kls,
-                                     func_name)(cur_df, *func_args, **func_kwargs)
-
-            if transform_utils.get_write_data_decision(config):
-                data_writer_kls.set_output_file_name_suffix('line_number')
-                data_writer_kls.write_data(cur_df)
+            # TODO: uncomment below
+            #     for func_and_params in transform_utils.get_functions_to_apply(config):
+            #         logger.info(f"Invoking function: {func_and_params['function_name']}")
+            #         # print("\n=> Invoking function:", json.dumps(func_and_params, sort_keys=True, indent=4),"\n")
+            #
+            #         func_name = transform_utils.get_function_name(func_and_params)
+            #         func_args = transform_utils.get_function_args(func_and_params)
+            #         func_kwargs = transform_utils.get_function_kwargs(func_and_params)
+            #         cur_df = getattr(transform_funcs_kls,
+            #                          func_name)(cur_df, *func_args, **func_kwargs)
+            #
+            # if transform_utils.get_write_data_decision(config):
+            #     data_writer_kls.set_output_file_name_suffix('line_number')
+            #     data_writer_kls.write_data(cur_df)
 
         print('\n====Program finished.')
 
