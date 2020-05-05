@@ -4,7 +4,6 @@ import urllib
 from sqlalchemy import create_engine
 
 from sql_server_account_info import sql_server_info
-import transform_utils
 
 
 class DBSchemaNotDefinedError(Exception):
