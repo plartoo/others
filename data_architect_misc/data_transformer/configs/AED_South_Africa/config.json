@@ -35,8 +35,10 @@
     "__comment__": "Default is 1 (the second row) because that's where the data usually begins in files (the first row is almost always the column headers).",
     "skiprows": 1,
 
-    "__comment__": "(Optional) Specify the index (>=0) of rows we should ignore from the bottom of the data file.",
-    "__comment__": "Default is 0, meaning there's no rows at the end to skip.",
+    "__comment__": "(Optional) Number of rows (>=1) to drop/ignore from the bottom of the data file.",
+    "__comment__": "Default is 0, meaning ever row of data will be read, including the last line in the file.",
+    "__comment__": "Also, make to define the rows_per_read value such that the rows at the bottom to drop (skipfooter value below) are NOT read in two different iterations/chunks.",
+    "__comment__": " If that happens, then the skipfooter will not correctly drop the right number of rows at the bottom.",
     "skipfooter": 0,
 
     "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
