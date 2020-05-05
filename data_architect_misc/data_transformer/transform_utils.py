@@ -51,7 +51,7 @@ DEFAULT_WRITE_OUTPUT = True
 # DEFAULT_COLUMN_HEADER_ROW_NUM = -1  # TODO: remove
 # KEY_ROW_INDEX_WHERE_DATA_STARTS = 'row_index_where_data_starts'
 # DEFAULT_ROW_INDEX_WHERE_DATA_STARTS = 1
-# KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom'
+# KEY_BOTTOM_ROWS_TO_SKIP = 'num_of_rows_to_skip_from_the_bottom' # skipfooter
 # DEFAULT_BOTTOM_ROWS_TO_SKIP = 0
 
 
