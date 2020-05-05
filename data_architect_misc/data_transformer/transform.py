@@ -93,7 +93,8 @@ if __name__ == '__main__':
             cur_df = reader.read_next_dataframe()
 
             while not cur_df.empty:
-                print("\n==========\n")
+                print(cur_df)
+                print("==========\n")
                 cur_df = reader.read_next_dataframe()
 
             # TODO: uncomment below
