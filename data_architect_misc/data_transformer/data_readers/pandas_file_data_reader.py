@@ -5,6 +5,21 @@ Last Modified Date: May 2, 2020
 import logging
 
 
+class ConflictingParametersError(Exception):
+    """
+    Raise this if the number of rows to read per iteration
+    is less than the number of rows to drop at the end of
+    the file.
+
+    If we allow that, the implementation will become
+    unnecessarily complicated (hard to understand/follow)
+    and thus, to keep things simple, we'll just warn the
+    user to adjust the rows per read parameter.
+    """
+    def __init__(self, error_msg):
+        super().__init__(error_msg)
+
+
 class PandasFileDataReader:
     """
     This class is used as parent class to organize
@@ -18,8 +33,8 @@ class PandasFileDataReader:
     names and their values that will be used in
     reading data via Pandas methods.
     """
-    KEY_ROWS_PER_READ = 'rows_per_read'
-    DEFAULT_ROWS_PER_READ = 5#500000
+    KEY_ROWS_PER_READ = 'rows_per_read' # TODO: make sure we add this to our official config parameter for transform project
+    DEFAULT_ROWS_PER_READ = 10#500000
 
     # Parameters below are pandas-related parameters
     # supported by this file reader class' children.
@@ -32,7 +47,7 @@ class PandasFileDataReader:
     KEY_SKIP_ROWS = 'skiprows'
     DEFAULT_SKIP_ROWS = 1
 
-    KEY_SKIP_FOOTER = 'skipfooter'  # 'num_of_rows_to_skip_from_the_bottom'
+    KEY_SKIP_FOOTER = 'skipfooter'  # number of rows to drop from the bottom
     DEFAULT_SKIP_FOOTER = 0
 
     def __init__(self, config):
@@ -42,6 +57,14 @@ class PandasFileDataReader:
         self.header_row_index = self._get_row_index_to_read_column_header(config)
         self.skip_rows = self._get_leading_rows_to_skip(config)
         self.skip_footer = self._get_bottom_rows_to_skip(config)
+        if self.rows_per_read < self.skip_footer:
+            raise ConflictingParametersError(
+                f"The number of rows to read per iteration, "
+                f"'{self.rows_per_read}', is less than the number of "
+                f"rows to drop at the end of the file, '{self.skip_footer}'. "
+                f"Please adjust the '{self.KEY_ROWS_PER_READ}' value "
+                f"to be at least greater than or equal to that of "
+                f"the '{self.KEY_SKIP_FOOTER}' in the config parameter.")
 
     def _get_rows_per_read(self, config):
         """

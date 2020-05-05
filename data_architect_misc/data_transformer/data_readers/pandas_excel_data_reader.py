@@ -5,6 +5,7 @@ Last Modified Date: April 22, 2020
 import logging
 
 import pandas as pd
+from rich import print
 
 from data_readers.pandas_file_data_reader import PandasFileDataReader
 
@@ -26,7 +27,7 @@ class PandasExcelDataReader(PandasFileDataReader):
         self.input_file = input_file_path_and_name
         self.sheet_name = self._get_sheet_name(config)
         self.header_row = self.read_header_row()
-        # number of times read_next_dataframe is called
+        # Number of times read_next_dataframe is called
         self.read_iter_count = 0
 
     def _get_sheet_name(self, config):
@@ -61,34 +62,58 @@ class PandasExcelDataReader(PandasFileDataReader):
                 * self.read_iter_count) \
                + self.skip_rows
 
-    def read_next_dataframe(self):
-        row_idx_to_start_reading = self._get_row_idx_to_start_reading()
-        print(f"reading rows:{row_idx_to_start_reading}")
+    def _read_dataframe(self,
+                        row_idx_to_start_reading,
+                        rows_to_read,
+                        verbose=True):
         df = pd.read_excel(
             self.input_file,
             sheet_name=self.sheet_name,
             keep_default_na=self.keep_default_na,
             header=None,
             skiprows=row_idx_to_start_reading,
-            nrows=self.rows_per_read
+            nrows=rows_to_read
         )
-        self.read_iter_count += 1
-        print(df)
-        import pdb
-        pdb.set_trace()
-        print("Hey it's get_next_dataframe")
+
+        if (not df.empty) and verbose:
+            print(f"Read data from row:{row_idx_to_start_reading+1} "
+                  f"=> {row_idx_to_start_reading+rows_to_read}")
+
         return df
 
-        # TODO: we will drop rows for skipfooter based on calculation later
+    def _read_one_line_ahead(self):
+        """
+        This method is used to check if the dataframe
+        we'll be reading in the next iteration is
+        empty.
+        """
+        return self._read_dataframe(
+            self._get_row_idx_to_start_reading(),
+            1,
+            False)
 
-        pass
-        # cur_df = pd.read_excel(
-        #   input_file,
-        #   sheet_name=sheet,
-        #   keep_default_na=keep_default_na,
-        #   skiprows=row_idx_where_data_starts,
-        #   skipfooter=footer_rows_to_skip,
-        #   header=None,
-        #   names=col_headers_from_input_file)
+    def read_next_dataframe(self):
+        df = self._read_dataframe(self._get_row_idx_to_start_reading(),
+                                  self.rows_per_read)
 
-#col_headers_from_input_file = transform_utils.get_raw_column_headers(input_file, config)
+        # Increment counter below to prepare for the next read
+        self.read_iter_count += 1
+
+        if (self.skip_footer > 0) and self._read_one_line_ahead().empty:
+            # Here, we have to hope that the rows to drop
+            # do not awkwardly fall between the previously
+            # read dataframe and the next one to read. If
+            # they do, then this will only drop fewer than
+            # self.skip_footer rows.
+            # Try running 'TestExcelFile2.xlsx' and
+            # 'TestExcelConfig2.json' as an example of this
+            # awkward scenario.
+            print(f"Dropped *as many as* (could be fewer than) "
+                  f"this number of rows of data: "
+                  f"{self.skip_footer}")
+            # REF: https://stackoverflow.com/a/57681199
+            return df[:-self.skip_footer]
+
+        return df
+
+    # TODO: assign column headers to the dataframe chunks
