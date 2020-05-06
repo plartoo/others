@@ -4,7 +4,7 @@
     "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
     "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
     "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
-    "input_folder_path": "./",
+    "input_folder_path": "./examples",
     "input_file_name_or_pattern": "excel1.xlsx",
 
     "__comment__": "(Optional) Specify the row index (>= 0) where the data, *not including the column headers*, begins.",
