@@ -32,15 +32,14 @@ DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
 
 KEY_DATA_WRITER_MODULE_FILE = 'data_writer_module_file'
 DEFAULT_DATA_WRITER_MODULE_FILE = os.path.join(os.getcwd(),
-                                              'data_writers'
-                                              'csv_data_writer.py')
+                                               'data_writers'
+                                               'csv_data_writer.py')
 
 # The constants below should be kept in transform_utils.py
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
 KEY_WRITE_OUTPUT = 'write_output'
 DEFAULT_WRITE_OUTPUT = True
-
 
 ### READER related constants. will be removed after refactoring
 # KEY_ROWS_PER_READ_ITERATION = 'rows_per_read'
@@ -64,15 +63,11 @@ DEFAULT_WRITE_OUTPUT = True
 # (even when using 'Python' as parser engine) in detecting delimiters, so
 # setting this as None is not good enough. Thus we decided to set the default
 # for 'DEFAULT_INPUT_CSV_DELIMITER' as comma.
-KEY_INPUT_CSV_DELIMITER = 'input_csv_file_delimiter'
+KEY_INPUT_CSV_DELIMITER = 'input_delimiter'
 DEFAULT_INPUT_CSV_DELIMITER = ','
 
-KEY_INPUT_FILE_ENCODING = 'input_file_encoding'
+KEY_INPUT_FILE_ENCODING = 'input_encoding'
 DEFAULT_INPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
-
-
-
-
 
 ### TODO: WRITER related constants. will be removed after refactoring
 KEY_DATABASE_SCHEMA = 'database_schema'  # TODO: map to mssql_data_writer
@@ -83,18 +78,14 @@ KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'  # TODO: map to csv_data_writ
 KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'  # TODO: map to csv_data_writer and excel_data_writer
 DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),  # TODO: map to csv_data_writer and excel_data_writer
                                           'output')
-KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'  # TODO: map to excel_data_writer
+KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'output_sheet_name'  # TODO: map to excel_data_writer
 DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'  # TODO: map to excel_data_writer
-KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'  # TODO: map to csv_data_writer and excel_data_writer
+KEY_OUTPUT_FILE_ENCODING = 'output_encoding'  # TODO: map to csv_data_writer and excel_data_writer
 DEFAULT_OUTPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas # TODO: map to csv_data_writer and excel_data_writer
-KEY_OUTPUT_CSV_DELIMITER = 'output_csv_file_delimiter'  # TODO: map to csv_data_writer
+KEY_OUTPUT_CSV_DELIMITER = 'output_delimiter'  # TODO: map to csv_data_writer
 DEFAULT_OUTPUT_CSV_DELIMITER = '|'  # # TODO: map to csv_data_writer
 KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
 DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False  # TODO: map to mssql_data_writer, csv_data_writer, excel_data_writer
-
-
-
-
 
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
 DEFAULT_FUNCTIONS_TO_APPLY = []
@@ -225,31 +216,35 @@ def _extract_possible_primary_class_name_from_module_name(abs_or_rel_module_name
     '.excel_data_writer' or just 'excel_data_writer'),
     this method will extract the real module in this name
     (in the above example, it is 'excel_data_writer'),
-    camelcase it and return it as possible primary class
+    lowercase it and return it as the possible primary class
     name.
 
     Note: This assume that the programmer who wrote
     the module named the Python module file and the
-    class names according to Python widely accepted
-    naming convention.
+    class names to be the same (ignoring the underscores)
+    based on the widely-accepted Python naming convention.
     """
     last_module_name = abs_or_rel_module_name.split('.')[-1]
-    return ''.join([w.capitalize() for w in last_module_name.split('_')])
+    return ''.join([w.lower() for w in last_module_name.split('_')])
 
 
 def _get_primary_class_from_module(python_module):
     """
     Given a Python module, try to predict its main/primary
-    class from the module and return it (by assuming that
+    class from the module by lowercase string matching, and
+    return it.
+
+    The underlying assumption made in this method that
     the programmer gave module and class names according
-    to Python standard naming convention (i.e. CamelCase
+    to Python's standard naming convention (i.e. CamelCase
     for class names and underscore for module_or_file_names).
     """
     classes = _get_classes_defined_in_module(python_module)
-    primary_class_name = _extract_possible_primary_class_name_from_module_name(
+    possible_primary_kls_name = _extract_possible_primary_class_name_from_module_name(
         python_module.__name__)
+
     return [kls for kls in classes
-            if kls.__name__==primary_class_name][0]
+            if kls.__name__.lower() == possible_primary_kls_name][0]
 
 
 def _get_module_name_in_absolute_term(module_file_path_and_name):
@@ -307,7 +302,6 @@ def instantiate_transform_functions_class(config):
     return instantiate_class_in_module_file(transform_funcs_module_file)()
 
 
-
 # def _get_row_index_to_extract_column_headers(config):
 #     """
 #     Retrieves row number where we can fetch column headers
@@ -316,69 +310,69 @@ def instantiate_transform_functions_class(config):
 #     """
 #     return config.get(KEY_ROW_INDEX_OF_COLUMN_HEADERS,
 #                       DEFAULT_COLUMN_HEADER_ROW_NUM)
-
-def read_data(file_name_with_path, config, rows_to_read,
-              skip_leading_rows=0, skip_trailing_rows=0,
-              header_row_index=0, custom_header_names=None,
-              column_names_or_indexes_to_use=None,
-              custom_data_types={}):
-    """
-    This function is used to get just one row, if any, that has column headers.
-    TODO: We need to revise this for reading CSV header. Also review both approaches to see if we can simplify this.
-    """
-    if is_excel(file_name_with_path):
-        return pd.read_excel(file_name_with_path,
-                             skiprows=skip_leading_rows,
-                             nrows=rows_to_read,
-                             skipfooter=skip_trailing_rows,
-                             header=header_row_index,
-                             names=custom_header_names,
-                             usecols=column_names_or_indexes_to_use,
-                             dtype=custom_data_types,
-                             sheet_name=get_input_file_sheet_name(config),
-                             )
-    elif is_csv(file_name_with_path):
-        return pd.read_csv(file_name_with_path,
-                           skiprows=skip_leading_rows,
-                           # below causes error if we tries to read chunk=x and there's < x rows left in the last chunk
-                           # nrows=rows_to_read,
-                           chunksize=rows_to_read,
-                           skipfooter=skip_trailing_rows,
-                           header=header_row_index,
-                           names=custom_header_names,
-                           usecols=column_names_or_indexes_to_use,
-                           dtype=custom_data_types,
-                           delimiter=get_input_csv_delimiter(config),
-                           encoding=get_input_file_encoding(config),
-                           # don't skip anything in input file and let programmer
-                           # decide how to parse them later in transform_functions
-                           # skip_blank_lines=False,
-                           )
-    else:
-        raise transform_errors.InvalidFileType(file_name_with_path)
-
-
-def get_raw_column_headers(input_file, config):
-    """
-    Returns a list of column headers either from input file at specified
-    row index or custom column names defined in JSON config file.
-
-    Note: In pandas, we would read headers like below--
-    df1=pd.read_csv('csv_n.csv',delimiter='|', header=0, nrows=0, skip_blank_lines=False)
-    df2=pd.read_csv('csv_d.csv',delimiter='|', header=4, nrows=0, skip_blank_lines=False)
-    df3=pd.read_excel('excel_n.xlsx', sheet_name=0, header=0, nrows=0)
-    df4=pd.read_excel('excel_d.xlsx', sheet_name=0, header=4, nrows=0)
-    """
-    row_index_to_extract_column_headers = _get_row_index_to_extract_column_headers(config)
-
-    if row_index_to_extract_column_headers >= 0:
-        return read_data(input_file,
-                         config,
-                         0,  # to read just the column names, must leave this as 0
-                         header_row_index=row_index_to_extract_column_headers,
-                         ).columns.to_list()
-    else:
-        return None
+#
+# def read_data(file_name_with_path, config, rows_to_read,
+#               skip_leading_rows=0, skip_trailing_rows=0,
+#               header_row_index=0, custom_header_names=None,
+#               column_names_or_indexes_to_use=None,
+#               custom_data_types={}):
+#     """
+#     This function is used to get just one row, if any, that has column headers.
+#     TODO: We need to revise this for reading CSV header. Also review both approaches to see if we can simplify this.
+#     """
+#     if is_excel(file_name_with_path):
+#         return pd.read_excel(file_name_with_path,
+#                              skiprows=skip_leading_rows,
+#                              nrows=rows_to_read,
+#                              skipfooter=skip_trailing_rows,
+#                              header=header_row_index,
+#                              names=custom_header_names,
+#                              usecols=column_names_or_indexes_to_use,
+#                              dtype=custom_data_types,
+#                              sheet_name=get_input_file_sheet_name(config),
+#                              )
+#     elif is_csv(file_name_with_path):
+#         return pd.read_csv(file_name_with_path,
+#                            skiprows=skip_leading_rows,
+#                            # below causes error if we tries to read chunk=x and there's < x rows left in the last chunk
+#                            # nrows=rows_to_read,
+#                            chunksize=rows_to_read,
+#                            skipfooter=skip_trailing_rows,
+#                            header=header_row_index,
+#                            names=custom_header_names,
+#                            usecols=column_names_or_indexes_to_use,
+#                            dtype=custom_data_types,
+#                            delimiter=get_input_csv_delimiter(config),
+#                            encoding=get_input_file_encoding(config),
+#                            # don't skip anything in input file and let programmer
+#                            # decide how to parse them later in transform_functions
+#                            # skip_blank_lines=False,
+#                            )
+#     else:
+#         raise transform_errors.InvalidFileType(file_name_with_path)
+#
+#
+# def get_raw_column_headers(input_file, config):
+#     """
+#     Returns a list of column headers either from input file at specified
+#     row index or custom column names defined in JSON config file.
+#
+#     Note: In pandas, we would read headers like below--
+#     df1=pd.read_csv('csv_n.csv',delimiter='|', header=0, nrows=0, skip_blank_lines=False)
+#     df2=pd.read_csv('csv_d.csv',delimiter='|', header=4, nrows=0, skip_blank_lines=False)
+#     df3=pd.read_excel('excel_n.xlsx', sheet_name=0, header=0, nrows=0)
+#     df4=pd.read_excel('excel_d.xlsx', sheet_name=0, header=4, nrows=0)
+#     """
+#     row_index_to_extract_column_headers = _get_row_index_to_extract_column_headers(config)
+#
+#     if row_index_to_extract_column_headers >= 0:
+#         return read_data(input_file,
+#                          config,
+#                          0,  # to read just the column names, must leave this as 0
+#                          header_row_index=row_index_to_extract_column_headers,
+#                          ).columns.to_list()
+#     else:
+#         return None
 
 
 def _is_key_in_dict(dictionary, list_of_keys):
@@ -532,7 +526,6 @@ def get_input_csv_delimiter(config):
     return config.get(KEY_INPUT_CSV_DELIMITER,
                       DEFAULT_INPUT_CSV_DELIMITER)
 
-
 # def get_output_folder(config):
 #     """
 #     Extracts and return the output folder path and name from the
@@ -601,7 +594,6 @@ def get_input_csv_delimiter(config):
 #     return _get_value_from_dict(config,
 #                                 KEY_OUTPUT_CSV_DELIMITER,
 #                                 DEFAULT_OUTPUT_CSV_DELIMITER)
-
 
 
 # def _get_value_from_dict(dictionary, key, default_value):
