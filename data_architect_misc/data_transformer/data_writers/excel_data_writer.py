@@ -11,7 +11,7 @@ class ExcelDataWriter(FileDataWriter):
 
     # Default values for  pandas' to_excel related parameters.
     # We can add other params such as na_rep, columns, header, etc. later.
-    KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'sheet_name_of_output_excel_file'
+    KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'output_sheet_name'
     DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
 
     def __init__(self, config):
@@ -32,5 +32,10 @@ class ExcelDataWriter(FileDataWriter):
             out_file,
             sheet_name=self.sheet_name,
             index=self.include_index,
+            # For to_excel method, encoding parameter is
+            # only necessary for xlwt writer. Otherwise,
+            # we can leave it as None by default (which
+            # is what we defined in FileDataWriter)
+            # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_excel.html
             encoding=self.output_file_encoding
         )

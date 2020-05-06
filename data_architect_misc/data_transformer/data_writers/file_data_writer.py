@@ -9,18 +9,24 @@ class FileDataWriter:
     (e.g., ExcelDataWriter or CSVDataWriter) that writes Pandas
     dataframe to an output file.
     """
-
-    KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
-    DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
-    KEY_OUTPUT_FILE_ENCODING = 'output_file_encoding'
-    DEFAULT_OUTPUT_FILE_ENCODING = None  # None defaults to 'utf-8' in pandas
-
     # Parameters for output file name and path.
     KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
     DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
                                               'output')
     KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
     KEY_OUTPUT_FILE_SUFFIX = 'output_file_name_suffix'
+
+    # Pandas dataframe has 'index' column
+    # This parameter is best left as default, False.
+    # Index column, in my opinion, is annoying in output file.
+    KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
+    DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
+
+    # Best leave default as None for encoding
+    # because it defaults to 'utf-8'
+    # in Pandas's to_excel and to_csv methods
+    KEY_OUTPUT_FILE_ENCODING = 'output_encoding'
+    DEFAULT_OUTPUT_FILE_ENCODING = None
 
     def __init__(self, config):
         self.logger = logging.getLogger(__name__)
@@ -29,7 +35,6 @@ class FileDataWriter:
         self.output_file_name_prefix = config.get(self.KEY_OUTPUT_FILE_PREFIX, '')
         self.output_file_name_suffix = config.get(self.KEY_OUTPUT_FILE_SUFFIX, '')
 
-        # boolean to decide if output file should have index column from the dataframe
         self.include_index = config.get(
             self.KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE,
             self.DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE)
