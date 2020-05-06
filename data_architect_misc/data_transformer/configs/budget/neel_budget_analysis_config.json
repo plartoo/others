@@ -5,7 +5,7 @@
     "input_file_name_or_pattern": "Global Budget Roll-up_9.16.19.xlsx",
 
     "__comment__": "(Optional) Enter sheet name to process. Default is the first sheet in the Excel file.",
-    "sheet_name_of_excel_file": "Budget Roll-Up",
+    "input_sheet_name": "Budget Roll-Up",
 
     "__comment__": "(Required) Output folder path is required.",
     "output_folder_path": "./output/budget/",

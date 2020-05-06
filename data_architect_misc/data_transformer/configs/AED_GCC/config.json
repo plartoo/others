@@ -7,8 +7,8 @@
     "input_folder_path": "./input/AED_GCC/",
     "input_file_name_or_pattern": "GCC_2019FY_20200326.xlsx",
 
-    "__comment__": "(Optional) Enter sheet name of the input Excel file to read data from. Default is the first sheet.",
-    "sheet_name": "2019-OFFLINE",
+    "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
+    "input_sheet_name": "2019-OFFLINE",
 
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,
@@ -17,8 +17,8 @@
     "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
     "data_writer_module_file": "./data_writers/excel_data_writer.py",
 
-    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
-    "sheet_name_of_output_excel_file": "Sheet1",
+    "__comment__": "(Optional) Enter the sheet name of the output Excel file. Default is 'Sheet1'.",
+    "output_sheet_name": "Sheet1",
 
     "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
     "__comment__": "Default is going to be the current working directory of transform.py",

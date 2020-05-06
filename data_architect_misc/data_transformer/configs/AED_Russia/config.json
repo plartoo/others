@@ -7,8 +7,8 @@
     "input_folder_path": "./input/AED_Russia/",
     "input_file_name_or_pattern": "Russia_2019FY_20200402.xlsx",
 
-    "__comment__": "(Optional) Enter sheet name of the input Excel file to read data from. Default is the first sheet.",
-    "sheet_name": "Base ",
+    "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
+    "input_sheet_name": "Base ",
 
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,

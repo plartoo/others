@@ -4,11 +4,11 @@
     "input_folder_path": "./input/budget/",
     "input_file_name_or_pattern": "Global Budget Roll-up_9.16.19.xlsx",
 
-    "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
-    "sheet_name_of_input_excel_file": "Budget Roll-Up",
+    "__comment__": "(Optional) Enter the sheet name of the input Excel file to read. Default is the first sheet.",
+    "input_sheet_name": "Budget Roll-Up",
 
-    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
-    "sheet_name_of_output_excel_file": "Sheet1",
+    "__comment__": "(Optional) Enter the sheet name of the output Excel file. Default is 'Sheet1'.",
+    "output_sheet_name": "Sheet1",
 
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,
