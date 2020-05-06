@@ -109,6 +109,7 @@ if __name__ == '__main__':
             #                          func_name)(cur_df, *func_args, **func_kwargs)
             #
             # if transform_utils.get_write_data_decision(config):
+            #      # TODO: we need to get line numbers and write them as part of output file name
             #     data_writer_kls.set_output_file_name_suffix('line_number')
             #     data_writer_kls.write_data(cur_df)
 
