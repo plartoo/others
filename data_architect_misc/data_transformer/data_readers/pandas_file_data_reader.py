@@ -33,8 +33,10 @@ class PandasFileDataReader:
     names and their values that will be used in
     reading data via Pandas methods.
     """
-    KEY_ROWS_PER_READ = 'rows_per_read' # TODO: make sure we add this to our official config parameter for transform project
-    DEFAULT_ROWS_PER_READ = 10#500000
+
+    # TODO: make sure we add this to our official config parameter for transform project
+    KEY_ROWS_PER_READ = 'rows_per_read'
+    DEFAULT_ROWS_PER_READ = 500000
 
     # Parameters below are pandas-related parameters
     # supported by this file reader class' children.
@@ -47,6 +49,20 @@ class PandasFileDataReader:
     KEY_SKIP_ROWS = 'skiprows'
     DEFAULT_SKIP_ROWS = 1
 
+    # Here, the user needs to be careful that rows
+    # to drop from the bottom, 'skipfooter',
+    # do not awkwardly fall between the previously
+    # read dataframe and the next one to read. If
+    # they do, then this will only drop fewer than
+    # self.skip_footer rows.
+    #
+    # In other words, user needs to make sure the
+    # 'rows_per_read' and 'skipfooter' don't conflict
+    # each other and thus, resulting in some rows
+    # from the bottom not being dropped.
+    # See 'excel2.xlsx' and 'excel2_config.json'
+    # in 'examples/' folder as an example of this
+    # awkward scenario (assuming rows_per_read=10).
     KEY_SKIP_FOOTER = 'skipfooter'  # number of rows to drop from the bottom
     DEFAULT_SKIP_FOOTER = 0
 
