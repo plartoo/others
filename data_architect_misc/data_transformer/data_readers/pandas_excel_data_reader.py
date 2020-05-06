@@ -13,12 +13,12 @@ from data_readers.pandas_file_data_reader import PandasFileDataReader
 class PandasExcelDataReader(PandasFileDataReader):
     """
     This class uses Pandas read_excel to read Pandas dataframe
-    from an Excel file. It supports several most commonly-used
+    from an Excel file. It supports a few most commonly-used
     parameters of read_excel which are defined as class
     CONSTANTS below.
     """
     # Parameters supported from Pandas' read_excel method
-    KEY_SHEET_NAME = 'sheet_name' # 'sheet_name_of_input_excel_file'
+    KEY_SHEET_NAME = 'input_sheet_name'
     DEFAULT_SHEET_TO_READ = 0
 
     def __init__(self, input_file_path_and_name, config):
@@ -52,6 +52,16 @@ class PandasExcelDataReader(PandasFileDataReader):
             nrows=0
         ).columns.to_list()
 
+    def _assign_column_headers(self, df):
+        """
+        We read column headers once from
+        the row defined in the config.
+        Then we apply these column headers
+        to dataframe read chunk by chunk.
+        """
+        df.columns = self.header_row
+        return df
+
     def _get_row_idx_to_start_reading(self):
         """
         Updates value that keeps track of which row
@@ -75,9 +85,11 @@ class PandasExcelDataReader(PandasFileDataReader):
             nrows=rows_to_read
         )
 
-        if (not df.empty) and verbose:
-            print(f"Read data from row:{row_idx_to_start_reading+1} "
-                  f"=> {row_idx_to_start_reading+rows_to_read}")
+        if not df.empty:
+            df = self._assign_column_headers(df)
+            if verbose:
+                print(f"Read data from row:{row_idx_to_start_reading+1} "
+                      f"=> {row_idx_to_start_reading+rows_to_read}")
 
         return df
 
@@ -100,14 +112,21 @@ class PandasExcelDataReader(PandasFileDataReader):
         self.read_iter_count += 1
 
         if (self.skip_footer > 0) and self._read_one_line_ahead().empty:
-            # Here, we have to hope that the rows to drop
+            # Here, the user needs to be careful that rows
+            # to drop from the bottom, 'skipfooter',
             # do not awkwardly fall between the previously
             # read dataframe and the next one to read. If
             # they do, then this will only drop fewer than
             # self.skip_footer rows.
-            # Try running 'TestExcelFile2.xlsx' and
-            # 'TestExcelConfig2.json' as an example of this
+            #
+            # In other words, user needs to make sure the
+            # 'rows_per_read' and 'skipfooter' don't conflict
+            # each other and thus, resulting in some rows
+            # from the bottom not being dropped.
+            # See 'TestExcelFile2.xlsx' and 'TestExcelConfig2.json'
+            # in examples/test folder as an example of this
             # awkward scenario.
+
             print(f"Dropped *as many as* (could be fewer than) "
                   f"this number of rows of data: "
                   f"{self.skip_footer}")
@@ -115,5 +134,3 @@ class PandasExcelDataReader(PandasFileDataReader):
             return df[:-self.skip_footer]
 
         return df
-
-    # TODO: assign column headers to the dataframe chunks
