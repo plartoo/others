@@ -7,9 +7,11 @@
     "input_folder_path": "./examples",
     "input_file_name_or_pattern": "csv0.csv",
 
-
+    "__comment__": "df = pd.read_csv('./examples/csv0.csv', encoding=None, skiprows=0, header=0, delimiter='|')",
     "input_delimiter": "|",
-    "input_encoding": "utf-8",
+    "__input_encoding": "utf-8",
+
+
     "output_delimiter": "|",
     "output_encoding": "utf-8",
 
@@ -40,7 +42,7 @@
     "data_writer_module_file": "./data_writers/excel_data_writer.py",
 
     "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
-    "sheet_name_of_output_excel_file": "Sheet1",
+    "output_sheet_name": "Sheet1",
 
     "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
     "__comment__": "Default is going to be the current working directory of transform.py",

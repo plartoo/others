@@ -1,4 +1,3 @@
-
 Test extra info header line that must be discarded.
 
 
@@ -21,7 +20,9 @@ int_id_1_1_1|date_2019-01-01_2019-12-31_2|ascii_str_8_8_3|double_-1.0_1.0_4|inte
 
 
 
-Test extra info footer line#1 that must be discarded
 
-Test extra info footer line#2 that must be discarded
 
+Line#1 to drop
+
+Line#2 to drop
+Line#3 to drop but this will not be dropped if we read every 10 lines per chunk and if we set skipfooter equals 9 (skip the last 9 lines)
