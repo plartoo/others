@@ -1,11 +1,12 @@
 """
 Author: Phyo Thiha
-Last Modified Date: April 22, 2020
+Last Modified Date: May 06, 2020
 """
 import logging
 
 import pandas as pd
-from rich import print
+from pandas.errors import EmptyDataError
+from rich import print # TODO: decide if I want to remove or include this in final module
 
 from data_readers.pandas_file_data_reader import PandasFileDataReader
 
@@ -23,18 +24,76 @@ class PandasCSVDataReader(PandasFileDataReader):
     # Best leave default as None for encoding
     # because it defaults to 'utf-8'
     # in Pandas's read_csv method
-    KEY_OUTPUT_FILE_ENCODING = 'input_encoding'
-    DEFAULT_OUTPUT_FILE_ENCODING = None
+    # For full list of encoding available in Pandas/Python
+    # REF: https://docs.python.org/3/library/codecs.html#standard-encodings
+    KEY_INPUT_FILE_ENCODING = 'input_encoding'
+    DEFAULT_INPUT_FILE_ENCODING = None
+
+    # Should CSV reader skip blank lines
+    KEY_SKIP_BLANK_LINES = 'skip_blank_lines'
+    DEFAULT_SKIP_BLANK_LINES = False
 
     def __init__(self, input_file_path_and_name, config):
         super().__init__(config)
         self.logger = logging.getLogger(__name__)
         self.input_file = input_file_path_and_name
-        self.sheet_name = self._get_sheet_name(config)
+        self.delimiter = config.get(self.KEY_INPUT_CSV_DELIMITER,
+                                    self.DEFAULT_INPUT_CSV_DELIMITER)
+        # I'm aware that dict.get() returns None if key doesn't exist
+        # but I'm expecting that we might some day use default
+        # as something else. Then, we need DEFAULT_INPUT_FILE_ENCODING.
+        self.encoding = config.get(self.KEY_INPUT_FILE_ENCODING,
+                                   self.DEFAULT_INPUT_FILE_ENCODING)
+        self.skip_blank_lines = config.get(self.KEY_SKIP_BLANK_LINES,
+                                           self.DEFAULT_SKIP_BLANK_LINES)
         self.header_row = self.read_header_row()
+        print(f"headerrow: {self.header_row}") # TODO: remove this
         # Number of times read_next_dataframe is called
         self.read_iter_count = 0
 
-# TODO: finish csv0_config.json and its siblings (including CSV files)
-# TODO: investigate what other options are available for encoding other than 'utf-8'
-# TODO: does encoding=None default to utf-8?
+    def read_header_row(self):
+        """
+        Reads the row which has column headers
+        and returns them as a list.
+
+        If user instructed to not read header row
+        (i.e. set 'header' key's value in config to
+        None or did not provide 'header' key at all),
+        this will return [0, 1, 2, ...] basically
+        list of integers as column headers.
+        """
+        # import pdb
+        # pdb.set_trace()
+        return pd.read_csv(
+            self.input_file,
+            keep_default_na=self.keep_default_na,
+            skip_blank_lines=self.skip_blank_lines,
+            header=self.header_row_index,
+            delimiter=self.delimiter,
+            nrows=0
+        ).columns.to_list()
+
+    def _read_dataframe(self,
+                        row_idx_to_start_reading,
+                        rows_to_read,
+                        verbose=True):
+        try:
+            df = pd.read_csv(
+                self.input_file,
+                keep_default_na=self.keep_default_na,
+                skip_blank_lines=self.skip_blank_lines,
+                header=None,
+                delimiter=self.delimiter,
+                skiprows=row_idx_to_start_reading,
+                nrows=rows_to_read
+            )
+
+            df = self._assign_column_headers(df)
+            if verbose:
+                print(f"Read data from row:{row_idx_to_start_reading+1} "
+                      f"=> {row_idx_to_start_reading+rows_to_read}")
+        except EmptyDataError:
+            # Nothing more to read, thus returns an empty data frame
+            return pd.DataFrame(columns=self.header_row)
+
+        return df

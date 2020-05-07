@@ -1,6 +1,6 @@
 """
 Author: Phyo Thiha
-Last Modified Date: April 22, 2020
+Last Modified Date: May 05, 2020
 """
 import logging
 
@@ -48,29 +48,10 @@ class PandasExcelDataReader(PandasFileDataReader):
         """
         return pd.read_excel(
             self.input_file,
+            keep_default_na=self.keep_default_na,
             header=self.header_row_index,
             nrows=0
         ).columns.to_list()
-
-    def _assign_column_headers(self, df):
-        """
-        We read column headers once from
-        the row defined in the config.
-        Then we apply these column headers
-        to dataframe read chunk by chunk.
-        """
-        df.columns = self.header_row
-        return df
-
-    def _get_row_idx_to_start_reading(self):
-        """
-        Updates value that keeps track of which row
-        we should start reading data from if
-        read_next_dataframe is called again.
-        """
-        return (self.rows_per_read
-                * self.read_iter_count) \
-               + self.skip_rows
 
     def _read_dataframe(self,
                         row_idx_to_start_reading,
@@ -90,47 +71,5 @@ class PandasExcelDataReader(PandasFileDataReader):
             if verbose:
                 print(f"Read data from row:{row_idx_to_start_reading+1} "
                       f"=> {row_idx_to_start_reading+rows_to_read}")
-
-        return df
-
-    def _read_one_line_ahead(self):
-        """
-        This method is used to check if the dataframe
-        we'll be reading in the next iteration is
-        empty.
-        """
-        return self._read_dataframe(
-            self._get_row_idx_to_start_reading(),
-            1,
-            False)
-
-    def read_next_dataframe(self):
-        df = self._read_dataframe(self._get_row_idx_to_start_reading(),
-                                  self.rows_per_read)
-
-        # Increment counter below to prepare for the next read
-        self.read_iter_count += 1
-
-        if (self.skip_footer > 0) and self._read_one_line_ahead().empty:
-            # Here, the user needs to be careful that rows
-            # to drop from the bottom, 'skipfooter',
-            # do not awkwardly fall between the previously
-            # read dataframe and the next one to read. If
-            # they do, then this will only drop fewer than
-            # self.skip_footer rows.
-            #
-            # In other words, user needs to make sure the
-            # 'rows_per_read' and 'skipfooter' don't conflict
-            # each other and thus, resulting in some rows
-            # from the bottom not being dropped.
-            # See 'TestExcelFile2.xlsx' and 'TestExcelConfig2.json'
-            # in examples/test folder as an example of this
-            # awkward scenario.
-
-            print(f"Dropped *as many as* (could be fewer than) "
-                  f"this number of rows of data: "
-                  f"{self.skip_footer}")
-            # REF: https://stackoverflow.com/a/57681199
-            return df[:-self.skip_footer]
 
         return df
