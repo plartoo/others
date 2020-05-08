@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
             while not cur_df.empty:
                 print(cur_df)
-                print("==========\n")
+                print("==========")
                 cur_df = reader.read_next_dataframe()
 
             # TODO: uncomment below
@@ -113,7 +113,7 @@ if __name__ == '__main__':
             #     data_writer_kls.set_output_file_name_suffix('line_number')
             #     data_writer_kls.write_data(cur_df)
 
-        print('\n====Program finished.')
+        print('\n=>Program finished.')
 
 
     # # Existing code checkpointed April 21, 2020
