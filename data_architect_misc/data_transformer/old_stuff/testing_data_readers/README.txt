@@ -1,0 +1,1 @@
+This folder has a bunch of Excel, CSV and config files that I used to test data reading using Pandas functions.

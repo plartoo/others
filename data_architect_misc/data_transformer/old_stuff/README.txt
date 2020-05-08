@@ -1,0 +1,2 @@
+This folder has a bunch of random files (both data and code) that I used during the coding of this project. 
+I just like to keep them as memorabilia (and practically speaking, because they have some useful links and notes that I might revisit some day). :)
