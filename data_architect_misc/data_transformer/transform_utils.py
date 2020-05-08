@@ -36,6 +36,8 @@ DEFAULT_DATA_WRITER_MODULE_FILE = os.path.join(os.getcwd(),
                                                'csv_data_writer.py')
 
 # The constants below should be kept in transform_utils.py
+KEY_ROWS_PER_READ = 'rows_per_read'
+DEFAULT_ROWS_PER_READ = 500000
 KEY_INPUT_FOLDER_PATH = 'input_folder_path'
 KEY_INPUT_FILE_NAME_OR_PATTERN = 'input_file_name_or_pattern'
 KEY_WRITE_OUTPUT = 'write_output'
