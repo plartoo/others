@@ -1,6 +1,6 @@
 import pandas as pd
 
-import comp_harm_constants
+from constants import comp_harm_constants
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_post_transform_qa_functions import CustomFunctions as CustomQAFunctions
 

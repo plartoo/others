@@ -15,7 +15,7 @@ import re
 
 import pandas as pd
 
-import comp_harm_constants
+from constants import comp_harm_constants
 from qa_functions import qa_errors
 
 
@@ -210,9 +210,9 @@ class CustomFunctions:
         column, raise ValueComparisonError.
         """
         df_year_comparison = df.loc[df[comp_harm_constants.YEAR_COLUMN]
-            != pd.DatetimeIndex(df[comp_harm_constants.DATE_COLUMN]).year]
+                                    != pd.DatetimeIndex(df[comp_harm_constants.DATE_COLUMN]).year]
         df_month_comparison = df.loc[df[comp_harm_constants.MONTH_COLUMN]
-            != pd.DatetimeIndex(df[comp_harm_constants.DATE_COLUMN]).month]
+                                     != pd.DatetimeIndex(df[comp_harm_constants.DATE_COLUMN]).month]
 
         if not df_year_comparison.empty:
             raise qa_errors.ValueComparisonError(

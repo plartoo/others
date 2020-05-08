@@ -8,7 +8,7 @@ Last Modified: April 13, 2020
 
 import pandas as pd
 
-import comp_harm_constants
+from constants import comp_harm_constants
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
