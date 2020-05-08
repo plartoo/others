@@ -26,7 +26,7 @@ class PandasExcelDataReader(PandasFileDataReader):
         self.logger = logging.getLogger(__name__)
         self.input_file = input_file_path_and_name
         self.sheet_name = self._get_sheet_name(config)
-        self.header_row = self.read_header_row()
+        self.headers = self.read_header_row()
         # Number of times read_next_dataframe is called
         self.read_iter_count = 0
 
@@ -69,7 +69,8 @@ class PandasExcelDataReader(PandasFileDataReader):
         if not df.empty:
             df = self._assign_column_headers(df)
             if verbose:
-                print(f"Read data from row:{row_idx_to_start_reading+1} "
-                      f"=> {row_idx_to_start_reading+rows_to_read}")
+                self.logger.info(
+                    f"Reading data between row range:{row_idx_to_start_reading+1} "
+                    f"=> {row_idx_to_start_reading+rows_to_read}")
 
         return df

@@ -6,7 +6,6 @@ import logging
 
 import pandas as pd
 from pandas.errors import EmptyDataError
-from rich import print # TODO: decide if I want to remove or include this in final module
 
 from data_readers.pandas_file_data_reader import PandasFileDataReader
 
@@ -46,8 +45,7 @@ class PandasCSVDataReader(PandasFileDataReader):
                                    self.DEFAULT_INPUT_FILE_ENCODING)
         self.skip_blank_lines = config.get(self.KEY_SKIP_BLANK_LINES,
                                            self.DEFAULT_SKIP_BLANK_LINES)
-        self.header_row = self.read_header_row()
-        print(f"headerrow: {self.header_row}") # TODO: remove this
+        self.headers = self.read_header_row()
         # Number of times read_next_dataframe is called
         self.read_iter_count = 0
 
@@ -62,8 +60,6 @@ class PandasCSVDataReader(PandasFileDataReader):
         this will return [0, 1, 2, ...] basically
         list of integers as column headers.
         """
-        # import pdb
-        # pdb.set_trace()
         return pd.read_csv(
             self.input_file,
             keep_default_na=self.keep_default_na,
@@ -90,10 +86,11 @@ class PandasCSVDataReader(PandasFileDataReader):
 
             df = self._assign_column_headers(df)
             if verbose:
-                print(f"Read data from row:{row_idx_to_start_reading+1} "
-                      f"=> {row_idx_to_start_reading+rows_to_read}")
+                self.logger.info(
+                    f"Reading data between row range: {row_idx_to_start_reading+1} "
+                    f"=> {row_idx_to_start_reading+rows_to_read}")
         except EmptyDataError:
             # Nothing more to read, thus returns an empty data frame
-            return pd.DataFrame(columns=self.header_row)
+            return pd.DataFrame(columns=self.headers)
 
         return df

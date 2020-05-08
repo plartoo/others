@@ -35,9 +35,8 @@ class PandasFileDataReader:
     reading data via Pandas methods.
     """
 
-    # TODO: make sure we add this to our official config parameter for transform project
     KEY_ROWS_PER_READ = 'rows_per_read'
-    DEFAULT_ROWS_PER_READ = 10#00000
+    DEFAULT_ROWS_PER_READ = 100000
 
     # Parameters below are pandas-related parameters
     # supported by this file reader class' children.
@@ -84,7 +83,7 @@ class PandasFileDataReader:
                 f"the '{self.KEY_SKIP_FOOTER}' in the config parameter.")
 
         # Variables below must be set by child classes
-        self.header_row = None
+        self.headers = None
         self.read_iter_count = None
 
     def _get_rows_per_read(self, config):
@@ -151,6 +150,29 @@ class PandasFileDataReader:
         return config.get(self.KEY_SKIP_FOOTER,
                           self.DEFAULT_SKIP_FOOTER)
 
+    def _rename_existing_and_add_new_cols_with_empty_str(self, df):
+        """
+        In Pandas CSV reader when we read chunk by chunk and
+        if the raw data file has rows that do not conform to
+        the column width of the others (e.g., the first 5 rows
+        in raw data has 5 columns, the next 3 rows have 1 column
+        only and if are reading 5 lines per iteration), ValueError
+        will be thrown when we assign the chunk with a smaller set
+        of actual columns (in the above example, only 1 column) to
+        the full set of columns seen in the beginning of the file.
+
+        In that scenario, this program will rename the column of the
+        new chunk to conform to the column names of the dataset in
+        its entirety (i.t. self.headers) and since the new chunk
+        doesn't have data for some of the newly expanded columns
+        (in the above example, there will be 4 new columns added),
+        it will assign empty string in these columns.
+
+        REF: https://stackoverflow.com/a/61650632/1330974
+        """
+        return df.rename(columns=dict(zip(df.columns, self.headers)))\
+            .reindex(self.headers, axis=1)
+
     def _assign_column_headers(self, df):
         """
         We read column headers once from
@@ -159,11 +181,28 @@ class PandasFileDataReader:
         to dataframe read chunk by chunk.
         """
         try:
-            df.columns = self.header_row
+            df.columns = self.headers
         except ValueError:
-            import pdb
-            pdb.set_trace()
-            print('debug')
+            # This error is usually raised in rare instances
+            # when CSV files have some footers rows with
+            # fewer columns than the rows above
+            # (e.g., Copyrights note at the bottom) and
+            # when that row is read on its own chunk.
+            self.logger.warning(
+                f"The dataframe below have fewer columns "
+                f"than other rows in the data:\n"
+                f"{df}"
+                f"\n-->This is the list of column headers "
+                f"expected for the dataframe (based on "
+                f"what we have seen in previous dataframes "
+                f"or data rows): {self.headers}"
+                f"\n-->We will rename and append missing "
+                f"columns to the above dataframe with "
+                f"empty strings. For more details, please "
+                f"see pandas_file_data_reader.py's "
+                f"'_assign_column_headers' method.\n"
+            )
+            return self._rename_existing_and_add_new_cols_with_empty_str(df)
 
         return df
 
@@ -209,10 +248,12 @@ class PandasFileDataReader:
             # See 'TestExcelFile2.xlsx' and 'TestExcelConfig2.json'
             # in examples/test folder as an example of this
             # awkward scenario.
+            self.logger.info(
+                f"Dropped *as many as* (could be fewer than) "
+                f"this number of rows of data: {self.skip_footer}"
+                f"\nThe following rows are dropped:\n"
+                f"{df[-self.skip_footer:]}")
 
-            print(f"Dropped *as many as* (could be fewer than) "
-                  f"this number of rows of data: "
-                  f"{self.skip_footer}")
             # REF: https://stackoverflow.com/a/57681199
             return df[:-self.skip_footer]
 
