@@ -15,7 +15,7 @@
 
     "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
     "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
-    "data_writer_module_file": "./data_writers/excel_data_writer.py",
+    "data_writer_module_file": "./data_writers/csv_data_writer.py",
 
     "__comment__": "(Optional) Enter the sheet name of the output Excel file. Default is 'Sheet1'.",
     "output_sheet_name": "Sheet1",
