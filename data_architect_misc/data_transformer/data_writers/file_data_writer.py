@@ -9,18 +9,18 @@ class FileDataWriter:
     (e.g., ExcelDataWriter or CSVDataWriter) that writes Pandas
     dataframe to an output file.
     """
+    # Pandas dataframe has 'index' column
+    # This parameter is best left as default, False.
+    # Index column, in my opinion, is annoying in output file.
+    KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
+    DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
+
     # Parameters for output file name and path.
     KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
     DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
                                               'output')
     KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
     KEY_OUTPUT_FILE_SUFFIX = 'output_file_name_suffix'
-
-    # Pandas dataframe has 'index' column
-    # This parameter is best left as default, False.
-    # Index column, in my opinion, is annoying in output file.
-    KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = 'include_index_column_in_output'
-    DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
 
     # Best leave default as None for encoding
     # because it defaults to 'utf-8'

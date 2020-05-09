@@ -11,8 +11,8 @@ class ExcelDataWriter(FileDataWriter):
 
     # Default values for  pandas' to_excel related parameters.
     # We can add other params such as na_rep, columns, header, etc. later.
-    KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'output_sheet_name'
-    DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
+    KEY_OUTPUT_SHEET_NAME = 'output_sheet_name'
+    DEFAULT_OUTPUT_SHEET_NAME = 'Sheet1'
 
     OUTPUT_FILE_EXTENSION = '.xlsx'
 
@@ -20,8 +20,8 @@ class ExcelDataWriter(FileDataWriter):
         super().__init__(config)
         self.logger = logging.getLogger(__name__)
         self.sheet_name = config.get(
-            self.KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
-            self.DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
+            self.KEY_OUTPUT_SHEET_NAME,
+            self.DEFAULT_OUTPUT_SHEET_NAME)
 
     def _get_output_file_extension(self):
         return self.OUTPUT_FILE_EXTENSION

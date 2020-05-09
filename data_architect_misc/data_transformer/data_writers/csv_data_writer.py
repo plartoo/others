@@ -12,8 +12,8 @@ class CSVDataWriter(FileDataWriter):
     # Default values for  pandas' to_csv related parameters.
     # We can later implement other pandas.to_csv parameters
     # such as na_rep, compression, quoting, quotechar, etc.
-    KEY_OUTPUT_CSV_DELIMITER = 'output_delimiter'
-    DEFAULT_OUTPUT_CSV_DELIMITER = '|'
+    KEY_OUTPUT_DELIMITER = 'output_delimiter'
+    DEFAULT_OUTPUT_DELIMITER = '|'
 
     OUTPUT_FILE_EXTENSION = '.csv'
 
@@ -21,8 +21,8 @@ class CSVDataWriter(FileDataWriter):
         super().__init__(config)
         self.logger = logging.getLogger(__name__)
         self.output_csv_delimiter = config.get(
-            self.KEY_OUTPUT_CSV_DELIMITER,
-            self.DEFAULT_OUTPUT_CSV_DELIMITER)
+            self.KEY_OUTPUT_DELIMITER,
+            self.DEFAULT_OUTPUT_DELIMITER)
 
     def _get_output_file_extension(self):
         return self.OUTPUT_FILE_EXTENSION

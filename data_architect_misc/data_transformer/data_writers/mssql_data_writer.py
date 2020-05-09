@@ -10,7 +10,6 @@ class DBSchemaNotDefinedError(Exception):
     """Raised when database schema is not defined
     (is empty string) in the config file.
     """
-
     def __str__(self):
         return f"ERROR: {self.args}"
 
@@ -61,21 +60,23 @@ class MSSQLDataWriter:
     # err on the side of throwing error rather than overwriting an existing table
     REPLACE_IF_EXISTS = 'fail'
 
-    # We will NOT be using CHUNK_SIZE and METHOD in the end because
-    # they are still throwing SQL Alchemy Error that varies based
-    # on the chunk size, and I'm not that excited about using this
-    # to_sql method, which seems to be not only slow, but too buggy.
-    # Also, if chunksize is not provided as parameter, all rows will
+    # NOTE: Do NOT change the default of CHUNK_SIZE=None to
+    # something else. Firstly, nobody should be using Pandas' to_sql
+    # method to write to MS SQL because it's too slow.
+    # Secondly, if CHUNK_SIZE is not provided as parameter, all rows will
     # be loaded at once, and based on some experiments below, that
-    # approach is slightly better in terms of performance.
+    # approach is slightly better in terms of performance than setting
+    # CHUNK_SIZE to some other values as shown below.
     # CHUNKSIZE = None, METHOD = None => 850 secs
     # CHUNKSIZE = 100, METHOD = None => 892 secs
     # CHUNKSIZE = 10000, METHOD = None => 875 secs
     CHUNK_SIZE = None
 
+    # NOTE: Do NOT change the default to other values besides 'multi'.
     # 'multi' means passing multiple values in a single INSERT clause
-    # and in practice, it is throwing the errors as shown below.
-    # I think Pandas and/or SQL Alchemy needs to sort out these glitches.
+    # and in practice, it is throwing SQL Alchemy errors as detailed below.
+    # We will revisit updating 'multi' to somethign else after Pandas
+    # and/or SQL Alchemy needs to sort out these glitches.
     # REF: https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#insertion-method
     # CHUNKSIZE = None, METHOD = 'multi' => sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('The SQL contains 4184 parameter markers, but 331864 parameters were supplied', 'HY000')
     # CHUNKSIZE = 100, METHOD = 'multi' => sqlalchemy.exc.ProgrammingError (pyodbc.ProgrammingError) ('42000', '[42000] [Microsoft][ODBC Driver 13 for SQL Server][SQL Server]Error converting data type nvarchar to bigint. (8114) (SQLExecDirectW)')
