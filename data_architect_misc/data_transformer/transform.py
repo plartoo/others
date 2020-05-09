@@ -6,6 +6,8 @@ Last Modified Date: May 8, 2020
 """
 
 import argparse
+import datetime
+import dateutil.relativedelta
 import logging
 import os
 import sys
@@ -31,18 +33,15 @@ in the config file, run the program like below:
 \nUsage example #2 - Alternatively input file's path and name can be 
 provided with 'i' flag to the program as below:
     >> python transform.py -c .\configs\china\config.json 
-    -i ./input/switzerland/Monthly_Spend_20200229.xlsx
-"""
+    -i ./input/switzerland/Monthly_Spend_20200229.xlsx"""
 
 C_FLAG_HELP_TEXT = """[Required] Configuration file (with full or relative path).
-E.g., python transform.py -c .\configs\china\config.json
-"""
+E.g., python transform.py -c .\configs\china\config.json"""
 
 I_FLAG_HELP_TEXT = """[Optional] Input file (with full or relative path) that 
 has data to which the functions defined in the config file will be applied to.
 E.g., python transform.py -i ./input/switzerland/Monthly_Spend_20200229.xlsx 
--c .\configs\china\config.json
-"""
+-c .\configs\china\config.json"""
 
 if __name__ == '__main__':
     # 0. Set logging config
@@ -69,6 +68,7 @@ if __name__ == '__main__':
         raise transform_errors.ConfigFileError()
 
     # 3. Iterate through each transform procedure in config file
+    start_dt = datetime.datetime.now()
     for config in transform_utils.load_config(args.c):
         if args.i:
             # This hack allows user to provide input file as commandline parameter
@@ -105,19 +105,27 @@ if __name__ == '__main__':
 
                 cur_df = reader.read_next_dataframe()
 
-        logger.info("Transform Program Finished.")
+        td = dateutil.relativedelta.relativedelta (datetime.datetime.now(), start_dt)
+        logger.info(f"Transform script finished and from start to completion it took "
+                    f"{td.hours} hrs, {td.minutes} mins, and {td.seconds} secs.")
 
-    # TODO: measure memory usage (e.g., using memory_profiler like this: https://stackoverflow.com/a/41813238/1330974)
-    # I can use Russia raw data file to test the memory usage
-    #     for input_file in transform_utils.get_input_files(config):
-    #         # TODO: Time the performance and log it
-    #         # t1 = time.time()
-    #         # print('Read Excel file:', file_path_and_name)
-    #         # print("It took this many seconds to read the file:", time.time() - t1, "\n")
+    # TODO : use pydoc to generate documentation?
+    # >> python -m pydoc -w transform
 
     # To reduce memory usage in Pandas:
-    # REF 1: https://towardsdatascience.com/why-and-how-to-use-pandas-with-large-data-9594dda2ea4c
-    # REF 2: https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
-    # Other pandas snippets:
-    # REF 1: pandas snippets: https://jeffdelaney.me/blog/useful-snippets-in-pandas/
-    # REF 2: https://stackoverflow.com/q/14262433
+    # https://towardsdatascience.com/why-and-how-to-use-pandas-with-large-data-9594dda2ea4c
+    # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+
+    # To measure RAM (memory) usage using memory profiler (I already did)
+    # https://stackoverflow.com/a/41813238/1330974
+
+    # REFs related to reading data by chunk in Pandas:
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#iterating-through-files-chunk-by-chunk
+
+    # Other useful REFs related to Pandas:
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_excel.html
+    # https://cmdlinetips.com/2018/04/how-to-drop-one-or-more-columns-in-pandas-dataframe/
+    # https://jeffdelaney.me/blog/useful-snippets-in-pandas/
+    # https://www.giacomodebidda.com/reading-large-excel-files-with-pandas/
+    # https://stackoverflow.com/q/14262433
