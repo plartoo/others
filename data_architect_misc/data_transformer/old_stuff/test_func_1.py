@@ -60,7 +60,6 @@ for datum in data:
 	    processed_data.append(rule(datum))
 print('haha')
 
-import pdb
 rule_book = [(rule_2,{}), (rule_1,), (rule_3,{'strr': 'override'})] # rule 3 will supercede the others
 processed_data = []
 for datum in data:
@@ -69,5 +68,4 @@ for datum in data:
             processed_data.append(rule[0](datum,**rule[1]))
         else:
             processed_data.append(rule[0](datum))
-pdb.set_trace()
 print('hehe')
