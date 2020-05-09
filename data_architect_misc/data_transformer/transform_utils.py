@@ -32,7 +32,7 @@ DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
 
 KEY_DATA_WRITER_MODULE_FILE = 'data_writer_module_file'
 DEFAULT_DATA_WRITER_MODULE_FILE = os.path.join(os.getcwd(),
-                                               'data_writers'
+                                               'data_writers',
                                                'csv_data_writer.py')
 
 # The constants below should be kept in transform_utils.py
