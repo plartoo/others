@@ -1,76 +1,62 @@
 [
-  {
-    "__comment__": "(Required IF NOT provided as an argument via commandline)",
-    "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
-    "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
-    "input_folder_path": "./input/AED_Russia/",
-    "input_file_name_or_pattern": "Russia_2019FY_20200402.xlsx",
-
-    "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
-    "input_sheet_name": "Base ",
-
-    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
-    "write_output": true,
-
-    "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
-    "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
-    "__comment__": "This option is only for those who wants to write data to somewhere other than to a local file in CSV format.",
-    "data_writer_module_file": "./data_writers/csv_data_writer.py",
-
-    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
-    "__comment__": "Default is going to be the current working directory of transform.py",
-    "output_folder_path": "./output/AED_Russia/",
-
-    "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "transformed_Russia_2019FY_",
-
-    "__comment__": "(Optional) Enter sheet name for the output Excel file. Default is 'Sheet1'.",
-    "output_sheet_name": "Sheet1",
-
-    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
-    "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
-
-    "__comment__": "(Optional) Enter the row index (starting from 0) to extract column headers from. Default is 0 (the first row).",
-    "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
-    "header": 0,
-
-    "__comment__": "(Optional) Specify which row index (starting from 0) the data begins. Default is 1 (the second row) because that's where the data usually begins in files.",
-    "skiprows": 1,
-
-    "__comment__": "(Optional) Specify how many rows we should ignore at the bottom of the data file. Default is 0.",
-    "skipfooter": 0,
-
-    "__comment__": "(Required) List of the functions and their parameters.",
-    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
-    "functions_to_apply": [
-      {
-        "__function_comment__": "Data files sometimes have empty columns. We need to drop them first",
-        "function_name": "drop_unnamed_columns"
-      },
-      {
-        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
-        "function_name": "assert_number_of_columns_equals",
-        "function_args": [12]
-      },
-      {
-        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
-        "function_name": "add_PROCESSED_DATE_column_with_current_date"
-      },
-
-
-
-
-
-      {
-        "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
-        "function_name": "add_empty_HARMONIZED_PRODUCT_NAME_column"
-      },
-      {
-        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
-        "function_name": "filter_and_rearrange_columns_for_final_output"
-      }
-
-    ]
-  }
+    {
+        "__comments_for_input_file(s)__": "(Required) If input file path and name are not provided as arguments via commandline, enter the input folder and input file name (or the pattern of input file names such as 'Russia_*.xlsx') to transform.",
+        "input_folder_path": "<example>./input/AED_Russia/",
+        "input_file_name_or_pattern": "<example>Russia_2019FY_20200402.xlsx",
+        "__comments_for_rows_per_read__": "(Optional) The number of rows to read and transform per each iteration. If the file has too many rows and if you have limited RAM on your machine, you can enter a reasonable integer value below and the data reader module will only process that many rows at a time (thereby, preventing the out-of-memory errors). Default rows that will be processed per iteration is shown below and even if you don't define this key, the default value below will be used by the program.",
+        "rows_per_read": "rows_per_read",
+        "__comments_for_keep_default_na__": "(Optional) By default, Pandas read empty cells as NaN. We want to turn that off by default because in most of our use cases, we want to leave empty cells as just empty. For more detail, read 'keep_default_na' parameter from Pandas' read_csv/read_excel methods. Note that if you leave this key undefined, the default value will set be set to False as shown below.",
+        "keep_default_na": false,
+        "__comments_for_header__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the first row in the data file would have index=0) from which the program should read column headers from. If column headers don't exist, do NOT define this key (that is, delete this from the config file).",
+        "header": null,
+        "__comments_for_skiprows__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the second row in the data file would have index=1) where the data begins in the input file.In a typical input file, the data starts the second row (the first row is the column headers), so the default value for this key is set to '1' even if you don't define this key explicitly like below.",
+        "skiprows": 1,
+        "__comments_for_skipfooter__": "(Optional) Enter the NUMBER of rows (note: not the index value), which should be dropped from the bottom of the input file. This can be used when input file has some footer rows (such as Copyrights statement) that we want to drop. But since it is not common to have footer rows, we set the default for this key to 0 even if you don't define this key explicitly like below.",
+        "skipfooter": 0,
+        "__comments_for_input_sheet_name__": "(Optional) If your input file(s) is/are Excel, you can define the sheet name to read/process. If you leave this key undefined, the program will read first sheet, with index 0 by default. You can also leave this key undefined if your input file is not a CSV file or if you are okay with the default value below.",
+        "input_sheet_name": 0,
+        "__comments_for_input_delimiter__": "(Optional) If your input file(s) is/are CSV, you can define the delimiter used in that input file. If you leave this key undefined, the program will use the default delimiter value as 'input_delimiter'. You can also leave this key undefined if your input file is not a CSV file or if you are okay with the default value below.",
+        "input_delimiter": "input_delimiter",
+        "__comments_for_input_encoding__": "(Optional) If your input file(s) is/are CSV, you can define the encoding used in that input file. If you leave this key undefined, the program will use the default encoding value as None, which will be interpreted as 'utf-8' encoding by Pandas.You can also leave this key undefined if your input file is not a CSV file or if you are okay with the default value below.",
+        "input_encoding": "utf-8",
+        "__comments_for_skip_blank_lines__": "(Optional) If your input file(s) is/are CSV, you can define if blank lines will be skipped in reading the input file. By default, the program will NOT skip the blank lines (meaning, the value will still be set to False) even if you leave this key undefined.",
+        "skip_blank_lines": false,
+        "__comments_for_output_file(s)__": "(Optional) The key below, 'write_output', can be used to decide if the processed data will be written to an output destination (a file or a SQL table). The default is as shown below and it will be used even if you leave this key undefined.",
+        "write_output": true,
+        "__comments_for_data_writer_module_file__": "(Optional) The key below, 'data_writer_module_file', can be used to specify which data writer module (such as Excel, CSV or SQL) will be used to write the processed data. The default value is as shown below and it will be used even if you leave this key undefined.",
+        "data_writer_module_file": "C:\\Users\\lache\\Documents\\GitHub\\others\\data_architect_misc\\data_transformer\\..\\data_writers\\csv_data_writer.py",
+        "__comments_for_include_index_column_in_output__": "(Optional) If you want to write the index of output dataframe to MS SQL table, use the key below. If the key is not defined, the default value as shown below will be used.",
+        "include_index_column_in_output": false,
+        "__comments_for_output_folder_path__": "(Optional) The key below can be used to specify where the processed data will be written.The default value is as shown below and it will be used even if the key below is undefined.",
+        "output_folder_path": "C:\\Users\\lache\\Documents\\GitHub\\others\\data_architect_misc\\data_transformer\\output",
+        "__comments_for_output_file_name_prefix__": "(Optional) The key below can be used to specify the beginning part (prefix) of the output file name (e.g., 'prefix_*.xlsx'). The default value is None (empty string) and it will be used even if the key below is undefined.",
+        "output_file_name_prefix": "",
+        "__comments_for_output_file_name_suffix__": "(Optional) The key below can be used to specify the last part (suffix) of the output file name (e.g., '*_suffix.xlsx'). The default value is None (empty string) and it will be used even if the key below is undefined.",
+        "output_file_name_suffix": "",
+        "__comments_for_output_encoding__": "(Optional) The key below can be used to specify the encoding of the output file. For options available standard encoding in Python, please see: https://docs.python.org/3/library/codecs.html. The default value is None (which is interpreted by Pandas as 'utf-8', and it will be used even if the key below is undefined.",
+        "output_encoding": "utf-8",
+        "__comments_for_output_sheet_name__": "(Optional) If your output file is Excel, you can define the sheet name to write the data to. The program will write to the default sheet name as shown below even if the key is not defined.",
+        "output_sheet_name": "Sheet1",
+        "__comments_for_output_delimiter__": "(Optional) If your output file is CSV, you can define the delimiter to use in the output file. The program will use the default delimiter as shown below even if the key is not defined.",
+        "output_delimiter": "|",
+        "__comments_for_database_schema__": "(Optional) If you want to write output data to MS SQL table, use the key below to define the destination table name. If the key is not defined, the default value as shown below will be used.",
+        "database_schema": null,
+        "output_sql_table_name": "default_transformed_sql_table_name",
+        "__comments_for_custom_transform_functions_file__": "(Optional) Path+name of the file that has *CUSTOM* data transformation functions, which will be imported and used in the data processing tasks. Default value is as shown below and it will be used even if this key is not defined.",
+        "custom_transform_functions_file": "C:\\Users\\lache\\Documents\\GitHub\\others\\data_architect_misc\\data_transformer\\..\\transform_functions\\common_transform_functions.py",
+        "__comments_for_functions_to_apply__": "(Required) List of functions and parameters to be used in data processing. These functions must be defined in the transform function/module file, which is defined with the key 'KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE' above.",
+        "functions_to_apply": [
+            {
+                "__function_comment__": "Data files sometimes have empty columns. We need to drop them first.",
+                "function_name": "drop_unnamed_columns"
+            },
+            {
+                "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw dataframe.",
+                "function_name": "assert_number_of_columns_equals",
+                "function_args": [
+                    13
+                ]
+            }
+        ]
+    }
 ]
