@@ -14,12 +14,17 @@ class ExcelDataWriter(FileDataWriter):
     KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'output_sheet_name'
     DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE = 'Sheet1'
 
+    OUTPUT_FILE_EXTENSION = '.xlsx'
+
     def __init__(self, config):
         super().__init__(config)
         self.logger = logging.getLogger(__name__)
         self.sheet_name = config.get(
             self.KEY_SHEET_NAME_OF_OUTPUT_EXCEL_FILE,
             self.DEFAULT_SHEET_NAME_OF_OUTPUT_EXCEL_FILE)
+
+    def _get_output_file_extension(self):
+        return self.OUTPUT_FILE_EXTENSION
 
     def write_data(self, df, output_file_path_and_name=None):
         if not output_file_path_and_name:

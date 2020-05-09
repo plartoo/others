@@ -64,6 +64,13 @@ class FileDataWriter:
         """
         self.output_file_name_suffix = suffix_str
 
+    def _get_output_file_extension(self):
+        """
+        This method should be implemented by
+        classes that inherit this class.
+        """
+        pass
+
     def _get_output_folder(self, config):
         """
         Extracts the output folder path and name from the config JSON.
@@ -92,7 +99,8 @@ class FileDataWriter:
         datetime_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
         return f"{self.output_file_name_prefix}_" \
                f"{self.output_file_name_suffix}_" \
-               f"{datetime_suffix}.xlsx"
+               f"{datetime_suffix}" \
+               f"{self._get_output_file_extension()}"
 
     def _get_output_file_path_and_name(self):
         """

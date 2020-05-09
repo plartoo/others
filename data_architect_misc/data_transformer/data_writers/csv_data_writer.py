@@ -15,12 +15,17 @@ class CSVDataWriter(FileDataWriter):
     KEY_OUTPUT_CSV_DELIMITER = 'output_delimiter'
     DEFAULT_OUTPUT_CSV_DELIMITER = '|'
 
+    OUTPUT_FILE_EXTENSION = '.csv'
+
     def __init__(self, config):
         super().__init__(config)
         self.logger = logging.getLogger(__name__)
         self.output_csv_delimiter = config.get(
             self.KEY_OUTPUT_CSV_DELIMITER,
             self.DEFAULT_OUTPUT_CSV_DELIMITER)
+
+    def _get_output_file_extension(self):
+        return self.OUTPUT_FILE_EXTENSION
 
     def write_data(self, df, output_file_path_and_name=None):
         if not output_file_path_and_name:
@@ -32,6 +37,7 @@ class CSVDataWriter(FileDataWriter):
         df.to_csv(
             out_file,
             sep=self.output_csv_delimiter,
+            line_terminator='',
             index=self.include_index,
             encoding=self.output_file_encoding
         )
