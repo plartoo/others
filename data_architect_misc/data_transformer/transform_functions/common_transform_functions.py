@@ -879,14 +879,10 @@ class CommonTransformFunctions(TransformFunctions):
         if not isinstance(new_date_col_name, str):
             raise transform_errors.InputDataTypeError("New date column name must "
                                                       "be of string type.")
-
         # REF: https://stackoverflow.com/a/37103131
         df[new_date_col_name] = pd.to_datetime(datetime.datetime.now().date())
 
         return df
-
-    def _trim_space(self, cell_str) -> pd.DataFrame:
-        return str(cell_str).strip()
 
     def remove_dollar_sign(self) -> pd.DataFrame:
         """
@@ -894,9 +890,3 @@ class CommonTransformFunctions(TransformFunctions):
         :return:
         """
         pass
-
-    def multiply_by_thousand(self) -> pd.DataFrame:
-        pass
-
-    def parent_function(self) -> pd.DataFrame:
-        print("calling parent")
