@@ -17,6 +17,11 @@ class PandasCSVDataReader(PandasFileDataReader):
     parameters of read_csv which are defined as class
     CONSTANTS below.
     """
+    # Note: we tested and found that pandas' csv sniffer
+    # isn't very good (even when using 'Python' as parser engine)
+    # in detecting delimiters, so setting the default input csv
+    # delimiter to None is not good enough. So, we settled on
+    # the default as 'comma'.
     KEY_INPUT_CSV_DELIMITER = 'input_delimiter'
     DEFAULT_INPUT_CSV_DELIMITER = ','
 
