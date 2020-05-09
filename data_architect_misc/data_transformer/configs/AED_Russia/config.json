@@ -34,7 +34,7 @@
     "__comment__": " If that happens, then the skipfooter will not correctly drop the right number of rows at the bottom.",
     "skipfooter": 0,
 
-    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
+    "__comment__": "(Optional) Path+name of the file that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
 
     "__comment__": "(Required) List of the functions and their parameters.",
