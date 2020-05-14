@@ -30,13 +30,11 @@ KEY_WRITE_OUTPUT = 'write_output'
 DEFAULT_WRITE_OUTPUT = True
 KEY_DATA_WRITER_MODULE_FILE = 'data_writer_module_file'
 DEFAULT_DATA_WRITER_MODULE_FILE = os.path.join(os.getcwd(),
-                                               '..',
                                                'data_writers',
                                                'csv_data_writer.py')
 
 KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE = 'custom_transform_functions_file'
 DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
-                                                       '..',
                                                        'transform_functions',
                                                        'common_transform_functions.py')
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
