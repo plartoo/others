@@ -3,8 +3,6 @@ import urllib
 
 from sqlalchemy import create_engine
 
-from sql_server_account_info import sql_server_info
-
 
 class DBSchemaNotDefinedError(Exception):
     """Raised when database schema is not defined
@@ -84,6 +82,17 @@ class MSSQLDataWriter:
     METHOD = 'multi'  # to pass multiple values in a single INSERT clause (for better efficiency)
 
     def __init__(self, config):
+        from sql_server_account_info import sql_server_info
+        # Example of sql_server_info:
+        # sql_server_info = {
+        #     "protocol": "mssql+pyodbc://",
+        #     "user_id": "mydbid",
+        #     "password": "mypassword",
+        #     "server": "mydbserver",
+        #     "port": "1433",
+        #     "database": "mydb",
+        #     "driver": "ODBC Driver 13 for SQL Server",
+        # }
         self.logger = logging.getLogger(__name__)
 
         self.driver = sql_server_info['driver']
