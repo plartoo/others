@@ -19,7 +19,7 @@ from constants import comp_harm_constants
 from qa_functions import qa_errors
 
 
-class CustomFunctions:
+class CommonPostTransformQAFunctions:
     """
     This class is the collection of QA functions that must be run
     against the transformed data. The QA functions here will either
@@ -444,7 +444,7 @@ class CustomFunctions:
             self,
             df) -> pd.DataFrame:
         """
-        Checks to make sure the values in MEDIA_TYPE column are
+        Asserts that the values in MEDIA_TYPE column are
         based on standard media type values for competitive
         harmonization project. If not, throw InvalidValueError.
         """
@@ -453,6 +453,26 @@ class CustomFunctions:
             comp_harm_constants.MEDIA_TYPE_COLUMN,
             comp_harm_constants.MEDIA_TYPES
         )
+
+    def alert_standard_MEDIA_TYPE_values_that_are_not_found_in_data(
+            self,
+            df) -> pd.DataFrame:
+        """
+        Checks and alert about  the potentially missing
+        MEDIA_TYPE values based on all standard media type
+        values for competitive harmonization project.
+        """
+        potentially_missing_media_types = (
+                comp_harm_constants.MEDIA_TYPES -
+                set(df[comp_harm_constants.MEDIA_TYPE_COLUMN])
+        )
+        if potentially_missing_media_types:
+            self.logger.warning(
+                f"QA => These MEDIA_TYPEs are NOT found in the transformed data. "
+                f"Make sure that it is normal/exepcted:\n"
+                f"{sorted(potentially_missing_media_types)}")
+
+        return df
 
     def assert_CATEGORY_values_are_valid(
             self,
