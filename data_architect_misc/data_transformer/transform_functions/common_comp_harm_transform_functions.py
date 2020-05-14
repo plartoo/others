@@ -2,10 +2,10 @@ import pandas as pd
 
 from constants import comp_harm_constants
 from transform_functions.common_transform_functions import CommonTransformFunctions
-from qa_functions.common_post_transform_qa_functions import CustomFunctions as CustomQAFunctions
+from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
 
 
-class CommonCompHarmTransformFunctions(CommonTransformFunctions, CustomQAFunctions):
+class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
     """
     This class houses all common data transformation functions
     specifically related to competitive harmonization project.
