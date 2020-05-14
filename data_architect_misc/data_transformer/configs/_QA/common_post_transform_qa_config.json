@@ -67,6 +67,9 @@
         "function_name": "assert_MEDIA_TYPE_values_are_valid"
       },
       {
+        "function_name": "alert_standard_MEDIA_TYPE_values_that_are_not_found_in_data"
+      },
+      {
         "function_name": "assert_CATEGORY_values_are_valid"
       },
       {
