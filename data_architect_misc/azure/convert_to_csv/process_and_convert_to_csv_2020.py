@@ -15,7 +15,7 @@ from azure.storage.blob import BlobServiceClient, generate_account_sas, Resource
 
 STORAGE_ACCOUNT_NAME = 'wmdatarfcolgate'
 STORAGE_ACCOUNT_URL = 'https://wmdatarfcolgate.blob.core.windows.net'
-STORAGE_ACCOUNT_KEY = 'ww2KsXz/Jz29XztHWshmgg1o+Cd8PffTzNcKAumCjiO/VG7j2EhFGk5iezEkpizvY1NHgCTp06CHtcDcd1bh3A=='
+STORAGE_ACCOUNT_KEY = ''
 
 SAS_TOKEN = generate_account_sas(
     account_name=STORAGE_ACCOUNT_NAME,
