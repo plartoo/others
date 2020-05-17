@@ -81,7 +81,8 @@ def read_excel_file(file_path_and_name,
         engine = XLS_ENGINE
     elif os.path.splitext(file_path_and_name)[-1] == '.xlsx':
         engine = XLSX_ENGINE
-    df = pd.read_excel(file_path_and_name,
+
+    df1 = pd.read_excel(file_path_and_name,
                        sheet_name=sheet_name,
                        header=header,
                        skiprows=skiprows,
@@ -89,7 +90,7 @@ def read_excel_file(file_path_and_name,
                        engine=engine)
     print(f"Read Excel file: {file_path_and_name}")
     print(f"It took this many seconds to read the file: {time.time() - t1}\n")
-    return df
+    return df1
 
 
 def write_csv_file(data, output_file_path_and_name, sep=DELIMITER):
@@ -112,13 +113,6 @@ def get_active_sheet_name(excel_file_path_and_name):
     for sht in xl.sheets():
         if sht.sheet_visible == 1:
             return sht.name
-
-
-def get_value_from_dict(dict, key, default_value=''):
-    if dict.get(key) is None:
-        return default_value
-    else:
-        return dict.get(key)
 
 
 def extract_file_name_and_path(file_path_and_name):
@@ -145,23 +139,23 @@ def main():
     append_new_sys_path(local_dir_name)
 
     # Note: comment out two lines below and replace it with json_activity variable below in local testing
-    # read_activity = open('activity.json').read()
-    # json_activity = json.loads(read_activity)
-    # The JSON below is only for testing on your laptop; on production environment, we'll use step 2a. instead
-    json_activity = {'typeProperties': {'extendedProperties':
-                                            {'sourceContainer': 'colgate-palmolive',
-                                             'excelSourcePath': 'Test/Input', #
-                                             'fileName': 'argentina.xls', # 'Belgium.xlsb'
-                                             'uploadPath': 'Test/Output', #
-                                             'excelArchivePath': 'Test/Archive',#
-                                             'outputFileDelimiter': '|',
-                                             # 'sheetName': '',
-                                             'skipHeaderRow': '0',
-                                             'skipTrailingRow': '0',
-                                             'additionalProcessingCode': '4_Python_Code/Countries/Argentina/process_data_argentina.py'
-                                             }
-                                        }
-                     }
+    read_activity = open('activity.json').read()
+    json_activity = json.loads(read_activity)
+    # # The JSON below is only for testing on your laptop; on production environment, we'll use step 2a. instead
+    # json_activity = {'typeProperties': {'extendedProperties':
+    #                                         {'sourceContainer': 'colgate-palmolive',
+    #                                          'excelSourcePath': 'Test/Input', #
+    #                                          'fileName': 'Belgium.xlsb', #'argentina.xls',
+    #                                          'uploadPath': 'Test/Output', #
+    #                                          'excelArchivePath': 'Test/Archive',#
+    #                                          'outputFileDelimiter': '|',
+    #                                          # 'sheetName': '',
+    #                                          'skipHeaderRow': '0',
+    #                                          'skipTrailingRow': '0',
+    #                                          'additionalProcessingCode': '4_Python_Code/Countries/Argentina/process_data_argentina.py'
+    #                                          }
+    #                                     }
+    #                  }
 
     # 2a. Get required config for this script from 'Extended Properties' passed from Azure Data Factory task
     config_dict = json_activity.get('typeProperties').get('extendedProperties')
@@ -220,26 +214,19 @@ def main():
             local_excel_file_name_with_path = get_local_destination_path_for_file(local_dir_name, cur_blob_file_name)
             download_blob_file_to_local_folder(container_client, blob.name, local_excel_file_name_with_path)
 
+            # WARNING: Note that for xlsb files that have active cell
+            # somewhere at the end of the file, pd.read_excel will
+            # start reading from there (meaning, read mostly empty cells).
+            # A way to fix this is to read xlsb data using xlwings, but
+            # I highly suggest against using it because it's a semi-proprietary
+            # library and launches an Excel workbook application, which is
+            # unrealistic in our Linux environment. I have provided an example
+            # of how to acheive reading only the cells with data using
+            # xlwings at the end of this code.
             df = read_excel_file(local_excel_file_name_with_path,
                                  sheet_name=sheet_name,
                                  skiprows=header_rows_to_skip,
                                  skipfooter=footer_rows_to_skip)
-
-            # ToDo: why Belgium.txt doesn't have data
-            # from pyxlsb import open_workbook
-            # df1 = []
-            # with open_workbook(local_excel_file_name_with_path) as wb:
-            #     with wb.get_sheet(1) as sheet:
-            #         for row in sheet.rows():
-            #             df1.append([item.v for item in row])
-            #
-            # df1 = pd.DataFrame(df1[1:], columns=df1[0])
-
-            # with open(local_excel_file_name_with_path, 'rb') as data:
-            #     data.seek(0,0)
-            #     import pdb
-            #     pdb.set_trace()
-            #     print('debug')
 
             if custom_processing_module is not None:
                 # 7. If we need to apply functions from custom module to the dataframe, do it below
@@ -269,17 +256,30 @@ def main():
                                       local_excel_file_name_with_path,
                                       archive_blob_path_and_name)
 
-            # 11. delete the old (source) blob
+            # 11. Delete the old (source) blob
             container_client.delete_blob(blob.name)
             print(f"Deleted source blob: {blob.name}")
 
     # 12. delete local files and folder downloaded temporarily from Azure
     try:
         shutil.rmtree(local_dir_name)
-        print("Deleted local folder and its contents:", local_dir_name)
+        print(f"Deleted local folder and its contents: {local_dir_name}")
     except OSError as e:
-        print("Error: %s - %s." % (e.filename, e.strerror))
+        print(f"Error: {e.filename} - {e.strerror}")
 
 
 if __name__ == '__main__':
     main()
+
+# # How to read data cells that are NOT empty using xlwings
+# import xlwings as xw
+# book = xw.Book('Belgium.xlsb')
+# first_sheet = book.sheets(1) #active_sheet=book.sheets.active
+# # first_sheet.cells.last_cell.row is how to get the total rows
+# # in an Excel sheet, which we already know as ~1+million rows
+# # used_row_count = sum(x is not None for x in first_sheet.range('A:A').value)
+# used_range_rows = (first_sheet.api.UsedRange.Row, first_sheet.api.UsedRange.Rows.Count)
+# used_range_cols = (first_sheet.api.UsedRange.Column, first_sheet.api.UsedRange.Columns.Count)
+# used_range = xw.Range(*zip(used_range_rows, used_range_cols)) # used_range.select()
+# data = first_sheet.range(used_range).value
+# df = pd.DataFrame(data[1:],columns=data[0])
