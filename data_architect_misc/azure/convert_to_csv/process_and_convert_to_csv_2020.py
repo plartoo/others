@@ -1,5 +1,12 @@
+"""
+Script to convert XLSX, XLS, XLSB files in Azure blob
+to CSV file, apply custom processing functions, if
+any is provided, and put them back in Azure blob
+destination.
 
-
+Author: Phyo Thiha
+Last Modified: May 16, 2020
+"""
 from datetime import datetime, timedelta
 import fnmatch
 import json
@@ -11,7 +18,7 @@ import time
 import uuid
 
 import pandas as pd
-from azure.storage.blob import BlobServiceClient, generate_account_sas, ResourceTypes, AccountSasPermissions
+from azure.storage.blob import BlobServiceClient, BlobClient, generate_account_sas, ResourceTypes, AccountSasPermissions
 
 STORAGE_ACCOUNT_NAME = 'wmdatarfcolgate'
 STORAGE_ACCOUNT_URL = 'https://wmdatarfcolgate.blob.core.windows.net'
@@ -25,9 +32,15 @@ SAS_TOKEN = generate_account_sas(
     expiry=datetime.utcnow() + timedelta(hours=1)
 )
 
-OUTPUT_FILE_TYPE = '.txt' # Note: Never change this. We agreed to always output txt file
+# Note: Never change this from '.txt' extension for comp harm project.
+OUTPUT_FILE_TYPE = '.txt'
 
-SHEET_NAME = 0 # 'None' to convert all sheets in the Excel file
+XLSB_ENGINE = 'pyxlsb'
+XLS_ENGINE = 'xlrd'
+XLSX_ENGINE = 'openpyxl'
+
+# If SHEET_NAME=None, then Pandas will convert all sheets in the Excel file
+SHEET_NAME = 0
 DELIMITER = '|'
 HEADER_ROWS_TO_SKIP = 0
 FOOTER_ROWS_TO_SKIP = 0
@@ -42,8 +55,8 @@ def append_new_sys_path(dir_name):
     new_sys_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_name)
     if new_sys_path not in sys.path:
         sys.path.append(new_sys_path)
-        print("\nNew sys path appended:", new_sys_path)
-        print("Current sys path is:\n", sys.path, "\n")
+        print(f"New sys path appended: {new_sys_path}")
+        print(f"Current sys path is:\n{sys.path}\n")
 
 
 def join_path_and_file_name(path, file_name, separator=os.sep):
@@ -54,21 +67,42 @@ def join_path_and_file_name(path, file_name, separator=os.sep):
     return separator.join(file_name_with_path)
 
 
-def read_excel_file(file_path_and_name, sheet_name=0, header=0,
-                    skiprows=0, skipfooter=0):
+def read_excel_file(file_path_and_name,
+                    sheet_name=0,
+                    header=0,
+                    skiprows=0,
+                    skipfooter=0):
+
     t1 = time.time()
-    df = pd.read_excel(file_path_and_name, sheet_name=sheet_name,
-                       header=header, skiprows=skiprows, skipfooter=skipfooter)
-    print('Read Excel file:', file_path_and_name)
-    print("It took this many seconds to read the file:", time.time() - t1, "\n")
+    engine = None
+    if os.path.splitext(file_path_and_name)[-1] == '.xlsb':
+        engine = XLSB_ENGINE
+    elif os.path.splitext(file_path_and_name)[-1] == '.xls':
+        engine = XLS_ENGINE
+    elif os.path.splitext(file_path_and_name)[-1] == '.xlsx':
+        engine = XLSX_ENGINE
+    df = pd.read_excel(file_path_and_name,
+                       sheet_name=sheet_name,
+                       header=header,
+                       skiprows=skiprows,
+                       skipfooter=skipfooter,
+                       engine=engine)
+    print(f"Read Excel file: {file_path_and_name}")
+    print(f"It took this many seconds to read the file: {time.time() - t1}\n")
     return df
 
 
 def write_csv_file(data, output_file_path_and_name, sep=DELIMITER):
     t1 = time.time()
-    data.to_csv(path_or_buf=output_file_path_and_name, sep=sep, index=False, encoding = 'utf-8')
-    print('Converted to CSV file and placed it here:', output_file_path_and_name)
-    print("It took this many seconds to write the CSV file:", time.time() - t1, "\n")
+    data.to_csv(path_or_buf=output_file_path_and_name, sep=sep, index=False, encoding='utf-8')
+    print(f"Converted to CSV file and placed it here: {output_file_path_and_name}")
+    print(f"It took this many seconds to write the CSV file: {time.time() - t1}\n")
+
+
+def upload_local_file_to_blob(container_client, local_file, dest_blob_path_and_name):
+    with open(local_file, "rb") as data:
+        container_client.upload_blob(dest_blob_path_and_name, data)
+        print(f"Uploaded local file to destination blob: {dest_blob_path_and_name}")
 
 
 # Does not work for files like: POL_N_S-PersonalCare_INV_KAN_20160101_20181130_20190117_EC.xlsx
@@ -87,19 +121,21 @@ def get_value_from_dict(dict, key, default_value=''):
         return dict.get(key)
 
 
-def extract_file_name(blob_path_and_file_name):
-    return os.path.split(blob_path_and_file_name)[-1]
+def extract_file_name_and_path(file_path_and_name):
+    return (os.path.split(file_path_and_name)[0],
+            os.path.split(file_path_and_name)[-1])
 
 
-def get_local_path_for_downloaded_blob_file(local_dir_name, blob_file_name):
-    return os.path.join(local_dir_name, blob_file_name)
+def get_local_destination_path_for_file(local_dir_name, file_name):
+    """Join local path and downloaded blob file name."""
+    return os.path.join(local_dir_name, file_name)
 
 
 def download_blob_file_to_local_folder(container_client, blob_name, local_file_with_path):
     with open(local_file_with_path, "wb") as my_blob:
-        blob_data = container_client.download_blob
+        blob_data = container_client.download_blob(blob_name)
         blob_data.readinto(my_blob)
-    print("\nDownloaded:", blob_name, "and placed it here:", local_file_with_path)
+    print(f"\nDownloaded: {blob_name}\nand placed it here: {local_file_with_path}\n")
 
 
 def main():
@@ -108,145 +144,134 @@ def main():
     create_unique_local_download_directory(local_dir_name)
     append_new_sys_path(local_dir_name)
 
+    # Note: comment out two lines below and replace it with json_activity variable below in local testing
+    # read_activity = open('activity.json').read()
+    # json_activity = json.loads(read_activity)
     # The JSON below is only for testing on your laptop; on production environment, we'll use step 2a. instead
     json_activity = {'typeProperties': {'extendedProperties':
                                             {'sourceContainer': 'colgate-palmolive',
                                              'excelSourcePath': 'Test/Input', #
-                                             'fileName': 'Belgium.xlsb',
+                                             'fileName': 'argentina.xls', # 'Belgium.xlsb'
                                              'uploadPath': 'Test/Output', #
                                              'excelArchivePath': 'Test/Archive',#
                                              'outputFileDelimiter': '|',
                                              # 'sheetName': '',
                                              'skipHeaderRow': '0',
                                              'skipTrailingRow': '0',
-                                             # 'additionalProcessingCode': '4_Python_Code/Exchange_Rates_CP_Dashboard/process_ExchangeRates_CP_Dashboard.py'
+                                             'additionalProcessingCode': '4_Python_Code/Countries/Argentina/process_data_argentina.py'
                                              }
                                         }
                      }
 
-    # # 2a. get 'Extended Properties' passed from Azure Data Factory task
-    # read_activity = open('activity.json').read()
-    # json_activity = json.loads(read_activity)
+    # 2a. Get required config for this script from 'Extended Properties' passed from Azure Data Factory task
+    config_dict = json_activity.get('typeProperties').get('extendedProperties')
+    container_name = config_dict.get('sourceContainer')
+    path_to_source_blob_file = config_dict.get('excelSourcePath')
+    source_blob_file_name_or_pattern = config_dict.get('fileName')
+    upload_blob_location = config_dict.get('uploadPath')
+    archive_blob_location = config_dict.get('excelArchivePath')
 
-    container_name = json_activity['typeProperties']['extendedProperties']['sourceContainer']
-    path_to_source_blob_file = json_activity['typeProperties']['extendedProperties']['excelSourcePath']
-    source_blob_file_name_or_pattern = json_activity['typeProperties']['extendedProperties']['fileName']
-    upload_blob_location = json_activity['typeProperties']['extendedProperties']['uploadPath']
-    archive_blob_location = json_activity['typeProperties']['extendedProperties']['excelArchivePath']
+    # 2b. Get optional config for this script from 'Extended Properties' passed from Azure Data Factory task
+    delimiter = config_dict.get('outputFileDelimiter', DELIMITER)
+    sheet_name = config_dict.get('sheetName', SHEET_NAME)
+    header_rows_to_skip = int(config_dict.get('skipHeaderRow', HEADER_ROWS_TO_SKIP))
+    footer_rows_to_skip = int(config_dict.get('skipTrailingRow', FOOTER_ROWS_TO_SKIP))
+    additional_processing_code = config_dict.get('additionalProcessingCode')
+    print(f"Input parameters received:\n {json.dumps(config_dict, indent=4, sort_keys=True)}")
 
-    # 2b. get Optional parameters from 'Extended Parameters' if they are provided
-    delimiter = get_value_from_dict(json_activity['typeProperties']['extendedProperties'],
-                                    'outputFileDelimiter',
-                                    default_value=DELIMITER)
-    sheet_name = get_value_from_dict(json_activity['typeProperties']['extendedProperties'],
-                                     'sheetName',
-                                     default_value=SHEET_NAME)
-    header_rows_to_skip = int(get_value_from_dict(json_activity['typeProperties']['extendedProperties'],
-                                    'skipHeaderRow',
-                                    default_value=HEADER_ROWS_TO_SKIP))
-    footer_rows_to_skip = int(get_value_from_dict(json_activity['typeProperties']['extendedProperties'],
-                                    'skipTrailingRow',
-                                    default_value=FOOTER_ROWS_TO_SKIP))
-    additional_processing_code = get_value_from_dict(json_activity['typeProperties']['extendedProperties'],
-                                    'additionalProcessingCode',
-                                    default_value=None)
-    print("Input parameters received:\n", json_activity)
-
-    # 3. connect to blob
+    # 3. Connect to blob
     # REF: https://pypi.org/project/azure-storage-blob/
-    # blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL,
-    #                                         credential=SAS_TOKEN)
+    # Alternative way to get blob service client is:
+    # blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=SAS_TOKEN)
     blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=STORAGE_ACCOUNT_KEY)
+
     container_client = blob_service_client.get_container_client(container_name)
-    blob_client = blob_service_client.get_blob_client(container_name,'Test/Input/')#path_to_source_blob_file)
-    # with open("./placeholder.txt", "rb") as data:
-    #     blob_client.upload_blob(data)
-
-    # block_blob_service = BlockBlobService(account_name=STORAGE_ACCOUNT_NAME, account_key=STORAGE_ACCOUNT_KEY)
     blobs = [b for b in container_client.list_blobs()]
-    blob_file_name_with_path = join_path_and_file_name(path_to_source_blob_file,
-                                                       source_blob_file_name_or_pattern,
-                                                       separator='/')
 
-    # with open("./test.xlsx", "wb") as my_blob:
-    #     blob_data = container_client.download_blob(blobs[9].name)
-    #     blob_data.readinto(my_blob)
-    # exit()
-
-
+    # 4. If there's additional processing code, download the code file to local directory and import the module in it
+    # How to import Python module: https://stackoverflow.com/a/54956419
     custom_processing_module = None
+    local_python_file_name_with_path = None
+    if additional_processing_code is not None:
+        for blob in blobs:
+            if fnmatch.fnmatch(blob.name, additional_processing_code):
+                _, cur_blob_file_name = extract_file_name_and_path(blob.name)
+                local_python_file_name_with_path = get_local_destination_path_for_file(local_dir_name,
+                                                                                       cur_blob_file_name)
+                download_blob_file_to_local_folder(container_client, blob.name, local_python_file_name_with_path)
+                print(f"Found matching code file at: {blob.name}\nand downloaded it to: "
+                      f"{local_python_file_name_with_path}")
+                file_path_and_name_without_extension = os.path.splitext(cur_blob_file_name)[0]
+                custom_processing_module = importlib.import_module(os.path.join(file_path_and_name_without_extension))
+                print(f"Imported this module: {file_path_and_name_without_extension}")
+
+    target_blob_file_name_with_path = join_path_and_file_name(path_to_source_blob_file,
+                                                              source_blob_file_name_or_pattern,
+                                                              separator='/')
+    # 5. Iterate over all existing blobs in the container
     for blob in blobs:
-        # 4. if there's additional processing code, download the code file to local directory
-        if (additional_processing_code is not None) and fnmatch.fnmatch(blob.name, additional_processing_code):
-            # blob_file_name = extract_file_name(blob.name)
-            local_python_file_name_with_path = get_local_path_for_downloaded_blob_file(local_dir_name, blob_file_name)
-            download_blob_file_to_local_folder(container_client, blob.name, local_file_with_path)
-            # download_blob_file_to_local_folder(block_blob_service, container_name,
-            #                                    blob.name, local_python_file_name_with_path)
-            print("\nFound matching code file at:", blob.name,
-                  "\nand downloaded it to:", local_python_file_name_with_path)
-            file_name_without_extension = os.path.splitext(blob_file_name)[0]
-            # REF: https://stackoverflow.com/a/54956419
-            custom_processing_module = importlib.import_module(os.path.join(file_name_without_extension))
-            print("Imported this module:", file_name_without_extension)
+        cur_blob_file_path, cur_blob_file_name = extract_file_name_and_path(blob.name)
+        target_blob_file_path, target_blob_file_name = extract_file_name_and_path(target_blob_file_name_with_path)
+        if fnmatch.fnmatch(cur_blob_file_path, target_blob_file_path) \
+                and fnmatch.fnmatch(cur_blob_file_name, target_blob_file_name):
 
-    blob_content_generator = block_blob_service.list_blobs(container_name)
-    # 5. if desired (matching) content in the blob is found
-    for blob in blob_content_generator:
-        if fnmatch.fnmatch(os.path.split(blob.name)[0], os.path.split(blob_file_name_with_path)[0]): #Added due to the source path name token any path into container
-            if fnmatch.fnmatch(os.path.split(blob.name)[-1], os.path.split(blob_file_name_with_path)[-1]): #Added due to the source path name token any path into container
-                blob_file_name = extract_file_name(blob.name)
-                local_excel_file_name_with_path = get_local_path_for_downloaded_blob_file(local_dir_name, blob_file_name)
-                local_csv_file_name = ''.join([os.path.splitext(blob_file_name)[0], OUTPUT_FILE_TYPE])
-                local_csv_file_name_with_path = os.path.join(local_dir_name, local_csv_file_name)
+            # 6. If desired (matching) content in the blob is found,
+            # download the blob and put it in a temp directory in local destination
+            local_excel_file_name_with_path = get_local_destination_path_for_file(local_dir_name, cur_blob_file_name)
+            download_blob_file_to_local_folder(container_client, blob.name, local_excel_file_name_with_path)
 
-                # 6. download from the blob to local Excel file in a temp directory
-                download_blob_file_to_local_folder(block_blob_service, container_name,
-                                                blob.name, local_excel_file_name_with_path)
-                # # Note: attempt to get the active sheet name; I don't like this, but team suggested this feature
-                # # But both xlrd and openpyxl approaches failed
-                # if sheet_name == 'choose-active-sheet':
-                #     # a) xlrd approach fails because the flag isn't set properly for some Excel files
-                #     sheet_name = get_active_sheet_name(local_excel_file_name_with_path)
-                #     # b) openpyxl approach fails because it can't even handle file of size 13MB
-                #     # wb = openpyxl.load_workbook(local_excel_file_name_with_path, read_only=True)
-                #     # sheet_name = wb.active.title
-                #     print("Choose this as active sheet:", sheet_name)
-                if custom_processing_module is None:
-                # 7b. if no custom processing is required, simply read from the local Excel file
-                    df = read_excel_file(local_excel_file_name_with_path,
-                                        sheet_name=sheet_name,
-                                        skiprows=header_rows_to_skip,
-                                        skipfooter=footer_rows_to_skip)
-                else:
-                    # 7a. if we have additional processing module loaded, we use it here
-                    df = custom_processing_module.process_data(local_excel_file_name_with_path,
-                                        skip_rows=header_rows_to_skip)
-                    print("Custom code was run successfully and has a data frame as output")
+            df = read_excel_file(local_excel_file_name_with_path,
+                                 sheet_name=sheet_name,
+                                 skiprows=header_rows_to_skip,
+                                 skipfooter=footer_rows_to_skip)
 
-                # 8. write the resulting (processed) data frame to csv
-                # Note: if we want to enforce user to specify the sheet name, we can use this example:
-                # https://stackoverflow.com/a/46081870/1330974
-                write_csv_file(df, local_csv_file_name_with_path, delimiter)
-                print("entro")
-                # 9. upload the csv to blob
-                dest_blob_path_and_name = join_path_and_file_name(upload_blob_location, local_csv_file_name, separator='/')
-                block_blob_service.create_blob_from_path(container_name,
-                                                        dest_blob_path_and_name,
-                                                        local_csv_file_name_with_path)
-                print("Uploaded local csv file to destination blob:", dest_blob_path_and_name)
+            # ToDo: why Belgium.txt doesn't have data
+            # from pyxlsb import open_workbook
+            # df1 = []
+            # with open_workbook(local_excel_file_name_with_path) as wb:
+            #     with wb.get_sheet(1) as sheet:
+            #         for row in sheet.rows():
+            #             df1.append([item.v for item in row])
+            #
+            # df1 = pd.DataFrame(df1[1:], columns=df1[0])
 
-                # 10. move source blob to archive folder
-                source_blob_url = block_blob_service.make_blob_url(container_name, blob.name)
-                archive_blob_path_and_name = join_path_and_file_name(archive_blob_location, blob_file_name, separator='/')
-                block_blob_service.copy_blob(container_name,
-                                            archive_blob_path_and_name,
-                                            source_blob_url)
-                print("Copied source blob to archive blob location:", archive_blob_path_and_name)
+            # with open(local_excel_file_name_with_path, 'rb') as data:
+            #     data.seek(0,0)
+            #     import pdb
+            #     pdb.set_trace()
+            #     print('debug')
 
-                # 11. delete the old (source) blob
-                block_blob_service.delete_blob(container_name, blob.name)
-                print("Deleted source blob:", blob.name)
+            if custom_processing_module is not None:
+                # 7. If we need to apply functions from custom module to the dataframe, do it below
+                df = custom_processing_module.process_data(df)
+                print(f"Ran custom module: {local_python_file_name_with_path}\n successfully.\n")
+
+            # 8. Write the downloaded (and processed) dataframe as local csv file
+            # Note: if we want to enforce user to specify the sheet name, we can use this example:
+            # https://stackoverflow.com/a/46081870/1330974
+            local_csv_file_name = ''.join([os.path.splitext(cur_blob_file_name)[0], OUTPUT_FILE_TYPE])
+            local_csv_file_name_with_path = os.path.join(local_dir_name, local_csv_file_name)
+            write_csv_file(df, local_csv_file_name_with_path, delimiter)
+
+            # 9. Upload the (converted) local csv file to blob destination
+            dest_blob_path_and_name = join_path_and_file_name(upload_blob_location,
+                                                              local_csv_file_name,
+                                                              separator='/')
+            upload_local_file_to_blob(container_client,
+                                      local_csv_file_name_with_path,
+                                      dest_blob_path_and_name)
+
+            # 10. Copy original (before-conversion) file in local temp folder to to blob archive folder
+            archive_blob_path_and_name = join_path_and_file_name(archive_blob_location,
+                                                                 cur_blob_file_name,
+                                                                 separator='/')
+            upload_local_file_to_blob(container_client,
+                                      local_excel_file_name_with_path,
+                                      archive_blob_path_and_name)
+
+            # 11. delete the old (source) blob
+            container_client.delete_blob(blob.name)
+            print(f"Deleted source blob: {blob.name}")
 
     # 12. delete local files and folder downloaded temporarily from Azure
     try:
