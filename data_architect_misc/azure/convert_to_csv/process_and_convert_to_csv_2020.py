@@ -83,11 +83,11 @@ def read_excel_file(file_path_and_name,
         engine = XLSX_ENGINE
 
     df1 = pd.read_excel(file_path_and_name,
-                       sheet_name=sheet_name,
-                       header=header,
-                       skiprows=skiprows,
-                       skipfooter=skipfooter,
-                       engine=engine)
+                        sheet_name=sheet_name,
+                        header=header,
+                        skiprows=skiprows,
+                        skipfooter=skipfooter,
+                        engine=engine)
     print(f"Read Excel file: {file_path_and_name}")
     print(f"It took this many seconds to read the file: {time.time() - t1}\n")
     return df1
@@ -104,15 +104,6 @@ def upload_local_file_to_blob(container_client, local_file, dest_blob_path_and_n
     with open(local_file, "rb") as data:
         container_client.upload_blob(dest_blob_path_and_name, data)
         print(f"Uploaded local file to destination blob: {dest_blob_path_and_name}")
-
-
-# Does not work for files like: POL_N_S-PersonalCare_INV_KAN_20160101_20181130_20190117_EC.xlsx
-# REF: https://stackoverflow.com/a/47558794/1330974
-def get_active_sheet_name(excel_file_path_and_name):
-    xl = xlrd.open_workbook(excel_file_path_and_name)
-    for sht in xl.sheets():
-        if sht.sheet_visible == 1:
-            return sht.name
 
 
 def extract_file_name_and_path(file_path_and_name):
@@ -221,7 +212,7 @@ def main():
             # I highly suggest against using it because it's a semi-proprietary
             # library and launches an Excel workbook application, which is
             # unrealistic in our Linux environment. I have provided an example
-            # of how to acheive reading only the cells with data using
+            # of how to achieve reading only the cells with data using
             # xlwings at the end of this code.
             df = read_excel_file(local_excel_file_name_with_path,
                                  sheet_name=sheet_name,
