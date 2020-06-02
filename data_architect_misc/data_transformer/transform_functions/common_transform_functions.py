@@ -12,6 +12,7 @@ import datetime
 import re
 
 import pandas as pd
+import numpy as np
 
 import transform_errors
 
@@ -24,6 +25,7 @@ def return_value_type_check(f):
         dataframe. If not, raise exception.
         """
         r = f(*args, **kwargs)
+
         if not isinstance(r, pd.DataFrame):
             raise Exception(f"Functions defined within TransformFunctions "
                             f"and/or its subclasses must return pandas' dataframe, "
@@ -112,13 +114,37 @@ class CommonTransformFunctions(TransformFunctions):
         occurrence for some Excel/CSV raw data files with empty but hidden columns.
         Args:
             df: Raw dataframe to transform.
-            params: We don't need any parameter for this function,
-                    so it's defaulted to None.
 
         Returns:
             Dataframe whose 'Unnamed' columns are dropped.
         """
         return df.loc[:, ~df.columns.str.contains(r'Unnamed')]
+
+    def drop_empty_rows(self,
+                        df,
+                        list_of_col_names,
+                        reset_index=True) -> pd.DataFrame:
+        """
+        Drop rows that have columns (col_names) have empty/blank cells.
+        REF: https://stackoverflow.com/a/56708633/1330974
+
+        Args:
+            df: Raw dataframe to transform.
+            list_of_col_names: List of column names in which the code
+            should check if the cells are empty/blank.
+            reset_index: Reset index column. Default is True.
+
+        Returns:
+            Dataframe whose empty/blank rows are dropped.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("List of column names must "
+                                                      "be of list type with individual "
+                                                      "names being string values.")
+        for col_name in list_of_col_names:
+            df = df[df[col_name].astype(bool)]
+
+        return df.reset_index(drop=True)
 
     def rename_columns(self, df, old_to_new_cols_dict) -> pd.DataFrame:
         """
@@ -452,18 +478,47 @@ class CommonTransformFunctions(TransformFunctions):
         with keep_default_na = True (which is default), then it will load
         these values as pd.np.nan (i.e. NaN values). In instances like that,
         we must use this method to replace these NaN values with empty string.
+        REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.fillna.html
 
         Args:
             df: Raw dataframe.
             list_of_col_names: List of column names (each is of string type)
             in which we should look for NaN/NULL values to replace with
             empty strings.
-            REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.fillna.html
 
         Returns:
             The dataframe whose NaN values are replaced with empty string.
         """
         df[list_of_col_names] = df[list_of_col_names].fillna('')
+
+        return df
+
+    def copy_value_from_row_above_to_empty_rows_below(self,
+                                                      df,
+                                                      list_of_col_names) -> pd.DataFrame:
+        """
+        Copy value from row directly above to the row below if the row below
+        is empty (meaning it has empty string value).
+        REF 1: https://stackoverflow.com/a/41213232/1330974
+        REF 2: https://stackoverflow.com/a/56132709/1330974
+
+        Args:
+            df: Raw dataframe.
+            list_of_col_names: List of column names that we must
+            copy the value from above row whenever we see a cell
+            with empty string value.
+
+        Returns:
+            The dataframe with columns whose empty string values
+            are now populated with what's in the row directly above.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("list_of_col_names must "
+                                                      "be of list type with individual "
+                                                      "column names being string values.")
+
+        for col_name in list_of_col_names:
+            df[col_name] = df[col_name].replace('', np.NaN).ffill()
 
         return df
 

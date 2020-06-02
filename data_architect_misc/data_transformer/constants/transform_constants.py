@@ -69,7 +69,7 @@ EXPECTED_CONFIG_VALUE_DATA_TYPES = {
     PandasFileDataReader.KEY_HEADER: [int],
     PandasFileDataReader.KEY_SKIP_ROWS: [int],
     PandasFileDataReader.KEY_SKIP_FOOTER: [int],
-    PandasExcelDataReader.KEY_SHEET_NAME: [str],
+    PandasExcelDataReader.KEY_SHEET_NAME: [str, int],
     PandasCSVDataReader.KEY_INPUT_CSV_DELIMITER: [str],
     PandasCSVDataReader.KEY_INPUT_FILE_ENCODING: [str],
     PandasCSVDataReader.KEY_SKIP_BLANK_LINES: [bool],

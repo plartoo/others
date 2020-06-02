@@ -69,3 +69,16 @@ class LessThanThresholdValueFoundError(QAError):
     pass
 
 
+class InsufficientNumberOfColumnsError(QAError):
+    """
+    Raised when the number of columns found 
+    in the data is less than expected.  
+    """
+    pass
+
+
+class UnexpectedColumnNameFound(QAError):
+    """
+    Raised when the column name found is unexpected.
+    """
+    pass
