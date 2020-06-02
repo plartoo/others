@@ -38,7 +38,7 @@ CONFIG_TEMPLATE = [
             f"and even if you don't define this key, the default value below will "
             f"be used by the program.",
         f"{PandasFileDataReader.KEY_ROWS_PER_READ}":
-            PandasFileDataReader.KEY_ROWS_PER_READ,
+            PandasFileDataReader.DEFAULT_ROWS_PER_READ,
 
         f"__comment_for_{PandasFileDataReader.KEY_KEEP_DEFAULT_NA}__":
             f"(Optional) By default, Pandas read empty cells as NaN. "
@@ -132,7 +132,8 @@ CONFIG_TEMPLATE = [
             f"Excel, CSV or SQL) will be used to write the processed data. "
             f"The default value is as shown below and it will be used even if you "
             f"leave this key undefined.",
-        f"{KEY_DATA_WRITER_MODULE_FILE}": f"{DEFAULT_DATA_WRITER_MODULE_FILE}",
+        f"{KEY_DATA_WRITER_MODULE_FILE}": f"./data_writers/csv_data_writer.py",
+        # f"{KEY_DATA_WRITER_MODULE_FILE}": f"{DEFAULT_DATA_WRITER_MODULE_FILE}",
 
         f"__comment_for_{FileDataWriter.KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE}__":
             f"(Optional) The key below can be used to specify if index column from "
@@ -148,7 +149,8 @@ CONFIG_TEMPLATE = [
             f"The default value is as shown below and it will be used "
             f"even if the key below is undefined.",
         f"{FileDataWriter.KEY_OUTPUT_FOLDER_PATH}":
-            f"{FileDataWriter.DEFAULT_OUTPUT_FOLDER_PATH}",
+            f"",
+            # f"{FileDataWriter.DEFAULT_OUTPUT_FOLDER_PATH}",
 
         f"__comment_for_{FileDataWriter.KEY_OUTPUT_FILE_PREFIX}__":
             f"(Optional) The key below can be used to specify the beginning "
@@ -170,7 +172,7 @@ CONFIG_TEMPLATE = [
             f"in Python, please see: "
             f"https://docs.python.org/3/library/codecs.html. "
             f"The default value is None (which is interpreted by Pandas as "
-            f"'utf-8', and it will be used even if the key below is undefined.",
+            f"'utf-8'), and it will be used even if the key below is undefined.",
         f"{FileDataWriter.KEY_OUTPUT_FILE_ENCODING}": 'utf-8',
 
         f"__comment_for_{ExcelDataWriter.KEY_OUTPUT_SHEET_NAME}__":
@@ -219,7 +221,8 @@ CONFIG_TEMPLATE = [
             f"Default value is as shown below and it will be used even if this key is "
             f"not defined.",
         f"{KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE}":
-            f"{DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE}",
+            f"./transform_functions/common_transform_functions.py",
+            # f"{DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE}",
 
         f"__comment_for_{KEY_FUNCTIONS_TO_APPLY}__":
             "(Required) List of functions and parameters to be used in data processing. "
