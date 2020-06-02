@@ -82,3 +82,10 @@ class UnexpectedColumnNameFound(QAError):
     Raised when the column name found is unexpected.
     """
     pass
+
+
+class UnexpectedColumnValuesFound(QAError):
+    """
+    Raised when value(s) in a given column is(are) unexpected.
+    """
+    pass

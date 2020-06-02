@@ -312,11 +312,11 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
             standardized media type names used by the competitive
             harmonization project.
         """
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
-                (df,
-                 existing_media_type_col_name,
-                 comp_harm_constants.MEDIA_TYPE_COLUMN,
-                 comp_harm_constants.MEDIA_TYPE_MAPPINGS)
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            existing_media_type_col_name,
+            comp_harm_constants.MEDIA_TYPE_COLUMN,
+            comp_harm_constants.MEDIA_TYPE_MAPPINGS)
 
     def add_HARMONIZED_CURRENCY_column(self,
                                        df,
