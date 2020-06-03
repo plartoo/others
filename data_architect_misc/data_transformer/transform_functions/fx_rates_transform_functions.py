@@ -38,11 +38,6 @@ def generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year):
 
 
 class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
-    """
-    All custom (uncommon) transform functions **SPECIFIC to
-    individual processing task** must be defined as part
-    of this class.
-    """
 
     def select_desired_columns(self,
                                df) -> pd.DataFrame:
