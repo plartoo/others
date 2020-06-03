@@ -11,7 +11,9 @@ import re
 
 import pandas as pd
 
-from constants.wvm_dashboard_constants import \
+from constants.budget_rollup_constants import *
+
+from constants.fx_rates_constants import \
     DATE_COLUMN, \
     RAW_COUNTRY_COLUMN, \
     HARMONIZED_COUNTRY_COLUMN, \
@@ -23,6 +25,8 @@ from constants.wvm_dashboard_constants import \
     EURO_CURRENCY_NAME
 from constants.comp_harm_constants import COUNTRIES as COMP_HARM_PROJECT_COUNTRIES
 
+
+
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
 from qa_functions.qa_errors import \
@@ -33,6 +37,57 @@ from qa_functions.qa_errors import \
 
 
 class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
+
+    def assert_no_empty_value_in_DIMENSION_COLUMNS(self,
+                                                   df) -> pd.DataFrame:
+        return self.assert_no_empty_str_values_in_columns(df, list(DIMENSION_COLUMNS))
+
+    def assert_no_unexpected_value_in_REGION_column(self,
+                                                    df) -> pd.DataFrame:
+        return self.assert_only_expected_constants_exist_in_column(
+            df,
+            RAW_REGION_COLUMN_NAME,
+            EXPECTED_REGION_COLUMN_VALUES
+        )
+
+    def capitalize_all_REGION_column_values(self,
+                                            df) -> pd.DataFrame:
+        return self.capitalize_all_letters_of_each_word_in_columns(
+            df,
+            [RAW_REGION_COLUMN_NAME]
+        )
+
+    def create_HARMONIZED_REGION_column_using_REGION_column_values(
+            self,
+            df
+    ) -> pd.DataFrame:
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            RAW_REGION_COLUMN_NAME,
+            HARMONIZED_REGION_COLUMN_NAME,
+            RAW_TO_HARMONIZED_REGION_NAME_MAPPING)
+
+    def update_HARMONIZED_REGION_for_Hills_when_CATEGORY_or_SEGMENT_MACRO_is_pet_related(
+            self,
+            df
+    ) -> pd.DataFrame:
+        # We will try to use REGEX and case-insensitive matching to make this robust
+        # REF: https://stackoverflow.com/a/48020525
+        # df[((df['Category']=='Pet') | (df['Segment Macro']=='Pet Food'))]
+        df.loc[
+            ((df['Category'].str.contains(r'^pet', flags=re.IGNORECASE)) | (df['Segment Macro'].str.contains(r'^pet.*?food', flags=re.IGNORECASE))),
+            HARMONIZED_REGION_COLUMN_NAME
+        ] = HILLS_REGION_NAME
+
+        return df
+
+    def capitalize_HARMONIZED_REGION_column_values(self,
+                                                   df) -> pd.DataFrame:
+        return self.capitalize_all_letters_of_each_word_in_columns(
+            df,
+            [HARMONIZED_REGION_COLUMN_NAME]
+        )
+
 
     def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
                                                                            df,
