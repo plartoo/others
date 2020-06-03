@@ -45,6 +45,33 @@
         "function_args": [13]
       },
       {
+        "function_name": "assert_no_empty_value_in_DIMENSION_COLUMNS"
+      },
+      {
+        "__function_comment__": "We need to do this BEFORE asserting unepected values in REGION column because the budget roll up file sometimes contain lowercase names.",
+        "function_name": "capitalize_all_REGION_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_REGION_column"
+      },
+      {
+        "function_name": "create_HARMONIZED_REGION_column_using_REGION_column_values"
+      },
+      {
+        "__function_comment__": "Whenever Segment Macro='pet food' or Category='Pet', update HARMONIZED_REGION to 'HILLS'",
+        "function_name": "update_HARMONIZED_REGION_for_Hills_when_CATEGORY_or_SEGMENT_MACRO_is_pet_related"
+      },
+      {
+        "function_name": "capitalize_HARMONIZED_REGION_column_values"
+      },
+      {
+        "function_name": "debug"
+      },
+
+
+
+
+      {
         "__function_comment__": "After all this, make sure we don't have any NULL values in Region, ",
         "__function_comment__": "Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel ",
         "__function_comment__": "and Channel columns.",
@@ -54,25 +81,8 @@
           "Category", "Segment Macro", "Brand", "Macro Channel",
           "Channel"]]
       },
-      {
-        "__function_comment__": "Before harmonizing region names, let's capitalize all of region names",
-        "function_name": "capitalize_all_letters_of_each_word_in_multiple_columns",
-        "function_args": [["Region"]]
-      },
-      {
-        "__function_comment__": "Update the raw region names to standard region names.",
-        "function_name": "update_str_values_in_column",
-        "function_args": [
-          "Region",
-          {
-            "AED": "Africa-Eurasia",
-            "APAC": "Asia-Pacific",
-            "EUROPE": "Europe",
-            "LATAM": "Latin America",
-            "NA": "North America"
-          }
-        ]
-      },
+
+
       {
         "__function_comment__": "Whenever Category is 'pet', update the Region to 'Hills'",
         "function_name": "update_str_values_in_col2_based_on_col1_values",
@@ -94,9 +104,7 @@
           }
         ]
       },
-      {
-        "function_name": "debug"
-      },
+
 
 
       {
@@ -150,11 +158,7 @@
         "function_args": ["Market", "Region",
           {"AA": "North America", "Canada": "North America", "US": "North America", "USH": "North America"}]
       },
-      {
-        "__function_comment__": "Whenever Segment Macro is 'pet food', update Region to 'Hills'",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
-        "function_args": ["Segment Macro", "Region", {"pet": "Hills", "Pet": "Hills"}]
-      },
+
       {
         "__function_comment__": "After capitalizing words and updating values in/across columns, there must be no duplicates in essential columns.",
         "function_name": "check_possible_duplicates_in_multiple_columns",
