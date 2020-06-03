@@ -10,7 +10,7 @@ import re
 
 import pandas as pd
 
-from constants.wvm_dashboard_constants import \
+from constants.fx_rates_constants import \
     DATE_COLUMN, \
     RAW_COUNTRY_COLUMN, \
     HARMONIZED_COUNTRY_COLUMN, \
