@@ -348,7 +348,7 @@ class CommonPostTransformQAFunctions:
             self,
             df,
             column_name,
-            set_of_expected_values
+            list_of_expected_values
     ) -> pd.DataFrame:
         """
         Some columns in the transformed data must only contain
@@ -358,7 +358,7 @@ class CommonPostTransformQAFunctions:
         and if any of these values is not found within the
         standard/expected set, it raises InvalidValueFoundError.
         """
-        diff = set(df[column_name]) - set(set_of_expected_values)
+        diff = set(df[column_name]) - set(list_of_expected_values)
         if diff:
             raise qa_errors.InvalidValueFoundError(
                 f"'{column_name}' column has some unexpected values "
