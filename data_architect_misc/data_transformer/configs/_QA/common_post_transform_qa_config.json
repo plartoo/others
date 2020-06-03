@@ -34,10 +34,10 @@
         "function_args": [16]
       },
       {
-        "function_name": "assert_no_null_value_in_some_essential_columns"
+        "function_name": "assert_no_null_value_in_essential_columns"
       },
       {
-        "function_name": "assert_no_empty_string_in_some_essential_columns"
+        "function_name": "assert_no_empty_str_value_in_essential_columns"
       },
       {
         "function_name": "check_distinct_year_values_in_year_column"

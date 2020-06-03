@@ -6,17 +6,33 @@ Author: Phyo Thiha
 Last Modified: Jan 30, 2020
 """
 
+import datetime
+import re
+
 import pandas as pd
 
+from constants.wvm_dashboard_constants import \
+    DATE_COLUMN, \
+    RAW_COUNTRY_COLUMN, \
+    HARMONIZED_COUNTRY_COLUMN, \
+    FX_RATES_COLUMN, \
+    FX_COUNTRY_NAME_TO_HARMONIZED_COUNTRY_NAME_MAPPINGS, \
+    COUNTRIES_THAT_USE_USD, \
+    COUNTRIES_THAT_USE_EURO, \
+    USD_FX_Rate, \
+    EURO_CURRENCY_NAME
+from constants.comp_harm_constants import COUNTRIES as COMP_HARM_PROJECT_COUNTRIES
+
 from transform_functions.common_transform_functions import CommonTransformFunctions
+from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
+from qa_functions.qa_errors import \
+    InsufficientNumberOfColumnsError, \
+    InvalidValueFoundError, \
+    UnexpectedColumnNameFound, \
+    UnexpectedColumnValuesFound
 
 
-class CustomFunctions(CommonTransformFunctions):
-    """
-    All custom (uncommon) transform functions **SPECIFIC to
-    individual processing task** must be defined as part
-    of this class.
-    """
+class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
 
     def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
                                                                            df,
@@ -69,4 +85,17 @@ class CustomFunctions(CommonTransformFunctions):
         df.loc[df.Region == df.Market, 'Market'] = df['Market'].apply(lambda x: x.upper())
 
         return df
+
+    def update_(self,
+              df) -> pd.DataFrame:
+        import pdb
+        pdb.set_trace()
+        return df
+
+    def debug(self,
+              df) -> pd.DataFrame:
+        import pdb
+        pdb.set_trace()
+        return df
+
 

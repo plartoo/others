@@ -1,95 +1,104 @@
 [
   {
     "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "input_folder_path": "./input/budget/",
-    "input_file_name_or_pattern": "Global Budget Roll-up_9.16.19.xlsx",
+    "input_folder_path": "./input/Budget_Rollup/",
+    "input_file_name_or_pattern": "Budget_Rollup_20200313.xlsx",
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read. Default is the first sheet.",
     "input_sheet_name": "Budget Roll-Up",
 
-    "__comment__": "(Optional) Enter the sheet name of the output Excel file. Default is 'Sheet1'.",
-    "output_sheet_name": "Sheet1",
+    "__comment_for_header__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the first row in the data file would have index=0) from which the program should read column headers from. If column headers don't exist, do NOT define this key (that is, delete this from the config file).",
+    "header": 0,
+
+    "__comment_for_skiprows__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the second row in the data file would have index=1) where the data begins in the input file.In a typical input file, the data starts the second row (the first row is the column headers), so the default value for this key is set to '1' even if you don't define this key explicitly like below.",
+    "skiprows": 1,
+
+    "__comment_for_skipfooter__": "(Optional) Enter the NUMBER of rows (note: not the index value), which should be dropped from the bottom of the input file. This can be used when input file has some footer rows (such as Copyrights statement) that we want to drop. But since it is not common to have footer rows, we set the default for this key to 0 even if you don't define this key explicitly like below.",
+    "skipfooter": 0,
 
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,
 
-    "__comment__": "(Optional) Relative path (from folder in which transform.py resides) and file name of DataWriter class that has write_data method implemented.",
-    "__comment__": "Default is DataWriter class (implemented in 'csv_data_writer.py') which writes transformed data to local file in CSV format.",
-    "__comment__": "This option is only for those who wants to write data to somewhere other than to a local file in CSV format.",
-    "data_writer_module_file": "./mssql_data_writer.py",
+    "__comment_for_data_writer_module_file__": "(Optional) The key below, 'data_writer_module_file', can be used to specify which data writer module (such as Excel, CSV or SQL) will be used to write the processed data. The default value is as shown below and it will be used even if you leave this key undefined.",
+    "data_writer_module_file": "./data_writers/csv_data_writer.py",
 
     "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
     "__comment__": "Default is going to be the current working directory of transform.py",
-    "output_folder_path": "./output/budget/",
+    "output_folder_path": "./output/Budget_Rollup/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "transformed_budget_",
-
-    "__comment__": "(Optional although recommended) SQL table name to which the transformed data should be written.",
-    "__comment__": "Default name is 'default_transformed_sql_table_name' as defined in transform_utils.py",
-    "output_sql_table_name": "transformed_budget_table",
-
-    "__comment__": "(Required ONLY IF MSSQLDriver class is used) Database schema to use if we write transformed data to SQL table.",
-    "database_schema": "dbo",
-
-    "__comment__": "(Optional) Whether to include index column in writing the dataframe to output file or table. Default is false.",
-    "include_index_column_in_output": false,
+    "output_file_name_prefix": "Cleaned_Budget_Rollup",
 
     "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
-    "custom_transform_functions_file": "./transform_functions/budget_transform_functions.py",
-
-    "__comment__": "(Required if there's header row in your data) Enter the row index (>= 0) to extract column headers from. E.g., if column header row is the first row, enter 0 below.",
-    "__comment__": "If this value is NOT provided, the program will assume there is no header row in the input file.",
-    "header": 0,
-
-    "__comment__": "(Optional) Specify the row index (>= 0) where the data, *not including the column headers*, begins.",
-    "__comment__": "Default is 1 (the second row) because that's where the data usually begins in files (the first row is almost always the column headers).",
-    "skiprows": 1,
-
-    "__comment__": "(Optional) Number of rows (>=1) to drop/ignore from the bottom of the data file.",
-    "__comment__": "Default is 0, meaning ever row of data will be read, including the last line in the file.",
-    "__comment__": "Also, make to define the rows_per_read value such that the rows at the bottom to drop (skipfooter value below) are NOT read in two different iterations/chunks.",
-    "__comment__": " If that happens, then the skipfooter will not correctly drop the right number of rows at the bottom.",
-    "skipfooter": 0,
+    "custom_transform_functions_file": "./transform_functions/budget_rollup_transform_functions.py",
 
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as .\\transform_function\\switzerland_transform_functions.py",
     "functions_to_apply": [
       {
-        "__function_comment__": "Budget roll up Excel file has empty columns. We need to drop them first",
         "function_name": "drop_unnamed_columns"
       },
       {
-        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 13 columns ",
+        "__function_comment__": "total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [13]
       },
       {
-        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel and Channel columns ",
-        "function_name": "assert_no_na_values_in_columns",
+        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, ",
+        "__function_comment__": "Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel ",
+        "__function_comment__": "and Channel columns.",
+        "function_name": "assert_no_null_value_in_columns",
         "function_args": [[
           "Region", "Hub", "Market", "Year",
           "Category", "Segment Macro", "Brand", "Macro Channel",
           "Channel"]]
       },
       {
-        "__function_comment__": "Before mapping region names, let's capitalize all of region names",
+        "__function_comment__": "Before harmonizing region names, let's capitalize all of region names",
         "function_name": "capitalize_all_letters_of_each_word_in_multiple_columns",
         "function_args": [["Region"]]
       },
       {
+        "__function_comment__": "Update the raw region names to standard region names.",
         "function_name": "update_str_values_in_column",
         "function_args": [
           "Region",
           {
-            "LATAM": "Latin America",
-            "EUROPE": "Europe",
-            "APAC": "Asia-Pacific",
             "AED": "Africa-Eurasia",
+            "APAC": "Asia-Pacific",
+            "EUROPE": "Europe",
+            "LATAM": "Latin America",
             "NA": "North America"
           }
         ]
       },
+      {
+        "__function_comment__": "Whenever Category is 'pet', update the Region to 'Hills'",
+        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_args": ["Category", "Region", {"pet": "Hills", "Pet": "Hills"}]
+      },
+      {
+        "__function_comment__": "Whenever Segment Macro is 'pet', update the Region to 'Hills'",
+        "function_name": "update_str_values_in_col2_based_on_col1_values",
+        "function_args": ["Segment Macro", "Region", {"pet": "Hills", "Pet": "Hills"}]
+      },
+      {
+        "__function_comment__": "Update Market names to 'US' if they are 'USH' and 'AA'.",
+        "function_name": "update_str_values_in_column",
+        "function_args": [
+          "Market",
+          {
+            "USH": "US",
+            "AA": "US"
+          }
+        ]
+      },
+      {
+        "function_name": "debug"
+      },
+
+
       {
         "function_name": "capitalize_first_letter_of_each_word_in_multiple_columns",
         "function_args": [["Channel", "Macro Channel", "Segment Macro", "Market"]]
@@ -117,16 +126,6 @@
         ]
       },
       {
-        "function_name": "update_str_values_in_column",
-        "function_args": [
-          "Market",
-          {
-            "USH": "US",
-            "AA": "US"
-          }
-        ]
-      },
-      {
         "function_name": "update_int_values_in_multiple_columns_to_str_values",
         "function_args": [
           ["Year"],
@@ -150,11 +149,6 @@
         "function_name": "update_str_values_in_col2_based_on_col1_values",
         "function_args": ["Market", "Region",
           {"AA": "North America", "Canada": "North America", "US": "North America", "USH": "North America"}]
-      },
-      {
-        "__function_comment__": "Whenever Category is 'pet', update Region to 'Hills'",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
-        "function_args": ["Category", "Region", {"pet": "Hills", "Pet": "Hills"}]
       },
       {
         "__function_comment__": "Whenever Segment Macro is 'pet food', update Region to 'Hills'",
