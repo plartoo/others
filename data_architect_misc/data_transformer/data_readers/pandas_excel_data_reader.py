@@ -48,6 +48,7 @@ class PandasExcelDataReader(PandasFileDataReader):
         """
         return pd.read_excel(
             self.input_file,
+            sheet_name=self.sheet_name,
             keep_default_na=self.keep_default_na,
             header=self.header_row_index,
             nrows=0
