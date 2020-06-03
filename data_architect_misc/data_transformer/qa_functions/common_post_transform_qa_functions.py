@@ -262,8 +262,8 @@ class CommonPostTransformQAFunctions:
 
         return df
 
-    def assert_no_null_value_in_some_essential_columns(self,
-                                                       df) -> pd.DataFrame:
+    def assert_no_null_value_in_essential_columns(self,
+                                                  df) -> pd.DataFrame:
         """
         Asserts that essential columns (i.e. HARMONIZED_YEAR,
         HARMONIZED_MONTH, HARMONIZED_DATE, HARMONIZED_REGION,
@@ -328,7 +328,7 @@ class CommonPostTransformQAFunctions:
 
         return df
 
-    def assert_no_empty_string_in_some_essential_columns(
+    def assert_no_empty_str_value_in_essential_columns(
             self,
             df) -> pd.DataFrame:
         """
