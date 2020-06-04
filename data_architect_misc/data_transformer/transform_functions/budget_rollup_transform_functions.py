@@ -13,16 +13,6 @@ import pandas as pd
 
 from constants.budget_rollup_constants import *
 
-from constants.fx_rates_constants import \
-    DATE_COLUMN, \
-    RAW_COUNTRY_COLUMN, \
-    HARMONIZED_COUNTRY_COLUMN, \
-    FX_RATES_COLUMN, \
-    FX_COUNTRY_NAME_TO_HARMONIZED_COUNTRY_NAME_MAPPINGS, \
-    COUNTRIES_THAT_USE_USD, \
-    COUNTRIES_THAT_USE_EURO, \
-    USD_FX_Rate, \
-    EURO_CURRENCY_NAME
 from constants.comp_harm_constants import COUNTRIES as COMP_HARM_PROJECT_COUNTRIES
 
 
@@ -75,7 +65,8 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         # REF: https://stackoverflow.com/a/48020525
         # df[((df['Category']=='Pet') | (df['Segment Macro']=='Pet Food'))]
         df.loc[
-            ((df['Category'].str.contains(r'^pet', flags=re.IGNORECASE)) | (df['Segment Macro'].str.contains(r'^pet.*?food', flags=re.IGNORECASE))),
+            ((df[RAW_CATEGORY_COLUMN_NAME].str.contains(r'^pet', flags=re.IGNORECASE))
+             | (df[RAW_SEGMENT_MACRO_COLUMN_NAME].str.contains(r'^pet.*?food', flags=re.IGNORECASE))),
             HARMONIZED_REGION_COLUMN_NAME
         ] = HILLS_REGION_NAME
 
@@ -87,6 +78,69 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             df,
             [HARMONIZED_REGION_COLUMN_NAME]
         )
+
+    def create_HARMONIZED_MARKET_column_using_MARKET_column_values(
+            self,
+            df
+    ) -> pd.DataFrame:
+        return self.add_new_column_by_copying_values_from_another_column(
+            df,
+            [RAW_MARKET_COLUMN_NAME],
+            [HARMONIZED_MARKET_COLUMN_NAME]
+        )
+
+    def update_US_name_to_USA_in_MARKET_column(
+            self,
+            df
+    ) -> pd.DataFrame:
+        return self.update_str_values_in_columns(
+            df,
+            [HARMONIZED_MARKET_COLUMN_NAME],
+            [MARKET_MAPPING_TO_USA]
+        )
+
+    def update_Hills_in_HARMONIZED_MARKET_column_to_USA_for_pet_related_lines(
+            self,
+            df
+    ) -> pd.DataFrame:
+        df.loc[
+            (((df[RAW_CATEGORY_COLUMN_NAME].str.contains(r'^pet', flags=re.IGNORECASE))
+              | (df[RAW_SEGMENT_MACRO_COLUMN_NAME].str.contains(r'^pet.*?food', flags=re.IGNORECASE)))
+             & (df[RAW_MARKET_COLUMN_NAME].str.contains(r'^hills', flags=re.IGNORECASE))),
+            HARMONIZED_MARKET_COLUMN_NAME
+        ] = USA_COUNTRY_STANDARD_NAME
+
+        return df
+
+    def update_HARMONIZED_MARKET_names_with_prefix_Hills(self,
+                                                         df) -> pd.DataFrame:
+        df.loc[
+        df[HARMONIZED_REGION_COLUMN_NAME].str.contains(r'^hills', flags=re.IGNORECASE),
+            HARMONIZED_MARKET_COLUMN_NAME
+        ] = PREFIX_FOR_MARKET_HILLS + ' ' + df[HARMONIZED_MARKET_COLUMN_NAME].astype(str)
+
+        return df
+
+    def create_HARMONIZED_COUNTRY_column_using_HARMONIZED_MARKET_column(
+            self,
+            df
+    ) -> pd.DataFrame:
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            HARMONIZED_MARKET_COLUMN_NAME,
+            HARMONIZED_COUNTRY_COLUMN_NAME,
+            HARMONIZED_MARKET_TO_COMP_HARM_STANDARD_COUNTRY_NAME_MAPPINGS)
+
+    def assert_no_unexpected_value_in_HARMONIZED_COUNTRY_column(
+            self,
+            df) -> pd.DataFrame:
+        return self.assert_only_expected_constants_exist_in_column(
+            df,
+            HARMONIZED_COUNTRY_COLUMN_NAME,
+            HARMONIZED_MARKET_TO_COMP_HARM_STANDARD_COUNTRY_NAME_MAPPINGS.values()
+        )
+
+
 
 
     def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
