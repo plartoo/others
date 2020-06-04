@@ -351,12 +351,13 @@ class CommonPostTransformQAFunctions:
             list_of_expected_values
     ) -> pd.DataFrame:
         """
-        Some columns in the transformed data must only contain
-        specific values (e.g., either 'M' or 'F' for gender).
+        This method asserts that a given column contains
+        only a subset or whole of the expected values.
+        If it does not, then the error is raised.
 
-        This methods inspects distinct values from a given column
-        and if any of these values is not found within the
-        standard/expected set, it raises InvalidValueFoundError.
+        E.g., We can use this method to check if a particular
+        column in the transformed data only contain
+        specific values (e.g., either 'M' or 'F' for gender).
         """
         diff = set(df[column_name]) - set(list_of_expected_values)
         if diff:
