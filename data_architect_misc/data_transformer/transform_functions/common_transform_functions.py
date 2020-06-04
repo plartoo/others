@@ -226,10 +226,10 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def update_str_values_in_columns_to_str_values(self,
-                                                   df,
-                                                   list_of_col_names,
-                                                   list_of_dictionary_of_value_mappings) -> pd.DataFrame:
+    def update_str_values_in_columns(self,
+                                     df,
+                                     list_of_col_names,
+                                     list_of_dictionary_of_value_mappings) -> pd.DataFrame:
         """
         Given a dataframe, list of columns and corresponding list of dictionaries
         representing old-to-new-value mappings for each column, apply the provided
@@ -237,8 +237,8 @@ class CommonTransformFunctions(TransformFunctions):
 
         For example, if we want 'Ecommerce' and 'Amazon' values in 'col1' of the
         dataframe to be updated to 'E-Commerce', we would call this method like this:
-        update_str_values_in_columns_to_str_values(df, ["col1"],
-        {"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"}).
+        update_str_values_in_columns(df, ["col1"],
+        [{"Ecommerce": "E-Commerce", "Amazon": "E-Commerce"}]).
         REF: https://stackoverflow.com/a/20250996
 
         **Note that if any of the columns holds non-string type data,
@@ -260,6 +260,12 @@ class CommonTransformFunctions(TransformFunctions):
         Returns:
             Dataframe with updated values based on the provided arguments.
         """
+        if not (isinstance(list_of_col_names, list) and
+                isinstance(list_of_dictionary_of_value_mappings, list)):
+            raise transform_errors.InputDataTypeError("List of column names and list of "
+                                                      "dictionary of value mappings must "
+                                                      "be of type 'list'.")
+
         if len(list_of_col_names) != len(list_of_dictionary_of_value_mappings):
             raise transform_errors.InputDataLengthError(
                 f"The length of column list: {len(list_of_col_names)} "
@@ -579,6 +585,51 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "must be of string type")
 
         df[new_col_name] = fixed_str_value
+
+        return df
+
+    def add_new_column_by_copying_values_from_another_column(
+            self,
+            df,
+            list_of_existing_col_names,
+            list_of_new_col_names) -> pd.DataFrame:
+        """
+        Creates new columns by copying the existing columns values.
+        In other words, copy values from one column to create another
+        column with a different name.
+
+        For example, if we want to add 'Harmonized_Region' column
+        in the dataframe by copying all the values from raw column
+        named 'Region', we can call this method like:
+        add_new_column_by_copying_values_from_another_column(
+        df, ['Region'], ['Harmonized_Region'])
+
+        Args:
+            df: Raw dataframe to transform.
+            list_of_existing_col_names: List of original column names
+            that we want to copy the data from.
+            list_of_new_col_names: List of corresponding new column
+            names to which we should copy the data to.
+
+        Returns:
+            The dataframe with newly added column(s) which has exactly
+            the same data copied from original column(s).
+        """
+        if not (isinstance(list_of_existing_col_names, list)
+                and isinstance(list_of_new_col_names, list)):
+            raise transform_errors.InputDataTypeError(
+                f"List of existing and new column names must be "
+                f"of list type.")
+
+        if len(list_of_existing_col_names) != len(list_of_new_col_names):
+            raise transform_errors.InputDataLengthError(
+                f"The length of existing column list: "
+                f"{len(list_of_existing_col_names)} "
+                f"is NOT the same as the length of new column "
+                f"name list: {len(list_of_new_col_names)}")
+
+        for i, new_col_name in enumerate(list_of_new_col_names):
+            df[new_col_name] = df[list_of_existing_col_names[i]]
 
         return df
 
