@@ -70,6 +70,7 @@ class PandasCSVDataReader(PandasFileDataReader):
             keep_default_na=self.keep_default_na,
             skip_blank_lines=self.skip_blank_lines,
             header=self.header_row_index,
+            encoding=self.encoding,
             delimiter=self.delimiter,
             nrows=0
         ).columns.to_list()
@@ -84,6 +85,7 @@ class PandasCSVDataReader(PandasFileDataReader):
                 keep_default_na=self.keep_default_na,
                 skip_blank_lines=self.skip_blank_lines,
                 header=None,
+                encoding=self.encoding,
                 delimiter=self.delimiter,
                 skiprows=row_idx_to_start_reading,
                 nrows=rows_to_read
