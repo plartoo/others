@@ -5,7 +5,6 @@ Last Modified Date: May 05, 2020
 import logging
 
 import pandas as pd
-from rich import print
 
 from data_readers.pandas_file_data_reader import PandasFileDataReader
 
