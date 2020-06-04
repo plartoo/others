@@ -2,7 +2,10 @@
   {
     "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
     "input_folder_path": "./input/Budget_Rollup/",
-    "input_file_name_or_pattern": "Budget_Rollup_20200313.xlsx",
+    "input_file_name_or_pattern": "Budget_Rollup_20200313.csv",
+
+    "__comment__": "TODO: Remove the line below",
+    "input_encoding": "ISO-8859-1",
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read. Default is the first sheet.",
     "input_sheet_name": "Budget Roll-Up",
@@ -48,7 +51,7 @@
         "function_name": "assert_no_empty_value_in_DIMENSION_COLUMNS"
       },
       {
-        "__function_comment__": "We need to do this BEFORE asserting unepected values in REGION column because the budget roll up file sometimes contain lowercase names.",
+        "__function_comment__": "We need to do this BEFORE asserting unexpected values in REGION column because the budget roll up file sometimes contain lowercase names.",
         "function_name": "capitalize_all_REGION_column_values"
       },
       {
@@ -62,7 +65,30 @@
         "function_name": "update_HARMONIZED_REGION_for_Hills_when_CATEGORY_or_SEGMENT_MACRO_is_pet_related"
       },
       {
+        "__function_comment__": "REGION column is already capitalized, but just making sure.",
         "function_name": "capitalize_HARMONIZED_REGION_column_values"
+      },
+      {
+        "function_name": "create_HARMONIZED_MARKET_column_using_MARKET_column_values"
+      },
+      {
+        "__function_comment__": "Update Market names to 'USA' if the raw names are 'USH' and 'AA'.",
+        "function_name": "update_US_name_to_USA_in_MARKET_column"
+      },
+      {
+        "__function_comment__": "Budget roll-up file incorrectly assigns US Hills spends as 'Hills' for years before 2016, so we need to fix that.",
+        "function_name": "update_Hills_in_HARMONIZED_MARKET_column_to_USA_for_pet_related_lines"
+      },
+      {
+        "__function_comment__": "Whenever we have Category='Pet' or Segment Macro='Pet Food', we want to add 'Hills ' as prefix to the Market names.",
+        "__function_comment__": "But since we updated HARMONIZED_REGION to 'HILLS' whenever Category='Pet' or Segment Macro='Pet Food', we will rely on HARMONIZED_REGION's value to add the prefix.",
+        "function_name": "update_HARMONIZED_MARKET_names_with_prefix_Hills"
+      },
+      {
+        "function_name": "create_HARMONIZED_COUNTRY_column_using_HARMONIZED_MARKET_column"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_COUNTRY_column"
       },
       {
         "function_name": "debug"
@@ -93,17 +119,7 @@
         "function_name": "update_str_values_in_col2_based_on_col1_values",
         "function_args": ["Segment Macro", "Region", {"pet": "Hills", "Pet": "Hills"}]
       },
-      {
-        "__function_comment__": "Update Market names to 'US' if they are 'USH' and 'AA'.",
-        "function_name": "update_str_values_in_column",
-        "function_args": [
-          "Market",
-          {
-            "USH": "US",
-            "AA": "US"
-          }
-        ]
-      },
+
 
 
 
