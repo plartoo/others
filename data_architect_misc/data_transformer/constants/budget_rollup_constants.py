@@ -1,3 +1,5 @@
+from constants.comp_harm_constants import CATEGORY_MAPPINGS
+
 DIMENSION_COLUMNS = {
     'Region',
     'Market',
@@ -151,11 +153,21 @@ RAW_YEAR_COLUMN_NAME = 'Year'
 HARMONIZED_YEAR_COLUMN_NAME = 'Harmonized_Year'
 EXPECTED_MINIMUM_YEAR = 2012
 
-
-
 # CATEGORY column related constants
 RAW_CATEGORY_COLUMN_NAME = 'Category'
+HARMONIZED_CATEGORY_COLUMN_NAME = 'Harmonized_Category'
 
+# We will merge comp harm's standard category names
+# with the additional category names found in Budget roll-up
+RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING = CATEGORY_MAPPINGS.copy()
+RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING.update({
+    "(?i)^Baby$": 'Baby',
+    "(?i)^Pet$": 'Pet'
+})
+EXPECTED_CATEGORY_COLUMN_VALUES = list(RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING.keys())
+
+
+# SEGMENT MACRO column related constants
 RAW_SEGMENT_MACRO_COLUMN_NAME = 'Segment Macro'
 
 

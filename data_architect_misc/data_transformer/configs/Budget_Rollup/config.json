@@ -97,7 +97,13 @@
         "function_name": "assert_no_unexpected_value_in_HARMONIZED_YEAR_column"
       },
       {
-        "function_name": "update_HARMONIZED_YEAR_names_with_sufix_LE"
+        "function_name": "update_HARMONIZED_YEAR_names_with_suffix_LE"
+      },
+      {
+        "function_name": "create_HARMONIZED_CATEGORY_column_using_CATEGORY_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_CATEGORY_column"
       },
       {
         "function_name": "debug"

@@ -165,7 +165,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
         return df
 
-    def update_HARMONIZED_YEAR_names_with_sufix_LE(
+    def update_HARMONIZED_YEAR_names_with_suffix_LE(
             self,
             df):
         current_year = str(datetime.datetime.now().year)
@@ -177,6 +177,25 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             df,
             [HARMONIZED_YEAR_COLUMN_NAME],
             [old_to_new_value_mapping]
+        )
+
+    def create_HARMONIZED_CATEGORY_column_using_CATEGORY_column_values(
+            self,
+            df
+    ):
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            RAW_CATEGORY_COLUMN_NAME,
+            HARMONIZED_CATEGORY_COLUMN_NAME,
+            RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING)
+
+    def assert_no_unexpected_value_in_HARMONIZED_CATEGORY_column(
+            self,
+            df):
+        return self.assert_only_expected_constants_exist_in_column(
+            df,
+            HARMONIZED_CATEGORY_COLUMN_NAME,
+            set(RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING.values())
         )
 
 
