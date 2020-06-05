@@ -78,7 +78,7 @@ class CommonTransformFunctions(TransformFunctions):
          https://stackoverflow.com/a/6322114
     """
 
-    def drop_columns_by_index(self, df, list_of_col_idx) -> pd.DataFrame:
+    def drop_columns_by_index(self, df, list_of_col_idx):
         """
         Drop columns from a dataframe using a list of indexes.
         REF: https://stackoverflow.com/a/18145399
@@ -93,7 +93,7 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.drop(df.columns[list_of_col_idx], axis=1)
 
-    def drop_columns_by_name(self, df, list_of_col_names) -> pd.DataFrame:
+    def drop_columns_by_name(self, df, list_of_col_names):
         """
         Drop columns from a dataframe using a list of column names (strings).
         REF: https://stackoverflow.com/a/18145399
@@ -108,7 +108,7 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.drop(list_of_col_names, axis=1)
 
-    def drop_unnamed_columns(self, df) -> pd.DataFrame:
+    def drop_unnamed_columns(self, df):
         """
         Drop columns that have 'Unnamed' as column header, which is a usual
         occurrence for some Excel/CSV raw data files with empty but hidden columns.
@@ -123,7 +123,7 @@ class CommonTransformFunctions(TransformFunctions):
     def drop_empty_rows(self,
                         df,
                         list_of_col_names,
-                        reset_index=True) -> pd.DataFrame:
+                        reset_index=True):
         """
         Drop rows that have columns (col_names) have empty/blank cells.
         REF: https://stackoverflow.com/a/56708633/1330974
@@ -146,7 +146,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df.reset_index(drop=True)
 
-    def rename_columns(self, df, old_to_new_cols_dict) -> pd.DataFrame:
+    def rename_columns(self, df, old_to_new_cols_dict):
         """
         Rename column headers to new ones given a dictionary of
         old to new column names.
@@ -164,7 +164,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def capitalize_first_letter_of_each_word_in_columns(self,
                                                         df,
-                                                        list_of_col_names) -> pd.DataFrame:
+                                                        list_of_col_names):
         """
         This method will capitalize the first letter of every word
         in a given list of columns (list_of_col_names).
@@ -195,7 +195,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def capitalize_all_letters_of_each_word_in_columns(self,
                                                        df,
-                                                       list_of_col_names) -> pd.DataFrame:
+                                                       list_of_col_names):
         """
         This method will capitalize all letters of each word in a given
         list of columns (list_of_col_names). This method is basically a modified
@@ -229,7 +229,7 @@ class CommonTransformFunctions(TransformFunctions):
     def update_str_values_in_columns(self,
                                      df,
                                      list_of_col_names,
-                                     list_of_dictionary_of_value_mappings) -> pd.DataFrame:
+                                     list_of_dictionary_of_value_mappings):
         """
         Given a dataframe, list of columns and corresponding list of dictionaries
         representing old-to-new-value mappings for each column, apply the provided
@@ -280,7 +280,7 @@ class CommonTransformFunctions(TransformFunctions):
     def update_int_values_in_columns_to_str_values(self,
                                                    df,
                                                    list_of_col_names,
-                                                   list_of_dictionary_of_value_mappings) -> pd.DataFrame:
+                                                   list_of_dictionary_of_value_mappings):
         """
         Sometimes, we need to convert integer values in certain columns
         to string values. For example, if we don't have full year data
@@ -319,7 +319,7 @@ class CommonTransformFunctions(TransformFunctions):
                                                        df,
                                                        base_column_name,
                                                        target_column_name,
-                                                       dictionary_of_value_pairs) -> pd.DataFrame:
+                                                       dictionary_of_value_pairs):
         """
         Given a dataframe, two column names (col1 and col2) and a dictionary
         representing col1-values-to-new-col2-values mappings, apply the mappings.
@@ -366,7 +366,7 @@ class CommonTransformFunctions(TransformFunctions):
                                                                   col1_name,
                                                                   col2_name,
                                                                   list_of_values_in_col1,
-                                                                  final_val_in_col2) -> pd.DataFrame:
+                                                                  final_val_in_col2):
         """
         Update the string value column 2 to 'final_val_in_col1'
         if column 1's value is one of the items in the given
@@ -412,7 +412,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def update_order_of_columns_in_dataframe(self,
                                              df,
-                                             list_reordered_col_headers) -> pd.DataFrame:
+                                             list_reordered_col_headers):
         """
         Updates the ordering of existing columns in the dataframe.
         In addition to reordering columns, this method can be used
@@ -443,7 +443,7 @@ class CommonTransformFunctions(TransformFunctions):
     def update_decimal_places_in_columns(self,
                                          df,
                                          list_of_col_names,
-                                         number_of_decimal_places_to_round) -> pd.DataFrame:
+                                         number_of_decimal_places_to_round):
         """
         Updates the decimal places of given columns to certain number.
 
@@ -476,7 +476,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def update_na_values_with_empty_str_values(self,
                                                df,
-                                               list_of_col_names) -> pd.DataFrame:
+                                               list_of_col_names):
         """
         Replace NaN values with empty string.
         An example use of this method would be when we load a file that has
@@ -501,7 +501,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def copy_value_from_row_above_to_empty_rows_below(self,
                                                       df,
-                                                      list_of_col_names) -> pd.DataFrame:
+                                                      list_of_col_names):
         """
         Copy value from row directly above to the row below if the row below
         is empty (meaning it has empty string value).
@@ -532,7 +532,7 @@ class CommonTransformFunctions(TransformFunctions):
                                                            df,
                                                            col1_name,
                                                            col2_name,
-                                                           col2_value) -> pd.DataFrame:
+                                                           col2_value):
         """
         Copy value from column 1 to column 2 if **column 2** (not column 1)
         has provided value.
@@ -564,7 +564,7 @@ class CommonTransformFunctions(TransformFunctions):
     def add_new_column_with_fixed_str_value(self,
                                             df,
                                             new_col_name,
-                                            fixed_str_value) -> pd.DataFrame:
+                                            fixed_str_value):
         """
         Creates a new column with constant string values.
 
@@ -592,7 +592,7 @@ class CommonTransformFunctions(TransformFunctions):
             self,
             df,
             list_of_existing_col_names,
-            list_of_new_col_names) -> pd.DataFrame:
+            list_of_new_col_names):
         """
         Creates new columns by copying the existing columns values.
         In other words, copy values from one column to create another
@@ -638,7 +638,7 @@ class CommonTransformFunctions(TransformFunctions):
             df,
             existing_col_name,
             new_col_name,
-            dictionary_of_mappings) -> pd.DataFrame:
+            dictionary_of_mappings):
         """
         Creates a new column with values based on the dictionary of
         mappings in which keys represent **REGULAR EXPRESSION** values
@@ -701,7 +701,7 @@ class CommonTransformFunctions(TransformFunctions):
             existing_col_name,
             new_col_name,
             dictionary_of_mappings,
-            use_existing_col_values=False) -> pd.DataFrame:
+            use_existing_col_values=False):
         """
         Creates a new column with values based on the dictionary of
         mappings in which keys represent values in existing column
@@ -775,7 +775,7 @@ class CommonTransformFunctions(TransformFunctions):
                                              df,
                                              year_int_value=None,
                                              new_year_col_name='YEAR'
-                                             ) -> pd.DataFrame:
+                                             ):
         """
         Creates a new column for YEAR column with integer value provided as parameter.
 
@@ -814,7 +814,7 @@ class CommonTransformFunctions(TransformFunctions):
             self,
             df,
             existing_date_col_name,
-            new_date_col_name='YEAR') -> pd.DataFrame:
+            new_date_col_name='YEAR'):
         """
         Creates a new column for YEAR column by inferring from
         the existing date column in the dataframe.
@@ -844,7 +844,7 @@ class CommonTransformFunctions(TransformFunctions):
             self,
             df,
             existing_date_col_name,
-            new_date_col_name='MONTH') -> pd.DataFrame:
+            new_date_col_name='MONTH'):
         """
         Creates a new column for MONTH column by inferring from
         the existing date column in the dataframe.
@@ -874,7 +874,7 @@ class CommonTransformFunctions(TransformFunctions):
             self,
             df,
             existing_month_col_name_with_full_month_names,
-            new_month_col_name='MONTH') -> pd.DataFrame:
+            new_month_col_name='MONTH'):
         """
         Creates a new column for integer MONTH values using **data from an existing
         month column which has full month name (such as 'January', 'February',
@@ -913,7 +913,7 @@ class CommonTransformFunctions(TransformFunctions):
             df,
             existing_year_col_name_with_integer_year_values,
             existing_month_col_name_with_integer_month_values,
-            new_date_col_name='DATE') -> pd.DataFrame:
+            new_date_col_name='DATE'):
         """
         Creates a new column for date with date data type values using
         the **data from existing month and year columns both of which
@@ -962,7 +962,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def add_date_column_with_current_date(self,
                                           df,
-                                          new_date_col_name='PROCESSED_DATE') -> pd.DataFrame:
+                                          new_date_col_name='PROCESSED_DATE'):
         """
         Creates a new column with date data type values.
 
@@ -990,7 +990,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def remove_dollar_sign(self) -> pd.DataFrame:
+    def remove_dollar_sign(self):
         """
         Remove the dollar sign given a data frame.
         :return:

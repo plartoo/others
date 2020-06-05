@@ -20,7 +20,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     our team members when they use them.
     """
 
-    def add_PROCESSED_DATE_column_with_current_date(self, df) -> pd.DataFrame:
+    def add_PROCESSED_DATE_column_with_current_date(self, df):
         """
         Creates PROCESSED_DATE column with current date values
         (of date data type).
@@ -38,7 +38,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_YEAR_column_with_constant_integer_value(
             self,
             df,
-            int_year_value: int) -> pd.DataFrame:
+            int_year_value: int):
         """
         Add HARMONIZED_YEAR column with year value (integer) provided.
 
@@ -57,7 +57,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_YEAR_column_by_renaming_existing_column(
             self,
             df,
-            raw_year_col_name: str) -> pd.DataFrame:
+            raw_year_col_name: str):
         """
         This method simply renames an existing Year column
         (with integer year values) with standardized year
@@ -79,7 +79,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_YEAR_column_using_existing_date_column_values(
             self,
             df,
-            date_col_name: str) -> pd.DataFrame:
+            date_col_name: str):
         """
         Add HARMONIZED_YEAR column with year value (integer)
         extracted from existing date column in the dataframe.
@@ -100,7 +100,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_MONTH_column_by_renaming_existing_column(
             self,
             df,
-            raw_month_col_name: str) -> pd.DataFrame:
+            raw_month_col_name: str):
         """
         This method simply renames an existing Month column
         (with integer year values) with standardized month
@@ -122,7 +122,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_MONTH_column_using_existing_date_column_values(
             self,
             df,
-            date_col_name: str) -> pd.DataFrame:
+            date_col_name: str):
         """
         Add HARMONIZED_MONTH column with month value (integer)
         extracted from existing date column in the dataframe.
@@ -143,7 +143,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_MONTH_column_using_existing_month_column_with_full_month_names(
             self,
             df,
-            existing_month_col_name_with_full_month_names: str) -> pd.DataFrame:
+            existing_month_col_name_with_full_month_names: str):
         """
             Creates a new column for integer HARMONIZED_MONTH values using
             full month names (such as 'January', 'February', etc.) from
@@ -166,7 +166,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
 
     def add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
             Creates a new column for DATE values using existing YEAR and
             MONTH columns both of which have integer values (such as
@@ -187,7 +187,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
             comp_harm_constants.MONTH_COLUMN,
             comp_harm_constants.DATE_COLUMN)
 
-    def add_HARMONIZED_REGION_column(self, df, region_name) -> pd.DataFrame:
+    def add_HARMONIZED_REGION_column(self, df, region_name):
         """
         Add HARMONIZED_REGION column with region name provided.
 
@@ -207,7 +207,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_COUNTRY_column_using_existing_country_column(
             self,
             df,
-            existing_country_col_name: str) -> pd.DataFrame:
+            existing_country_col_name: str):
         """
         Add HARMONIZED_COUNTRY column based on string values found
         in an existing country column. The HARMONIZED_COUNTRY column
@@ -237,7 +237,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_COUNTRY_column_using_fixed_str_value(
             self,
             df,
-            fixed_str_value: str) -> pd.DataFrame:
+            fixed_str_value: str):
         """
         Add HARMONIZED_COUNTRY column based on string values provided
         as parameter (standard name of a country used in competitive
@@ -261,7 +261,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column(
             self,
             df,
-            existing_advertiser_col_name: str) -> pd.DataFrame:
+            existing_advertiser_col_name: str):
         """
         Add HARMONIZED_ADVERTISER column based on string values found
         in an existing advertiser column. The HARMONIZED_ADVERTISER column
@@ -291,7 +291,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column(
             self,
             df,
-            existing_media_type_col_name: str) -> pd.DataFrame:
+            existing_media_type_col_name: str):
         """
         Add HARMONIZED_MEDIA_TYPE column based on string values found
         in an existing advertiser column. The HARMONIZED_MEDIA_TYPE column
@@ -320,7 +320,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
 
     def add_HARMONIZED_CURRENCY_column(self,
                                        df,
-                                       currency_name) -> pd.DataFrame:
+                                       currency_name):
         """
         Add HARMONIZED_CURRENCY column with the currency name provided.
 
@@ -340,7 +340,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_GROSS_SPEND_column(
             self,
             df,
-            existing_gross_spend_col_name) -> pd.DataFrame:
+            existing_gross_spend_col_name):
         """
         Add HARMONIZED_CURRENCY column with the currency name provided.
 
@@ -364,7 +364,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_HARMONIZED_CATEGORY_column_using_existing_category_column(
             self,
             df,
-            existing_category_col_name: str) -> pd.DataFrame:
+            existing_category_col_name: str):
         """
         Add HARMONIZED_CATEGORY column based on string values found
         in an existing advertiser column. The HARMONIZED_CATEGORY column
@@ -394,7 +394,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_RAW_SUBCATEGORY_column_by_renaming_existing_column(
             self,
             df,
-            raw_subcategory_col_name: str) -> pd.DataFrame:
+            raw_subcategory_col_name: str):
         """
         Although this method name starts with 'add_*', it actually simply
         renames an existing column (Subcategory, Brand, Subbrand, Product Name)
@@ -420,7 +420,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_RAW_BRAND_column_by_renaming_existing_column(
             self,
             df,
-            raw_brand_col_name: str) -> pd.DataFrame:
+            raw_brand_col_name: str):
         """
         Same as 'add_RAW_SUBCATEGORY_column' but this one is for
         RAW_BRAND column.
@@ -447,7 +447,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_RAW_SUBBRAND_column_by_renaming_existing_column(
             self,
             df,
-            raw_subbrand_col_name: str) -> pd.DataFrame:
+            raw_subbrand_col_name: str):
         """
         Same as 'add_RAW_SUBCATEGORY_column' but this one is for
         RAW_SUBBRAND column.
@@ -471,7 +471,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
     def add_RAW_PRODUCT_NAME_column_by_renaming_existing_column(
             self,
             df,
-            raw_product_col_name: str) -> pd.DataFrame:
+            raw_product_col_name: str):
         """
         Same as 'add_RAW_SUBCATEGORY_column' but this one is for
         RAW_PRODUCT_NAME column.
@@ -491,7 +491,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
 
     def add_empty_HARMONIZED_PRODUCT_NAME_column(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Add HARMONIZED_PRODUCT_NAME column with null values (pretty
         much creating an empty column to be filled by automated mapping
@@ -510,7 +510,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
             "")
 
     def filter_and_rearrange_columns_for_final_output(self,
-                                                      df) -> pd.DataFrame:
+                                                      df):
         """
         This method should be called at the end of the data transformation
         process so that the output file (or destination) will have only

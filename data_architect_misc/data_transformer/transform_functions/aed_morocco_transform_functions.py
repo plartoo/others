@@ -21,7 +21,7 @@ class AedMoroccoTransformFunctions(CommonCompHarmTransformFunctions):
     def implement_country_specific_transform_functions_in_this_file_like_this(
             self,
             df
-    ) -> pd.DataFrame:
+    ):
         """Insert description here."""
         return df
 

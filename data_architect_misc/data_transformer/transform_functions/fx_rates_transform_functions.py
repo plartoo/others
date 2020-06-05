@@ -40,7 +40,7 @@ def generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year):
 class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
 
     def select_desired_columns(self,
-                               df) -> pd.DataFrame:
+                               df):
         """
         We only need Actual and Estimated FX rate columns
         in addition to 'COUNTRY' name column.
@@ -52,7 +52,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         return df[desired_cols]
 
     def assert_the_first_column_is_COUNTRY_column(self,
-                                                  df) -> pd.DataFrame:
+                                                  df):
         """
         We must make sure the first column in
         the loaded dataframe is 'COUNTRY' colum.
@@ -72,7 +72,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
 
     def copy_country_names_to_row_below(self,
                                         df,
-                                        list_of_col_names) -> pd.DataFrame:
+                                        list_of_col_names):
         """
         We need to copy country names to the rows below
         because we need the FX rates in the second row.
@@ -80,7 +80,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         return self.copy_value_from_row_above_to_empty_rows_below(df, list_of_col_names)
 
     def drop_rows_with_even_number_as_index(self,
-                                            df) -> pd.DataFrame:
+                                            df):
         """
         We will only extract the local currency to USD FX rate factor.
         For that, we only need to keep rows with odd-numbered indexes.
@@ -139,7 +139,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         return self.rename_columns(df, old_to_new_name_dict)
 
     def unpivot_fx_data(self,
-                        df) -> pd.DataFrame:
+                        df):
         # REF: https://stackoverflow.com/a/18259236/1330974
         # First, set the index to COUNTRY column then unstack
         df1=df.set_index(RAW_COUNTRY_COLUMN)
@@ -152,7 +152,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
             df,
             existing_country_col_name=RAW_COUNTRY_COLUMN,
             harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
-    ) -> pd.DataFrame:
+    ):
         """
         Update raw country names with standard country names
         we use in our WorldView Media (WVM) dashboard project
@@ -175,7 +175,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
             self,
             df,
             harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
-    ) -> pd.DataFrame:
+    ):
         """
         Make sure that we know if CP changes country names in
         FX rate files by raising error when we find that
@@ -197,7 +197,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         return df
 
     def add_rows_for_countries_that_use_USD(self,
-                                            df) -> pd.DataFrame:
+                                            df):
         """
         GCC, Puerto Rico, USA use USD as currency in the data we receive.
         We will populate rows for these countries with 1.0 as FX rates.
@@ -214,7 +214,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         return df.reset_index(drop=True)
 
     def add_rows_for_countries_that_use_EURO(self,
-                                             df) -> pd.DataFrame:
+                                             df):
         """
         Some EU countries use Euro as currency in the data we receive.
         We will populate rows for these countries by using Euro to USD FX rates.
@@ -232,7 +232,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
             self,
             df,
             harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
-    ) -> pd.DataFrame:
+    ):
         """
         Check harmonized country column to see if we are missing
         any country name from the list of countries we process
@@ -252,7 +252,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         return df
 
     def rearrange_columns_for_final_output(self,
-                                           df) -> pd.DataFrame:
+                                           df):
         """
         Rearrange the order of columns (just for aesthetic sake)
         so that country and harmonized country columns appear
@@ -271,7 +271,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
     # def debug(
     #         self,
     #         df
-    # ) -> pd.DataFrame:
+    # ):
     #     import pdb
     #     pdb.set_trace()
     #     return df

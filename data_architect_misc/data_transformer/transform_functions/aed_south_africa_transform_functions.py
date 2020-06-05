@@ -23,7 +23,7 @@ class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
             self,
             df,
             raw_subcategory_col_name
-    ) -> pd.DataFrame:
+    ):
         """
         In South Africa raw file, the RAW_CATEGORY column does NOT
         actually have CATEGORY values as we expect. Instead, the

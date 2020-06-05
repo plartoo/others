@@ -29,11 +29,11 @@ from qa_functions.qa_errors import \
 class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
 
     def assert_no_empty_value_in_DIMENSION_COLUMNS(self,
-                                                   df) -> pd.DataFrame:
+                                                   df):
         return self.assert_no_empty_str_values_in_columns(df, list(DIMENSION_COLUMNS))
 
     def assert_no_unexpected_value_in_REGION_column(self,
-                                                    df) -> pd.DataFrame:
+                                                    df):
         return self.assert_only_expected_constants_exist_in_column(
             df,
             RAW_REGION_COLUMN_NAME,
@@ -41,7 +41,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         )
 
     def capitalize_all_REGION_column_values(self,
-                                            df) -> pd.DataFrame:
+                                            df):
         return self.capitalize_all_letters_of_each_word_in_columns(
             df,
             [RAW_REGION_COLUMN_NAME]
@@ -50,7 +50,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def create_HARMONIZED_REGION_column_using_REGION_column_values(
             self,
             df
-    ) -> pd.DataFrame:
+    ):
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_REGION_COLUMN_NAME,
@@ -60,7 +60,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def update_HARMONIZED_REGION_for_Hills_when_CATEGORY_or_SEGMENT_MACRO_is_pet_related(
             self,
             df
-    ) -> pd.DataFrame:
+    ):
         # We will try to use REGEX and case-insensitive matching to make this robust
         # REF: https://stackoverflow.com/a/48020525
         # df[((df['Category']=='Pet') | (df['Segment Macro']=='Pet Food'))]
@@ -73,7 +73,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         return df
 
     def capitalize_HARMONIZED_REGION_column_values(self,
-                                                   df) -> pd.DataFrame:
+                                                   df):
         return self.capitalize_all_letters_of_each_word_in_columns(
             df,
             [HARMONIZED_REGION_COLUMN_NAME]
@@ -82,7 +82,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def create_HARMONIZED_MARKET_column_using_MARKET_column_values(
             self,
             df
-    ) -> pd.DataFrame:
+    ):
         return self.add_new_column_by_copying_values_from_another_column(
             df,
             [RAW_MARKET_COLUMN_NAME],
@@ -92,7 +92,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def update_US_name_to_USA_in_MARKET_column(
             self,
             df
-    ) -> pd.DataFrame:
+    ):
         return self.update_str_values_in_columns(
             df,
             [HARMONIZED_MARKET_COLUMN_NAME],
@@ -102,7 +102,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def update_Hills_in_HARMONIZED_MARKET_column_to_USA_for_pet_related_lines(
             self,
             df
-    ) -> pd.DataFrame:
+    ):
         df.loc[
             (((df[RAW_CATEGORY_COLUMN_NAME].str.contains(r'^pet', flags=re.IGNORECASE))
               | (df[RAW_SEGMENT_MACRO_COLUMN_NAME].str.contains(r'^pet.*?food', flags=re.IGNORECASE)))
@@ -113,7 +113,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         return df
 
     def update_HARMONIZED_MARKET_names_with_prefix_Hills(self,
-                                                         df) -> pd.DataFrame:
+                                                         df):
         df.loc[
         df[HARMONIZED_REGION_COLUMN_NAME].str.contains(r'^hills', flags=re.IGNORECASE),
             HARMONIZED_MARKET_COLUMN_NAME
@@ -124,7 +124,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def create_HARMONIZED_COUNTRY_column_using_HARMONIZED_MARKET_column(
             self,
             df
-    ) -> pd.DataFrame:
+    ):
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             HARMONIZED_MARKET_COLUMN_NAME,
@@ -133,7 +133,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
     def assert_no_unexpected_value_in_HARMONIZED_COUNTRY_column(
             self,
-            df) -> pd.DataFrame:
+            df):
         return self.assert_only_expected_constants_exist_in_column(
             df,
             HARMONIZED_COUNTRY_COLUMN_NAME,
@@ -143,7 +143,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def create_HARMONIZED_YEAR_column_using_YEAR_column_values(
             self,
             df
-    ) -> pd.DataFrame():
+    ):
         return self.add_new_column_by_copying_values_from_another_column(
             df,
             [RAW_YEAR_COLUMN_NAME],
@@ -152,7 +152,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
     def assert_no_unexpected_value_in_HARMONIZED_YEAR_column(
             self,
-            df) -> pd.DataFrame():
+            df):
         # We know that Budget roll-up data does not go beyond 2012
         # and it should also not go after the current year
         current_year = datetime.datetime.now().year
@@ -167,7 +167,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
     def update_HARMONIZED_YEAR_names_with_sufix_LE(
             self,
-            df) -> pd.DataFrame():
+            df):
         current_year = str(datetime.datetime.now().year)
         old_to_new_value_mapping = {
             current_year: ''.join([current_year,'LE'])
@@ -184,7 +184,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
                                                                            df,
                                                                            list_of_col_names_to_group_by,
                                                                            col_name_to_sum
-                                                                           )  -> pd.DataFrame:
+                                                                           ) :
         """
         For each unique pair of region, year and macro channel, add a total line
         item for Budget (USD) in the dataframe.
@@ -218,7 +218,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
 
     def capitalize_market_name_if_they_are_the_same_as_region_name(self,
-                                                                   df) -> pd.DataFrame:
+                                                                   df):
         """
         Neel decided that in Tableau dashboard market filters, we want to show
         'Division' values with capitalized letters so that users can select them
@@ -233,13 +233,13 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         return df
 
     def update_(self,
-              df) -> pd.DataFrame:
+              df):
         import pdb
         pdb.set_trace()
         return df
 
     def debug(self,
-              df) -> pd.DataFrame:
+              df):
         import pdb
         pdb.set_trace()
         return df

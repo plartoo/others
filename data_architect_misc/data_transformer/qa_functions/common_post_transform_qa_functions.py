@@ -80,7 +80,7 @@ class CommonPostTransformQAFunctions:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def check_expected_columns_are_present(self, df) -> pd.DataFrame:
+    def check_expected_columns_are_present(self, df):
         """
         The transformed data must have at least the minimal set of
         columns that we expect for competitive harmonization project.
@@ -98,7 +98,7 @@ class CommonPostTransformQAFunctions:
 
         return df
 
-    def assert_number_of_columns_equals(self, df, num_of_cols_expected) -> pd.DataFrame:
+    def assert_number_of_columns_equals(self, df, num_of_cols_expected):
         """
         Assert that the total number of columns in the dataframe
         is equal to num_of_cols_expected (int).
@@ -122,7 +122,7 @@ class CommonPostTransformQAFunctions:
 
         return df
 
-    def check_distinct_year_values_in_year_column(self, df) -> pd.DataFrame:
+    def check_distinct_year_values_in_year_column(self, df):
         """
         Display distinct year values in the transformed data.
         If there are more than one year (which is unusual for
@@ -141,7 +141,7 @@ class CommonPostTransformQAFunctions:
 
         return df
 
-    def assert_if_year_values_are_within_valid_range(self, df) -> pd.DataFrame:
+    def assert_if_year_values_are_within_valid_range(self, df):
         """
         Checks if distinct year values found in the transformed
         data are within valid range. The valid range is between
@@ -160,7 +160,7 @@ class CommonPostTransformQAFunctions:
             )
         return df
 
-    def check_distinct_month_values_in_month_column(self, df) -> pd.DataFrame:
+    def check_distinct_month_values_in_month_column(self, df):
         """
         Display distinct month values in the transformed data.
         If there are more than one month, the WARNING log
@@ -178,7 +178,7 @@ class CommonPostTransformQAFunctions:
 
         return df
 
-    def assert_if_month_values_are_within_valid_range(self, df) -> pd.DataFrame:
+    def assert_if_month_values_are_within_valid_range(self, df):
         """
         Asserts if month values found in the transformed data
         are within the valid range (from 1 to 12). If not,
@@ -199,7 +199,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_if_date_values_matches_with_year_and_month_column_values(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Asserts that the year and month values in respective harmonized
         columns are the same as the ones in harmonized date column.
@@ -230,7 +230,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_no_null_value_in_columns(self,
                                         df,
-                                        list_of_col_names) -> pd.DataFrame:
+                                        list_of_col_names):
         """
         Asserts if there is any NULL (NaN) values in the list of
         columns provided. If there is any, raise NullValueFoundError.
@@ -263,7 +263,7 @@ class CommonPostTransformQAFunctions:
         return df
 
     def assert_no_null_value_in_essential_columns(self,
-                                                  df) -> pd.DataFrame:
+                                                  df):
         """
         Asserts that essential columns (i.e. HARMONIZED_YEAR,
         HARMONIZED_MONTH, HARMONIZED_DATE, HARMONIZED_REGION,
@@ -288,7 +288,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_no_empty_str_values_in_columns(self,
                                               df,
-                                              list_of_col_names) -> pd.DataFrame:
+                                              list_of_col_names):
         """
         Check if there is any empty string values in the list of
         columns provided. If there is any, raise EmptyStringFoundError.
@@ -330,7 +330,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_no_empty_str_value_in_essential_columns(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Asserts that essential columns (i.e. HARMONIZED_YEAR,
         HARMONIZED_MONTH, HARMONIZED_DATE, HARMONIZED_REGION,
@@ -349,7 +349,7 @@ class CommonPostTransformQAFunctions:
             df,
             column_name,
             list_of_expected_values
-    ) -> pd.DataFrame:
+    ):
         """
         This method asserts that a given column contains
         only a subset or whole of the expected values.
@@ -372,7 +372,7 @@ class CommonPostTransformQAFunctions:
             df,
             column_name,
             set_of_expected_values
-    ) -> pd.DataFrame:
+    ):
         """
         Some columns in the transformed data should only contain
         specific values (e.g., either 'M' or 'F' for gender).
@@ -392,7 +392,7 @@ class CommonPostTransformQAFunctions:
         return df
 
     def assert_REGION_values_are_valid(self,
-                                       df) -> pd.DataFrame:
+                                       df):
         """
         Checks to make sure the values in REGION column are
         based on standard region values for competitive
@@ -405,7 +405,7 @@ class CommonPostTransformQAFunctions:
         )
 
     def assert_COUNTRY_values_are_valid(self,
-                                        df) -> pd.DataFrame:
+                                        df):
         """
         Checks to make sure the values in COUNTRY column are
         based on standard region values for competitive
@@ -419,7 +419,7 @@ class CommonPostTransformQAFunctions:
 
     def checks_ADVERTISER_values_that_do_not_have_mapping(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Checks to make sure the values in ADVERTISER column are
         based on the ADVERTISER_MAPPINGS that we have been building
@@ -443,7 +443,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_MEDIA_TYPE_values_are_valid(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Asserts that the values in MEDIA_TYPE column are
         based on standard media type values for competitive
@@ -457,7 +457,7 @@ class CommonPostTransformQAFunctions:
 
     def alert_standard_MEDIA_TYPE_values_that_are_not_found_in_data(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Checks and alert about  the potentially missing
         MEDIA_TYPE values based on all standard media type
@@ -477,7 +477,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_CATEGORY_values_are_valid(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Checks to make sure the values in CATEGORY column are
         based on standard category values for competitive
@@ -492,7 +492,7 @@ class CommonPostTransformQAFunctions:
     def assert_no_less_than_values_in_columns(self,
                                               df,
                                               threshold_value,
-                                              list_of_col_names) -> pd.DataFrame:
+                                              list_of_col_names):
         """
         Check if there is any value which is less than the threshold_value
         in the list of columns provided.
@@ -526,7 +526,7 @@ class CommonPostTransformQAFunctions:
         return df
 
     def assert_GROSS_SPEND_column_has_no_negative_value(self,
-                                                        df) -> pd.DataFrame:
+                                                        df):
         """
         Asserts that GROSS_SPEND column has no negative value in it.
         If found, throw InvalidValueFoundError.
@@ -540,7 +540,7 @@ class CommonPostTransformQAFunctions:
             self,
             df,
             threshold_value,
-            list_of_col_names) -> pd.DataFrame:
+            list_of_col_names):
         """
         Check if there is any value which is greater than the threshold_value
         in the list of columns provided.
@@ -572,7 +572,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_GROSS_SPEND_column_has_no_ridiculously_high_spend_value(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Asserts that GROSS_SPEND column has no ridiculously big
         (now, set to 1 billion) values in it for each cell.
@@ -588,7 +588,7 @@ class CommonPostTransformQAFunctions:
 
     def assert_GROSS_SPEND_column_values_have_two_decimals(
             self,
-            df) -> pd.DataFrame:
+            df):
         """
         Asserts that GROSS_SPEND column values are only two
         decimals.
@@ -607,7 +607,7 @@ class CommonPostTransformQAFunctions:
 
     def check_possible_duplicates_in_columns(self,
                                              df,
-                                             list_of_col_names) -> pd.DataFrame:
+                                             list_of_col_names):
         """
         This method will check if any of the given list of columns
         has duplicate values in it. It will do so by first
