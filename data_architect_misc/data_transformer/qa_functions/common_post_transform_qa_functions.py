@@ -348,7 +348,7 @@ class CommonPostTransformQAFunctions:
             self,
             df,
             column_name,
-            list_of_expected_values
+            list_or_set_of_expected_values
     ):
         """
         This method asserts that a given column contains
@@ -359,7 +359,7 @@ class CommonPostTransformQAFunctions:
         column in the transformed data only contain
         specific values (e.g., either 'M' or 'F' for gender).
         """
-        diff = set(df[column_name]) - set(list_of_expected_values)
+        diff = set(df[column_name]) - set(list_or_set_of_expected_values)
         if diff:
             raise qa_errors.InvalidValueFoundError(
                 f"'{column_name}' column has some unexpected values "
