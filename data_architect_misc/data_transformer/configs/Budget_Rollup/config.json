@@ -91,6 +91,15 @@
         "function_name": "assert_no_unexpected_value_in_HARMONIZED_COUNTRY_column"
       },
       {
+        "function_name": "create_HARMONIZED_YEAR_column_using_YEAR_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_YEAR_column"
+      },
+      {
+        "function_name": "update_HARMONIZED_YEAR_names_with_sufix_LE"
+      },
+      {
         "function_name": "debug"
       },
 
@@ -149,15 +158,7 @@
           {"HC": "HC Product Range", "PC": "PC Product Range"}
         ]
       },
-      {
-        "function_name": "update_int_values_in_multiple_columns_to_str_values",
-        "function_args": [
-          ["Year"],
-          [
-            {"2019": "2019LE"}
-          ]
-        ]
-      },
+
       {
         "__function_comment__": "Whenever Channel is 'Ecommerce' or 'Amazon', set Macro Channel to 'eCommerce'.",
         "function_name": "update_str_values_in_col2_based_on_col1_values",

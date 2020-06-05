@@ -140,7 +140,44 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             HARMONIZED_MARKET_TO_COMP_HARM_STANDARD_COUNTRY_NAME_MAPPINGS.values()
         )
 
+    def create_HARMONIZED_YEAR_column_using_YEAR_column_values(
+            self,
+            df
+    ) -> pd.DataFrame():
+        return self.add_new_column_by_copying_values_from_another_column(
+            df,
+            [RAW_YEAR_COLUMN_NAME],
+            [HARMONIZED_YEAR_COLUMN_NAME]
+        )
 
+    def assert_no_unexpected_value_in_HARMONIZED_YEAR_column(
+            self,
+            df) -> pd.DataFrame():
+        # We know that Budget roll-up data does not go beyond 2012
+        # and it should also not go after the current year
+        current_year = datetime.datetime.now().year
+
+        if EXPECTED_MINIMUM_YEAR < current_year < df.Harmonized_Year.max():
+            raise UnexpectedColumnValuesFound(
+                f"Found value less than {EXPECTED_MINIMUM_YEAR} "
+                f"or greater than {current_year} in "
+                f"{HARMONIZED_YEAR_COLUMN_NAME}.")
+
+        return df
+
+    def update_HARMONIZED_YEAR_names_with_sufix_LE(
+            self,
+            df) -> pd.DataFrame():
+        current_year = str(datetime.datetime.now().year)
+        old_to_new_value_mapping = {
+            current_year: ''.join([current_year,'LE'])
+        }
+
+        return self.update_int_values_in_columns_to_str_values(
+            df,
+            [HARMONIZED_YEAR_COLUMN_NAME],
+            [old_to_new_value_mapping]
+        )
 
 
     def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,

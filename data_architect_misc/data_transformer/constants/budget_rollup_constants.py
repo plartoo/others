@@ -146,6 +146,11 @@ HARMONIZED_MARKET_TO_COMP_HARM_STANDARD_COUNTRY_NAME_MAPPINGS = {
     'Zimbabwe': 'Zimbabwe'
 }
 
+# YEAR column related constants
+RAW_YEAR_COLUMN_NAME = 'Year'
+HARMONIZED_YEAR_COLUMN_NAME = 'Harmonized_Year'
+EXPECTED_MINIMUM_YEAR = 2012
+
 
 
 # CATEGORY column related constants
