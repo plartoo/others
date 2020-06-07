@@ -106,6 +106,20 @@
         "function_name": "assert_no_unexpected_value_in_HARMONIZED_CATEGORY_column"
       },
       {
+        "function_name": "create_HARMONIZED_SUBCATEGORY_column_using_SEGMENT_MACRO_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_SUBCATEGORY_column"
+      },
+
+      {
+        "function_name": "create_HARMONIZED_CHANNEL_column_using_CHANNEL_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_CHANNEL_column"
+      },
+
+      {
         "function_name": "debug"
       },
 

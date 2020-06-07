@@ -198,6 +198,41 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             set(RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING.values())
         )
 
+    def create_HARMONIZED_SUBCATEGORY_column_using_SEGMENT_MACRO_column_values(
+            self,
+            df ):
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            RAW_SEGMENT_MACRO_COLUMN_NAME,
+            HARMONIZED_SUBCATEGORY_COLUMN_NAME,
+            RAW_TO_HARMONIZED_SUBCATEGORY_NAME_MAPPING)
+
+    def assert_no_unexpected_value_in_HARMONIZED_SUBCATEGORY_column(
+            self,
+            df):
+        return self.assert_only_expected_constants_exist_in_column(
+            df,
+            HARMONIZED_SUBCATEGORY_COLUMN_NAME,
+            RAW_TO_HARMONIZED_SUBCATEGORY_NAME_MAPPING.values()
+        )
+
+    def create_HARMONIZED_CHANNEL_column_using_CHANNEL_column_values(
+            self,
+            df ):
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            RAW_CHANNEL_COLUMN_NAME,
+            HARMONIZED_CHANNEL_COLUMN_NAME,
+            RAW_TO_HARMONIZED_CHANNEL_NAME_MAPPING)
+
+    def assert_no_unexpected_value_in_HARMONIZED_CHANNEL_column(
+            self,
+            df):
+        return self.assert_only_expected_constants_exist_in_column(
+            df,
+            HARMONIZED_CHANNEL_COLUMN_NAME,
+            RAW_TO_HARMONIZED_CHANNEL_NAME_MAPPING.values()
+        )
 
     def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
                                                                            df,
