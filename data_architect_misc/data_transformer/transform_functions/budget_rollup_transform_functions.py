@@ -234,6 +234,25 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             RAW_TO_HARMONIZED_CHANNEL_NAME_MAPPING.values()
         )
 
+    def create_HARMONIZED_MACRO_CHANNEL_column_using_MACRO_CHANNEL_column_values(
+            self,
+            df):
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            RAW_MACRO_CHANNEL_COLUMN_NAME,
+            HARMONIZED_MACRO_CHANNEL_COLUMN_NAME,
+            RAW_TO_HARMONIZED_MACRO_CHANNEL_NAME_MAPPING)
+
+    def assert_no_unexpected_value_in_HARMONIZED_MACRO_CHANNEL_column(
+            self,
+            df):
+        return self.assert_only_expected_constants_exist_in_column(
+            df,
+            HARMONIZED_MACRO_CHANNEL_COLUMN_NAME,
+            RAW_TO_HARMONIZED_MACRO_CHANNEL_NAME_MAPPING.values()
+        )
+
+
     def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
                                                                            df,
                                                                            list_of_col_names_to_group_by,
