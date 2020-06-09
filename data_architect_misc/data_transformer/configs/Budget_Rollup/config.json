@@ -123,6 +123,22 @@
       {
         "function_name": "assert_no_unexpected_value_in_HARMONIZED_CHANNEL_column"
       },
+      {
+        "function_name": "create_HARMONIZED_BUDGET_USD_column_using_BUDGET_USD_column_values"
+      },
+      {
+        "function_name": "assert_HARMONIZED_BUDGET_USD_column_has_no_empty_values"
+      },
+      {
+        "__function_comment__": "Make sure that this conversion happens AFTER deleting the rows with empty Budget data cell.",
+        "function_name": "convert_HARMONIZED_BUDGET_USD_column_to_float"
+      },
+      {
+        "function_name": "assert_HARMONIZED_BUDGET_USD_column_has_no_negative_value"
+      },
+      {
+        "function_name": "assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals"
+      },
 
       {
         "function_name": "debug"

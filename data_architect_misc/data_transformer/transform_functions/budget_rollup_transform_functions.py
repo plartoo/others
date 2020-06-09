@@ -15,15 +15,14 @@ from constants.budget_rollup_constants import *
 
 from constants.comp_harm_constants import COUNTRIES as COMP_HARM_PROJECT_COUNTRIES
 
-
-
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
 from qa_functions.qa_errors import \
     InsufficientNumberOfColumnsError, \
     InvalidValueFoundError, \
     UnexpectedColumnNameFound, \
-    UnexpectedColumnValuesFound
+    UnexpectedColumnValuesFound, \
+    EmptyStringFoundError
 
 
 class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
@@ -115,7 +114,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def update_HARMONIZED_MARKET_names_with_prefix_Hills(self,
                                                          df):
         df.loc[
-        df[HARMONIZED_REGION_COLUMN_NAME].str.contains(r'^hills', flags=re.IGNORECASE),
+            df[HARMONIZED_REGION_COLUMN_NAME].str.contains(r'^hills', flags=re.IGNORECASE),
             HARMONIZED_MARKET_COLUMN_NAME
         ] = PREFIX_FOR_MARKET_HILLS + ' ' + df[HARMONIZED_MARKET_COLUMN_NAME].astype(str)
 
@@ -170,7 +169,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             df):
         current_year = str(datetime.datetime.now().year)
         old_to_new_value_mapping = {
-            current_year: ''.join([current_year,'LE'])
+            current_year: ''.join([current_year, 'LE'])
         }
 
         return self.update_int_values_in_columns_to_str_values(
@@ -200,7 +199,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
     def create_HARMONIZED_SUBCATEGORY_column_using_SEGMENT_MACRO_column_values(
             self,
-            df ):
+            df):
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_SEGMENT_MACRO_COLUMN_NAME,
@@ -218,7 +217,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
     def create_HARMONIZED_CHANNEL_column_using_CHANNEL_column_values(
             self,
-            df ):
+            df):
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_CHANNEL_COLUMN_NAME,
@@ -252,25 +251,75 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             RAW_TO_HARMONIZED_MACRO_CHANNEL_NAME_MAPPING.values()
         )
 
+    def create_HARMONIZED_BUDGET_USD_column_using_BUDGET_USD_column_values(
+            self,
+            df):
+        # In addition to copying data from raw Budget column,
+        # we will strip the values of '$' and ','. We will
+        # also convert the data to float and trim it to
+        # two-decimal places.
+        df[HARMONIZED_BUDGET_COLUMN_NAME] = df[[RAW_BUDGET_COLUMN_NAME]]\
+            .replace(r'[,\$\s]', '', regex=True).replace(r'[\-]', '0', regex=True)
+
+        return df
+
+    def assert_HARMONIZED_BUDGET_USD_column_has_no_empty_values(
+            self,
+            df):
+        if not df[df[HARMONIZED_BUDGET_COLUMN_NAME]==''].empty:
+            raise EmptyStringFoundError(
+                f"There are empty cells in the '{HARMONIZED_BUDGET_COLUMN_NAME}' column. "
+                f"The budget data should not contain empty values, so please "
+                f"check them in the raw file and delete the rows with empty data "
+                f"**manually**, if appropriate.")
+
+        return df
+
+    def convert_HARMONIZED_BUDGET_USD_column_to_float(
+            self,
+            df):
+        df[HARMONIZED_BUDGET_COLUMN_NAME] = df[HARMONIZED_BUDGET_COLUMN_NAME].astype(float).round(2)
+
+        return df
+
+    def assert_HARMONIZED_BUDGET_USD_column_has_no_negative_value(
+            self,
+            df):
+        return self.assert_no_less_than_values_in_columns(
+            df,
+            0,
+            [HARMONIZED_BUDGET_COLUMN_NAME])
+
+    def assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals(
+            self,
+            df):
+        # Convert float to string type and then split by decimal character
+        df1 = df[HARMONIZED_BUDGET_COLUMN_NAME].astype(str).map(lambda x: x.split('.'))
+        if any([len(x[1]) > 2 for x in df1.values]):
+            raise InvalidValueFoundError(
+                f"Some of the values in '{HARMONIZED_BUDGET_COLUMN_NAME}' column "
+                f"have more than two decimal digits. "
+                f"Please double check the raw file and fix them.")
+
+        return df
 
     def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
                                                                            df,
                                                                            list_of_col_names_to_group_by,
                                                                            col_name_to_sum
-                                                                           ) :
+                                                                           ):
         """
         For each unique pair of region, year and macro channel, add a total line
         item for Budget (USD) in the dataframe.
         This is needed to create total Division-wide displays in the dashboard.
         REF: https://stackoverflow.com/q/58276169/1330974
         """
-        df_grouped_and_summed = df.groupby(list_of_col_names_to_group_by)[col_name_to_sum]\
+        df_grouped_and_summed = df.groupby(list_of_col_names_to_group_by)[col_name_to_sum] \
             .sum().reset_index()
-        df = pd.concat([df, df_grouped_and_summed], sort=False).fillna('Total')\
+        df = pd.concat([df, df_grouped_and_summed], sort=False).fillna('Total') \
             .sort_values(by=list_of_col_names_to_group_by).reset_index(drop=True)
 
         return df
-
 
     def add_char_in_front_of_region_names_in_total_rows(self,
                                                         df,
@@ -289,7 +338,6 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
 
         return df
 
-
     def capitalize_market_name_if_they_are_the_same_as_region_name(self,
                                                                    df):
         """
@@ -306,7 +354,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         return df
 
     def update_(self,
-              df):
+                df):
         import pdb
         pdb.set_trace()
         return df
@@ -316,5 +364,3 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         import pdb
         pdb.set_trace()
         return df
-
-
