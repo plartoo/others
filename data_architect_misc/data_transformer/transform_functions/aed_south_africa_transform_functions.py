@@ -157,6 +157,7 @@ class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
         """
         NON_STANDARD_HARMONIZED_CATEGORY = {'EYEWEAR SPECTACLES CONTACT LENS', 'CONFERENCES & CONFERENCE CENTRES', 'EYE CARE', 'BABY CARE SPONSORSHIP'}
         # write code here to drop rows that have the above data in their HARMONIZED column
+        # test
 
         return df
 
