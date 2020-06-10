@@ -147,3 +147,16 @@ class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
         )
 
         return df
+
+    def drop_data_with_non_standard_categories_from_HARMONIZED_CATEGORY_column(
+            self,
+            df):
+        """
+        We will drop the rows that have unexpected (non standard) category names
+        in HARMONIZED_CATEGORY column.
+        """
+        NON_STANDARD_HARMONIZED_CATEGORY = {'EYEWEAR SPECTACLES CONTACT LENS', 'CONFERENCES & CONFERENCE CENTRES', 'EYE CARE', 'BABY CARE SPONSORSHIP'}
+        # write code here to drop rows that have the above data in their HARMONIZED column
+
+        return df
+

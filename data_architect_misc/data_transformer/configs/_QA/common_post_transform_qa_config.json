@@ -7,6 +7,8 @@
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "input_sheet_name": "Sheet1",
 
+    "input_delimiter": "|",
+
     "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",
     "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
     "header": 0,
