@@ -132,12 +132,14 @@ ADVERTISER_MAPPINGS = {
     "(?i).*HENKEL.*": "HENKEL",
     "(?i).*JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
+    "(?i)SC JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i).*L'?OREAL.*": "LOREAL", # also catches 'LOREAL'
     "(?i).*PHILIPS.*": "PHILIPS",
     "(?i).*PROCTER.*&.*GAMBLE": "P&G",
     "(?i)P.*&.*G": "P&G",
     "(?i).*RECKITT.*": "RECKITT BENCKISER",
     "(?i)^RB$": "RECKITT BENCKISER",
+    "(?i)^SANOFI$": "SANOFI",
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i).*UNILEVER.*": "UNILEVER"
 }
