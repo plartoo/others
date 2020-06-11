@@ -435,8 +435,11 @@ class CommonPostTransformQAFunctions:
         )
         if potentially_new_advertisers:
             self.logger.warning(
-                f"QA => We do NOT have these advertisers in our mapping list. "
-                f"Make sure to add them to ADVERTISER_MAPPINGS as relevant:\n"
+                f"QA => We do NOT have these advertisers in our standard "
+                f"competitor mapping list in comp_harm_constants.py file. "
+                f"If any of them are our global competitors, "
+                f"please make sure to update the global advertiser mapping "
+                f"list in comp_harm_constants.py file.\n"
                 f"{sorted(potentially_new_advertisers)}")
 
         return df
@@ -591,17 +594,23 @@ class CommonPostTransformQAFunctions:
             df):
         """
         Asserts that GROSS_SPEND column values are only two
-        decimals.
+        decimals and no more.
 
         If any violate found, raise InvalidValueFoundError
         """
         # Convert float to string type and then split by decimal character
         gc = comp_harm_constants.GROSS_SPEND_COLUMN
-        df1 = df[gc].astype(str).map(lambda x: x.split('.'))
+        df1 = df[gc].astype(str).map(lambda x: x.split('.') if len(x.split('.')) == 1 else [x, '0'])
+
+        if any([len(x) > 2 for x in df1.values]):
+            raise qa_errors.InvalidValueFoundError(
+                f"Some of the values in '{gc}' column have "
+                f"more than two decimal characters such as '4.32.1'.")
+
         if any([len(x[1]) > 2 for x in df1.values]):
             raise qa_errors.InvalidValueFoundError(
                 f"Some of the values in '{gc}' column have "
-                f"more than two decimal digits.")
+                f"more than two decimal digits such as '4.321'.")
 
         return df
 
