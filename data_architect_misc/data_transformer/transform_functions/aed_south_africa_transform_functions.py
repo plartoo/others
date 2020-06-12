@@ -155,10 +155,23 @@ class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
         We will drop the rows that have unexpected (non standard) category names
         in HARMONIZED_CATEGORY column.
         """
-        NON_STANDARD_HARMONIZED_CATEGORY = {'EYEWEAR SPECTACLES CONTACT LENS', 'CONFERENCES & CONFERENCE CENTRES', 'EYE CARE', 'BABY CARE SPONSORSHIP'}
-        # write code here to drop rows that have the above data in their HARMONIZED column
-        # test
-        # tittetoo's contrib to plartoo's code
+        NON_STANDARD_HARMONIZED_CATEGORY = [
+            "EYEWEAR SPECTACLES CONTACT LENS",
+            "CONFERENCES & CONFERENCE CENTRES",
+            "EYE CARE",
+            "BABY CARE SPONSORSHIP"
+        ]
+
+        self.logger.warning(
+            f"These categories {NON_STANDARD_HARMONIZED_CATEGORY} "
+            f"were deleted from the raw data because they do NOT "
+            f"belong to standard categories in comp harm project."
+        )
+
+        df = df[~df[comp_harm_constants.CATEGORY_COLUMN].apply(
+            lambda x: True
+            if x in NON_STANDARD_HARMONIZED_CATEGORY
+            else False)]
 
         return df
 
