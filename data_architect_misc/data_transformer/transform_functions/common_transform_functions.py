@@ -9,6 +9,7 @@ Last Modified: Jan 30, 2020
 """
 
 import datetime
+import logging
 import re
 
 import pandas as pd
@@ -45,6 +46,9 @@ class TransformFunctions:
     which does NOT necessarily return dataframe and can be used
     by transform functions.
     """
+
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
     def __init_subclass__(cls, **kwargs):
         """
