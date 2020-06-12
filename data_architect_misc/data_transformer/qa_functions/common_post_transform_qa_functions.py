@@ -600,7 +600,7 @@ class CommonPostTransformQAFunctions:
         """
         # Convert float to string type and then split by decimal character
         gc = comp_harm_constants.GROSS_SPEND_COLUMN
-        df1 = df[gc].astype(str).map(lambda x: x.split('.') if len(x.split('.')) == 1 else [x, '0'])
+        df1 = df[gc].astype(str).map(lambda x: [x, '0'] if len(x.split('.')) == 1 else x.split('.'))
 
         if any([len(x) > 2 for x in df1.values]):
             raise qa_errors.InvalidValueFoundError(
