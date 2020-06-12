@@ -139,6 +139,9 @@
       {
         "function_name": "assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals"
       },
+      {
+        "function_name": "aggregate_HARMONIZED_BUDGET_USD_by_HARMONIZED_YEAR_HARMONIZED_REGION_AND_HARMONIZED_MACRO_CHANNEL"
+      },
 
       {
         "function_name": "debug"

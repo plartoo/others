@@ -108,7 +108,9 @@
         "function_args": ["SUBCATEGORY"]
       },
       {
-        "function_args": "drop_data_with_non_standard_categories_from_HARMONIZED_CATEGORY_column",
+        "__function_comment__": "Update HARMONIZED_CATEGORY column (with non standardized category names in aed_south_africa_transform_functions) from HARMONIZED_CATEGORY column.",
+        "__function_comment__": "See detail implementation of this method and mappings in aed_south_africa_transform_functions.py",
+        "function_name": "drop_data_with_non_standard_categories_from_HARMONIZED_CATEGORY_column"
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
