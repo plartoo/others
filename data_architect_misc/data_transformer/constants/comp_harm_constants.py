@@ -138,7 +138,7 @@ ADVERTISER_MAPPINGS = {
     "(?i).*PROCTER.*&.*GAMBLE": "P&G",
     "(?i)P.*&.*G": "P&G",
     "(?i).*RECKITT.*": "RECKITT BENCKISER",
-    "(?i)^RB$": "RECKITT BENCKISER",
+    "(?i)^RB\s*?$": "RECKITT BENCKISER",
     "(?i)SANOFI.*": "SANOFI",
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i).*UNILEVER.*": "UNILEVER"
