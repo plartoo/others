@@ -124,6 +124,10 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             self,
             df
     ):
+        """
+        We will create Harmonized_Country column because not all countries' names
+        in Harmonized_Market are equal to our standard country names.
+        """
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             HARMONIZED_MARKET_COLUMN_NAME,
@@ -259,14 +263,17 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         # also convert the data to float and trim it to
         # two-decimal places.
         df[HARMONIZED_BUDGET_COLUMN_NAME] = df[[RAW_BUDGET_COLUMN_NAME]]\
-            .replace(r'[,\$\s]', '', regex=True).replace(r'[\-]', '0', regex=True)
+            .replace(r'[,\$\s]', '', regex=True)\
+            .replace(r'[\-]', '0', regex=True)
 
         return df
 
     def assert_HARMONIZED_BUDGET_USD_column_has_no_empty_values(
             self,
             df):
-        if not df[df[HARMONIZED_BUDGET_COLUMN_NAME]==''].empty:
+        if not df[df[HARMONIZED_BUDGET_COLUMN_NAME] == ''].empty:
+            # We will not reuse function in common_post_transform_qa_functions.py
+            # because we want to give a specific error message for this one.
             raise EmptyStringFoundError(
                 f"There are empty cells in the '{HARMONIZED_BUDGET_COLUMN_NAME}' column. "
                 f"The budget data should not contain empty values, so please "
@@ -293,74 +300,107 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     def assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals(
             self,
             df):
-        # Convert float to string type and then split by decimal character
-        df1 = df[HARMONIZED_BUDGET_COLUMN_NAME].astype(str).map(lambda x: x.split('.'))
-        if any([len(x[1]) > 2 for x in df1.values]):
-            raise InvalidValueFoundError(
-                f"Some of the values in '{HARMONIZED_BUDGET_COLUMN_NAME}' column "
-                f"have more than two decimal digits. "
-                f"Please double check the raw file and fix them.")
 
-        return df
+        return self.assert_float_values_in_columns_have_either_one_or_two_decimals(
+            df,
+            [HARMONIZED_BUDGET_COLUMN_NAME]
+        )
 
-    def add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair(self,
-                                                                           df,
-                                                                           list_of_col_names_to_group_by,
-                                                                           col_name_to_sum
-                                                                           ):
-        """
-        For each unique pair of region, year and macro channel, add a total line
-        item for Budget (USD) in the dataframe.
-        This is needed to create total Division-wide displays in the dashboard.
-        REF: https://stackoverflow.com/q/58276169/1330974
-        """
-        df_grouped_and_summed = df.groupby(list_of_col_names_to_group_by)[col_name_to_sum] \
-            .sum().reset_index()
-        df = pd.concat([df, df_grouped_and_summed], sort=False).fillna('Total') \
-            .sort_values(by=list_of_col_names_to_group_by).reset_index(drop=True)
+    # {
+    #   "function_name": "aggregate_HARMONIZED_BUDGET_USD_by_HARMONIZED_YEAR_HARMONIZED_REGION_AND_HARMONIZED_MACRO_CHANNEL"
+    # },
+    # def aggregate_HARMONIZED_BUDGET_USD_by_HARMONIZED_YEAR_HARMONIZED_REGION_AND_HARMONIZED_MACRO_CHANNEL(
+    #         self,
+    #         df):
+    #     """
+    #     For each unique pair of region, year and macro channel, add a total line
+    #     item for Budget (USD) in the dataframe.
+    #     This is needed to create total Division-wide displays in the dashboard.
+    #     REF: https://stackoverflow.com/q/58276169/1330974
+    #     """
+    #     group_by_cols = [HARMONIZED_YEAR_COLUMN_NAME,
+    #                      HARMONIZED_REGION_COLUMN_NAME,
+    #                      HARMONIZED_MACRO_CHANNEL_COLUMN_NAME]
+    #     df_grouped_and_summed = df.groupby(group_by_cols)[HARMONIZED_BUDGET_COLUMN_NAME] \
+    #         .sum().reset_index()
+    #     df = pd.concat([df, df_grouped_and_summed], sort=False) \
+    #         .fillna(FILLNA_VAL_FOR_AGGREGATED_HARMONIZED_BUDGET) \
+    #         .sort_values(by=group_by_cols).reset_index(drop=True)
+    #
+    #     return df
 
-        return df
+    def create_HARMONIZED_BRAND_column_by_copying_Brand_column_values(
+            self,
+            df):
+        return self.add_new_column_by_copying_values_from_another_column(
+            df,
+            [RAW_BRAND_COLUMN_NAME],
+            [HARMONIZED_BRAND_COLUMN_NAME]
+        )
 
-    def add_char_in_front_of_region_names_in_total_rows(self,
-                                                        df,
-                                                        char_to_add_in_front):
-        """
-        In Tableau, the filters are sorted by alphabetical order.
-        In order to make sure Division filters appear on top of the filter
-        options, we need to append space character in front of Division
-        total rows under 'Region' column.
-        REF1: https://stackoverflow.com/a/49995329/1330974
-        E.g., df.loc[df.Hub == 'Total', 'Region'] = df['Region'].apply(lambda x: f" {x}")
-        REF2: https://stackoverflow.com/a/45651450/1330974
-        E.g., df.loc[df.Hub == 'Total','Region'] = '*' + df[df.Hub == 'Total']['Region']
-        """
-        df.loc[df.Hub == 'Total', 'Region'] = df['Region'].apply(lambda x: f" {x}")
-
-        return df
-
-    def capitalize_market_name_if_they_are_the_same_as_region_name(self,
-                                                                   df):
-        """
-        Neel decided that in Tableau dashboard market filters, we want to show
-        'Division' values with capitalized letters so that users can select them
-        to see the total division value (although there's already 'All' option
-        to choose in market filter).
-
-        This method make sure that the region values that are copied to market
-        columns are capitalized.
-        """
-        df.loc[df.Region == df.Market, 'Market'] = df['Market'].apply(lambda x: x.upper())
-
-        return df
-
-    def update_(self,
-                df):
-        import pdb
-        pdb.set_trace()
-        return df
-
-    def debug(self,
-              df):
-        import pdb
-        pdb.set_trace()
-        return df
+    # def add_char_in_front_of_region_names_in_total_rows(
+    #         self,
+    #         df,
+    #         char_to_add_in_front):
+    #     """
+    #     In Tableau, the filters are sorted by alphabetical order.
+    #     In order to make sure Division filters appear on top of the filter
+    #     options, we need to append space character in front of Division
+    #     total rows under 'Region' column.
+    #     REF1: https://stackoverflow.com/a/49995329/1330974
+    #     E.g., df.loc[df.Hub == 'Total', 'Region'] = df['Region'].apply(lambda x: f" {x}")
+    #     REF2: https://stackoverflow.com/a/45651450/1330974
+    #     E.g., df.loc[df.Hub == 'Total','Region'] = '*' + df[df.Hub == 'Total']['Region']
+    #     """
+    #     import pdb
+    #     pdb.set_trace()
+    #     df.loc[df.Hub == 'Total', 'Region'] = df['Region'].apply(lambda x: f" {x}")
+    #     # df.loc[df[HARMONIZED_COUNTRY_COLUMN_NAME] == '', HARMONIZED_COUNTRY_COLUMN_NAME] = ' ' + df[HARMONIZED_REGION_COLUMN_NAME]
+    #
+    #     return df
+    #
+    # def add_ALL_BRANDS_value_in_BRAND_column_when_Regions_as_Markets(
+    #         self,
+    #         df):
+    #     """
+    #     For those values in Country column with Region values, the brand value " All Brands" represent the summ of all these Brands
+    #     """
+    #     df[RAW_BRAND_COLUMN_NAME] = df[RAW_BRAND_COLUMN_NAME].replace(r'',' All Brands', regex= True)
+    #
+    #     return df
+    #
+    # def capitalize_market_name_if_they_are_the_same_as_region_name(self,
+    #                                                                df):
+    #     """
+    #     Neel decided that in Tableau dashboard market filters, we want to show
+    #     'Division' values with capitalized letters so that users can select them
+    #     to see the total division value (although there's already 'All' option
+    #     to choose in market filter).
+    #
+    #     This method make sure that the region values that are copied to market
+    #     columns are capitalized.
+    #     """
+    #     df.loc[df.Region == df.Market, 'Market'] = df['Market'].apply(lambda x: x.upper())
+    #
+    #     return df
+    #
+    # def debug(self,
+    #           df):
+    #     import pdb
+    #     pdb.set_trace()
+    #     return df
+    #   {
+    #     "function_name": "create_HARMONIZED_BRAND_column_by_copying_Brand_column_values"
+    #   },
+    #   {
+    #     "function_name": "add_char_in_front_of_region_names_in_total_rows",
+    #     "function_args": [" "]
+    #   },
+    #
+    #   {
+    #     "function_name": "add_ALL_BRANDS_value_in_BRAND_column_when_Regions_as_Markets"
+    #   },
+    #
+    #   {
+    #     "function_name": "debug"
+    #   },

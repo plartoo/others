@@ -85,6 +85,7 @@
         "function_name": "update_HARMONIZED_MARKET_names_with_prefix_Hills"
       },
       {
+        "__function_comment__": "We will create Harmonized_Country column because not all countries' names in Harmonized_Market are equal to our standard country names.",
         "function_name": "create_HARMONIZED_COUNTRY_column_using_HARMONIZED_MARKET_column"
       },
       {
@@ -138,122 +139,6 @@
       },
       {
         "function_name": "assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals"
-      },
-      {
-        "function_name": "aggregate_HARMONIZED_BUDGET_USD_by_HARMONIZED_YEAR_HARMONIZED_REGION_AND_HARMONIZED_MACRO_CHANNEL"
-      },
-
-      {
-        "function_comment": "Hi Maicol and Jholman",
-        "function_name": "debug"
-      },
-
-
-
-
-      {
-        "__function_comment__": "After all this, make sure we don't have any NULL values in Region, ",
-        "__function_comment__": "Hub, Market, Year, Category, Segment Macro, Brand, Macro Channel ",
-        "__function_comment__": "and Channel columns.",
-        "function_name": "assert_no_null_value_in_columns",
-        "function_args": [[
-          "Region", "Hub", "Market", "Year",
-          "Category", "Segment Macro", "Brand", "Macro Channel",
-          "Channel"]]
-      },
-
-
-      {
-        "__function_comment__": "Whenever Category is 'pet', update the Region to 'Hills'",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
-        "function_args": ["Category", "Region", {"pet": "Hills", "Pet": "Hills"}]
-      },
-      {
-        "__function_comment__": "Whenever Segment Macro is 'pet', update the Region to 'Hills'",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
-        "function_args": ["Segment Macro", "Region", {"pet": "Hills", "Pet": "Hills"}]
-      },
-
-
-
-
-      {
-        "function_name": "capitalize_first_letter_of_each_word_in_multiple_columns",
-        "function_args": [["Channel", "Macro Channel", "Segment Macro", "Market"]]
-      },
-      {
-        "function_name": "update_str_values_in_column",
-        "function_args": [
-          "Channel",
-          {
-            "Youtube": "YouTube",
-            "Ecommerce": "eCommerce",
-            "E-Commerce": "eCommerce",
-            "E-commerce": "eCommerce",
-            "e-Commerce": "eCommerce",
-            "e-commerce": "eCommerce",
-            "ecommerce": "eCommerce"
-          }
-        ]
-      },
-      {
-        "function_name": "update_str_values_in_column",
-        "function_args": [
-          "Segment Macro",
-          {"HC": "HC Product Range", "PC": "PC Product Range"}
-        ]
-      },
-
-      {
-        "__function_comment__": "Whenever Channel is 'Ecommerce' or 'Amazon', set Macro Channel to 'eCommerce'.",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
-        "function_args": ["Channel", "Macro Channel", {"Ecommerce": "eCommerce", "Amazon": "eCommerce"}]
-      },
-      {
-        "__function_comment__": "Whenever Channel is 'Facebook' or 'Other Social', set Macro Channel to 'Social'.",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
-        "function_args": ["Channel", "Macro Channel", {"Facebook": "Social", "Other Social": "Social"}]
-      },
-      {
-        "__function_comment__": "Whenever Market is 'AA', 'Canada', 'US', 'USH', set Region to to 'North America'.",
-        "function_name": "update_str_values_in_col2_based_on_col1_values",
-        "function_args": ["Market", "Region",
-          {"AA": "North America", "Canada": "North America", "US": "North America", "USH": "North America"}]
-      },
-
-      {
-        "__function_comment__": "After capitalizing words and updating values in/across columns, there must be no duplicates in essential columns.",
-        "function_name": "check_possible_duplicates_in_multiple_columns",
-        "function_args": [["Region", "Market", "Segment Macro", "Macro Channel", "Channel"]]
-      },
-      {
-        "__function_comment__": "Create sum of budget rows for each region, year and macro channel pair/combination.",
-        "function_name": "add_sum_of_budget_rows_for_each_region_year_and_macro_channel_pair",
-        "function_args": [["Region", "Year", "Macro Channel"], "Budget (USD)"]
-      },
-      {
-        "__function_comment__": "Because of the sorting order issue in Tableau, we need to add a space character in front of Region in total/sum Budget rows",
-        "function_name": "add_char_in_front_of_region_names_in_total_rows",
-        "function_args": [" "]
-      },
-      {
-        "__function_comment__": "To show Division names in Market filter on Tableau, we need to copy Division (Region) names to Market column for 'Total' lines",
-        "function_name": "copy_col1_value_to_col2_if_col2_has_specific_value",
-        "function_args": ["Region", "Market", "Total"]
-      },
-      {
-        "__function_comment__": "Capitalize Market names if they are the same as Division (Region) names (to look good on Tableau Market filter).",
-        "function_name": "capitalize_market_name_if_they_are_the_same_as_region_name"
-      },
-      {
-        "__function_comment__": "Whenever Market is ' AFRICA-EURASIA',' ASIA PACIFIC',' EUROPE',' HILLS',' LATIN AMERICA' or ' NORTH AMERICA', set Brand to ' All Brands'.",
-        "function_name": "update_str_values_in_col2_if_col1_has_one_of_given_values",
-        "function_args": [
-          "Market",
-          "Brand",
-          [" AFRICA-EURASIA"," ASIA-PACIFIC"," EUROPE"," HILLS"," LATIN AMERICA"," NORTH AMERICA"],
-          " All Brands"
-        ]
       }
     ]
   }

@@ -263,3 +263,9 @@ RAW_TO_HARMONIZED_MACRO_CHANNEL_NAME_MAPPING = {
 # BUDGET column related constants
 RAW_BUDGET_COLUMN_NAME = 'Budget (USD)'
 HARMONIZED_BUDGET_COLUMN_NAME = 'Harmonized_Budget_USD'
+FILLNA_VAL_FOR_AGGREGATED_HARMONIZED_BUDGET = 'Aggregated_Harmonized_Budget_By_Year_Region_And_Macro_Channel'
+
+# BRAND column related constants
+RAW_BRAND_COLUMN_NAME = 'Brand'
+HARMONIZED_BRAND_COLUMN_NAME = 'Harmonized_Brand'
+
