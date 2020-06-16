@@ -589,6 +589,46 @@ class CommonPostTransformQAFunctions:
             self.MAX_SPEND,
             [comp_harm_constants.GROSS_SPEND_COLUMN])
 
+    def assert_float_values_in_columns_have_either_one_or_two_decimals(
+            self,
+            df,
+            list_of_col_names
+    ):
+        """
+        Asserts that float values in a given column have either
+        one or two decimals, no more.
+
+        If any violation is found, raise InvalidValueFoundError.
+
+        Args:
+            df: Dataframe to check for values.
+            list_of_col_names: List of column names (each is of string type)
+            whose values we should check for decimals.
+
+        Returns:
+            The original dataframe is returned if the assertion is successful.
+        """
+        if not isinstance(list_of_col_names, list):
+            raise qa_errors.InputDataTypeError(f"List of column names must "
+                                               f"be of list type with individual "
+                                               f"column names being string values.")
+
+        for col_name in list_of_col_names:
+            df1 = df[col_name].astype(str)\
+                .map(lambda x: [x, '0'] if len(x.split('.')) == 1 else x.split('.'))
+
+            if any([len(x) > 2 for x in df1.values]):
+                raise qa_errors.InvalidValueFoundError(
+                    f"Some of the values in '{col_name}' column have "
+                    f"more than two decimal characters such as '4.32.1'.")
+
+            if any([len(x[1]) > 2 for x in df1.values]):
+                raise qa_errors.InvalidValueFoundError(
+                    f"Some of the values in '{col_name}' column have "
+                    f"more than two decimal digits such as '4.321'.")
+
+        return df
+
     def assert_GROSS_SPEND_column_values_have_two_decimals(
             self,
             df):
@@ -596,23 +636,12 @@ class CommonPostTransformQAFunctions:
         Asserts that GROSS_SPEND column values are only two
         decimals and no more.
 
-        If any violate found, raise InvalidValueFoundError
+        If any violation is found, raise InvalidValueFoundError.
         """
-        # Convert float to string type and then split by decimal character
-        gc = comp_harm_constants.GROSS_SPEND_COLUMN
-        df1 = df[gc].astype(str).map(lambda x: [x, '0'] if len(x.split('.')) == 1 else x.split('.'))
-
-        if any([len(x) > 2 for x in df1.values]):
-            raise qa_errors.InvalidValueFoundError(
-                f"Some of the values in '{gc}' column have "
-                f"more than two decimal characters such as '4.32.1'.")
-
-        if any([len(x[1]) > 2 for x in df1.values]):
-            raise qa_errors.InvalidValueFoundError(
-                f"Some of the values in '{gc}' column have "
-                f"more than two decimal digits such as '4.321'.")
-
-        return df
+        return self.assert_float_values_in_columns_have_either_one_or_two_decimals(
+            df,
+            [comp_harm_constants.GROSS_SPEND_COLUMN]
+        )
 
     def check_possible_duplicates_in_columns(self,
                                              df,
