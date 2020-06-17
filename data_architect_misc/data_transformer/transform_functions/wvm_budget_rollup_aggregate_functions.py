@@ -165,7 +165,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             self,
             df):
         """
-        For those values in Country column with Region values, the brand value " All Brands" represent the summ of all these Brands
+        This functionadd the brand value " All Brands" for the sum of each region.
         """
         df[HARMONIZED_BRAND_COLUMN_NAME] = ' All Brands'
 
