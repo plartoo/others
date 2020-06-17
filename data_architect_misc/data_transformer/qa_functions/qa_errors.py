@@ -77,14 +77,20 @@ class InsufficientNumberOfColumnsError(QAError):
     pass
 
 
-class UnexpectedColumnNameFound(QAError):
+class ColumnListMismatchError(QAError):
+    """
+    Raised when the column name found is unexpected.
+    """
+    pass
+
+class UnexpectedColumnNameFoundError(QAError):
     """
     Raised when the column name found is unexpected.
     """
     pass
 
 
-class UnexpectedColumnValuesFound(QAError):
+class UnexpectedColumnValuesFoundError(QAError):
     """
     Raised when value(s) in a given column is(are) unexpected.
     """

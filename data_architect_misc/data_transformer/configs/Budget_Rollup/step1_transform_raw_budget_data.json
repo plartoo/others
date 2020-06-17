@@ -2,10 +2,7 @@
   {
     "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
     "input_folder_path": "./input/Budget_Rollup/",
-    "input_file_name_or_pattern": "Budget_Rollup_20200313.csv",
-
-    "__comment__": "TODO: Remove the line below",
-    "input_encoding": "ISO-8859-1",
+    "input_file_name_or_pattern": "Budget_Rollup_20200313.xlsx",
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read. Default is the first sheet.",
     "input_sheet_name": "Budget Roll-Up",
@@ -30,10 +27,10 @@
     "output_folder_path": "./output/Budget_Rollup/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "Cleaned_Budget_Rollup",
+    "output_file_name_prefix": "Transformed_Budget_Rollup",
 
     "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
-    "custom_transform_functions_file": "./transform_functions/budget_rollup_transform_functions.py",
+    "custom_transform_functions_file": "./transform_functions/wvm_budget_rollup_transform_functions.py",
 
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as .\\transform_function\\switzerland_transform_functions.py",
@@ -110,6 +107,9 @@
         "function_name": "create_HARMONIZED_SUBCATEGORY_column_using_SEGMENT_MACRO_column_values"
       },
       {
+        "function_name": "create_HARMONIZED_BRAND_column_by_copying_Brand_column_values"
+      },
+      {
         "function_name": "assert_no_unexpected_value_in_HARMONIZED_SUBCATEGORY_column"
       },
       {
@@ -139,6 +139,9 @@
       },
       {
         "function_name": "assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals"
+      },
+      {
+        "function_name": "filter_and_rearrange_columns_for_final_output"
       }
     ]
   }

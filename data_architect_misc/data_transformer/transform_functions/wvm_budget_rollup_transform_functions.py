@@ -1,31 +1,22 @@
-"""This is the subclass of Transform function for Switzerland.
+"""
+This is the function class to clean and transform Budget roll-up data
+for WorldView Media (WVM) dashboard.
 
-We will define transform functions specific to Switzerland here.
-
-Author: Phyo Thiha
-Last Modified: Jan 30, 2020
+Author: Phyo Thiha and Jholman Jaramillo
+Last Modified: June 16, 2020
 """
 
 import datetime
 import re
 
-import pandas as pd
-
 from constants.budget_rollup_constants import *
-
-from constants.comp_harm_constants import COUNTRIES as COMP_HARM_PROJECT_COUNTRIES
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
-from qa_functions.qa_errors import \
-    InsufficientNumberOfColumnsError, \
-    InvalidValueFoundError, \
-    UnexpectedColumnNameFound, \
-    UnexpectedColumnValuesFound, \
-    EmptyStringFoundError
+from qa_functions.qa_errors import UnexpectedColumnValuesFoundError, EmptyStringFoundError
 
 
-class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
+class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
 
     def assert_no_empty_value_in_DIMENSION_COLUMNS(self,
                                                    df):
@@ -161,7 +152,7 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
         current_year = datetime.datetime.now().year
 
         if EXPECTED_MINIMUM_YEAR < current_year < df.Harmonized_Year.max():
-            raise UnexpectedColumnValuesFound(
+            raise UnexpectedColumnValuesFoundError(
                 f"Found value less than {EXPECTED_MINIMUM_YEAR} "
                 f"or greater than {current_year} in "
                 f"{HARMONIZED_YEAR_COLUMN_NAME}.")
@@ -217,6 +208,15 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             df,
             HARMONIZED_SUBCATEGORY_COLUMN_NAME,
             RAW_TO_HARMONIZED_SUBCATEGORY_NAME_MAPPING.values()
+        )
+
+    def create_HARMONIZED_BRAND_column_by_copying_Brand_column_values(
+            self,
+            df):
+        return self.add_new_column_by_copying_values_from_another_column(
+            df,
+            [RAW_BRAND_COLUMN_NAME],
+            [HARMONIZED_BRAND_COLUMN_NAME]
         )
 
     def create_HARMONIZED_CHANNEL_column_using_CHANNEL_column_values(
@@ -306,6 +306,18 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
             [HARMONIZED_BUDGET_COLUMN_NAME]
         )
 
+    def filter_and_rearrange_columns_for_final_output(self,
+                                                      df):
+        """
+        We will only include Harmonized_* columns in the
+        transformed output.
+        """
+        return self.update_order_of_columns_in_dataframe(
+            df,
+            ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT
+        )
+
+
     # {
     #   "function_name": "aggregate_HARMONIZED_BUDGET_USD_by_HARMONIZED_YEAR_HARMONIZED_REGION_AND_HARMONIZED_MACRO_CHANNEL"
     # },
@@ -329,14 +341,6 @@ class BudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransfo
     #
     #     return df
 
-    def create_HARMONIZED_BRAND_column_by_copying_Brand_column_values(
-            self,
-            df):
-        return self.add_new_column_by_copying_values_from_another_column(
-            df,
-            [RAW_BRAND_COLUMN_NAME],
-            [HARMONIZED_BRAND_COLUMN_NAME]
-        )
 
     # def add_char_in_front_of_region_names_in_total_rows(
     #         self,

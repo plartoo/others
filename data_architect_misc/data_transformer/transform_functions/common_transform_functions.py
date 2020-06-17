@@ -230,6 +230,66 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def sum_column_data_by_group_by(
+            self,
+            df,
+            group_by_cols,
+            target_col_name,
+            label_to_assign_for_non_aggregated_cols
+    ):
+        """
+        Function to sum target column values by group_by_cols and
+        assign a given label to columns that are not part of the
+        group_by_cols.
+
+        For example, if we are to sum budget values by year and
+        region, we can use this function as:
+        sum_column_data_by_group_by(df, ['Year', 'Region'],
+        'Budget', 'Total_Budget_By_Year_And_Region').
+
+        Args:
+            df: Dataframe to sum.
+            group_by_cols: Columns to be included as Group By in the summation.
+            target_col_name: The target column that will summed using Group By.
+            label_to_assign_for_non_aggregated_cols: The label (string) that
+            will be assigned to columns that are not part of the Group By columns.
+
+        Returns:
+            Dataframe with values that now includes aggregated (summed) values
+            using Group By.
+        """
+        df_grouped_and_summed = df.groupby(group_by_cols)[target_col_name] \
+            .sum().reset_index()
+        df = pd.concat([df, df_grouped_and_summed], sort=False) \
+            .fillna(label_to_assign_for_non_aggregated_cols) \
+            .sort_values(by=group_by_cols).reset_index(drop=True)
+
+        return df
+
+    def append_characters_in_front_of_column_value(
+            self,
+            df,
+            list_of_col_names,
+            chars_to_add_in_front):
+        """
+        If we need to add some character(s) in front of the
+        values of some columns, use this function.
+
+        For example, if we want to add 'WVM_' in front of
+        Category and Subcategory columns, we use this function
+        as below:
+        append_characters_in_front_of_column_value(df,
+        ['Category', 'Subcategory'], 'WVM_')
+        """
+        if not isinstance(list_of_col_names, list):
+            raise transform_errors.InputDataTypeError("List of column names must "
+                                                      "be of list type with individual "
+                                                      "names being string values.")
+        for col_name in list_of_col_names:
+            df[col_name] = chars_to_add_in_front + df[col_name]
+
+        return df
+
     def update_str_values_in_columns(self,
                                      df,
                                      list_of_col_names,
