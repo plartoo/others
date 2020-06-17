@@ -283,3 +283,4 @@ ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT = [
 
 AGGREGATED_BY_REGION_LABEL = 'Aggregated_Budget_By_Region'
 AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL = 'Aggregated_Budget_By_Region_And_Macro_Channel'
+AGGREGATED_BY_REGION_AND_BRAND = 'Aggregated_Budget_By_Region_And_Brand'

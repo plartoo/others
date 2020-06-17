@@ -119,6 +119,74 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL]
 
 
+    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Digital_Investment_Trend(
+            self,
+            df
+    ):
+        """
+        Market Investment Trend view shows Region values in Market filter
+        (client's decision...). To support that, we need to copy Harmonized
+        Region names to Harmonized Country column for summed rows.
+        """
+        return self.copy_col1_value_to_col2_if_col2_has_specific_value(
+            df,
+            HARMONIZED_REGION_COLUMN_NAME,
+            HARMONIZED_COUNTRY_COLUMN_NAME,
+            AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL)
+
+
+    def sum_budget_data_by_region_and_brand(
+            self,
+            df
+    ):
+        """
+        We will need to sum the budget roll-up spend data by
+        Region and combine them with the original budget roll-up
+        data for Market Investment Trend view.
+        """
+        return self.sum_column_data_by_group_by(
+            df,
+            [HARMONIZED_REGION_COLUMN_NAME],
+            HARMONIZED_BUDGET_COLUMN_NAME,
+            AGGREGATED_BY_REGION_AND_BRAND)
+
+    def select_only_aggregated_sum_data_by_region_and_brand(
+            self,
+            df
+    ):
+        """
+        We will only write the rows representing
+        the summed budget data to support the
+        Market Investment Trend view.
+        """
+        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_AND_BRAND]
+
+    def add_all_brands_value_in_harmonized_brand_column(
+            self,
+            df):
+        """
+        For those values in Country column with Region values, the brand value " All Brands" represent the summ of all these Brands
+        """
+        df[HARMONIZED_BRAND_COLUMN_NAME] = ' All Brands'
+
+        return df
+
+    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Category_Investment_Trend(
+            self,
+            df
+    ):
+        """
+        Market Investment Trend view shows Region values in Market filter
+        (client's decision...). To support that, we need to copy Harmonized
+        Region names to Harmonized Country column for summed rows.
+        """
+        return self.copy_col1_value_to_col2_if_col2_has_specific_value(
+            df,
+            HARMONIZED_REGION_COLUMN_NAME,
+            HARMONIZED_COUNTRY_COLUMN_NAME,
+            AGGREGATED_BY_REGION_AND_BRAND)
+
+
     # TODO:
     #  CP_Market_Investment_Trend => create aggregate rows groupby Harmonized_Region, then copy the Harmonized_Region value in Harmonized_Country (only output aggregate data) => CP_MARKET_INVESTMENT_TREND.csv
     # CP_Digital_Investment_Trend => create aggregate rows groupby Harmonized_Region and only for Macro_Channel=Digital, then copy the Harmonized_Region value in Harmonized_Country (only output aggregate data) => CP_DIGITAL_INVESTMENT_TREND.csv
