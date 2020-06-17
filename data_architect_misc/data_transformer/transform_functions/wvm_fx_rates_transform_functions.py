@@ -1,9 +1,10 @@
-"""This is the subclass of Transform function for Turkey (AED division).
+"""
+This class has transform functions to clean and transform
+the foreign exchange rates data for
+WorldView Media (WVM) dashboard.
 
-We will define transform functions specific to Turkey here.
-
-Author: Phyo Thiha
-Last Modified: April 13, 2020
+Author: Phyo Thiha and Jholman Jaramillo
+Last Modified: June 16, 2020
 """
 import datetime
 import re
@@ -27,8 +28,8 @@ from qa_functions.common_post_transform_qa_functions import CommonPostTransformQ
 from qa_functions.qa_errors import \
     InsufficientNumberOfColumnsError, \
     InvalidValueFoundError, \
-    UnexpectedColumnNameFound, \
-    UnexpectedColumnValuesFound
+    UnexpectedColumnNameFoundError, \
+    UnexpectedColumnValuesFoundError
 
 
 def generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year):
@@ -37,7 +38,7 @@ def generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year):
     return [datetime.datetime.strptime(d, '%Y-%m-%d').strftime('%Y-%m-%d') for d in first_days_of_all_months]
 
 
-class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
+class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
 
     def select_desired_columns(self,
                                df):
@@ -61,7 +62,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         first one.
         """
         if RAW_COUNTRY_COLUMN != df.columns.tolist()[0]:
-            raise UnexpectedColumnNameFound(
+            raise UnexpectedColumnNameFoundError(
                 f"The first column in the dataframe is not 'COUNTRY'. "
                 f"The other transform functions rely on the first column "
                 f"being '{RAW_COUNTRY_COLUMN}'. "
@@ -186,7 +187,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         mapped_harmonized_country_names = set(df[harmonized_country_col_name].unique())
 
         if expected_harmonized_country_names != mapped_harmonized_country_names:
-            raise UnexpectedColumnValuesFound(
+            raise UnexpectedColumnValuesFoundError(
                 f"We found that these expected countries are missing from "
                 f"'{harmonized_country_col_name} column: '"
                 f"{expected_harmonized_country_names - mapped_harmonized_country_names}. "
@@ -241,7 +242,7 @@ class FxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAF
         mapped_harmonized_country_names = set(df[harmonized_country_col_name].unique())
 
         if COMP_HARM_PROJECT_COUNTRIES - mapped_harmonized_country_names:
-            raise UnexpectedColumnValuesFound(
+            raise UnexpectedColumnValuesFoundError(
                 f"We found that these expected countries are missing from "
                 f"'{harmonized_country_col_name} column: '"
                 f"{COMP_HARM_PROJECT_COUNTRIES - mapped_harmonized_country_names}. "
