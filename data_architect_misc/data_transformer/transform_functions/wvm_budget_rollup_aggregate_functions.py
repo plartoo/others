@@ -7,23 +7,14 @@ Author: Phyo Thiha and Jholman Jaramillo
 Last Modified: June 16, 2020
 """
 
-import datetime
-import re
-
-import pandas as pd
-
 from constants.budget_rollup_constants import *
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
-from qa_functions.qa_errors import \
-    UnexpectedColumnValuesFoundError, \
-    EmptyStringFoundError, \
-    ColumnListMismatchError
+from qa_functions.qa_errors import ColumnListMismatchError
 
 
 class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
-
 
     def assert_input_file_has_essential_columns(self,
                                                 df):
@@ -38,7 +29,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
 
         return df
 
-    def sum_budget_data_by_region(
+    def sum_budget_data_by_region_for_Market_Investment_Trend_view(
             self,
             df
     ):
@@ -51,20 +42,19 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             df,
             [HARMONIZED_REGION_COLUMN_NAME],
             HARMONIZED_BUDGET_COLUMN_NAME,
-            AGGREGATED_BY_REGION_LABEL)
+            AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW)
 
-    def select_only_aggregated_sum_data_by_region(
+    def select_only_aggregated_sum_data_by_region_for_Market_Investment_Trend_view(
             self,
             df
     ):
         """
-        We will only write the rows representing
-        the summed budget data to support the
-        Market Investment Trend view.
+        We will only write the rows representing the summed budget data
+        to support the Market Investment Trend view.
         """
-        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_LABEL]
+        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW]
 
-    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column(
+    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Market_Investment_Trend_view(
             self,
             df
     ):
@@ -77,19 +67,24 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             df,
             HARMONIZED_REGION_COLUMN_NAME,
             HARMONIZED_COUNTRY_COLUMN_NAME,
-            AGGREGATED_BY_REGION_LABEL)
+            AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW)
 
     def append_space_character_in_HARMONIZED_COUNTRY_column(
             self,
             df
     ):
+        """
+        This is to make sure the REGION names appear first in the
+        Market filter in Tableau (another unusual request by
+        the client).
+        """
         return self.append_characters_in_front_of_column_value(
             df,
             [HARMONIZED_COUNTRY_COLUMN_NAME],
             ' '
         )
 
-    def sum_budget_data_by_region_and_macro_channel(
+    def sum_budget_data_by_region_and_macro_channel_for_Digital_Investment_Trend_view(
             self,
             df
     ):
@@ -105,9 +100,9 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
                 HARMONIZED_MACRO_CHANNEL_COLUMN_NAME
              ],
             HARMONIZED_BUDGET_COLUMN_NAME,
-            AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL)
+            AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW)
 
-    def select_only_aggregated_sum_data_by_region_and_macro_channel(
+    def select_only_aggregated_sum_data_by_region_and_macro_channel_for_Digital_Investment_Trend_view(
             self,
             df
     ):
@@ -116,15 +111,15 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         the summed budget data to support the
         Market Investment Trend view.
         """
-        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL]
+        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW]
 
 
-    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Digital_Investment_Trend(
+    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Digital_Investment_Trend_view(
             self,
             df
     ):
         """
-        Market Investment Trend view shows Region values in Market filter
+        Digital Investment Trend view shows Region values in Market filter
         (client's decision...). To support that, we need to copy Harmonized
         Region names to Harmonized Country column for summed rows.
         """
@@ -132,51 +127,40 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             df,
             HARMONIZED_REGION_COLUMN_NAME,
             HARMONIZED_COUNTRY_COLUMN_NAME,
-            AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL)
+            AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW)
 
 
-    def sum_budget_data_by_region_and_brand(
+    def sum_budget_data_by_region_for_Category_Investment_Trend_view(
             self,
             df
     ):
         """
         We will need to sum the budget roll-up spend data by
         Region and combine them with the original budget roll-up
-        data for Market Investment Trend view.
+        data for Category Investment Trend view.
         """
         return self.sum_column_data_by_group_by(
             df,
             [HARMONIZED_REGION_COLUMN_NAME],
             HARMONIZED_BUDGET_COLUMN_NAME,
-            AGGREGATED_BY_REGION_AND_BRAND)
+            AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW)
 
-    def select_only_aggregated_sum_data_by_region_and_brand(
+    def select_only_aggregated_sum_data_by_region_for_Category_Investment_Trend_view(
             self,
             df
     ):
         """
-        We will only write the rows representing
-        the summed budget data to support the
-        Market Investment Trend view.
+        We will only write the rows representing the summed budget data
+        to support the Category Investment Trend view.
         """
-        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_AND_BRAND]
+        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW]
 
-    def add_all_brands_value_in_harmonized_brand_column(
-            self,
-            df):
-        """
-        This functionadd the brand value " All Brands" for the sum of each region.
-        """
-        df[HARMONIZED_BRAND_COLUMN_NAME] = ' All Brands'
-
-        return df
-
-    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Category_Investment_Trend(
+    def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Category_Investment_Trend_view(
             self,
             df
     ):
         """
-        Market Investment Trend view shows Region values in Market filter
+        Category Investment Trend view shows Region values in Market filter
         (client's decision...). To support that, we need to copy Harmonized
         Region names to Harmonized Country column for summed rows.
         """
@@ -184,17 +168,24 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             df,
             HARMONIZED_REGION_COLUMN_NAME,
             HARMONIZED_COUNTRY_COLUMN_NAME,
-            AGGREGATED_BY_REGION_AND_BRAND)
+            AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW)
 
+    def add_all_brands_value_in_HARMONIZED_BRAND_column_for_Category_Investment_Trend_view(
+            self,
+            df):
+        """
+        This function adds the brand value " All Brands" for the sum of each region
+        under HARMONIZED_BRAND column. This allows us to display 'All Brands' as
+        a filter option in Category Investment Trend view.
+        """
+        df[HARMONIZED_BRAND_COLUMN_NAME] = ' All Brands'
 
-    # TODO:
-    #  CP_Market_Investment_Trend => create aggregate rows groupby Harmonized_Region, then copy the Harmonized_Region value in Harmonized_Country (only output aggregate data) => CP_MARKET_INVESTMENT_TREND.csv
-    # CP_Digital_Investment_Trend => create aggregate rows groupby Harmonized_Region and only for Macro_Channel=Digital, then copy the Harmonized_Region value in Harmonized_Country (only output aggregate data) => CP_DIGITAL_INVESTMENT_TREND.csv
-    # CP_Category_Investment_Trend
-    # => do the same thing as CP_Market_Investment_Trend BUT we need to mark the lines here as ' All Brands'
-    def debug(self,
-              df):
-        import pdb
-        pdb.set_trace()
         return df
+
+
+    # def debug(self,
+    #           df):
+    #     import pdb
+    #     pdb.set_trace()
+    #     return df
 

@@ -1,7 +1,9 @@
 [
   {
-    "__comment__": "This config is supposed to be run AFTER running step1 to transform and clean raw budget roll-up data file.",
+    "__comment__": "The configs below are supposed to be run AFTER running step1 to transform and clean the raw budget roll-up file.",
 
+
+    "__comment__": "This config is to generate aggregate data specifically for Market Investment Trend view.",
     "input_folder_path": "./output/Budget_Rollup/",
     "input_file_name_or_pattern": "Transformed_Budget_Rollup_rows_0_38473_20200617_133037.csv",
     "input_delimiter": "|",
@@ -19,13 +21,13 @@
         "function_name": "assert_input_file_has_essential_columns"
       },
       {
-        "function_name": "sum_budget_data_by_region"
+        "function_name": "sum_budget_data_by_region_for_Market_Investment_Trend_view"
       },
       {
-        "function_name": "select_only_aggregated_sum_data_by_region"
+        "function_name": "select_only_aggregated_sum_data_by_region_for_Market_Investment_Trend_view"
       },
       {
-        "function_name": "copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column"
+        "function_name": "copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Market_Investment_Trend_view"
       },
       {
         "function_name": "append_space_character_in_HARMONIZED_COUNTRY_column"
@@ -51,13 +53,13 @@
         "function_name": "assert_input_file_has_essential_columns"
       },
       {
-        "function_name": "sum_budget_data_by_region_and_macro_channel"
+        "function_name": "sum_budget_data_by_region_and_macro_channel_for_Digital_Investment_Trend_view"
       },
       {
-        "function_name": "select_only_aggregated_sum_data_by_region_and_macro_channel"
+        "function_name": "select_only_aggregated_sum_data_by_region_and_macro_channel_for_Digital_Investment_Trend_view"
       },
       {
-        "function_name": "copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Digital_Investment_Trend"
+        "function_name": "copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Digital_Investment_Trend_view"
       },
       {
         "function_name": "append_space_character_in_HARMONIZED_COUNTRY_column"
@@ -84,19 +86,19 @@
         "function_name": "assert_input_file_has_essential_columns"
       },
       {
-        "function_name": "sum_budget_data_by_region_and_brand"
+        "function_name": "sum_budget_data_by_region_for_Category_Investment_Trend_view"
       },
       {
-        "function_name": "select_only_aggregated_sum_data_by_region_and_brand"
+        "function_name": "select_only_aggregated_sum_data_by_region_for_Category_Investment_Trend_view"
       },
       {
-        "function_name": "copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Category_Investment_Trend"
+        "function_name": "copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Category_Investment_Trend_view"
       },
       {
         "function_name": "append_space_character_in_HARMONIZED_COUNTRY_column"
       },
       {
-        "function_name": "add_all_brands_value_in_harmonized_brand_column"
+        "function_name": "add_all_brands_value_in_HARMONIZED_BRAND_column_for_Category_Investment_Trend_view"
       }
     ]
   }
