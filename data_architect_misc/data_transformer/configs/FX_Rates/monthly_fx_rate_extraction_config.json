@@ -23,13 +23,13 @@
         "write_output": true,
 
         "__comment_for_data_writer_module_file__": "(Optional) The key below, 'data_writer_module_file', can be used to specify which data writer module (such as Excel, CSV or SQL) will be used to write the processed data. The default value is as shown below and it will be used even if you leave this key undefined.",
-        "data_writer_module_file": "./data_writers/csv_data_writer.py",
+        "data_writer_module_file": "./data_writers/excel_data_writer.py",
 
         "__comment_for_output_folder_path__": "(Optional) The key below can be used to specify where the processed data will be written.The default value is as shown below and it will be used even if the key below is undefined.",
         "output_folder_path": "./output/FX_Rates",
 
         "__comment_for_output_file_name_prefix__": "(Optional) The key below can be used to specify the beginning part (prefix) of the output file name (e.g., 'prefix_*.xlsx'). The default value is None (empty string) and it will be used even if the key below is undefined.",
-        "output_file_name_prefix": "Cleaned_FX_Rates",
+        "output_file_name_prefix": "Transformed_FX_Rates",
 
         "__comment_for_output_delimiter__": "(Optional) If your output file is CSV, you can define the delimiter to use in the output file. The program will use the default delimiter as shown below even if the key is not defined.",
         "output_delimiter": "|",
@@ -39,10 +39,9 @@
 
         "__comment_for_functions_to_apply__": "(Required) List of functions and parameters to be used in data processing. These functions must be defined in the transform function/module file, which is defined with the key 'KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE' above.",
         "functions_to_apply": [
-
             {
                 "__function_comment__": "We need to drop some columns in the raw FX Rates file and only keep COUNTRY and FX Rate columns.",
-                "function_name": "select_desired_columns"
+                "function_name": "select_COUNTRY_and_MONTHLY_RATE_columns"
             },
             {
                 "__function_comment__": "This function MUST be called RIGHT AFTER selecting the desired columns.",
@@ -81,7 +80,7 @@
                 "function_name": "assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries"
             },
             {
-                "function_name": "add_rows_for_countries_that_use_USD"
+                "function_name": "add_monthly_rows_for_countries_that_use_USD"
             },
             {
                 "function_name": "add_rows_for_countries_that_use_EURO"

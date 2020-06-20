@@ -1,0 +1,117 @@
+[
+    {
+        "__comment__": "This config iteration is only to extract and save year value from the top few rows of the fx rate data file.",
+
+        "input_folder_path": "./input/FX_Rates",
+        "input_file_name_or_pattern": "202005_FX_Rates_Distributed.xls",
+
+        "__comment_for_header__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the first row in the data file would have index=0) from which the program should read column headers from. If column headers don't exist, do NOT define this key (that is, delete this from the config file).",
+        "header": 4,
+
+        "__comment_for_skiprows__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the second row in the data file would have index=1) where the data begins in the input file.In a typical input file, the data starts the second row (the first row is the column headers), so the default value for this key is set to '1' even if you don't define this key explicitly like below.",
+        "skiprows": 9,
+
+        "__comment_for_input_sheet_name__": "(Optional) If your input file(s) is/are Excel, you can define the sheet name to read/process. If you leave this key undefined, the program will read first sheet, with index 0 by default. You can also leave this key undefined if your input file is not a CSV file or if you are okay with the default value below.",
+        "input_sheet_name": 0,
+
+        "__comment_for_output_file(s)__": "(Optional) The key below, 'write_output', can be used to decide if the processed data will be written to an output destination (a file or a SQL table). The default is as shown below and it will be used even if you leave this key undefined.",
+        "write_output": false,
+
+        "__comment_for_custom_transform_functions_file__": "(Optional) Path+name of the file that has *CUSTOM* data transformation functions, which will be imported and used in the data processing tasks. Default value is as shown below and it will be used even if this key is not defined.",
+        "custom_transform_functions_file": "./transform_functions/wvm_fx_rates_transform_functions.py",
+
+        "__comment_for_functions_to_apply__": "(Required) List of functions and parameters to be used in data processing. These functions must be defined in the transform function/module file, which is defined with the key 'KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE' above.",
+        "functions_to_apply": [
+            {
+                "function_name": "extract_year_value_and_set_it_to_static_variable"
+            }
+        ]
+    },
+    {
+        "__comment__": "This config is to extract the yearly average FX rates from the file.",
+
+        "input_folder_path": "./input/FX_Rates",
+        "input_file_name_or_pattern": "202005_FX_Rates_Distributed.xls",
+
+        "__comment_for_rows_per_read__": "(Optional) The number of rows to read and transform per each iteration. If the file has too many rows and if you have limited RAM on your machine, you can enter a reasonable integer value below and the data reader module will only process that many rows at a time (thereby, preventing the out-of-memory errors). Default rows that will be processed per iteration is shown below and even if you don't define this key, the default value below will be used by the program.",
+        "rows_per_read": 100000,
+
+        "__comment_for_header__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the first row in the data file would have index=0) from which the program should read column headers from. If column headers don't exist, do NOT define this key (that is, delete this from the config file).",
+        "header": 6,
+
+        "__comment_for_skiprows__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the second row in the data file would have index=1) where the data begins in the input file.In a typical input file, the data starts the second row (the first row is the column headers), so the default value for this key is set to '1' even if you don't define this key explicitly like below.",
+        "skiprows": 9,
+
+        "__comment_for_skipfooter__": "(Optional) Enter the NUMBER of rows (note: not the index value), which should be dropped from the bottom of the input file. This can be used when input file has some footer rows (such as Copyrights statement) that we want to drop. But since it is not common to have footer rows, we set the default for this key to 0 even if you don't define this key explicitly like below.",
+        "skipfooter": 0,
+
+        "__comment_for_input_sheet_name__": "(Optional) If your input file(s) is/are Excel, you can define the sheet name to read/process. If you leave this key undefined, the program will read first sheet, with index 0 by default. You can also leave this key undefined if your input file is not a CSV file or if you are okay with the default value below.",
+        "input_sheet_name": 0,
+
+        "__comment_for_output_file(s)__": "(Optional) The key below, 'write_output', can be used to decide if the processed data will be written to an output destination (a file or a SQL table). The default is as shown below and it will be used even if you leave this key undefined.",
+        "write_output": true,
+
+        "__comment_for_data_writer_module_file__": "(Optional) The key below, 'data_writer_module_file', can be used to specify which data writer module (such as Excel, CSV or SQL) will be used to write the processed data. The default value is as shown below and it will be used even if you leave this key undefined.",
+        "data_writer_module_file": "./data_writers/excel_data_writer.py",
+
+        "__comment_for_output_folder_path__": "(Optional) The key below can be used to specify where the processed data will be written.The default value is as shown below and it will be used even if the key below is undefined.",
+        "output_folder_path": "./output/FX_Rates",
+
+        "__comment_for_output_file_name_prefix__": "(Optional) The key below can be used to specify the beginning part (prefix) of the output file name (e.g., 'prefix_*.xlsx'). The default value is None (empty string) and it will be used even if the key below is undefined.",
+        "output_file_name_prefix": "Transformed_FX_Rates",
+
+        "__comment_for_output_delimiter__": "(Optional) If your output file is CSV, you can define the delimiter to use in the output file. The program will use the default delimiter as shown below even if the key is not defined.",
+        "output_delimiter": "|",
+
+        "__comment_for_custom_transform_functions_file__": "(Optional) Path+name of the file that has *CUSTOM* data transformation functions, which will be imported and used in the data processing tasks. Default value is as shown below and it will be used even if this key is not defined.",
+        "custom_transform_functions_file": "./transform_functions/wvm_fx_rates_transform_functions.py",
+
+        "__comment_for_functions_to_apply__": "(Required) List of functions and parameters to be used in data processing. These functions must be defined in the transform function/module file, which is defined with the key 'KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE' above.",
+        "functions_to_apply": [
+            {
+                "__function_comment__": "We need to drop some columns in the raw FX Rates file and only keep COUNTRY and FX Rate columns.",
+                "function_name": "select_COUNTRY_and_YEARLY_AVG_RATE_columns"
+            },
+            {
+                "__function_comment__": "This function MUST be called RIGHT AFTER selecting the desired columns.",
+                "function_name": "assert_the_first_column_is_COUNTRY_column"
+            },
+            {
+                "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw dataframe.",
+                "function_name": "assert_number_of_columns_equals",
+                "function_args": [2]
+            },
+            {
+                "function_name": "copy_country_names_to_row_below",
+                "function_args": [["COUNTRY"]]
+            },
+            {
+                "function_name": "select_every_third_row"
+            },
+            {
+                "function_name": "rename_yearly_avg_rate_column"
+            },
+            {
+                "function_name": "unpivot_fx_data"
+            },
+            {
+                "function_name": "add_HARMONIZE_COUNTRY_column_using_existing_country_column"
+            },
+            {
+                "function_name": "assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries"
+            },
+            {
+                "function_name": "add_yearly_rows_for_countries_that_use_USD"
+            },
+            {
+                "function_name": "add_rows_for_countries_that_use_EURO"
+            },
+            {
+                "function_name": "check_HARMONIZED_COUNTRY_column_for_missing_country_names"
+            },
+            {
+                "function_name": "rearrange_columns_for_final_output"
+            }
+        ]
+    }
+]

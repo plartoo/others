@@ -3,7 +3,7 @@ This class has transform functions to clean and transform
 the foreign exchange rates data for
 WorldView Media (WVM) dashboard.
 
-Author: Phyo Thiha and Jholman Jaramillo
+Author: Phyo Thiha
 Last Modified: June 16, 2020
 """
 import datetime
@@ -11,16 +11,7 @@ import re
 
 import pandas as pd
 
-from constants.fx_rates_constants import \
-    DATE_COLUMN, \
-    RAW_COUNTRY_COLUMN, \
-    HARMONIZED_COUNTRY_COLUMN, \
-    FX_RATES_COLUMN, \
-    FX_COUNTRY_NAME_TO_HARMONIZED_COUNTRY_NAME_MAPPINGS, \
-    COUNTRIES_THAT_USE_USD, \
-    COUNTRIES_THAT_USE_EURO, \
-    USD_FX_Rate, \
-    EURO_CURRENCY_NAME
+from constants.fx_rates_constants import *
 from constants.comp_harm_constants import COUNTRIES as COMP_HARM_PROJECT_COUNTRIES
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
@@ -40,17 +31,37 @@ def generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year):
 
 class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
 
-    def select_desired_columns(self,
-                               df):
+    # We will have to extract year value from the FX file before
+    # processing the rest of the data in a different read.
+    static_year_in_data_file = None
+
+    @classmethod
+    def update_year_in_data_file(cls, value):
+        cls.static_year_in_data_file = value
+
+    def extract_year_value_and_set_it_to_static_variable(self, df):
         """
-        We only need Actual and Estimated FX rate columns
-        in addition to 'COUNTRY' name column.
+        Note to my teammates: This is a **hack** and should not be
+        relied on to pass information (esp. variables that hold a
+        lot of data) between different configs in the same config
+        file.
         """
-        desired_cols = [RAW_COUNTRY_COLUMN] \
-                       + [col_name for col_name in df.columns.tolist()
-                          if (str(col_name).startswith('ACT')
-                              or str(col_name).startswith('EST'))]
-        return df[desired_cols]
+        WvmFxRatesTransformFunctions.update_year_in_data_file([c for c in df.columns if type(c) == int][0])
+        return df
+
+    def select_COUNTRY_and_YEARLY_AVG_RATE_columns(
+            self,
+            df
+    ):
+        """
+        We select 'COUNTRY' name column and
+        Yearly average FX rate column, which
+        usually tends to be the last column
+        in the file.
+        """
+        yearly_avg_col = [col_name for col_name in df.columns.tolist()
+                          if str(col_name).startswith('AVG')][-1]
+        return df[[RAW_COUNTRY_COLUMN, yearly_avg_col]]
 
     def assert_the_first_column_is_COUNTRY_column(self,
                                                   df):
@@ -80,38 +91,21 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         """
         return self.copy_value_from_row_above_to_empty_rows_below(df, list_of_col_names)
 
-    def drop_rows_with_even_number_as_index(self,
-                                            df):
+    def select_every_third_row(
+            self,
+            df
+    ):
         """
         We will only extract the local currency to USD FX rate factor.
-        For that, we only need to keep rows with odd-numbered indexes.
+        For that, we only need to keep every third row (starting from
+        the first row).
         REF: https://stackoverflow.com/a/55684977/1330974
         """
-        return df.iloc[1::2].reset_index(drop=True)
+        return df.iloc[1::3].reset_index(drop=True)
 
-    def assert_FX_columns_for_all_months_exist(self,
-                                               df):
-        """ Check if there are 12 columns with FX rates """
-        # First, join column names with '|' in a single string.
-        col_names = '|'.join(df.columns.tolist()[1:])
-
-        # Second, find either 'ACT' or 'EST' because these
-        # represents columns FX rates for each month
-        result = re.findall(r'(ACT)|(EST)', col_names)
-        expected_col_count = 12
-        if len(result) != expected_col_count:
-            raise InsufficientNumberOfColumnsError(
-                f"Expected FX rate column count of: "
-                f"{expected_col_count} but found: "
-                f"{len(result)} in the current dataframe."
-            )
-
-        return df
-
-    def rename_columns_with_year_and_month_name_for_each(
+    def rename_yearly_avg_rate_column(
             self,
-            df,
-            year
+            df
     ):
         """
         Given a year provided as parameter to this method
@@ -120,24 +114,21 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         rename the existing column names with new column
         names having YYYY-MM-DD format.
         """
-        cur_year = datetime.datetime.now().year
-        if cur_year != year:
+        if not WvmFxRatesTransformFunctions.static_year_in_data_file:
             raise InvalidValueFoundError(
-                f"The year provided, {year}, is not the same as "
-                f"the current year. Please comment out this "
-                f"line in python code if you want to proceed "
-                f"with the rest of the step even when the year "
-                f"that you are using is different than the current "
-                f"year (e.g., you are processing data from previous "
-                f"years)."
+                f"Seems like extracting year information from the "
+                f"first few lines of the FX rate data file did not "
+                f"return anything. Please inspect the static method "
+                f"that extracts year information in this transform "
+                f"function file."
             )
-
         # ASSUMPTION: we assume that the first column is 'COUNTRY'
-        month_cols = df.columns.tolist()[1:]
-        yyyy_mm_dd = generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year)
-        old_to_new_name_dict = dict(zip(month_cols, yyyy_mm_dd))
+        old_to_new_name_dict = {
+            df.columns[-1]: WvmFxRatesTransformFunctions.static_year_in_data_file
+        }
 
         return self.rename_columns(df, old_to_new_name_dict)
+
 
     def unpivot_fx_data(self,
                         df):
@@ -146,7 +137,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         df1=df.set_index(RAW_COUNTRY_COLUMN)
         df2 = df1.unstack().reset_index(name=FX_RATES_COLUMN)
 
-        return self.rename_columns(df2, {'level_0': DATE_COLUMN})
+        return self.rename_columns(df2, {'level_0': YEAR_COLUMN})
 
     def add_HARMONIZE_COUNTRY_column_using_existing_country_column(
             self,
@@ -197,19 +188,20 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
 
         return df
 
-    def add_rows_for_countries_that_use_USD(self,
-                                            df):
+    def add_yearly_rows_for_countries_that_use_USD(
+            self,
+            df
+    ):
         """
         GCC, Puerto Rico, USA use USD as currency in the data we receive.
         We will populate rows for these countries with 1.0 as FX rates.
         """
-        cur_year = datetime.datetime.now().year
-        yyyy_mm_dd = generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(cur_year)
-
         for country in COUNTRIES_THAT_USE_USD:
             df1 = pd.DataFrame(columns=df.columns)
-            for i, d in enumerate(yyyy_mm_dd):
-                df1.loc[i] = [d, country, USD_FX_Rate, country]
+            df1.loc[0] = [WvmFxRatesTransformFunctions.static_year_in_data_file,
+                          country,
+                          USD_FX_Rate,
+                          country]
             df = pd.concat([df, df1])
 
         return df.reset_index(drop=True)
@@ -262,20 +254,104 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         return self.update_order_of_columns_in_dataframe(
             df,
             [
-                DATE_COLUMN,
+                YEAR_COLUMN,
                 RAW_COUNTRY_COLUMN,
                 HARMONIZED_COUNTRY_COLUMN,
                 FX_RATES_COLUMN
             ]
         )
 
-    # def debug(
-    #         self,
-    #         df
-    # ):
-    #     import pdb
-    #     pdb.set_trace()
-    #     return df
+    def select_COUNTRY_and_MONTHLY_RATE_columns(
+            self,
+            df
+    ):
+        """
+        We only need Actual and Estimated FX rate columns
+        in addition to 'COUNTRY' name column.
+        """
+        desired_cols = [RAW_COUNTRY_COLUMN] \
+                       + [col_name for col_name in df.columns.tolist()
+                          if (str(col_name).startswith('ACT')
+                              or str(col_name).startswith('EST'))]
+        return df[desired_cols]
+
+    def assert_FX_columns_for_all_months_exist(self,
+                                               df):
+        """ Check if there are 12 columns with FX rates """
+        # First, join column names with '|' in a single string.
+        col_names = '|'.join(df.columns.tolist()[1:])
+
+        # Second, find either 'ACT' or 'EST' because these
+        # represents columns FX rates for each month
+        result = re.findall(r'(ACT)|(EST)', col_names)
+        expected_col_count = 12
+        if len(result) != expected_col_count:
+            raise InsufficientNumberOfColumnsError(
+                f"Expected FX rate column count of: "
+                f"{expected_col_count} but found: "
+                f"{len(result)} in the current dataframe."
+            )
+
+        return df
+
+    def rename_columns_with_year_and_month_name_for_each(
+            self,
+            df,
+            year
+    ):
+        """
+        Given a year provided as parameter to this method
+        and **assuming that the existing columns are already
+        in the right order (from January to December)**,
+        rename the existing column names with new column
+        names having YYYY-MM-DD format.
+        """
+        cur_year = datetime.datetime.now().year
+        if cur_year != year:
+            raise InvalidValueFoundError(
+                f"The year provided, {year}, is not the same as "
+                f"the current year. Please comment out this "
+                f"line in python code if you want to proceed "
+                f"with the rest of the step even when the year "
+                f"that you are using is different than the current "
+                f"year (e.g., you are processing data from previous "
+                f"years)."
+            )
+
+        # ASSUMPTION: we assume that the first column is 'COUNTRY'
+        month_cols = df.columns.tolist()[1:]
+        yyyy_mm_dd = generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year)
+        old_to_new_name_dict = dict(zip(month_cols, yyyy_mm_dd))
+
+        return self.rename_columns(df, old_to_new_name_dict)
+
+    def add_monthly_rows_for_countries_that_use_USD(
+            self,
+            df
+    ):
+        """
+        GCC, Puerto Rico, USA use USD as currency in the data we receive.
+        We will populate rows for these countries with 1.0 as FX rates.
+        """
+        cur_year = datetime.datetime.now().year
+        yyyy_mm_dd = generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(cur_year)
+
+        for country in COUNTRIES_THAT_USE_USD:
+            df1 = pd.DataFrame(columns=df.columns)
+            for i, d in enumerate(yyyy_mm_dd):
+                df1.loc[i] = [d, country, USD_FX_Rate, country]
+            df = pd.concat([df, df1])
+
+        return df.reset_index(drop=True)
+
+
+    def debug(
+            self,
+            df
+    ):
+        import pdb
+        pdb.set_trace()
+        return df
     #
     # , {
     #     "function_name": "debug",
