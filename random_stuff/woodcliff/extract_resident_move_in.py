@@ -2,8 +2,6 @@
 Script to extract resident move-in dates from raw data file.
 """
 
-import pdb
-
 import re
 
 import pandas as pd
