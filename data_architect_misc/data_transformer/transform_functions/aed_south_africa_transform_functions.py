@@ -109,6 +109,7 @@ class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
             , '(?i)^CORPORATE$': 'Other'
             , '(?i)^BREATH FRESHENERS$': 'Oral Care'
             , '(?i)^COSMETIC RANGE$': 'Personal Care'
+            , '(?i)^COSMETIC.*?RANGE$': 'Personal Care'
             , '(?i)^LIP COLOUR$': 'Personal Care'
             , '(?i)^MASCARA$': 'Personal Care'
             , '(?i)^SOCIAL UPLIFTMENT BUSINESS INITIATIVES$': 'Other'
