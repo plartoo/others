@@ -108,11 +108,9 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
             df
     ):
         """
-        Given a year provided as parameter to this method
-        and **assuming that the existing columns are already
-        in the right order (from January to December)**,
-        rename the existing column names with new column
-        names having YYYY-MM-DD format.
+        Rename the name of the original column which stores
+        average FX rates of the year to the value of the year
+        found in the file.
         """
         if not WvmFxRatesTransformFunctions.static_year_in_data_file:
             raise InvalidValueFoundError(
@@ -129,16 +127,6 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
 
         return self.rename_columns(df, old_to_new_name_dict)
 
-
-    def unpivot_fx_data(self,
-                        df):
-        # REF: https://stackoverflow.com/a/18259236/1330974
-        # First, set the index to COUNTRY column then unstack
-        df1=df.set_index(RAW_COUNTRY_COLUMN)
-        df2 = df1.unstack().reset_index(name=FX_RATES_COLUMN)
-
-        return self.rename_columns(df2, {'level_0': YEAR_COLUMN})
-
     def add_HARMONIZE_COUNTRY_column_using_existing_country_column(
             self,
             df,
@@ -151,19 +139,18 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         (as listed in constants.wvm_dashboard_constants).
 
         If there is no entry in the mapping dictionary,
-        we will leave the corresponding cell in the new
-        column empty and remove them.
+        we will copy the original country's name.
         """
         df = self.add_new_column_with_values_based_on_another_column_values_using_exact_str_match(
             df,
             existing_country_col_name,
             harmonized_country_col_name,
-            FX_COUNTRY_NAME_TO_HARMONIZED_COUNTRY_NAME_MAPPINGS
+            FX_COUNTRY_NAME_TO_HARMONIZED_COUNTRY_NAME_MAPPINGS,
+            True
         )
+        return df.reset_index(drop=True)
 
-        return df[df[harmonized_country_col_name].notna()].reset_index(drop=True)
-
-    def assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries(
+    def assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries_in_mapping_table(
             self,
             df,
             harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
@@ -172,21 +159,40 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         Make sure that we know if CP changes country names in
         FX rate files by raising error when we find that
         not all HARMONIZED country names in mapping dictionary
-        show up in the resulting dataframe after mapping.
+        show up in the resulting dataframe after mapping process.
         """
         expected_harmonized_country_names = set(FX_COUNTRY_NAME_TO_HARMONIZED_COUNTRY_NAME_MAPPINGS.values())
-        mapped_harmonized_country_names = set(df[harmonized_country_col_name].unique())
+        actual_harmonized_country_names = set(df[harmonized_country_col_name].unique())
 
-        if expected_harmonized_country_names != mapped_harmonized_country_names:
+        if bool(expected_harmonized_country_names - actual_harmonized_country_names):
             raise UnexpectedColumnValuesFoundError(
                 f"We found that these expected countries are missing from "
                 f"'{harmonized_country_col_name} column: '"
-                f"{expected_harmonized_country_names - mapped_harmonized_country_names}. "
+                f"{expected_harmonized_country_names - actual_harmonized_country_names}. "
                 f"Make sure all expected countries show up in '{harmonized_country_col_name}' "
                 f"column or update the country mapping in constants.wvm_dashboard_constants file."
             )
 
         return df
+
+    def remove_existing_rows_for_countries_that_use_USD_and_EURO(
+            self,
+            df
+    ):
+        """
+        Unfortunately, the raw data already has rows for countries
+        that uses EURO and USD such as BAHRAIN, KUWAIT, OMAN, ...,
+        SLOVAKIA. Therefore, we need to remove these rows before
+        adding rows with constant values for USD and EURO-using
+        countries.
+        """
+        countries_to_drop = {c.upper() for c in COUNTRIES_THAT_USE_USD}.union(
+            {c.upper() for c in COUNTRIES_THAT_USE_EURO})
+
+        return self.drop_rows_with_matching_string_values(
+            df,
+            [HARMONIZED_COUNTRY_COLUMN],
+            [countries_to_drop])
 
     def add_yearly_rows_for_countries_that_use_USD(
             self,
@@ -198,16 +204,17 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         """
         for country in COUNTRIES_THAT_USE_USD:
             df1 = pd.DataFrame(columns=df.columns)
-            df1.loc[0] = [WvmFxRatesTransformFunctions.static_year_in_data_file,
-                          country,
+            df1.loc[0] = [country,
                           USD_FX_Rate,
                           country]
             df = pd.concat([df, df1])
 
         return df.reset_index(drop=True)
 
-    def add_rows_for_countries_that_use_EURO(self,
-                                             df):
+    def add_yearly_rows_for_countries_that_use_EURO(
+            self,
+            df
+    ):
         """
         Some EU countries use Euro as currency in the data we receive.
         We will populate rows for these countries by using Euro to USD FX rates.
@@ -221,7 +228,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
 
         return df.reset_index(drop=True)
 
-    def check_HARMONIZED_COUNTRY_column_for_missing_country_names(
+    def check_HARMONIZED_COUNTRY_column_against_country_names_from_comp_harm_project(
             self,
             df,
             harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
@@ -229,15 +236,15 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         """
         Check harmonized country column to see if we are missing
         any country name from the list of countries we process
-        for competitive harmonization project.
+        for the competitive harmonization project.
         """
-        mapped_harmonized_country_names = set(df[harmonized_country_col_name].unique())
+        actual_harmonized_country_names = set(df[harmonized_country_col_name].unique())
 
-        if COMP_HARM_PROJECT_COUNTRIES - mapped_harmonized_country_names:
+        if bool(COMP_HARM_PROJECT_COUNTRIES - actual_harmonized_country_names):
             raise UnexpectedColumnValuesFoundError(
-                f"We found that these expected countries are missing from "
-                f"'{harmonized_country_col_name} column: '"
-                f"{COMP_HARM_PROJECT_COUNTRIES - mapped_harmonized_country_names}. "
+                f"We found that these countries in competitive harmonization "
+                f"project are missing from '{harmonized_country_col_name} column: '"
+                f"{COMP_HARM_PROJECT_COUNTRIES - actual_harmonized_country_names}. "
                 f"Make sure all expected countries show up in '{harmonized_country_col_name}' "
                 f"column or update the country mapping in constants.wvm_dashboard_constants file."
             )
@@ -254,12 +261,24 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         return self.update_order_of_columns_in_dataframe(
             df,
             [
-                YEAR_COLUMN,
                 RAW_COUNTRY_COLUMN,
                 HARMONIZED_COUNTRY_COLUMN,
-                FX_RATES_COLUMN
+                WvmFxRatesTransformFunctions.static_year_in_data_file,
             ]
         )
+
+    # Methods below are for extracting monthly FX rates.
+    # We decided to use yearly average FX rates to simplify
+    # the constant dollar calculation and keep the amount of
+    # data manageable.
+    def unpivot_fx_data(self,
+                        df):
+        # REF: https://stackoverflow.com/a/18259236/1330974
+        # First, set the index to COUNTRY column then unstack
+        df1 = df.set_index(RAW_COUNTRY_COLUMN)
+        df2 = df1.unstack().reset_index(name=FX_RATES_COLUMN)
+
+        return self.rename_columns(df2, {'level_0': YEAR_COLUMN})
 
     def select_COUNTRY_and_MONTHLY_RATE_columns(
             self,
@@ -345,13 +364,13 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         return df.reset_index(drop=True)
 
 
-    def debug(
-            self,
-            df
-    ):
-        import pdb
-        pdb.set_trace()
-        return df
+    # def debug(
+    #         self,
+    #         df
+    # ):
+    #     import pdb
+    #     pdb.set_trace()
+    #     return df
     #
     # , {
     #     "function_name": "debug",

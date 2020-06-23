@@ -150,6 +150,53 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df.reset_index(drop=True)
 
+    def drop_rows_with_matching_string_values(
+            self,
+            df,
+            list_of_col_names,
+            list_of_set_of_string_values
+    ):
+        """
+        Drops rows if any of the columns in the list_of_col_names
+        contain a matching string value in the corresponding set
+        in the list_of_set_of_string_values.
+
+        For example, if we want to drop rows whenever 'QATAR',
+        or 'SAUDI ARABIA' appears in the 'COUNTRY' column, we will
+        call this method like below:
+        drop_rows_with_certain_string_values(df, ['COUNTRY'],
+        [{'SAUDI ARABIA', 'QATAR'}]).
+
+        Args:
+            df: Raw dataframe to transform.
+            list_of_col_names: List of column names in which the code
+            should check if the cell values matches and thus, the row
+            should be dropped.
+            list_of_set_of_string_values: List of set (data type) of
+            string values that will be checked against the existing
+            values in the dataframe to see if the rows should be
+            dropped.
+
+        Returns:
+            Dataframe with rows dropped (if matches were found).
+        """
+        if not (isinstance(list_of_col_names, list)
+                and isinstance(list_of_set_of_string_values, list)):
+            raise transform_errors.InputDataTypeError(
+                f"List of column names and list of set "
+                f"of string values must both be of list type.")
+
+        if len(list_of_col_names) != len(list_of_set_of_string_values):
+            raise transform_errors.InputDataLengthError(
+                f"The length of the list of column names: {len(list_of_col_names)} "
+                f"is NOT the same as the length of the set of string values: "
+                f"{len(list_of_set_of_string_values)}.")
+
+        for i, col_name in enumerate(list_of_col_names):
+            df = df[~df[col_name].isin(list_of_set_of_string_values[i])]
+
+        return df
+
     def rename_columns(self, df, old_to_new_cols_dict):
         """
         Rename column headers to new ones given a dictionary of

@@ -92,22 +92,22 @@
                 "function_name": "rename_yearly_avg_rate_column"
             },
             {
-                "function_name": "unpivot_fx_data"
-            },
-            {
                 "function_name": "add_HARMONIZE_COUNTRY_column_using_existing_country_column"
             },
             {
-                "function_name": "assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries"
+                "function_name": "assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries_in_mapping_table"
+            },
+            {
+                "function_name": "remove_existing_rows_for_countries_that_use_USD_and_EURO"
             },
             {
                 "function_name": "add_yearly_rows_for_countries_that_use_USD"
             },
             {
-                "function_name": "add_rows_for_countries_that_use_EURO"
+                "function_name": "add_yearly_rows_for_countries_that_use_EURO"
             },
             {
-                "function_name": "check_HARMONIZED_COUNTRY_column_for_missing_country_names"
+                "function_name": "check_HARMONIZED_COUNTRY_column_against_country_names_from_comp_harm_project"
             },
             {
                 "function_name": "rearrange_columns_for_final_output"
