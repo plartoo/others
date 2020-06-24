@@ -95,7 +95,8 @@ class PandasCSVDataReader(PandasFileDataReader):
             if verbose:
                 self.logger.info(
                     f"Reading data between row range: {row_idx_to_start_reading+1} "
-                    f"=> {row_idx_to_start_reading+rows_to_read}")
+                    f"=> {row_idx_to_start_reading+rows_to_read}\n"
+                    f"from this file: {self.input_file}")
         except EmptyDataError:
             # Nothing more to read, thus returns an empty data frame
             return pd.DataFrame(columns=self.headers)
