@@ -3,16 +3,23 @@
         "__comment__": "This config iteration is only to extract and save year value from the top few rows of the fx rate data file.",
 
         "input_folder_path": "./input/FX_Rates",
-        "input_file_name_or_pattern": "202005_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2012_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2013_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2014_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2015_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2016_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2017_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2018_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2019_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "202005_FX_Rates_Distributed.xls",
+
+        "input_sheet_name": "2020 Rates",
 
         "__comment_for_header__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the first row in the data file would have index=0) from which the program should read column headers from. If column headers don't exist, do NOT define this key (that is, delete this from the config file).",
         "header": 4,
 
         "__comment_for_skiprows__": "(Optional) Enter the index of the row (note: in programming, index starts from 0, so the second row in the data file would have index=1) where the data begins in the input file.In a typical input file, the data starts the second row (the first row is the column headers), so the default value for this key is set to '1' even if you don't define this key explicitly like below.",
         "skiprows": 9,
-
-        "__comment_for_input_sheet_name__": "(Optional) If your input file(s) is/are Excel, you can define the sheet name to read/process. If you leave this key undefined, the program will read first sheet, with index 0 by default. You can also leave this key undefined if your input file is not a CSV file or if you are okay with the default value below.",
-        "input_sheet_name": 0,
 
         "__comment_for_output_file(s)__": "(Optional) The key below, 'write_output', can be used to decide if the processed data will be written to an output destination (a file or a SQL table). The default is as shown below and it will be used even if you leave this key undefined.",
         "write_output": false,
@@ -31,7 +38,27 @@
         "__comment__": "This config is to extract the yearly average FX rates from the file.",
 
         "input_folder_path": "./input/FX_Rates",
-        "input_file_name_or_pattern": "202005_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2012_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2013_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2014_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2015_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2016_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2017_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2018_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "2019_FX_Rates_Distributed.xls",
+        "_input_file_name_or_pattern_": "202005_FX_Rates_Distributed.xls",
+
+        "input_sheet_name": "2020 Rates",
+
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2012",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2013",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2014",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2015",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2016",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2017",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2018",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_2019",
+        "_output_file_name_prefix_": "Transformed_FX_Rates_202005",
 
         "__comment_for_rows_per_read__": "(Optional) The number of rows to read and transform per each iteration. If the file has too many rows and if you have limited RAM on your machine, you can enter a reasonable integer value below and the data reader module will only process that many rows at a time (thereby, preventing the out-of-memory errors). Default rows that will be processed per iteration is shown below and even if you don't define this key, the default value below will be used by the program.",
         "rows_per_read": 100000,
@@ -45,9 +72,6 @@
         "__comment_for_skipfooter__": "(Optional) Enter the NUMBER of rows (note: not the index value), which should be dropped from the bottom of the input file. This can be used when input file has some footer rows (such as Copyrights statement) that we want to drop. But since it is not common to have footer rows, we set the default for this key to 0 even if you don't define this key explicitly like below.",
         "skipfooter": 0,
 
-        "__comment_for_input_sheet_name__": "(Optional) If your input file(s) is/are Excel, you can define the sheet name to read/process. If you leave this key undefined, the program will read first sheet, with index 0 by default. You can also leave this key undefined if your input file is not a CSV file or if you are okay with the default value below.",
-        "input_sheet_name": 0,
-
         "__comment_for_output_file(s)__": "(Optional) The key below, 'write_output', can be used to decide if the processed data will be written to an output destination (a file or a SQL table). The default is as shown below and it will be used even if you leave this key undefined.",
         "write_output": true,
 
@@ -57,8 +81,6 @@
         "__comment_for_output_folder_path__": "(Optional) The key below can be used to specify where the processed data will be written.The default value is as shown below and it will be used even if the key below is undefined.",
         "output_folder_path": "./output/FX_Rates",
 
-        "__comment_for_output_file_name_prefix__": "(Optional) The key below can be used to specify the beginning part (prefix) of the output file name (e.g., 'prefix_*.xlsx'). The default value is None (empty string) and it will be used even if the key below is undefined.",
-        "output_file_name_prefix": "Transformed_FX_Rates",
 
         "__comment_for_output_delimiter__": "(Optional) If your output file is CSV, you can define the delimiter to use in the output file. The program will use the default delimiter as shown below even if the key is not defined.",
         "output_delimiter": "|",
@@ -93,9 +115,6 @@
             },
             {
                 "function_name": "add_HARMONIZE_COUNTRY_column_using_existing_country_column"
-            },
-            {
-                "function_name": "assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries_in_mapping_table"
             },
             {
                 "function_name": "remove_existing_rows_for_countries_that_use_USD_and_EURO"
