@@ -29,7 +29,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
 
         return df
 
-    def sum_budget_data_by_region_for_Market_Investment_Trend_view(
+    def sum_budget_data_by_year_and_region_for_Market_Investment_Trend_view(
             self,
             df
     ):
@@ -40,7 +40,10 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         """
         return self.sum_column_data_by_group_by(
             df,
-            [HARMONIZED_REGION_COLUMN_NAME],
+            [
+                HARMONIZED_YEAR_COLUMN_NAME,
+                HARMONIZED_REGION_COLUMN_NAME
+            ],
             HARMONIZED_BUDGET_COLUMN_NAME,
             AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW)
 
@@ -84,7 +87,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             ' '
         )
 
-    def sum_budget_data_by_region_and_macro_channel_for_Digital_Investment_Trend_view(
+    def sum_budget_data_by_year_region_and_macro_channel_for_Digital_Investment_Trend_view(
             self,
             df
     ):
@@ -96,6 +99,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         return self.sum_column_data_by_group_by(
             df,
             [
+                HARMONIZED_YEAR_COLUMN_NAME,
                 HARMONIZED_REGION_COLUMN_NAME,
                 HARMONIZED_MACRO_CHANNEL_COLUMN_NAME
              ],
@@ -111,7 +115,8 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         the summed budget data to support the
         Market Investment Trend view.
         """
-        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME] == AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW]
+        return df[df[HARMONIZED_COUNTRY_COLUMN_NAME]
+                  == AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW]
 
 
     def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Digital_Investment_Trend_view(
@@ -130,7 +135,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW)
 
 
-    def sum_budget_data_by_region_for_Category_Investment_Trend_view(
+    def sum_budget_data_by_year_and_region_for_Category_Investment_Trend_view(
             self,
             df
     ):
@@ -141,7 +146,10 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         """
         return self.sum_column_data_by_group_by(
             df,
-            [HARMONIZED_REGION_COLUMN_NAME],
+            [
+                HARMONIZED_YEAR_COLUMN_NAME,
+                HARMONIZED_REGION_COLUMN_NAME
+            ],
             HARMONIZED_BUDGET_COLUMN_NAME,
             AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW)
 

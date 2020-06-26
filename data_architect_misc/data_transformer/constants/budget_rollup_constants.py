@@ -193,6 +193,7 @@ RAW_TO_HARMONIZED_SUBCATEGORY_NAME_MAPPING = {
     , '(?i)^Hair Care Shampoo$': 'Shampoo'
     , '(?i)^Cleaners$': 'Cleaners Regimen'
     , '(?i)^Male Body Cleansers$': 'Body Wash'
+    , '(?i)^Body Soap$': 'Body Wash'
     , '(?i)^Body Wash$': 'Body Wash'
     , '(?i)^Hair Care Conditioner$': 'Conditioner'
     , '(?i)^Pet Food$': 'Pet Food'
@@ -281,6 +282,6 @@ ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT = [
     HARMONIZED_BUDGET_COLUMN_NAME
 ]
 
-AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW = 'Aggregated_Budget_By_Region_for_Market_Investment_Trend_view'
-AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW = 'Aggregated_Budget_By_Region_And_Macro_Channel_for_Digital_Investment_Trend_view'
-AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW = 'Aggregated_Budget_By_Region_for_Category_Investment_Trend_view'
+AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW = 'Aggregated_Budget_By_Year_and_Region_for_Market_Investment_Trend_view'
+AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW = 'Aggregated_Budget_By_Year_Region_And_Macro_Channel_for_Digital_Investment_Trend_view'
+AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW = 'Aggregated_Budget_By_Year_and_Region_for_Category_Investment_Trend_view'
