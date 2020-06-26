@@ -2,7 +2,7 @@
   {
     "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
     "input_folder_path": "./input/Budget_Rollup/",
-    "input_file_name_or_pattern": "Budget_Rollup_20200313.xlsx",
+    "input_file_name_or_pattern": "Budget_Rollup_20200626.xlsx",
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read. Default is the first sheet.",
     "input_sheet_name": "Budget Roll-Up",
@@ -20,7 +20,7 @@
     "write_output": true,
 
     "__comment_for_data_writer_module_file__": "(Optional) The key below, 'data_writer_module_file', can be used to specify which data writer module (such as Excel, CSV or SQL) will be used to write the processed data. The default value is as shown below and it will be used even if you leave this key undefined.",
-    "data_writer_module_file": "./data_writers/csv_data_writer.py",
+    "data_writer_module_file": "./data_writers/excel_data_writer.py",
 
     "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
     "__comment__": "Default is going to be the current working directory of transform.py",

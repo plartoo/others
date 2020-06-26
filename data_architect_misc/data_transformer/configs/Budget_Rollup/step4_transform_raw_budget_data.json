@@ -1,0 +1,141 @@
+[
+  {
+    "__comment__": "This step needs to be run after step 3, which cleans and transforms the raw Budget roll-up data.",
+    "__comment__": "This step applies constant dollar ratios and FX rates to raw Budget roll-up data to convert to USD.",
+
+    "input_folder_path": "./input/Budget_Rollup/",
+    "input_file_name_or_pattern": "Transformed_Budget_Rollup_rows_0_38473_20200617_133037.csv",
+    "input_delimiter": "|",
+    "input_sheet_name": 0,
+
+    "header": 0,
+    "skiprows": 1,
+    "skipfooter": 0,
+
+    "write_output": true,
+    "data_writer_module_file": "./data_writers/excel_data_writer.py",
+
+    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
+    "__comment__": "Default is going to be the current working directory of transform.py",
+    "output_folder_path": "./output/Budget_Rollup/",
+
+    "__comment__": "(Optional) Prefix for the output file name.",
+    "output_file_name_prefix": "Transformed_Budget_Rollup_With_Constant_Dollar",
+
+    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
+    "custom_transform_functions_file": "./transform_functions/wvm_budget_rollup_transform_functions.py",
+
+    "__comment__": "(Required) List of the functions and their parameters.",
+    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as .\\transform_function\\switzerland_transform_functions.py",
+    "functions_to_apply": [
+      {
+        "function_name": "drop_unnamed_columns"
+      },
+      {
+        "__function_comment__": "By the time we run this function, there should be only 13 columns ",
+        "__function_comment__": "total remaining in the raw data frame.",
+        "function_name": "assert_number_of_columns_equals",
+        "function_args": [13]
+      },
+      {
+        "function_name": "assert_no_empty_value_in_DIMENSION_COLUMNS"
+      },
+      {
+        "__function_comment__": "We need to do this BEFORE asserting unexpected values in REGION column because the budget roll up file sometimes contain lowercase names.",
+        "function_name": "capitalize_all_REGION_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_REGION_column"
+      },
+      {
+        "function_name": "create_HARMONIZED_REGION_column_using_REGION_column_values"
+      },
+      {
+        "__function_comment__": "Whenever Segment Macro='pet food' or Category='Pet', update HARMONIZED_REGION to 'HILLS'",
+        "function_name": "update_HARMONIZED_REGION_for_Hills_when_CATEGORY_or_SEGMENT_MACRO_is_pet_related"
+      },
+      {
+        "__function_comment__": "REGION column is already capitalized, but just making sure.",
+        "function_name": "capitalize_HARMONIZED_REGION_column_values"
+      },
+      {
+        "function_name": "create_HARMONIZED_MARKET_column_using_MARKET_column_values"
+      },
+      {
+        "__function_comment__": "Update Market names to 'USA' if the raw names are 'USH' and 'AA'.",
+        "function_name": "update_US_name_to_USA_in_MARKET_column"
+      },
+      {
+        "__function_comment__": "Budget roll-up file incorrectly assigns US Hills spends as 'Hills' for years before 2016, so we need to fix that.",
+        "function_name": "update_Hills_in_HARMONIZED_MARKET_column_to_USA_for_pet_related_lines"
+      },
+      {
+        "__function_comment__": "Whenever we have Category='Pet' or Segment Macro='Pet Food', we want to add 'Hills ' as prefix to the Market names.",
+        "__function_comment__": "But since we updated HARMONIZED_REGION to 'HILLS' whenever Category='Pet' or Segment Macro='Pet Food', we will rely on HARMONIZED_REGION's value to add the prefix.",
+        "function_name": "update_HARMONIZED_MARKET_names_with_prefix_Hills"
+      },
+      {
+        "__function_comment__": "We will create Harmonized_Country column because not all countries' names in Harmonized_Market are equal to our standard country names.",
+        "function_name": "create_HARMONIZED_COUNTRY_column_using_HARMONIZED_MARKET_column"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_COUNTRY_column"
+      },
+      {
+        "function_name": "create_HARMONIZED_YEAR_column_using_YEAR_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_YEAR_column"
+      },
+      {
+        "function_name": "update_HARMONIZED_YEAR_names_with_suffix_LE"
+      },
+      {
+        "function_name": "create_HARMONIZED_CATEGORY_column_using_CATEGORY_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_CATEGORY_column"
+      },
+      {
+        "function_name": "create_HARMONIZED_SUBCATEGORY_column_using_SEGMENT_MACRO_column_values"
+      },
+      {
+        "function_name": "create_HARMONIZED_BRAND_column_by_copying_Brand_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_SUBCATEGORY_column"
+      },
+      {
+        "function_name": "create_HARMONIZED_MACRO_CHANNEL_column_using_MACRO_CHANNEL_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_MACRO_CHANNEL_column"
+      },
+      {
+        "function_name": "create_HARMONIZED_CHANNEL_column_using_CHANNEL_column_values"
+      },
+      {
+        "function_name": "assert_no_unexpected_value_in_HARMONIZED_CHANNEL_column"
+      },
+      {
+        "function_name": "create_HARMONIZED_BUDGET_USD_column_using_BUDGET_USD_column_values"
+      },
+      {
+        "function_name": "assert_HARMONIZED_BUDGET_USD_column_has_no_empty_values"
+      },
+      {
+        "__function_comment__": "Make sure that this conversion happens AFTER deleting the rows with empty Budget data cell.",
+        "function_name": "convert_HARMONIZED_BUDGET_USD_column_to_float"
+      },
+      {
+        "function_name": "assert_HARMONIZED_BUDGET_USD_column_has_no_negative_value"
+      },
+      {
+        "function_name": "assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals"
+      },
+      {
+        "function_name": "filter_and_rearrange_columns_for_final_output"
+      }
+    ]
+  }
+]
