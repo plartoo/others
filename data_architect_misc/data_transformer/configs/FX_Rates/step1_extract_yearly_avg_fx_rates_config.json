@@ -35,7 +35,8 @@
         ]
     },
     {
-        "__comment__": "This config is to extract the yearly average FX rates from the file.",
+        "__comment__": "This config is to extract the yearly 13-month average FX rates from the file.",
+        "__comment__": "We will extract value from the 13-month average column because that is closest to the true average of 12 months in the given year in all the raw files.",
 
         "input_folder_path": "./input/FX_Rates",
         "_input_file_name_or_pattern_": "2012_FX_Rates_Distributed.xls",

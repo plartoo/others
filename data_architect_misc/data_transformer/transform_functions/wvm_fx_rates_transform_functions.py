@@ -434,6 +434,34 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
                 )
         return df
 
-    def debug(self, df):
-        import pdb; pdb.set_trace()
+    def calculate_and_add_constant_dollar_ratio_columns_using_previous_year_as_base(
+            self,
+            df
+    ):
+        """
+        We will use previous year's rates as base in calculating constant dollar
+        values because we generally have full year's worth of FX rates for previous
+        year. The formula for constant dollar value is like this:
+        constant_dollar_ratio_for_year_x = fx_rate_of_base_year/fx_rate_of_year_x
+        """
+        previous_year = str(datetime.datetime.now().year - 1)
+        year_columns = [c for c in df.columns if c not in [RAW_COUNTRY_COLUMN, HARMONIZED_COUNTRY_COLUMN]]
+        for y in year_columns:
+            constant_dollar_col = ''.join([y, CONSTANT_DOLLAR_COLUMN_SUFFIX])
+            df[constant_dollar_col] = df[previous_year]/df[y]
+
+        return df
+
+    def set_constant_dollar_ratio_of_current_year_to_one(
+            self,
+            df
+    ):
+        """
+        Since we don't have full year's worth of FX rate data, we will
+        set the current year's constant dollar ratio to 1.
+        """
+        current_year = str(datetime.datetime.now().year)
+        constant_dollar_col = ''.join([current_year, CONSTANT_DOLLAR_COLUMN_SUFFIX])
+        df[constant_dollar_col] = 1.0
+
         return df
