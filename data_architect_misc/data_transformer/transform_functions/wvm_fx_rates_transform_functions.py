@@ -135,7 +135,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
             self,
             df,
             existing_country_col_name=RAW_COUNTRY_COLUMN,
-            harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
+            harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN_FX_RATES
     ):
         """
         Update raw country names with standard country names
@@ -157,7 +157,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
     def assert_HARMONIZED_COUNTRY_column_includes_all_expected_countries_in_mapping_table(
             self,
             df,
-            harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
+            harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN_FX_RATES
     ):
         """
         Make sure that we know if CP changes country names in
@@ -195,7 +195,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
 
         return self.drop_rows_with_matching_string_values(
             df,
-            [HARMONIZED_COUNTRY_COLUMN],
+            [HARMONIZED_COUNTRY_COLUMN_FX_RATES],
             [countries_to_drop])
 
     def add_yearly_rows_for_countries_that_use_USD(
@@ -226,8 +226,8 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
 
         for country in COUNTRIES_THAT_USE_EURO:
             # REF: https://stackoverflow.com/a/53954986
-            df1 = df[df[HARMONIZED_COUNTRY_COLUMN] == EURO_CURRENCY_NAME].copy(deep=True)
-            df1.loc[df1[HARMONIZED_COUNTRY_COLUMN] == EURO_CURRENCY_NAME, HARMONIZED_COUNTRY_COLUMN] = country
+            df1 = df[df[HARMONIZED_COUNTRY_COLUMN_FX_RATES] == EURO_CURRENCY_NAME].copy(deep=True)
+            df1.loc[df1[HARMONIZED_COUNTRY_COLUMN_FX_RATES] == EURO_CURRENCY_NAME, HARMONIZED_COUNTRY_COLUMN_FX_RATES] = country
             df = pd.concat([df, df1])
 
         return df.reset_index(drop=True)
@@ -235,7 +235,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
     def check_HARMONIZED_COUNTRY_column_against_country_names_from_comp_harm_project(
             self,
             df,
-            harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN
+            harmonized_country_col_name=HARMONIZED_COUNTRY_COLUMN_FX_RATES
     ):
         """
         Check harmonized country column to see if we are missing
@@ -266,7 +266,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
             df,
             [
                 RAW_COUNTRY_COLUMN,
-                HARMONIZED_COUNTRY_COLUMN,
+                HARMONIZED_COUNTRY_COLUMN_FX_RATES,
                 WvmFxRatesTransformFunctions.static_year_in_data_file,
             ]
         )
@@ -284,7 +284,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         df1 = df.set_index(RAW_COUNTRY_COLUMN)
         df2 = df1.unstack().reset_index(name=FX_RATES_COLUMN)
 
-        return self.rename_columns(df2, {'level_0': YEAR_COLUMN})
+        return self.rename_columns(df2, {'level_0': YEAR_COLUMN_FX_RATES})
 
     def select_COUNTRY_and_MONTHLY_RATE_columns(
             self,
@@ -398,7 +398,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
             # REF: https://stackoverflow.com/a/22676213/1330974
             df = df.merge(cur_df,
                           how='outer',
-                          on=HARMONIZED_COUNTRY_COLUMN,
+                          on=HARMONIZED_COUNTRY_COLUMN_FX_RATES,
                           suffixes=('', conflict_column_label))
             # Drop the columns that are common between
             # the two dataframes being merged, and only
@@ -421,10 +421,10 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
             df
     ):
         for year_col in df.columns[~df.columns.isin([RAW_COUNTRY_COLUMN,
-                                                     HARMONIZED_COUNTRY_COLUMN])]:
+                                                     HARMONIZED_COUNTRY_COLUMN_FX_RATES])]:
             cur_df = df[df[year_col].isna()]
             set_intersection = COMP_HARM_PROJECT_COUNTRIES.intersection(
-                set(cur_df[HARMONIZED_COUNTRY_COLUMN].unique()))
+                set(cur_df[HARMONIZED_COUNTRY_COLUMN_FX_RATES].unique()))
             if bool(set_intersection):
                 raise NullValueFoundError(
                     f"For year '{year_col}', the FX rate data is missing for the following "
@@ -445,7 +445,7 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         constant_dollar_ratio_for_year_x = fx_rate_of_base_year/fx_rate_of_year_x
         """
         previous_year = str(datetime.datetime.now().year - 1)
-        year_columns = [c for c in df.columns if c not in [RAW_COUNTRY_COLUMN, HARMONIZED_COUNTRY_COLUMN]]
+        year_columns = [c for c in df.columns if c not in [RAW_COUNTRY_COLUMN, HARMONIZED_COUNTRY_COLUMN_FX_RATES]]
         for y in year_columns:
             constant_dollar_col = ''.join([y, CONSTANT_DOLLAR_COLUMN_SUFFIX])
             df[constant_dollar_col] = df[previous_year]/df[y]

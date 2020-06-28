@@ -44,7 +44,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_REGION_COLUMN_NAME,
-            HARMONIZED_REGION_COLUMN_NAME,
+            HARMONIZED_REGION_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_REGION_NAME_MAPPING)
 
     def update_HARMONIZED_REGION_for_Hills_when_CATEGORY_or_SEGMENT_MACRO_is_pet_related(
@@ -57,7 +57,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         df.loc[
             ((df[RAW_CATEGORY_COLUMN_NAME].str.contains(r'^pet', flags=re.IGNORECASE))
              | (df[RAW_SEGMENT_MACRO_COLUMN_NAME].str.contains(r'^pet.*?food', flags=re.IGNORECASE))),
-            HARMONIZED_REGION_COLUMN_NAME
+            HARMONIZED_REGION_COLUMN_BUDGET_DATA
         ] = HILLS_REGION_NAME
 
         return df
@@ -66,7 +66,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
                                                    df):
         return self.capitalize_all_letters_of_each_word_in_columns(
             df,
-            [HARMONIZED_REGION_COLUMN_NAME]
+            [HARMONIZED_REGION_COLUMN_BUDGET_DATA]
         )
 
     def create_HARMONIZED_MARKET_column_using_MARKET_column_values(
@@ -76,7 +76,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_by_copying_values_from_another_column(
             df,
             [RAW_MARKET_COLUMN_NAME],
-            [HARMONIZED_MARKET_COLUMN_NAME]
+            [HARMONIZED_MARKET_COLUMN_BUDGET_DATA]
         )
 
     def update_US_name_to_USA_in_MARKET_column(
@@ -85,7 +85,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
     ):
         return self.update_str_values_in_columns(
             df,
-            [HARMONIZED_MARKET_COLUMN_NAME],
+            [HARMONIZED_MARKET_COLUMN_BUDGET_DATA],
             [MARKET_MAPPING_TO_USA]
         )
 
@@ -97,7 +97,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             (((df[RAW_CATEGORY_COLUMN_NAME].str.contains(r'^pet', flags=re.IGNORECASE))
               | (df[RAW_SEGMENT_MACRO_COLUMN_NAME].str.contains(r'^pet.*?food', flags=re.IGNORECASE)))
              & (df[RAW_MARKET_COLUMN_NAME].str.contains(r'^hills', flags=re.IGNORECASE))),
-            HARMONIZED_MARKET_COLUMN_NAME
+            HARMONIZED_MARKET_COLUMN_BUDGET_DATA
         ] = USA_COUNTRY_STANDARD_NAME
 
         return df
@@ -105,9 +105,9 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
     def update_HARMONIZED_MARKET_names_with_prefix_Hills(self,
                                                          df):
         df.loc[
-            df[HARMONIZED_REGION_COLUMN_NAME].str.contains(r'^hills', flags=re.IGNORECASE),
-            HARMONIZED_MARKET_COLUMN_NAME
-        ] = PREFIX_FOR_MARKET_HILLS + ' ' + df[HARMONIZED_MARKET_COLUMN_NAME].astype(str)
+            df[HARMONIZED_REGION_COLUMN_BUDGET_DATA].str.contains(r'^hills', flags=re.IGNORECASE),
+            HARMONIZED_MARKET_COLUMN_BUDGET_DATA
+        ] = PREFIX_FOR_MARKET_HILLS + ' ' + df[HARMONIZED_MARKET_COLUMN_BUDGET_DATA].astype(str)
 
         return df
 
@@ -121,8 +121,8 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         """
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
-            HARMONIZED_MARKET_COLUMN_NAME,
-            HARMONIZED_COUNTRY_COLUMN_NAME,
+            HARMONIZED_MARKET_COLUMN_BUDGET_DATA,
+            HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA,
             HARMONIZED_MARKET_TO_COMP_HARM_STANDARD_COUNTRY_NAME_MAPPINGS)
 
     def assert_no_unexpected_value_in_HARMONIZED_COUNTRY_column(
@@ -130,7 +130,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             df):
         return self.assert_only_expected_constants_exist_in_column(
             df,
-            HARMONIZED_COUNTRY_COLUMN_NAME,
+            HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA,
             HARMONIZED_MARKET_TO_COMP_HARM_STANDARD_COUNTRY_NAME_MAPPINGS.values()
         )
 
@@ -141,7 +141,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_by_copying_values_from_another_column(
             df,
             [RAW_YEAR_COLUMN_NAME],
-            [HARMONIZED_YEAR_COLUMN_NAME]
+            [HARMONIZED_YEAR_COLUMN_BUDGET_DATA]
         )
 
     def assert_no_unexpected_value_in_HARMONIZED_YEAR_column(
@@ -155,7 +155,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             raise UnexpectedColumnValuesFoundError(
                 f"Found value less than {EXPECTED_MINIMUM_YEAR} "
                 f"or greater than {current_year} in "
-                f"{HARMONIZED_YEAR_COLUMN_NAME}.")
+                f"{HARMONIZED_YEAR_COLUMN_BUDGET_DATA}.")
 
         return df
 
@@ -169,7 +169,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
 
         return self.update_int_values_in_columns_to_str_values(
             df,
-            [HARMONIZED_YEAR_COLUMN_NAME],
+            [HARMONIZED_YEAR_COLUMN_BUDGET_DATA],
             [old_to_new_value_mapping]
         )
 
@@ -180,7 +180,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_CATEGORY_COLUMN_NAME,
-            HARMONIZED_CATEGORY_COLUMN_NAME,
+            HARMONIZED_CATEGORY_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING)
 
     def assert_no_unexpected_value_in_HARMONIZED_CATEGORY_column(
@@ -188,7 +188,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             df):
         return self.assert_only_expected_constants_exist_in_column(
             df,
-            HARMONIZED_CATEGORY_COLUMN_NAME,
+            HARMONIZED_CATEGORY_COLUMN_BUDGET_DATA,
             set(RAW_TO_HARMONIZED_CATEGORY_NAME_MAPPING.values())
         )
 
@@ -198,7 +198,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_SEGMENT_MACRO_COLUMN_NAME,
-            HARMONIZED_SUBCATEGORY_COLUMN_NAME,
+            HARMONIZED_SUBCATEGORY_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_SUBCATEGORY_NAME_MAPPING)
 
     def assert_no_unexpected_value_in_HARMONIZED_SUBCATEGORY_column(
@@ -206,7 +206,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             df):
         return self.assert_only_expected_constants_exist_in_column(
             df,
-            HARMONIZED_SUBCATEGORY_COLUMN_NAME,
+            HARMONIZED_SUBCATEGORY_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_SUBCATEGORY_NAME_MAPPING.values()
         )
 
@@ -216,7 +216,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_by_copying_values_from_another_column(
             df,
             [RAW_BRAND_COLUMN_NAME],
-            [HARMONIZED_BRAND_COLUMN_NAME]
+            [HARMONIZED_BRAND_COLUMN_BUDGET_DATA]
         )
 
     def create_HARMONIZED_CHANNEL_column_using_CHANNEL_column_values(
@@ -225,7 +225,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_CHANNEL_COLUMN_NAME,
-            HARMONIZED_CHANNEL_COLUMN_NAME,
+            HARMONIZED_CHANNEL_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_CHANNEL_NAME_MAPPING)
 
     def assert_no_unexpected_value_in_HARMONIZED_CHANNEL_column(
@@ -233,7 +233,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             df):
         return self.assert_only_expected_constants_exist_in_column(
             df,
-            HARMONIZED_CHANNEL_COLUMN_NAME,
+            HARMONIZED_CHANNEL_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_CHANNEL_NAME_MAPPING.values()
         )
 
@@ -243,7 +243,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
             RAW_MACRO_CHANNEL_COLUMN_NAME,
-            HARMONIZED_MACRO_CHANNEL_COLUMN_NAME,
+            HARMONIZED_MACRO_CHANNEL_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_MACRO_CHANNEL_NAME_MAPPING)
 
     def assert_no_unexpected_value_in_HARMONIZED_MACRO_CHANNEL_column(
@@ -251,7 +251,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             df):
         return self.assert_only_expected_constants_exist_in_column(
             df,
-            HARMONIZED_MACRO_CHANNEL_COLUMN_NAME,
+            HARMONIZED_MACRO_CHANNEL_COLUMN_BUDGET_DATA,
             RAW_TO_HARMONIZED_MACRO_CHANNEL_NAME_MAPPING.values()
         )
 
@@ -262,7 +262,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         # we will strip the values of '$' and ','. We will
         # also convert the data to float and trim it to
         # two-decimal places.
-        df[HARMONIZED_BUDGET_COLUMN_NAME] = df[[RAW_BUDGET_COLUMN_NAME]]\
+        df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA] = df[[RAW_BUDGET_COLUMN_NAME]]\
             .replace(r'[,\$\s]', '', regex=True)\
             .replace(r'[\-]', '0', regex=True)
 
@@ -271,11 +271,11 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
     def assert_HARMONIZED_BUDGET_USD_column_has_no_empty_values(
             self,
             df):
-        if not df[df[HARMONIZED_BUDGET_COLUMN_NAME] == ''].empty:
+        if not df[df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA] == ''].empty:
             # We will not reuse function in common_post_transform_qa_functions.py
             # because we want to give a specific error message for this one.
             raise EmptyStringFoundError(
-                f"There are empty cells in the '{HARMONIZED_BUDGET_COLUMN_NAME}' column. "
+                f"There are empty cells in the '{HARMONIZED_BUDGET_COLUMN_BUDGET_DATA}' column. "
                 f"The budget data should not contain empty values, so please "
                 f"check them in the raw file and delete the rows with empty data "
                 f"**manually**, if appropriate.")
@@ -285,7 +285,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
     def convert_HARMONIZED_BUDGET_USD_column_to_float(
             self,
             df):
-        df[HARMONIZED_BUDGET_COLUMN_NAME] = df[HARMONIZED_BUDGET_COLUMN_NAME].astype(float).round(2)
+        df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA] = df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA].astype(float).round(2)
 
         return df
 
@@ -295,7 +295,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         return self.assert_no_less_than_values_in_columns(
             df,
             0,
-            [HARMONIZED_BUDGET_COLUMN_NAME])
+            [HARMONIZED_BUDGET_COLUMN_BUDGET_DATA])
 
     def assert_HARMONIZED_BUDGET_USD_column_values_have_two_decimals(
             self,
@@ -303,7 +303,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
 
         return self.assert_float_values_in_columns_have_either_one_or_two_decimals(
             df,
-            [HARMONIZED_BUDGET_COLUMN_NAME]
+            [HARMONIZED_BUDGET_COLUMN_BUDGET_DATA]
         )
 
     def filter_and_rearrange_columns_for_final_output(self,
@@ -314,7 +314,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
         """
         return self.update_order_of_columns_in_dataframe(
             df,
-            ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT
+            ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_DATA
         )
 
 
