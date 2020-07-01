@@ -1,0 +1,31 @@
+[
+    {
+        "__comment__": "This config is to calculate constant dollar ratios from yearly avg. FX rates (combined file).",
+        "input_folder_path": "./output/FX_Rates",
+        "input_file_name_or_pattern": "Transformed_Yearly_Average_FX_Rates_2012_To_YTD_rows_0_125_20200701_112653.xlsx",
+        "header": 0,
+        "__comment__": "Since we are reading data from FX rates file, Pandas will interpret empty cells as empty string.",
+        "__comment__": "But we want to read them as NaNs so that we can calculate constant dollar ratios.",
+        "__comment__": "That's why we must set this flag 'keep_default_na' to True for processing THIS FILE only.",
+        "keep_default_na": true,
+
+        "write_output": true,
+        "data_writer_module_file": "./data_writers/excel_data_writer.py",
+        "output_folder_path": "./output/FX_Rates",
+        "output_file_name_prefix": "Transformed_Constant_Dollar_Ratios_2012_To_YTD",
+
+        "__function_comment__": "We don't use this delimiter argument if we are producing Excel file as output.",
+        "__output_delimiter__": "|",
+
+        "custom_transform_functions_file": "./transform_functions/wvm_fx_rates_transform_functions.py",
+
+        "functions_to_apply": [
+            {
+                "function_name": "calculate_and_add_constant_dollar_ratio_columns_using_previous_year_as_base"
+            },
+            {
+                "function_name": "set_constant_dollar_ratio_of_current_year_to_one"
+            }
+        ]
+    }
+]

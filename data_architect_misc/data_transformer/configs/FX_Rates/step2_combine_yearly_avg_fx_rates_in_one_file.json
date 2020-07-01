@@ -1,0 +1,51 @@
+[
+    {
+        "__comment__": "This config is to combine individual FX rate files into one.",
+        "__comment__": "After processing monthly FX rate file (sent by CBS) using step1 config file, ",
+        "__comment__": "add the transformed FX file to the 'append_data_from_files' function below and run this config.",
+
+
+        "__function_comment__": "Choose to process 2018 file as base because it has the highest number of countries in it.",
+        "input_folder_path": "./output/FX_Rates",
+        "input_file_name_or_pattern": "Transformed_FX_Rates_2018_rows_0_123_20200623_160244.xlsx",
+        "header": 0,
+
+        "write_output": true,
+        "data_writer_module_file": "./data_writers/excel_data_writer.py",
+        "output_folder_path": "./output/FX_Rates",
+        "output_file_name_prefix": "Transformed_Yearly_Average_FX_Rates_2012_To_YTD",
+
+        "__function_comment__": "We don't use this delimiter argument if we are producing Excel file as output.",
+        "__output_delimiter__": "|",
+
+        "custom_transform_functions_file": "./transform_functions/wvm_fx_rates_transform_functions.py",
+
+        "functions_to_apply": [
+            {
+                "__function_comment__": "We need append other yearly avg FX rate data to the base file.",
+                "function_name": "append_data_from_files",
+                "function_args": [
+                    [
+                    "./output/FX_Rates/Transformed_FX_Rates_2020_rows_0_122_20200701_110657.xlsx",
+                    "./output/FX_Rates/Transformed_FX_Rates_2019_rows_0_122_20200623_160353.xlsx",
+                    "./output/FX_Rates/Transformed_FX_Rates_2017_rows_0_123_20200623_155718.xlsx",
+                    "./output/FX_Rates/Transformed_FX_Rates_2016_rows_0_118_20200623_155438.xlsx",
+                    "./output/FX_Rates/Transformed_FX_Rates_2015_rows_0_118_20200623_155209.xlsx",
+                    "./output/FX_Rates/Transformed_FX_Rates_2014_rows_0_118_20200623_154444.xlsx",
+                    "./output/FX_Rates/Transformed_FX_Rates_2013_rows_0_117_20200623_153918.xlsx",
+                    "./output/FX_Rates/Transformed_FX_Rates_2012_rows_0_114_20200623_152745.xlsx"
+                    ]
+                ]
+            },
+            {
+                "function_name": "convert_column_names_to_string_type"
+            },
+            {
+                "function_name": "assert_no_comp_harm_country_has_NaN_data_point_in_any_of_the_years"
+            },
+            {
+                "function_name": "rearrange_columns_for_final_output_of_combined_yearly_avg_fx_rate_file"
+            }
+        ]
+    }
+]

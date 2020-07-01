@@ -1,6 +1,8 @@
 [
     {
-        "__comment__": "This config iteration is only to extract and save year value from the top few rows of the fx rate data file.",
+        "__comment__": "This config iteration is only to extract and save the year value ",
+        "__comment__": "from the top few rows of the fx rate data file.",
+        "__comment__": "We should run this config against any new FX rate file sent by CBS every month.",
 
         "input_folder_path": "./input/FX_Rates",
         "_input_file_name_or_pattern_": "2012_FX_Rates_Distributed.xls",
@@ -12,6 +14,7 @@
         "_input_file_name_or_pattern_": "2018_FX_Rates_Distributed.xls",
         "_input_file_name_or_pattern_": "2019_FX_Rates_Distributed.xls",
         "_input_file_name_or_pattern_": "202005_FX_Rates_Distributed.xls",
+        "input_file_name_or_pattern": "202006_FX_Rates_Distributed.xls",
 
         "input_sheet_name": "2020 Rates",
 
@@ -48,6 +51,7 @@
         "_input_file_name_or_pattern_": "2018_FX_Rates_Distributed.xls",
         "_input_file_name_or_pattern_": "2019_FX_Rates_Distributed.xls",
         "_input_file_name_or_pattern_": "202005_FX_Rates_Distributed.xls",
+        "input_file_name_or_pattern": "202006_FX_Rates_Distributed.xls",
 
         "input_sheet_name": "2020 Rates",
 
@@ -59,7 +63,7 @@
         "_output_file_name_prefix_": "Transformed_FX_Rates_2017",
         "_output_file_name_prefix_": "Transformed_FX_Rates_2018",
         "_output_file_name_prefix_": "Transformed_FX_Rates_2019",
-        "_output_file_name_prefix_": "Transformed_FX_Rates_202005",
+        "output_file_name_prefix": "Transformed_FX_Rates_2020",
 
         "__comment_for_rows_per_read__": "(Optional) The number of rows to read and transform per each iteration. If the file has too many rows and if you have limited RAM on your machine, you can enter a reasonable integer value below and the data reader module will only process that many rows at a time (thereby, preventing the out-of-memory errors). Default rows that will be processed per iteration is shown below and even if you don't define this key, the default value below will be used by the program.",
         "rows_per_read": 100000,
@@ -93,7 +97,9 @@
         "functions_to_apply": [
             {
                 "__function_comment__": "We need to drop some columns in the raw FX Rates file and only keep COUNTRY and FX Rate columns.",
-                "function_name": "select_COUNTRY_and_YEARLY_AVG_RATE_columns"
+                "_function_name_": "select_COUNTRY_and_YEARLY_AVG_RATE_columns",
+                "function_name": "select_COUNTRY_and_YEARLY_AVG_RATE_columns_with_yearly_avg_col_name_as_input",
+                "function_args": ["AVG.4"]
             },
             {
                 "__function_comment__": "This function MUST be called RIGHT AFTER selecting the desired columns.",
@@ -130,7 +136,7 @@
                 "function_name": "check_HARMONIZED_COUNTRY_column_against_country_names_from_comp_harm_project"
             },
             {
-                "function_name": "rearrange_columns_for_final_output"
+                "function_name": "rearrange_columns_for_final_output_of_yearly_avg_fx_rate_file"
             }
         ]
     }

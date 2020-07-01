@@ -61,11 +61,27 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
         """
         # Sometimes for files like 2015 FX rates, it's better
         # to filter with startswith('AVG')
-        yearly_avg_col = [col_name for col_name in df.columns.tolist()
+        yearly_avg_col = [col_name for col_name in df.columns
                           if str(col_name).startswith('AVG')][-1]
+
         # Sometimes, the average column is the last one WITHOUT 'AVG' keyword...
         # yearly_avg_col = [col_name for col_name in df.columns.tolist()][-1]
         return df[[RAW_COUNTRY_COLUMN, yearly_avg_col]]
+
+    def select_COUNTRY_and_YEARLY_AVG_RATE_columns_with_yearly_avg_col_name_as_input(
+            self,
+            df,
+            yearly_avg_col_name
+    ):
+        """
+        Unfortunately, the client does NOT keep the FX rate file
+        in consistent format. So we need to pick the monthly avg.
+        FX rates from different columns in some months.
+
+        This method allows us to choose the rate from a column name
+        provided as an input parameter.
+        """
+        return df[[RAW_COUNTRY_COLUMN, yearly_avg_col_name]]
 
     def assert_the_first_column_is_COUNTRY_column(self,
                                                   df):
@@ -255,8 +271,9 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
 
         return df
 
-    def rearrange_columns_for_final_output(self,
-                                           df):
+    def rearrange_columns_for_final_output_of_yearly_avg_fx_rate_file(
+            self,
+            df):
         """
         Rearrange the order of columns (just for aesthetic sake)
         so that country and harmonized country columns appear
@@ -270,6 +287,125 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
                 WvmFxRatesTransformFunctions.static_year_in_data_file,
             ]
         )
+
+    # =======================================================
+    # Methods below are for combining yearly avg FX rates
+    # into one file (step 2).
+    # =======================================================
+    def rearrange_columns_for_final_output_of_combined_yearly_avg_fx_rate_file(
+            self,
+            df):
+        output_cols = [col for col in df.columns if col != RAW_COUNTRY_COLUMN]
+
+        return self.update_order_of_columns_in_dataframe(
+            df,
+            output_cols
+        )
+
+    def convert_column_names_to_string_type(self, df):
+        df.columns = df.columns.map(str)
+        return df
+
+    def assert_no_comp_harm_country_has_NaN_data_point_in_any_of_the_years(
+            self,
+            df
+    ):
+        for year_col in df.columns[~df.columns.isin([RAW_COUNTRY_COLUMN,
+                                                     HARMONIZED_COUNTRY_COLUMN_FX_RATES])]:
+            cur_df = df[df[year_col].isna()]
+            set_intersection = COMP_HARM_PROJECT_COUNTRIES.intersection(
+                set(cur_df[HARMONIZED_COUNTRY_COLUMN_FX_RATES].unique()))
+            if bool(set_intersection):
+                raise NullValueFoundError(
+                    f"For year '{year_col}', the FX rate data is missing for the following "
+                    f"countries: '{set_intersection}'. Missing FX data for countries in "
+                    f"competitive harmonization project is NOT good."
+                    f"Make sure to inspect the corresponding input file to fix this."
+                )
+
+        return df
+
+    # =======================================================
+    # Step 3: Methods below are for calculating constant dollar
+    # ratios from the yearly avg. FX rates (combined) file.
+    # =======================================================
+    def calculate_and_add_constant_dollar_ratio_columns_using_previous_year_as_base(
+            self,
+            df
+    ):
+        """
+        We will use previous year's rates as base in calculating constant dollar
+        values because we generally have full year's worth of FX rates for previous
+        year. The formula for constant dollar value is like this:
+        constant_dollar_ratio_for_year_x = fx_rate_of_base_year/fx_rate_of_year_x
+        """
+        previous_year = str(datetime.datetime.now().year - 1)
+        year_columns = [c for c in df.columns if c not in [RAW_COUNTRY_COLUMN, HARMONIZED_COUNTRY_COLUMN_FX_RATES]]
+        constant_dollar_ratio_df = pd.DataFrame(columns = df.columns)
+
+        # Copy harmonized country column from FX rates dataframe to the new one
+        constant_dollar_ratio_df[HARMONIZED_COUNTRY_COLUMN_FX_RATES] = df[HARMONIZED_COUNTRY_COLUMN_FX_RATES]
+
+        for y in year_columns:
+            constant_dollar_ratio_df[y] = df[previous_year]/df[y]
+
+        return constant_dollar_ratio_df
+
+    def set_constant_dollar_ratio_of_current_year_to_one(
+            self,
+            df
+    ):
+        """
+        Since we don't have full year's worth of FX rate data, we will
+        set the current year's constant dollar ratio to 1.
+        """
+        current_year = str(datetime.datetime.now().year)
+        df[current_year] = 1.0
+
+        return df
+
+    # =======================================================
+    # Methods below are for calculating constant dollar values.
+    # =======================================================
+    def append_data_from_files(
+            self,
+            df,
+            list_of_file_path_and_names
+    ):
+        """
+        Append data from the other transformed FX rate files
+        into the base dataframe. We will make sure that there
+        is no duplicate year in the final, combined data
+        in the later step.
+        """
+        # Label to indicate that this column is found in
+        # both dataframes. We will use that to drop one
+        # of them toward the end of the process
+        conflict_column_label = '_common_column'
+
+        for f in list_of_file_path_and_names:
+            cur_df = pd.read_excel(f)
+            cur_df.columns = cur_df.columns.map(str)
+            # We can use pandas' join method, but that requires
+            # us to set 'country' as index, and the output is not
+            # as close to what we expect. Pandas' merge gives
+            # a closer output that we want. For more, please read
+            # REF: https://stackoverflow.com/a/22676213/1330974
+            df = df.merge(cur_df,
+                          how='outer',
+                          on=HARMONIZED_COUNTRY_COLUMN_FX_RATES,
+                          suffixes=('', conflict_column_label))
+            # Drop the columns that are common between
+            # the two dataframes being merged, and only
+            # keep one of them.
+            # REF1: https://stackoverflow.com/a/54410702/1330974
+            # REF2: https://stackoverflow.com/a/54410702/1330974
+            df = df.loc[:, ~df.columns.str.contains(
+                f".*?{conflict_column_label}$",
+                case=False,
+                na=False  # Year columns returns NaN; convert them to bool array
+            )]
+        return df
 
     # =======================================================
     # Methods below are for extracting monthly FX rates.
@@ -368,100 +504,3 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransform
             df = pd.concat([df, df1])
 
         return df.reset_index(drop=True)
-
-    # =======================================================
-    # Methods below are for calculating constant dollar values.
-    # =======================================================
-    def append_data_from_files(
-            self,
-            df,
-            list_of_file_path_and_names
-    ):
-        """
-        Append data from the other transformed FX rate files
-        into the base dataframe. We will make sure that there
-        is no duplicate year in the final, combined data
-        in the later step.
-        """
-        # Label to indicate that this column is found in
-        # both dataframes. We will use that to drop one
-        # of them toward the end of the process
-        conflict_column_label = '_common_column'
-
-        for f in list_of_file_path_and_names:
-            cur_df = pd.read_excel(f)
-            cur_df.columns = cur_df.columns.map(str)
-            # We can use pandas' join method, but that requires
-            # us to set 'country' as index, and the output is not
-            # as close to what we expect. Pandas' merge gives
-            # a closer output that we want. For more, please read
-            # REF: https://stackoverflow.com/a/22676213/1330974
-            df = df.merge(cur_df,
-                          how='outer',
-                          on=HARMONIZED_COUNTRY_COLUMN_FX_RATES,
-                          suffixes=('', conflict_column_label))
-            # Drop the columns that are common between
-            # the two dataframes being merged, and only
-            # keep one of them.
-            # REF1: https://stackoverflow.com/a/54410702/1330974
-            # REF2: https://stackoverflow.com/a/54410702/1330974
-            df = df.loc[:, ~df.columns.str.contains(
-                f".*?{conflict_column_label}$",
-                case=False,
-                na=False  # Year columns returns NaN; convert them to bool array
-            )]
-        return df
-
-    def convert_column_names_to_string_type(self, df):
-        df.columns = df.columns.map(str)
-        return df
-
-    def assert_no_comp_harm_country_has_NaN_data_point_in_any_of_the_years(
-            self,
-            df
-    ):
-        for year_col in df.columns[~df.columns.isin([RAW_COUNTRY_COLUMN,
-                                                     HARMONIZED_COUNTRY_COLUMN_FX_RATES])]:
-            cur_df = df[df[year_col].isna()]
-            set_intersection = COMP_HARM_PROJECT_COUNTRIES.intersection(
-                set(cur_df[HARMONIZED_COUNTRY_COLUMN_FX_RATES].unique()))
-            if bool(set_intersection):
-                raise NullValueFoundError(
-                    f"For year '{year_col}', the FX rate data is missing for the following "
-                    f"countries: '{set_intersection}'. Missing FX data for countries in "
-                    f"competitive harmonization project is NOT good."
-                    f"Make sure to inspect the corresponding input file to fix this."
-                )
-        return df
-
-    def calculate_and_add_constant_dollar_ratio_columns_using_previous_year_as_base(
-            self,
-            df
-    ):
-        """
-        We will use previous year's rates as base in calculating constant dollar
-        values because we generally have full year's worth of FX rates for previous
-        year. The formula for constant dollar value is like this:
-        constant_dollar_ratio_for_year_x = fx_rate_of_base_year/fx_rate_of_year_x
-        """
-        previous_year = str(datetime.datetime.now().year - 1)
-        year_columns = [c for c in df.columns if c not in [RAW_COUNTRY_COLUMN, HARMONIZED_COUNTRY_COLUMN_FX_RATES]]
-        for y in year_columns:
-            constant_dollar_col = ''.join([y, CONSTANT_DOLLAR_COLUMN_SUFFIX])
-            df[constant_dollar_col] = df[previous_year]/df[y]
-
-        return df
-
-    def set_constant_dollar_ratio_of_current_year_to_one(
-            self,
-            df
-    ):
-        """
-        Since we don't have full year's worth of FX rate data, we will
-        set the current year's constant dollar ratio to 1.
-        """
-        current_year = str(datetime.datetime.now().year)
-        constant_dollar_col = ''.join([current_year, CONSTANT_DOLLAR_COLUMN_SUFFIX])
-        df[constant_dollar_col] = 1.0
-
-        return df
