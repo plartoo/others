@@ -19,33 +19,33 @@ from qa_functions.common_post_transform_qa_functions import CommonPostTransformQ
 from qa_functions.qa_errors import ColumnListMismatchError
 
 
-class WvmBudgetRollupApplyFxRatesAndConstantDollarRatiosFunctions(CommonTransformFunctions,
-                                                                  CommonPostTransformQAFunctions):
+class WvmBudgetRollupApplyConstantDollarRatiosFunctions(CommonTransformFunctions,
+                                                        CommonPostTransformQAFunctions):
 
-    def load_fx_rates_and_constant_dollar_ratios_to_dataframe(
+    def load_constant_dollar_ratios_to_dataframe(
             self,
             df,
-            fx_rates_and_constant_dollar_ratios_file
+            constant_dollar_ratios_file
     ):
-        df_fx = pd.read_excel(fx_rates_and_constant_dollar_ratios_file)
+        df_fx = pd.read_excel(constant_dollar_ratios_file)
         df = pd.concat([df, df_fx], keys=(KEY_FOR_BUDGET_DATA,
-                                          KEY_FOR_FX_AND_CONSTANT_DOLLAR_RATIO_DATA))
+                                          KEY_FOR_CONSTANT_DOLLAR_RATIO_DATA))
         return df
 
     def unpivot_constant_dollar_ratios_data(
             self,
             df
     ):
-        # 1. Collect constant dollar ratio column names
-        const_dollar_ratio_cols = [
-            col
-            for col in df.xs(KEY_FOR_FX_AND_CONSTANT_DOLLAR_RATIO_DATA).columns
-            if re.findall(f"{CONSTANT_DOLLAR_COLUMN_SUFFIX}$", col)
-        ]
+        # Select constant dollar key from multi-index dataframe.
+        # Then, drop budget roll-up data related columns and
+        # assign it to the new variable/dataframe.
+        const_dollar_ratio_df = df.xs(KEY_FOR_CONSTANT_DOLLAR_RATIO_DATA).drop(
+            ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_DATA,
+            axis=1
+        )
 
-        df_fx = df.xs(KEY_FOR_FX_AND_CONSTANT_DOLLAR_RATIO_DATA)[
-            [HARMONIZED_COUNTRY_COLUMN_FX_RATES] + const_dollar_ratio_cols]
-        unpivoted_fx_df = df_fx.set_index(HARMONIZED_COUNTRY_COLUMN_FX_RATES).unstack()
+        # Unpivot constant dollar ratio dataframe
+        const_dollar_ratio_df = const_dollar_ratio_df.set_index(HARMONIZED_COUNTRY_COLUMN_FX_RATES).unstack()
 
         # 2. Rename columns from unpivoted data
         unpivoted_fx_df = unpivoted_fx_df.reset_index().rename(

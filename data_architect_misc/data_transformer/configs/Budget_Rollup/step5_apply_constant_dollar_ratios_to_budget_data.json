@@ -1,28 +1,32 @@
 [
   {
-    "__comment__": "This step needs to be run after step 3, which cleans and transforms the raw Budget roll-up data.",
-    "__comment__": "This step applies constant dollar ratios and FX rates to raw Budget roll-up data to convert to USD.",
+    "__comment__": "This step needs to be run after step 4, which cleans and transforms the raw Budget roll-up data.",
+    "__comment__": "This step applies constant dollar ratios to raw Budget roll-up data so that we have constant FX values for the dashboard.",
 
     "input_folder_path": "./output/Budget_Rollup/",
-    "input_file_name_or_pattern": "Transformed_Budget_Rollup_rows_0_37726_20200626_124342.xlsx",
-    "input_delimiter": "|",
-    "input_sheet_name": 0,
 
+    "__comment__": "Enter below the file name of the latest, cleaned Budget roll-up data file.",
+    "input_file_name_or_pattern": "Transformed_Budget_Rollup_rows_0_37726_20200626_124342.xlsx",
+    "input_sheet_name": 0,
     "header": 0,
     "skiprows": 1,
     "skipfooter": 0,
 
+    "input_delimiter": "|",
+
+
     "write_output": true,
     "data_writer_module_file": "./data_writers/excel_data_writer.py",
     "output_folder_path": "./output/Budget_Rollup/",
-    "output_file_name_prefix": "Transformed_Budget_Rollup_With_FX_Rates_And_Constant_Dollar_Ratios_Applied",
+    "output_file_name_prefix": "Transformed_Budget_Rollup_With_Constant_Dollar_Ratios_Applied",
 
-    "custom_transform_functions_file": "./transform_functions/wvm_budget_rollup_apply_fx_rates_and_constant_dollar_ratios_functions.py",
+    "custom_transform_functions_file": "./transform_functions/wvm_budget_rollup_apply_constant_dollar_ratios_functions.py",
 
     "functions_to_apply": [
       {
-        "function_name": "load_fx_rates_and_constant_dollar_ratios_to_dataframe",
-        "function_args": ["./output/FX_Rates/Transformed_Combined_FX_Rates_And_Constant_Dollar_Ratios_2012_To_YTD_rows_0_125_20200625_125329.xlsx"]
+        "__comment__": "Enter below the file name of the latest, cleaned constant dollar ratio data file.",
+        "function_name": "load_constant_dollar_ratios_to_dataframe",
+        "function_args": ["./output/FX_Rates/Transformed_Constant_Dollar_Ratios_2012_To_YTD_rows_0_125_20200701_114701.xlsx"]
       },
       {
         "function_name": "unpivot_constant_dollar_ratios_data"
