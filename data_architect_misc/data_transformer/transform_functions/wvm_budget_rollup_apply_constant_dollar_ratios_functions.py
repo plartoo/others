@@ -47,32 +47,38 @@ class WvmBudgetRollupApplyConstantDollarRatiosFunctions(CommonTransformFunctions
         # Unpivot constant dollar ratio dataframe
         const_dollar_ratio_df = const_dollar_ratio_df.set_index(HARMONIZED_COUNTRY_COLUMN_FX_RATES).unstack()
 
+        # Create a new data frame only for Budget data
+        budget_df = df.xs(KEY_FOR_BUDGET_DATA)[ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_DATA]
+
         # 2. Rename columns from unpivoted data
-        unpivoted_fx_df = unpivoted_fx_df.reset_index().rename(
-            columns={
-                'level_0': YEAR_COLUMN_FX_RATES,
-                0: CONSTANT_DOLLAR_COLUMN_FX_RATES
-            })
+        unpivoted_fx_df = const_dollar_ratio_df.reset_index().rename(
+             columns={
+                 'level_0': YEAR_COLUMN_FX_RATES,
+                 0: CONSTANT_DOLLAR_COLUMN_FX_RATES
+             })
+
+        # Merge budget_df with unpivoted_fx_df in 1 dataframe
+        df = budget_df.merge(unpivoted_fx_df, left_on=['Harmonized_Year', 'Harmonized_Country'],
+                             right_on=['YEAR', 'HARMONIZED_COUNTRY'])
 
         # 3. Remove the suffixes from constant_dollar_ratio_cols
-        unpivoted_fx_df[YEAR_COLUMN_FX_RATES] = unpivoted_fx_df[YEAR_COLUMN_FX_RATES].str.replace(CONSTANT_DOLLAR_COLUMN_SUFFIX, '')
-        current_year = str(datetime.datetime.now().year)
-        current_year_le = ''.join([current_year, 'LE'])
-        unpivoted_fx_df.loc[unpivoted_fx_df['YEAR'] == current_year, ['YEAR']] = current_year_le
-
-        df = pd.concat([df.xs(KEY_FOR_BUDGET_DATA), unpivoted_fx_df],
-                       keys=(KEY_FOR_BUDGET_DATA,
-                             KEY_FOR_CONSTANT_DOLLAR_RATIO_DATA))
+        # unpivoted_fx_df[YEAR_COLUMN_FX_RATES] = unpivoted_fx_df[YEAR_COLUMN_FX_RATES].str.replace(CONSTANT_DOLLAR_COLUMN_SUFFIX, '')
+        # current_year = str(datetime.datetime.now().year)
+        # current_year_le = ''.join([current_year, 'LE'])
+        # unpivoted_fx_df.loc[unpivoted_fx_df['YEAR'] == current_year, ['YEAR']] = current_year_le
+        #
+        # df = pd.concat([df.xs(KEY_FOR_BUDGET_DATA), unpivoted_fx_df],
+        #                keys=(KEY_FOR_BUDGET_DATA,
+        #                      KEY_FOR_CONSTANT_DOLLAR_RATIO_DATA))
         return df
 
     def apply_constant_dollar_ratios_to_budget_usd(
             self,
             df
     ):
-        df_budget = df.xs(KEY_FOR_BUDGET_DATA)[ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_DATA]
-        df_const_usd = df.xs(KEY_FOR_CONSTANT_DOLLAR_RATIO_DATA)[ESSENTIAL_COLUMNS_FOR_CONSTANT_USD_DATA]
-        df = pd.merge(df_budget, df_const_usd, how='left', left_on=['Harmonized_Year', 'Harmonized_Country'],
-                      right_on=['YEAR', 'HARMONIZED_COUNTRY'])
+        #Create a New column with the calculation between (Harmonized_Budget_USD * Harmonized_Constant_USD)
+        df[HARMONIZED_CONSTANT_COLUMN_DATA] = df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA] * df[CONSTANT_DOLLAR_COLUMN_FX_RATES]
+
         return df
 
     def debug(self, df):
