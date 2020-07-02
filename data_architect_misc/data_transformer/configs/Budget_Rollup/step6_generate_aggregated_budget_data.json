@@ -6,7 +6,7 @@
 
     "__comment__": "This config is to generate aggregate data specifically for Market Investment Trend view.",
     "input_folder_path": "./output/Budget_Rollup/",
-    "input_file_name_or_pattern": "Transformed_Budget_Rollup_rows_0_38473_20200617_133037.csv",
+    "input_file_name_or_pattern": "Transformed_Budget_Rollup_With_Constant_Dollar_Ratios_Applied_rows_0_37726_20200702_113723.xlsx",
     "input_delimiter": "|",
     "header": 0,
 
@@ -37,8 +37,9 @@
   },
   {
     "__comment__": "This config is to generate aggregate data for Digital Investment Trend view.",
+
     "input_folder_path": "./output/Budget_Rollup/",
-    "input_file_name_or_pattern": "Transformed_Budget_Rollup_rows_0_38473_20200617_133037.csv",
+    "input_file_name_or_pattern": "Transformed_Budget_Rollup_With_Constant_Dollar_Ratios_Applied_rows_0_37726_20200702_113723.xlsx",
     "input_delimiter": "|",
     "header": 0,
 
@@ -71,7 +72,7 @@
    {
     "__comment__": "This config is to generate aggregate data for Category Investment Trend view.",
     "input_folder_path": "./output/Budget_Rollup/",
-    "input_file_name_or_pattern": "Transformed_Budget_Rollup_rows_0_38473_20200617_133037.csv",
+    "input_file_name_or_pattern": "Transformed_Budget_Rollup_With_Constant_Dollar_Ratios_Applied_rows_0_37726_20200702_113723.xlsx",
     "input_delimiter": "|",
     "header": 0,
 
@@ -89,6 +90,7 @@
       {
         "function_name": "sum_budget_data_by_year_and_region_for_Category_Investment_Trend_view"
       },
+
       {
         "function_name": "select_only_aggregated_sum_data_by_region_for_Category_Investment_Trend_view"
       },
