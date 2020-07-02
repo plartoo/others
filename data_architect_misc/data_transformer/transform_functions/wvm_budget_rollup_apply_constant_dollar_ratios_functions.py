@@ -11,8 +11,8 @@ import re
 import pandas as pd
 
 from constants.budget_rollup_constants import *
-from constants.fx_rates_constants import CONSTANT_DOLLAR_COLUMN_SUFFIX, HARMONIZED_COUNTRY_COLUMN_FX_RATES, \
-    CONSTANT_DOLLAR_COLUMN_FX_RATES, YEAR_COLUMN_FX_RATES, ESSENTIAL_COLUMNS_FOR_CONSTANT_USD_DATA
+from constants.fx_rates_constants import CONSTANT_DOLLAR_COLUMN_SUFFIX, HARMONIZED_COUNTRY_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, \
+    CONSTANT_DOLLAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, YEAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, ESSENTIAL_COLUMNS_FOR_CONSTANT_USD_DATA
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
@@ -36,7 +36,7 @@ class WvmBudgetRollupApplyConstantDollarRatiosFunctions(CommonTransformFunctions
             self,
             df
     ):
-        # Select constant dollar key from multi-index dataframe.
+        # 1. Select constant dollar key from multi-index dataframe.
         # Then, drop budget roll-up data related columns and
         # assign it to the new variable/dataframe.
         const_dollar_ratio_df = df.xs(KEY_FOR_CONSTANT_DOLLAR_RATIO_DATA).drop(
@@ -44,43 +44,70 @@ class WvmBudgetRollupApplyConstantDollarRatiosFunctions(CommonTransformFunctions
             axis=1
         )
 
-        # Unpivot constant dollar ratio dataframe
-        const_dollar_ratio_df = const_dollar_ratio_df.set_index(HARMONIZED_COUNTRY_COLUMN_FX_RATES).unstack()
+        # 2. Unpivot constant dollar ratio dataframe
+        const_dollar_ratio_df = const_dollar_ratio_df.set_index(HARMONIZED_COUNTRY_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA).unstack()
 
-        # Create a new data frame only for Budget data
-        budget_df = df.xs(KEY_FOR_BUDGET_DATA)[ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_DATA]
-
-        # 2. Rename columns from unpivoted data
-        unpivoted_fx_df = const_dollar_ratio_df.reset_index().rename(
+        # 3. Rename columns from unpivoted data
+        const_dollar_ratio_df = const_dollar_ratio_df.reset_index().rename(
              columns={
-                 'level_0': YEAR_COLUMN_FX_RATES,
-                 0: CONSTANT_DOLLAR_COLUMN_FX_RATES
+                 'level_0': YEAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA,
+                 0: CONSTANT_DOLLAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA
              })
 
-        # Merge budget_df with unpivoted_fx_df in 1 dataframe
-        df = budget_df.merge(unpivoted_fx_df, left_on=['Harmonized_Year', 'Harmonized_Country'],
-                             right_on=['YEAR', 'HARMONIZED_COUNTRY'])
+        # 4. We need to create some temp columns to join on;
+        # Otherwise, some country names and some year (e.g., 2020LE)
+        # won't match between two data sets.
+        const_dollar_ratio_df['Temp_Harmonized_Year_1'] = const_dollar_ratio_df[YEAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA]
+        const_dollar_ratio_df['Temp_Harmonized_Year_1'] = const_dollar_ratio_df['Temp_Harmonized_Year_1'].str.replace('LE','')
+        const_dollar_ratio_df['Temp_Country_1'] = const_dollar_ratio_df[
+            HARMONIZED_COUNTRY_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA].str.lower()
 
-        # 3. Remove the suffixes from constant_dollar_ratio_cols
-        # unpivoted_fx_df[YEAR_COLUMN_FX_RATES] = unpivoted_fx_df[YEAR_COLUMN_FX_RATES].str.replace(CONSTANT_DOLLAR_COLUMN_SUFFIX, '')
-        # current_year = str(datetime.datetime.now().year)
-        # current_year_le = ''.join([current_year, 'LE'])
-        # unpivoted_fx_df.loc[unpivoted_fx_df['YEAR'] == current_year, ['YEAR']] = current_year_le
-        #
-        # df = pd.concat([df.xs(KEY_FOR_BUDGET_DATA), unpivoted_fx_df],
-        #                keys=(KEY_FOR_BUDGET_DATA,
-        #                      KEY_FOR_CONSTANT_DOLLAR_RATIO_DATA))
+        # 5. Create a new data frame only for Budget data with temp columns to join on
+        budget_df = df.xs(KEY_FOR_BUDGET_DATA)[ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_DATA]
+        budget_df['Temp_Harmonized_Year_2'] = budget_df[HARMONIZED_YEAR_COLUMN_BUDGET_DATA]
+        budget_df['Temp_Harmonized_Year_2'] = budget_df['Temp_Harmonized_Year_2'].str.replace('LE','')
+
+        # We need to undo 'Hills *' prefixes in the Budget data
+        budget_df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA] = budget_df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA].str.replace('Hills ','')
+        budget_df['Temp_Country_2'] = budget_df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA].str.lower()
+
+        # 5. Left join budget_df with const_dollar_ratio_df
+        df = budget_df.merge(const_dollar_ratio_df,
+                             how='left',
+                             left_on=['Temp_Harmonized_Year_2',
+                                      'Temp_Country_2'],
+                             right_on=['Temp_Harmonized_Year_1',
+                                       'Temp_Country_1'])
+
         return df
 
     def apply_constant_dollar_ratios_to_budget_usd(
             self,
             df
     ):
-        #Create a New column with the calculation between (Harmonized_Budget_USD * Harmonized_Constant_USD)
-        df[HARMONIZED_CONSTANT_COLUMN_DATA] = df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA] * df[CONSTANT_DOLLAR_COLUMN_FX_RATES]
+        # Create a new column with the formula below:
+        # (Harmonized_Budget_USD * Constant_Dollar_Ratio)
+        df[HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA] = df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA] \
+                                                            * df[CONSTANT_DOLLAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA]
 
         return df
 
-    def debug(self, df):
-        import pdb; pdb.set_trace()
+    def copy_original_budget_usd_values_to_constant_usd_column_for_countries_that_do_not_have_constant_dollar_ratios(
+            self,
+            df
+    ):
+        df.loc[
+            df[HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA].isnull(),
+            HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA
+        ] = df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA]
+
         return df
+
+    def filter_and_rearrange_columns_for_final_output_of_budget_usd_and_constant_usd(
+            self,
+            df
+    ):
+        return self.update_order_of_columns_in_dataframe(
+            df,
+            ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_USD_AND_CONSTANT_USD_DATA
+        )

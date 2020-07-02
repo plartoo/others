@@ -33,6 +33,12 @@
       },
       {
         "function_name": "apply_constant_dollar_ratios_to_budget_usd"
+      },
+      {
+        "function_name": "copy_original_budget_usd_values_to_constant_usd_column_for_countries_that_do_not_have_constant_dollar_ratios"
+      },
+      {
+        "function_name": "filter_and_rearrange_columns_for_final_output_of_budget_usd_and_constant_usd"
       }
     ]
   }
