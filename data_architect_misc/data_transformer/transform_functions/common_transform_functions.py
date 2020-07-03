@@ -281,7 +281,7 @@ class CommonTransformFunctions(TransformFunctions):
             self,
             df,
             group_by_cols,
-            target_col_name,
+            target_col_names,
             label_to_assign_for_non_aggregated_cols
     ):
         """
@@ -297,7 +297,7 @@ class CommonTransformFunctions(TransformFunctions):
         Args:
             df: Dataframe to sum.
             group_by_cols: Columns to be included as Group By in the summation.
-            target_col_name: The target column that will summed using Group By.
+            target_col_names: The target columns that will summed using Group By.
             label_to_assign_for_non_aggregated_cols: The label (string) that
             will be assigned to columns that are not part of the Group By columns.
 
@@ -305,7 +305,7 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with values that now includes aggregated (summed) values
             using Group By.
         """
-        df_grouped_and_summed = df.groupby(group_by_cols)[target_col_name] \
+        df_grouped_and_summed = df.groupby(group_by_cols)[target_col_names] \
             .sum().reset_index()
         df = pd.concat([df, df_grouped_and_summed], sort=False) \
             .fillna(label_to_assign_for_non_aggregated_cols) \
