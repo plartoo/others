@@ -11,13 +11,7 @@ from transform_functions.common_transform_functions import CommonTransformFuncti
 from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
 from qa_functions.qa_errors import ColumnListMismatchError
 
-from constants.budget_rollup_constants import \
-    ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_USD_AND_CONSTANT_USD_DATA, HARMONIZED_YEAR_COLUMN_BUDGET_DATA, \
-    HARMONIZED_REGION_COLUMN_BUDGET_DATA, HARMONIZED_BUDGET_COLUMN_BUDGET_DATA, \
-    AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW, HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA, \
-    HARMONIZED_MACRO_CHANNEL_COLUMN_BUDGET_DATA, AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW, \
-    AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW, HARMONIZED_BRAND_COLUMN_BUDGET_DATA,\
-    HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA
+from constants.budget_rollup_constants import *
 
 class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
 
@@ -35,7 +29,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
 
         return df
 
-    def sum_budget_data_by_year_and_region_for_Market_Investment_Trend_view(
+    def sum_budget_and_constant_dollar_spends_by_year_and_region_for_Market_Investment_Trend_view(
             self,
             df
     ):
@@ -54,7 +48,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
                 HARMONIZED_BUDGET_COLUMN_BUDGET_DATA,
                 HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA
             ],
-            AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW)
+            AGGREGATED_BY_YEAR_AND_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW)
 
     def select_only_aggregated_sum_data_by_region_for_Market_Investment_Trend_view(
             self,
@@ -64,7 +58,8 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         We will only write the rows representing the summed budget data
         to support the Market Investment Trend view.
         """
-        return df[df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA] == AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW]
+        return df[df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA]
+                  == AGGREGATED_BY_YEAR_AND_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW]
 
     def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Market_Investment_Trend_view(
             self,
@@ -79,7 +74,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             df,
             HARMONIZED_REGION_COLUMN_BUDGET_DATA,
             HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA,
-            AGGREGATED_BY_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW)
+            AGGREGATED_BY_YEAR_AND_REGION_LABEL_FOR_MARKET_INVESTMENT_TREND_VIEW)
 
     def append_space_character_in_HARMONIZED_COUNTRY_column(
             self,
@@ -96,7 +91,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             ' '
         )
 
-    def sum_budget_data_by_year_region_and_macro_channel_for_Digital_Investment_Trend_view(
+    def sum_budget_and_constant_dollar_spends_by_year_region_and_macro_channel_for_Digital_Investment_Trend_view(
             self,
             df
     ):
@@ -116,7 +111,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
                 HARMONIZED_BUDGET_COLUMN_BUDGET_DATA,
                 HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA
             ],
-            AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW)
+            AGGREGATED_BY_YEAR_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW)
 
     def select_only_aggregated_sum_data_by_region_and_macro_channel_for_Digital_Investment_Trend_view(
             self,
@@ -128,7 +123,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         Market Investment Trend view.
         """
         return df[df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA]
-                  == AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW]
+                  == AGGREGATED_BY_YEAR_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW]
 
 
     def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Digital_Investment_Trend_view(
@@ -144,10 +139,10 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             df,
             HARMONIZED_REGION_COLUMN_BUDGET_DATA,
             HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA,
-            AGGREGATED_BY_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW)
+            AGGREGATED_BY_YEAR_REGION_AND_MACRO_CHANNEL_LABEL_FOR_DIGITAL_INVESTMENT_TREND_VIEW)
 
 
-    def sum_budget_data_by_year_and_region_for_Category_Investment_Trend_view(
+    def sum_budget_and_constant_dollar_spends_by_year_and_region_for_Category_Investment_Trend_view(
             self,
             df
     ):
@@ -166,23 +161,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
                 HARMONIZED_BUDGET_COLUMN_BUDGET_DATA,
                 HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA
              ],
-            AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW)
-
-    def sum_constant_data_by_year_and_region_for_Category_Investment_Trend_view(
-            self,
-            df
-    ):
-
-        df = self.sum_column_data_by_group_by(
-            df,
-            [
-                HARMONIZED_YEAR_COLUMN_BUDGET_DATA,
-                HARMONIZED_REGION_COLUMN_BUDGET_DATA
-            ],
-            HARMONIZED_CONSTANT_DOLLAR_COLUMN_BUDGET_DATA,
-            'a')
-
-        return df
+            AGGREGATED_BY_YEAR_AND_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW)
 
     def select_only_aggregated_sum_data_by_region_for_Category_Investment_Trend_view(
             self,
@@ -192,7 +171,8 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         We will only write the rows representing the summed budget data
         to support the Category Investment Trend view.
         """
-        return df[df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA] == AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW]
+        return df[df[HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA]
+                  == AGGREGATED_BY_YEAR_AND_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW]
 
     def copy_HARMONIZED_REGION_values_to_HARMONIZED_COUNTRY_column_for_Category_Investment_Trend_view(
             self,
@@ -207,7 +187,7 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
             df,
             HARMONIZED_REGION_COLUMN_BUDGET_DATA,
             HARMONIZED_COUNTRY_COLUMN_BUDGET_DATA,
-            AGGREGATED_BY_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW)
+            AGGREGATED_BY_YEAR_AND_REGION_LABEL_FOR_CATEGORY_INV_TREND_VIEW)
 
     def add_all_brands_value_in_HARMONIZED_BRAND_column_for_Category_Investment_Trend_view(
             self,
@@ -220,11 +200,3 @@ class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTran
         df[HARMONIZED_BRAND_COLUMN_BUDGET_DATA] = ' All Brands'
 
         return df
-
-
-    # def debug(self,
-    #           df):
-    #     import pdb
-    #     pdb.set_trace()
-    #     return df
-
