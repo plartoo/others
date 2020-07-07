@@ -37,7 +37,9 @@ class PandasExcelDataReader(PandasFileDataReader):
     def read_header_row(self):
         """
         Reads the row which has column headers
-        and returns them as a list.
+        and returns them as a list or **in case of
+        reading all sheets, a dictionary** in the form
+        {sheet_name => list_of_col_names_of_that_sheet}.
 
         If user instructed to not read header row
         (i.e. set 'header' key's value in config to
@@ -45,13 +47,24 @@ class PandasExcelDataReader(PandasFileDataReader):
         this will return [0, 1, 2, ...] basically
         list of integers as column headers.
         """
-        return pd.read_excel(
+        header_df = pd.read_excel(
             self.input_file,
             sheet_name=self.sheet_name,
             keep_default_na=self.keep_default_na,
             header=self.header_row_index,
             nrows=0
-        ).columns.to_list()
+        )
+
+        if isinstance(header_df, dict):
+            # This means, we are reading more than
+            # one sheet at a time and pandas is
+            # returning the header rows in a dictionary.
+            header_dict = {}
+            for sheet_name, df in header_df.items():
+                header_dict[sheet_name] = header_df[sheet_name].columns.to_list()
+            return header_dict
+
+        return header_df.columns.to_list()
 
     def _read_dataframe(self,
                         row_idx_to_start_reading,
