@@ -11,17 +11,12 @@ import pandas as pd
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
-class AedUkraineTransformFunctions(CommonCompHarmTransformFunctions):
-    """
-    All custom (uncommon) transform functions **SPECIFIC to
-    individual processing task** must be defined as part
-    of this class.
-    """
+class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions):
+    """..."""
 
-    def combining_multiple_excel_worksheets_data_into_one_excel_worksheet(
+    def implement_country_specific_transform_functions_in_this_file_like_this(
             self,
-            df):
-        """
-        We will join the worksheets in one worksheet.
-        """
+            df
+    ):
+        """Insert description here."""
         return df
