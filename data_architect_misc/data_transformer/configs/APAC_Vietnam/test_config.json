@@ -5,7 +5,7 @@
 
     "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
     "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
-    "input_sheet_name": null,
+    "input_sheet_name": 0,
     "header": 1,
     "skiprows": 2,
     "skipfooter": 0,
@@ -18,10 +18,18 @@
 
     "functions_to_apply": [
       {
-        "function_name": "debug"
+        "__function_comment__": "We are expecting to process 'Spots', 'Press' and 'Radio' sheets in this order.",
+        "__function_comment__": "If the order of the sheet is different, we must update the order of the sheet",
+        "__function_comment__": "we use to load the data in the functions below.",
+        "function_name": "assert_the_order_of_sheets_is_as_expected",
+        "function_args": [["Spots", "Press", "Radio"]]
       },
       {
-        "function_name": "load_data_from_another_sheet_in_excel_file_and_append_to_main_dataframe",
+        "function_name": "debug",
+        "function_kwargs":{"test": "hello"}
+      },
+      {
+        "function_name": "load_data_from_another_sheet_in_excel_file_and_append_to_the_main_dataframe",
         "function_args": ["./input/APAC_Vietnam/VTN_N_ALL_SOS_KTM_20200301_20200531_20200619_JC.xlsx"]
       },
       {
