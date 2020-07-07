@@ -69,7 +69,7 @@ EXPECTED_CONFIG_VALUE_DATA_TYPES = {
     PandasFileDataReader.KEY_HEADER: [int],
     PandasFileDataReader.KEY_SKIP_ROWS: [int],
     PandasFileDataReader.KEY_SKIP_FOOTER: [int],
-    PandasExcelDataReader.KEY_SHEET_NAME: [str, int],
+    PandasExcelDataReader.KEY_SHEET_NAME: [str, int, type(None)],
     PandasCSVDataReader.KEY_INPUT_CSV_DELIMITER: [str],
     PandasCSVDataReader.KEY_INPUT_FILE_ENCODING: [str],
     PandasCSVDataReader.KEY_SKIP_BLANK_LINES: [bool],
@@ -119,3 +119,8 @@ WRITER_CONSTANTS = [
     MSSQLDataWriter.KEY_OUTPUT_TABLE_NAME,
     MSSQLDataWriter.KEY_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE
 ]
+
+# These constants below are used in transform.py
+# to pass JSON configs between transform functions
+KEY_CONFIG = 'meta_config'
+KEY_CURRENT_INPUT_FILE = 'current_input_file'
