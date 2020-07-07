@@ -23,7 +23,7 @@
     "write_output": false,
 
     "__comment__": "(Required) Path+name of the module with **COMMON** QA functions.",
-    "custom_transform_functions_file": "./qa_functions/common_post_transform_qa_functions.py",
+    "custom_transform_functions_file": "./qa_functions/common_comp_harm_qa_functions.py",
 
     "__comment__": "(Required) List of the functions and their parameters.",
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",

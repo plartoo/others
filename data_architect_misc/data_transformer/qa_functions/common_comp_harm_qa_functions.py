@@ -1,7 +1,7 @@
 """
-Include this python file in the common_post_transform_qa_config.json
+Include this python file in the common_comp_harm_post_transform_qa_config.json
 file with the key like this:
-"custom_transform_functions_file": "./transform_functions/common_post_transform_qa_functions.py",
+"custom_transform_functions_file": "./transform_functions/common_comp_harm_post_transform_qa_functions.py",
 
 and run the transform.py like this:
 >> python transform.py
@@ -16,10 +16,12 @@ import re
 import pandas as pd
 
 from constants import comp_harm_constants
+from constants.transform_constants import KEY_CONFIG, KEY_CURRENT_INPUT_FILE
 from qa_functions import qa_errors
+from transform_errors import OrderOfListContentsDifferentError
 
 
-class CommonPostTransformQAFunctions:
+class CommonCompHarmPostTransformQAFunctions:
     """
     This class is the collection of QA functions that must be run
     against the transformed data. The QA functions here will either
@@ -79,6 +81,58 @@ class CommonPostTransformQAFunctions:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+
+    def _is_contents_of_the_lists_are_in_same_order(self, list1, list2):
+        for i, l1 in enumerate(list1):
+            if l1 != list2[i]:
+                return False
+        return True
+
+    def assert_the_order_of_sheets_is_as_expected(
+            self,
+            df,
+            list_of_expected_sheet_order,
+            **kwargs
+    ):
+        """
+        There are times when we load data from Excel file
+        with multiple sheets, we need to load the first
+        sheet, and then load the remaining sheets with
+        transform functions. In that scenario, we need
+        to make sure that the input file never changes
+        the order of these sheets without us knowing it
+        (i.e. getting an error if the order of the
+        sheets change in the input file.)
+
+        Args:
+            df:
+            list_of_expected_sheet_order:
+            **kwargs:
+
+        Returns:
+
+        """
+        temp_df = pd.read_excel(
+            kwargs[KEY_CONFIG][KEY_CURRENT_INPUT_FILE],
+            sheet_name=None)
+        # Unfortunately, we have to read the file again
+        # (with all the sheets at once) and save it in a
+        # temp_df to detect the order of the sheets in it.
+        # Here, we expect the user to be using Python 3.7+
+        # for dictionary to respect (keep) the order of the keys.
+        all_sheets = temp_df.keys()
+
+        # First, filter out the sheets that we are not interested
+        sheets_of_interest = [s for s in all_sheets if s in list_of_expected_sheet_order]
+
+        if not self._is_contents_of_the_lists_are_in_same_order(
+            sheets_of_interest,
+            list_of_expected_sheet_order
+        ):
+            raise OrderOfListContentsDifferentError(
+                list_of_expected_sheet_order,
+                sheets_of_interest)
+        return df
 
     def check_expected_columns_are_present(self, df):
         """
