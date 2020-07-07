@@ -1,9 +1,5 @@
 [
   {
-    "__comment__": "(Required) Input folder and file name or file name pattern such as 'VTN_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "__comment__": "Input folder and file name or file name pattern such as 'VTNS_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
-    "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
     "input_folder_path": "./input/APAC_Vietnam/",
     "input_file_name_or_pattern": "VTN_N_ALL_SOS_KTM_20200301_20200531_20200619_JC.xlsx",
 
@@ -82,7 +78,7 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
-        "function_name": "add_HARMONIZED_COUNTRY_column",
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
         "function_args": ["Vietnam"]
       },
       {
@@ -122,7 +118,7 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
-        "function_name": "add_HARMONIZED_MEDIA_TYPE_column",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_fixed_str_value",
         "function_args": ["TV"]
       }
     ]
@@ -199,7 +195,7 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
-        "function_name": "add_HARMONIZED_MEDIA_TYPE_column",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_fixed_str_value",
         "function_args": ["Press"]
       }
     ]
@@ -276,7 +272,7 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
-        "function_name": "add_HARMONIZED_MEDIA_TYPE_column",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_fixed_str_value",
         "function_args": ["Radio"]
       }
     ]

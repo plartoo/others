@@ -15,9 +15,6 @@ RAW_SUBBRAND_COLUMN = 'RAW_SUBBRAND'
 RAW_PRODUCT_NAME_COLUMN = 'RAW_PRODUCT_NAME'
 PRODUCT_NAME_COLUMN = 'HARMONIZED_PRODUCT_NAME'
 
-#APAC Columns
-SUBMEDIA_COLUMN = 'HARMONIZED_SUBMEDIA'
-
 # Below are the regions, countries, categories, media types
 # and globally competing advertisers that we support as of April, 2020.
 # Whenever we come across new data items for constants below, add them.
@@ -99,10 +96,6 @@ MEDIA_TYPE_MAPPINGS = {
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital",
 }
 
-SUBMEDIA_TYPE_MAPPINGS = {
-    "(?i)MAGAZINE.*": "Magazine", "(?i)NEWSPAPER.*": "Newspaper", "(?i)RADIO.*": "Radio",
-}
-
 COUNTRY_MAPPINGS = {
     # Mapping between raw country names in regular expression to standardized country names
     "(?i)BAHRAIN.*": "Bahrain",
@@ -133,13 +126,13 @@ ADVERTISER_MAPPINGS = {
     "(?i)BDF.*": "BEIERSDORF",
     "(?i).*BEIERSDORF.*": "BEIERSDORF",
     "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
+    "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
     "(?i).*GLAXO.*": "GSK", # also catches "\u200EGlaxoSmithKline"
     "(?i)^GSK": "GSK",
     "(?i).*HENKEL.*": "HENKEL",
     "(?i).*JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
-    "(?i)SC JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i).*L'?OREAL.*": "LOREAL", # also catches 'LOREAL'
     "(?i).*PHILIPS.*": "PHILIPS",
     "(?i).*PROCTER.*&.*GAMBLE": "P&G",
@@ -148,7 +141,7 @@ ADVERTISER_MAPPINGS = {
     "(?i)^RB\s*?$": "RECKITT BENCKISER",
     "(?i)^RB\sAG$": "RECKITT BENCKISER",
     "(?i)SANOFI.*": "SANOFI",
-    "(?i).*CLOROX.*": "THE CLOROX COMPANY",
+    "(?i)SC JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i).*UNILEVER.*": "UNILEVER"
 }
 
@@ -167,46 +160,45 @@ CATEGORY_MAPPINGS = {
     "(?i)OTHER.*": "Other",
     "(?i)ALL.*OTHER.*": "Other",
 
-    # Apac Category mappings
-    "(?i).*HYGIENE.*CORPORATE.*": "Personal Care",
-    "(?i).*FACE CREAM.*MOITURIZERS.*": "Personal Care",
-    "(?i).*SHOWER.*PRODUCTS.*": "Personal Care",
-    "(?i).*WASHING.*LIQUID.*": "Personal Care",
-    "(?i).*SHAMPOO.*": "Personal Care",
-    "(?i).*HAIR.*CARE.*RANGES.*": "Personal Care",
-    "(?i).*MEN'S.*SHAMPOO.*": "Personal Care",
-    "(?i).*FEMININE.*HYGIENE.*": "Personal Care",
-    "(?i).*COSMETIC.*PRODUCT.*RANGE.*": "Personal Care",
-    "(?i).*LIPSTICKS.*": "Personal Care",
-    "(?i).*BABY.*BATH-SHOWER-SOAP.*": "Personal Care",
-    "(?i).*DELI.*HANDWASH.*LIQUID.*": "Personal Care",
-    "(?i).*COSMETICS.*CORPORATE.*": "Personal Care",
-    "(?i).*BODY.*CARE.*LINES.*": "Personal Care",
-    "(?i).*SUN.*AFTER-SUN CARE.*": "Personal Care",
-    "(?i).*FACE.*CLEANSERS.*": "Personal Care",
-    "(?i).*MASK.*": "Personal Care",
-    "(?i).*DEODORANTS.*": "Personal Care",
-    "(?i).*MAKE-UP.*REMOVERS.*": "Personal Care",
-    "(?i).*WOMEN'S.*FRAGRANCES.*": "Personal Care",
-    "(?i).*MAKE-UP.*LINES.*": "Personal Care",
-    "(?i).*BABY.*CARE.*PRODUCTS.*": "Personal Care",
-    "(?i).*FACE.*SCRUB.*ANTI.*ACNE.*": "Personal Care",
-    "(?i).*MEN'S.*FACIAL.*CARE.*LINE.*": "Personal Care",
-    "(?i).*PERSONAL.*HYGIENE.*RANGE.*": "Personal Care",
-    "(?i).*NAIL.*VARNISH.*DECORATION.*": "Personal Care",
-    "(?i).*WHITENING.*ESSENCE.*": "Personal Care",
+    "(?i).*AIR.*FRESHENER.*RANGE.*": "Home Care",
     "(?i).*BABY NAPKINS.*": "Personal Care",
-    "(?i).*WASHING.*POWDER.*": "Home Care",
-    "(?i).*FLOOR.*CLEANERS.*": "Home Care",
+    "(?i).*BABY.*BATH-SHOWER-SOAP.*": "Personal Care",
+    "(?i).*BABY.*CARE.*PRODUCTS.*": "Personal Care",
+    "(?i).*BODY.*CARE.*LINES.*": "Personal Care",
+    "(?i).*COSMETIC.*PRODUCT.*RANGE.*": "Personal Care",
+    "(?i).*COSMETICS.*CORPORATE.*": "Personal Care",
+    "(?i).*DELI.*HANDWASH.*LIQUID.*": "Personal Care",
+    "(?i).*DEODORANTS.*": "Personal Care",
+    "(?i).*DISHWASHER.*PRODUCTS.*": "Home Care",
     "(?i).*FABRIC.*SOFTENER/FRESHENER.*": "Home Care",
+    "(?i).*FACE CREAM.*MOITURIZERS.*": "Personal Care",
+    "(?i).*FACE.*CLEANSERS.*": "Personal Care",
+    "(?i).*FACE.*SCRUB.*ANTI.*ACNE.*": "Personal Care",
+    "(?i).*FEMININE.*HYGIENE.*": "Personal Care",
+    "(?i).*FLOOR.*CLEANERS.*": "Home Care",
+    "(?i).*FOUNDATION.*": "Other",
+    "(?i).*HAIR.*CARE.*RANGES.*": "Personal Care",
+    "(?i).*HYGIENE.*CORPORATE.*": "Personal Care",
+    "(?i).*LIPSTICKS.*": "Personal Care",
+    "(?i).*MAKE-UP.*LINES.*": "Personal Care",
+    "(?i).*MAKE-UP.*REMOVERS.*": "Personal Care",
+    "(?i).*MASK.*": "Personal Care",
+    "(?i).*MEN'S.*FACIAL.*CARE.*LINE.*": "Personal Care",
+    "(?i).*MENS.*MANUAL.*RAZORS.*BLADES.*": "Other",
+    "(?i).*MEN'S.*SHAMPOO.*": "Personal Care",
+    "(?i).*MOUTH.*WASHES.*": "Oral Care",
+    "(?i).*NAIL.*VARNISH.*DECORATION.*": "Personal Care",
+    "(?i).*NAPIES.*": "Other",
+    "(?i).*PERSONAL.*HYGIENE.*RANGE.*": "Personal Care",
+    "(?i).*SHAMPOO.*": "Personal Care",
+    "(?i).*SHOWER.*PRODUCTS.*": "Personal Care",
+    "(?i).*SUN.*AFTER-SUN CARE.*": "Personal Care",
+    "(?i).*TOOTHPASTE.*": "Oral Care",
+    "(?i).*WASHING.*LIQUID.*": "Personal Care",
+    "(?i).*WASHING.*POWDER.*": "Home Care",
     "(?i).*WASHING-UP.*PRODUCTS.*": "Home Care",
     "(?i).*WATER-CLOSET.*CLEANERS.*": "Home Care",
-    "(?i).*DISHWASHER.*PRODUCTS.*": "Home Care",
-    "(?i).*AIR.*FRESHENER.*RANGE.*": "Home Care",
-    "(?i).*TOOTHPASTE.*": "Oral Care",
-    "(?i).*MOUTH.*WASHES.*": "Oral Care",
-    "(?i).*NAPIES.*": "Other",
-    "(?i).*MENS.*MANUAL.*RAZORS.*BLADES.*": "Other",
-    "(?i).*FOUNDATION.*": "Other",
+    "(?i).*WHITENING.*ESSENCE.*": "Personal Care",
+    "(?i).*WOMEN'S.*FRAGRANCES.*": "Personal Care",
 }
 
