@@ -132,6 +132,19 @@ class ListEmptyError(TransformError):
                          f"is provided for the following key "
                          f"in the config file: {key_name}")
 
+
+class OrderOfListContentsDifferentError(TransformError):
+    """
+    Raised when the order of the contents in
+    two lists are NOT the the same.
+    """
+
+    def __init__(self, list1, list2):
+        super().__init__(f"The order of contents in these two lists "
+                         f"are NOT the same as expected:\n"
+                         f"{list1}\n"
+                         f"{list2}.")
+
 # class MutuallyExclusiveKeyError(TransformError):
 #     """
 #     Raised when config file has more than one key that serves the same
