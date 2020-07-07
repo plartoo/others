@@ -12,11 +12,11 @@ import re
 from constants.budget_rollup_constants import *
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
-from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
+from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 from qa_functions.qa_errors import UnexpectedColumnValuesFoundError, EmptyStringFoundError
 
 
-class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
+class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonCompHarmQAFunctions):
 
     def assert_no_empty_value_in_DIMENSION_COLUMNS(self,
                                                    df):
@@ -272,7 +272,7 @@ class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonPostTran
             self,
             df):
         if not df[df[HARMONIZED_BUDGET_COLUMN_BUDGET_DATA] == ''].empty:
-            # We will not reuse function in common_post_transform_qa_functions.py
+            # We will not reuse function in common_comp_harm_qa_functions.py
             # because we want to give a specific error message for this one.
             raise EmptyStringFoundError(
                 f"There are empty cells in the '{HARMONIZED_BUDGET_COLUMN_BUDGET_DATA}' column. "

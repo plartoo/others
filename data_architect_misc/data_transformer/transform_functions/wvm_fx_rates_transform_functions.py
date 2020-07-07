@@ -15,7 +15,7 @@ from constants.fx_rates_constants import *
 from constants.comp_harm_constants import COUNTRIES as COMP_HARM_PROJECT_COUNTRIES
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
-from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
+from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 from qa_functions.qa_errors import \
     InsufficientNumberOfColumnsError, \
     InvalidValueFoundError, \
@@ -30,7 +30,7 @@ def generate_one_yyyy_mm_dd_string_for_each_month_of_the_year(year):
     return [datetime.datetime.strptime(d, '%Y-%m-%d').strftime('%Y-%m-%d') for d in first_days_of_all_months]
 
 
-class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
+class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonCompHarmQAFunctions):
 
     # We will have to extract year value from the FX file before
     # processing the rest of the data in a different read.

@@ -5,22 +5,18 @@ dollar ratios to the Budget roll-up data.
 Author: Phyo Thiha and Jholman Jaramillo
 Last Modified: June 26, 2020
 """
-import datetime
-import re
-
 import pandas as pd
 
 from constants.budget_rollup_constants import *
-from constants.fx_rates_constants import CONSTANT_DOLLAR_COLUMN_SUFFIX, HARMONIZED_COUNTRY_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, \
-    CONSTANT_DOLLAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, YEAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, ESSENTIAL_COLUMNS_FOR_CONSTANT_USD_DATA
+from constants.fx_rates_constants import HARMONIZED_COUNTRY_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, \
+    CONSTANT_DOLLAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA, YEAR_COLUMN_FX_RATES_AND_CONSTANT_DOLLAR_DATA
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
-from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
-from qa_functions.qa_errors import ColumnListMismatchError
+from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 
 
 class WvmBudgetRollupApplyConstantDollarRatiosFunctions(CommonTransformFunctions,
-                                                        CommonPostTransformQAFunctions):
+                                                        CommonCompHarmQAFunctions):
 
     def load_constant_dollar_ratios_to_dataframe(
             self,

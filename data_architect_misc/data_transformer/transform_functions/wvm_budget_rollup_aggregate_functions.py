@@ -8,12 +8,13 @@ Last Modified: June 16, 2020
 """
 
 from transform_functions.common_transform_functions import CommonTransformFunctions
-from qa_functions.common_post_transform_qa_functions import CommonPostTransformQAFunctions
+from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 from qa_functions.qa_errors import ColumnListMismatchError
 
 from constants.budget_rollup_constants import *
 
-class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonPostTransformQAFunctions):
+
+class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonCompHarmQAFunctions):
 
     def assert_input_file_has_essential_columns(self,
                                                 df):
