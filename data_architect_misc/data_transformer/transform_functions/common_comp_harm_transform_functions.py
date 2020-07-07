@@ -545,3 +545,57 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonPostTrans
                 comp_harm_constants.PRODUCT_NAME_COLUMN
             ]
         )
+
+    def add_RAW_SUBBRAND_column(self,
+                                       df,
+                                       submedia_name):
+        """
+        Add HARMONIZED_SUBMEDIA column with the submedia name provided.
+
+        Args:
+            df: Raw dataframe to transform.
+            submedia_name: Name of the submedia to add.
+
+        Returns:
+            Dataframe with HARMONIZED_SUBMEDIA column added.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.SUBMEDIA_COLUMN,
+            submedia_name)
+
+    def add_HARMONIZED_MEDIA_TYPE_column(self,
+                                         df,
+                                         media_name):
+        """
+        Add HARMONIZED_SUBMEDIA column with the submedia name provided.
+
+        Args:
+            df: Raw dataframe to transform.
+            media_name: Name of the media to add.
+
+        Returns:
+            Dataframe with HARMONIZED_MEDIA_TYPE column added.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.MEDIA_TYPE_COLUMN,
+            media_name)
+
+    def add_HARMONIZED_COUNTRY_column (self,
+                                       df,
+                                       country_name):
+        """
+                Add HARMONIZED_COUNTRY column with the submedia name provided.
+
+                Args:
+                    df: Raw dataframe to transform.
+                    country_name: Name of the submedia to add.
+
+                Returns:
+                    Dataframe with HARMONIZED_COUNTRY column added.
+                """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.SUBMEDIA_COLUMN,
+            country_name)
