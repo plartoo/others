@@ -68,6 +68,29 @@ class RequiredKeyNotFoundInConfigFile(TransformError):
                f"required key in JSON config file: {self.key_name}"
 
 
+class ReservedKeywordConflictForMetaConfigError(TransformError):
+    """
+    Raised when somebody mistakenly use the reserved
+    keyword, which is used to pass down the meta-level
+    config information into transform functions.
+
+    For more info, read transform.py file code where we
+    pass down func_args and func_kwargs to transform
+    function.
+    """
+    def __init__(self, key_name_in_conflict, function_kwarg):
+        self.key_name_in_conflict = key_name_in_conflict
+        self.function_kwarg = function_kwarg
+
+    def __str__(self):
+        return f"You cannot use the keyword, '{self.key_name_in_conflict}'" \
+               f", which is reserved to pass down " \
+               f"the configs (from the JSON config file) into " \
+               f"transform functions. Try renaming the key in this functions' " \
+               f"kwargs in your JSON config file to something different: " \
+               f"{self.function_kwarg}."
+
+
 class ConfigFileInputDataTypeError(TransformError):
     """
     Raised when config file input is of unexpected data type.
