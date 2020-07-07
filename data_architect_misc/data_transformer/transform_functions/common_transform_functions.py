@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 
 import transform_errors
+from constants.transform_constants import KEY_CONFIG, KEY_CURRENT_INPUT_FILE
 
 
 def return_value_type_check(f):
@@ -81,6 +82,35 @@ class CommonTransformFunctions(TransformFunctions):
     REF: https://stackoverflow.com/a/2203479
          https://stackoverflow.com/a/6322114
     """
+
+    def load_data_from_other_sheets_in_excel_file_and_append_to_the_main_dataframe(
+            self,
+            df,
+            list_of_sheet_names,
+            **kwargs
+        ):
+        """
+        Given the list of sheet names, we will append data from these
+        sheets to the main dataframe.
+
+        Args:
+            df: Original dataframe to append data to.
+            list_of_sheet_names: List of Excel sheet names to read data
+            from and append to the original dataframe.
+
+        Returns:
+            Data frame which now has data from additional sheets
+            appended/concatenated.
+        """
+        for sheet in list_of_sheet_names:
+            temp_df = pd.read_excel(
+                kwargs[KEY_CONFIG][KEY_CURRENT_INPUT_FILE],
+                sheet_name=sheet)
+            # TODO: Jholman needs to work on this to append to df the temp_df data
+            # REF: https://pbpython.com/pandas-excel-tabs.html
+
+        return df
+
 
     def drop_columns_by_index(self, df, list_of_col_idx):
         """
