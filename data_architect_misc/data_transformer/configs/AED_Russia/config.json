@@ -1,24 +1,15 @@
 [
   {
-    "__comment__": "(Required IF NOT provided as an argument via commandline)",
-    "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
-    "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
-    "input_folder_path": "./input/AED_Russia/",
-    "input_file_name_or_pattern": "Russia_2019FY_20200402.xlsx",
-
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
-    "input_sheet_name": "Base ",
+    "input_sheet_name": 0,
 
-    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
-    "write_output": true,
+    "__comment__": "Because Russia data is usually more than 150K lines long, we will read and process 200K as opposed to the default of the transform module, 100K.",
+    "rows_per_read": 200000,
 
-    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
-    "__comment__": "Default is going to be the current working directory of transform.py",
-    "output_folder_path": "./output/AED_Russia/",
-
-    "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "transformed_Russia_2019FY_",
+    "__comment__": "This encoding is in case we are running the transform process with CSV input file ",
+    "__comment__": "(because Russia data is relatively big, using Excel to read data can be slow in Pandas, ",
+    "__comment__": "so we sometimes convert that original Excel file to CSV).",
+    "input_encoding": "cp1252",
 
     "__comment__": "(Required if there's header row in your data) Enter the row index (>= 0) to extract column headers from. E.g., if column header row is the first row, enter 0 below.",
     "__comment__": "If this value is NOT provided, the program will assume there is no header row in the input file.",
@@ -34,6 +25,19 @@
     "__comment__": " If that happens, then the skipfooter will not correctly drop the right number of rows at the bottom.",
     "skipfooter": 0,
 
+    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
+    "write_output": true,
+
+    "__comment_for_data_writer_module_file__": "Although we intended to use CSV output, sometimes it's easier to review the output using Excel.",
+    "data_writer_module_file": "./data_writers/excel_data_writer.py",
+
+    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
+    "__comment__": "Default is going to be the current working directory of transform.py",
+    "output_folder_path": "./output/AED_Russia/",
+
+    "__comment__": "(Optional) Prefix for the output file name.",
+    "output_file_name_prefix": "Transformed_Russia_2019FY_",
+
     "__comment__": "(Optional) Path+name of the file that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
 
@@ -48,6 +52,10 @@
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [12]
+      },
+      {
+        "__function_comment__": "Russian agency likes to put spaces before and after the column names. We need to remove them.",
+        "function_name": "strip_extra_spaces_and_newline_characters_in_column_names"
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -75,17 +83,17 @@
       {
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
         "function_name": "add_HARMONIZED_COUNTRY_column_using_existing_country_column",
-        "function_args": ["AED COUNTRIES IN SCOPE"]
+        "function_args": ["COUNTRY"]
       },
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["ADVERTISERS IN SCOPE"]
+        "function_args": ["ADVERTISER"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["MEDIA_TYPES IN SCOPE"]
+        "function_args": ["MEDIA TYPE GENERAL"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'RUB' (Russian Ruble) as value.",
@@ -95,32 +103,32 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["GROSS_SPEND_IN_RUSSIAN RUBLE"]
+        "function_args": ["GROSS_SPEND_IN_LOCAL_CURRENCY"]
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
-        "function_args": ["CATEGORIES IN SCOPE"]
+        "function_args": ["CATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
-        "function_args": ["SUBCATEGORIES IN SCOPE"]
+        "function_args": ["SUBCATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["BRANDS IN SCOPE"]
+        "function_args": ["BRAND"]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
         "function_name": "add_RAW_SUBBRAND_column_by_renaming_existing_column",
-        "function_args": ["SUBBRAND (optional) IN SCOPE"]
+        "function_args": ["SUBBRAND (Optional)"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["PRODUCT_NAMES IN SCOPE"]
+        "function_args": ["PRODUCT_NAME"]
       },
       {
         "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",

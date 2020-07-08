@@ -719,6 +719,22 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def strip_extra_spaces_and_newline_characters_in_column_names(
+            self,
+            df
+    ):
+        """
+        Strips the extra spaces (before and after) and/or the newline
+        characters (\n) that surrounds the beginning and the end of
+        the column names.
+
+        For example, Russia data usually comes with column names like:
+        ' Advertisers', ' COUNTRY ', "Subcategories\n". We can use
+        this method to transform these column names to the followings:
+        'Advertisers', 'COUNTRY', 'Subcategories'.
+        """
+        return df.rename(columns=lambda x: x.strip())
+
     def add_new_column_with_fixed_str_value(self,
                                             df,
                                             new_col_name,
