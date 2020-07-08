@@ -215,7 +215,7 @@ def get_functions_to_apply(config):
     ]
     """
     funcs_list = config.get(KEY_FUNCTIONS_TO_APPLY,
-                            DEFAULT_FUNCTIONS_TO_APPLY)
+                            list())
 
     if not funcs_list:
         # Function list must NOT be empty
@@ -281,7 +281,7 @@ def get_function_args(dict_of_func_and_params):
          List of parameters like [param1, param2] or an empty list if
          "function_args" key does not exists in the dictionary.
     """
-    return dict_of_func_and_params.get(KEY_FUNC_ARGS, DEFAULT_FUNC_ARGS)
+    return dict_of_func_and_params.get(KEY_FUNC_ARGS, list())
 
 
 def get_function_kwargs(dict_of_func_and_params):
@@ -303,4 +303,4 @@ def get_function_kwargs(dict_of_func_and_params):
          Dictionary of keyword parameters like {"col1": "mapped_col_1", "col2": "mapped_col_2"}
          or an empty dictionary if "function_kwargs" key does not exist in the dictionary.
     """
-    return dict_of_func_and_params.get(KEY_FUNC_KWARGS, DEFAULT_FUNC_KWARGS)
+    return dict_of_func_and_params.get(KEY_FUNC_KWARGS, dict())

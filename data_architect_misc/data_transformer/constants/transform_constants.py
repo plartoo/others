@@ -38,12 +38,9 @@ DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE = os.path.join(os.getcwd(),
                                                        'transform_functions',
                                                        'common_transform_functions.py')
 KEY_FUNCTIONS_TO_APPLY = 'functions_to_apply'
-DEFAULT_FUNCTIONS_TO_APPLY = []
 KEY_FUNC_NAME = 'function_name'
 KEY_FUNC_ARGS = 'function_args'
-DEFAULT_FUNC_ARGS = []
 KEY_FUNC_KWARGS = 'function_kwargs'
-DEFAULT_FUNC_KWARGS = {}
 
 # Keys in config file are required
 REQUIRED_KEYS = [KEY_INPUT_FOLDER_PATH,
