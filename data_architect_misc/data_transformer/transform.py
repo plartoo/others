@@ -78,13 +78,14 @@ if __name__ == '__main__':
         transform_utils.validate_configurations(config)
 
         for input_file in transform_utils.get_input_files(config):
+            reader = FileDataReader(input_file, config).get_data_reader()
+            write_data = transform_utils.get_write_data_decision(config)
+            data_writer_kls = transform_utils.instantiate_data_writer_class(config)
+
             # To be convenient in some situations, we will add the currently
             # processed/transformed file name (full path and name info)
             config[KEY_CURRENT_INPUT_FILE] = input_file
 
-            reader = FileDataReader(input_file, config).get_data_reader()
-            write_data = transform_utils.get_write_data_decision(config)
-            data_writer_kls = transform_utils.instantiate_data_writer_class(config)
             # To optimize the application of custom function to Pandas' dataframe, read:
             # REF: https://archive.st/7w9d (also available at: http://archive.ph/qXKXC)
             transform_funcs_kls = transform_utils.instantiate_transform_functions_class(config)
@@ -98,15 +99,6 @@ if __name__ == '__main__':
                     func_name = transform_utils.get_function_name(func_and_params)
                     func_args = transform_utils.get_function_args(func_and_params)
                     func_kwargs = transform_utils.get_function_kwargs(func_and_params)
-
-                    # In some difficult-to-parse files, we need configs to carry the
-                    # information such as input_file_name, etc. to transform functions.
-                    # That's why we are going to add JSON configs as kwargs parameter.
-                    if KEY_CONFIG in func_kwargs:
-                        raise transform_errors.ReservedKeywordConflictForMetaConfigError(
-                            KEY_CONFIG,
-                            func_and_params)
-                    func_kwargs[KEY_CONFIG] = config
 
                     cur_df = getattr(transform_funcs_kls,
                                      func_name)(cur_df, *func_args, **func_kwargs)

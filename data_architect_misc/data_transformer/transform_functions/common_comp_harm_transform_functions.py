@@ -1,3 +1,5 @@
+import logging
+
 from constants import comp_harm_constants
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
@@ -17,6 +19,8 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     we want to make sure the column names stand out for
     our team members when they use them.
     """
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
     def add_PROCESSED_DATE_column_with_current_date(self, df):
         """

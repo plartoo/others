@@ -59,9 +59,9 @@ class TransformFunctions:
         REF: https://stackoverflow.com/a/60571077/1330974
         """
         super().__init_subclass__(**kwargs)
-        for k, v in cls.__dict__.items():
-            if callable(v):
-                setattr(cls, k, return_value_type_check(v))
+        for f_name, f_object in cls.__dict__.items():
+            if (f_name != '__init__') and callable(f_object):
+                setattr(cls, f_name, return_value_type_check(f_object))
 
     def _cap_sentence(self, s):
         """
@@ -82,12 +82,13 @@ class CommonTransformFunctions(TransformFunctions):
     REF: https://stackoverflow.com/a/2203479
          https://stackoverflow.com/a/6322114
     """
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
     def load_data_from_other_sheets_in_excel_file_and_append_to_the_main_dataframe(
             self,
             df,
-            list_of_sheet_names,
-            **kwargs
+            list_of_sheet_names
         ):
         """
         Given the list of sheet names, we will append data from these
@@ -112,7 +113,11 @@ class CommonTransformFunctions(TransformFunctions):
         return df
 
 
-    def drop_columns_by_index(self, df, list_of_col_idx):
+    def drop_columns_by_index(
+            self,
+            df,
+            list_of_col_idx
+    ):
         """
         Drop columns from a dataframe using a list of indexes.
         REF: https://stackoverflow.com/a/18145399
@@ -127,7 +132,11 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.drop(df.columns[list_of_col_idx], axis=1)
 
-    def drop_columns_by_name(self, df, list_of_col_names):
+    def drop_columns_by_name(
+            self,
+            df,
+            list_of_col_names
+    ):
         """
         Drop columns from a dataframe using a list of column names (strings).
         REF: https://stackoverflow.com/a/18145399
@@ -142,7 +151,10 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.drop(list_of_col_names, axis=1)
 
-    def drop_unnamed_columns(self, df):
+    def drop_unnamed_columns(
+            self,
+            df
+    ):
         """
         Drop columns that have 'Unnamed' as column header, which is a usual
         occurrence for some Excel/CSV raw data files with empty but hidden columns.
@@ -154,10 +166,12 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.loc[:, ~df.columns.str.contains(r'Unnamed')]
 
-    def drop_empty_rows(self,
-                        df,
-                        list_of_col_names,
-                        reset_index=True):
+    def drop_empty_rows(
+            self,
+            df,
+            list_of_col_names,
+            reset_index=True
+    ):
         """
         Drop rows that have columns (col_names) have empty/blank cells.
         REF: https://stackoverflow.com/a/56708633/1330974
@@ -178,7 +192,10 @@ class CommonTransformFunctions(TransformFunctions):
         for col_name in list_of_col_names:
             df = df[df[col_name].astype(bool)]
 
-        return df.reset_index(drop=True)
+        if reset_index:
+            return df.reset_index(drop=True)
+
+        return df
 
     def drop_rows_with_matching_string_values(
             self,

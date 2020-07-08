@@ -177,7 +177,7 @@ def instantiate_transform_functions_class(config):
     transform_funcs_module_file = config.get(
         KEY_CUSTOM_TRANSFORM_FUNCTIONS_FILE,
         DEFAULT_COMMON_TRANSFORM_FUNCTIONS_FILE)
-    return instantiate_class_in_module_file(transform_funcs_module_file)()
+    return instantiate_class_in_module_file(transform_funcs_module_file)(config)
 
 
 def _is_any_key_in_dict(dictionary, list_of_keys):
