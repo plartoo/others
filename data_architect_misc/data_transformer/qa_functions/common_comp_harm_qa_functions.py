@@ -155,7 +155,11 @@ class CommonCompHarmQAFunctions:
 
         return df
 
-    def assert_number_of_columns_equals(self, df, num_of_cols_expected):
+    def assert_number_of_columns_equals(
+            self,
+            df,
+            num_of_cols_expected
+    ):
         """
         Assert that the total number of columns in the dataframe
         is equal to num_of_cols_expected (int).
