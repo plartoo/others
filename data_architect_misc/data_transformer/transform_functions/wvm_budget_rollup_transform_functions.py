@@ -18,6 +18,9 @@ from qa_functions.qa_errors import UnexpectedColumnValuesFoundError, EmptyString
 
 class WvmBudgetRollupTransformFunctions(CommonTransformFunctions, CommonCompHarmQAFunctions):
 
+    def __init__(self, config):
+        self.config = config
+
     def assert_no_empty_value_in_DIMENSION_COLUMNS(self,
                                                    df):
         return self.assert_no_empty_str_values_in_columns(df, list(DIMENSION_COLUMNS))

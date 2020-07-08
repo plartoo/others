@@ -17,6 +17,8 @@ class AedUkraineTransformFunctions(CommonCompHarmTransformFunctions):
     individual processing task** must be defined as part
     of this class.
     """
+    def __init__(self, config):
+        self.config = config
 
     def implement_country_specific_transform_functions_in_this_file_like_this(
             self,

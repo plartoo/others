@@ -40,6 +40,9 @@ class WvmFxRatesTransformFunctions(CommonTransformFunctions, CommonCompHarmQAFun
     def update_year_in_data_file(cls, value):
         cls.static_year_in_data_file = value
 
+    def __init__(self, config):
+        self.config = config
+
     def extract_year_value_and_set_it_to_static_variable(self, df):
         """
         Note to my teammates: This is a **hack** and should not be

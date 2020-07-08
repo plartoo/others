@@ -18,6 +18,9 @@ from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 class WvmBudgetRollupApplyConstantDollarRatiosFunctions(CommonTransformFunctions,
                                                         CommonCompHarmQAFunctions):
 
+    def __init__(self, config):
+        self.config = config
+
     def load_constant_dollar_ratios_to_dataframe(
             self,
             df,

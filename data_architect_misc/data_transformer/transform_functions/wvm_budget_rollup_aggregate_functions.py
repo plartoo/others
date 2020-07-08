@@ -16,6 +16,9 @@ from constants.budget_rollup_constants import *
 
 class WvmBudgetRollupAggregateFunctions(CommonTransformFunctions, CommonCompHarmQAFunctions):
 
+    def __init__(self, config):
+        self.config = config
+
     def assert_input_file_has_essential_columns(self,
                                                 df):
         if set(ESSENTIAL_COLUMNS_FOR_TRANSFORMED_OUTPUT_BUDGET_USD_AND_CONSTANT_USD_DATA) != set(df.columns):

@@ -18,6 +18,8 @@ class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
     individual processing task** must be defined as part
     of this class.
     """
+    def __init__(self, config):
+        self.config = config
 
     def add_HARMONIZED_CATEGORY_column_using_raw_SUBCATEGORY_column_values(
             self,
