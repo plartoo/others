@@ -1,6 +1,11 @@
 import logging
+import re
 
+import pandas as pd
+
+import transform_errors
 from constants import comp_harm_constants
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_DELIMITER, KEY_HEADER
 from transform_functions.common_transform_functions import CommonTransformFunctions
 from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 
@@ -21,6 +26,80 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     """
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+
+    @staticmethod
+    def extract_date_range_from_file_path_and_name(file_path_and_name):
+        # If this method is returning 'IndexError: list index out of range'
+        # error, that means no match is found and you need to inspect your
+        # file name to make sure it has date range pattern like this:
+        # '*_YYYYMMDD_YYYYMMDD*rows', which is specific to comp harm project.
+        return re.findall(r'_(\d{8}_\d{8}).*rows', file_path_and_name)[0]
+
+    @staticmethod
+    def has_same_date_range_in_their_names(
+            file1_path_and_name,
+            file2_path_and_name):
+        # This method extracts date range of the data from the file names
+        # assuming that the file names are given following the standards
+        # used in comp_harm project ('*_YYYYMMDD_YYYYMMDD*rows'), and
+        # compare them. Based on the comparison, it returns boolean value
+        # if the date ranges in these file names match (or not).
+        return CommonCompHarmTransformFunctions.extract_date_range_from_file_path_and_name(file1_path_and_name) == \
+               CommonCompHarmTransformFunctions.extract_date_range_from_file_path_and_name(file2_path_and_name)
+
+    def create_new_dataframe_from_input_CSV_files(
+            self,
+            df,
+            list_of_file_path_and_names
+    ):
+        """
+        This function will create a new dataframe from the
+        list of files provided as parameter. Use this
+        function to merge two or more transformed output
+        files into one.
+
+        But before creating a new dataframe, this function
+        will check to make sure that the base input file
+        we provided in commandline (with '-i' flag) or
+        JSON config has the same date range in its name
+        (e.g., Transformed_Vietnam_20200101_20200331_*)
+        as the file names in list_of_file_path_and_names.
+
+        The reason why we had to do this check is because
+        we want to make sure our team members pay attention
+        to the files they are processing and whenever they
+        process new files, they update the input parameters
+        of this function in the JSON config file.
+
+        Args:
+            df: Base dataframe loaded from input file
+            provided via commandline
+            list_of_file_path_and_names: List of path and
+            file names that we want to load into the new
+            dataframe for later transformation.
+            delimiter: Delimiter for the input CSV file.
+
+        Returns:
+            New dataframe that is composed of data from
+            the input files provided as paramter to this
+            function.
+        """
+        base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
+        for file_path_and_name in list_of_file_path_and_names:
+            if not CommonCompHarmTransformFunctions.has_same_date_range_in_their_names(
+                base_file_path_and_name,
+                file_path_and_name
+            ):
+                raise transform_errors.InputFilesDateRangeMismatchError(base_file_path_and_name, file_path_and_name)
+
+        df = pd.DataFrame()
+        for cur_file in list_of_file_path_and_names:
+            temp_df = pd.read_csv(cur_file,
+                                  delimiter=self.config[KEY_DELIMITER],
+                                  header=self.config[KEY_HEADER])
+            df = df.append(temp_df)
+
+        return df
 
     def add_PROCESSED_DATE_column_with_current_date(self, df):
         """

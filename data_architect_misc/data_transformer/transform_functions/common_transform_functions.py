@@ -155,6 +155,35 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.drop(list_of_col_names, axis=1)
 
+    def drop_columns_by_name_if_they_exist_in_dataframe(
+            self,
+            df,
+            list_of_col_names
+    ):
+
+        """
+        Drop columns from a dataframe using a list of column names
+        (strings).
+
+        **If column name(s) in list_of_col_names is(are) not in the
+        dataframe, this method will NOT attempt to drop them. Only
+        use this in scenarios where we don't know for sure if a
+        column will be included in the raw input file, but we must
+        drop it if it appears.**
+
+        Args:
+            df: Raw dataframe to transform.
+            list_of_col_names: List of column names (string).
+                                E.g., ['Channel', 'Network']
+
+        Returns:
+            Dataframe with columns dropped.
+        """
+        existing_cols = set(df.columns)
+        common_cols = set(list_of_col_names).intersection(existing_cols)
+
+        return df.drop(common_cols, axis=1)
+
     def drop_unnamed_columns(
             self,
             df

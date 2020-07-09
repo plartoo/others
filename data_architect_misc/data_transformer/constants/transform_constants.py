@@ -121,3 +121,4 @@ WRITER_CONSTANTS = [
 # to pass JSON configs between transform functions
 KEY_CURRENT_INPUT_FILE = 'current_input_file'
 KEY_HEADER = PandasFileDataReader.KEY_HEADER
+KEY_DELIMITER = PandasCSVDataReader.KEY_INPUT_CSV_DELIMITER

@@ -124,6 +124,14 @@ class InputDataLengthError(TransformError):
         super().__init__(error_msg)
 
 
+class InputFilesDateRangeMismatchError(TransformError):
+    def __init__(self, file1, file2):
+        super().__init__(f"Please make sure that the following files "
+                         f"you are using as input to this method "
+                         f"are of the same date range: {file1}\n"
+                         f"and:\n{file2}")
+
+
 class ListEmptyError(TransformError):
     """Raised when the provided list is empty."""
 
