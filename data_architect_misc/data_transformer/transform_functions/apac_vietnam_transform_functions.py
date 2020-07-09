@@ -8,8 +8,8 @@ Last Modified: April 13, 2020
 
 import pandas as pd
 
-from constants.comp_harm_constants import MEDIA_TYPE_COLUMN, RAW_MEDIA_TYPE_COLUMN
-from constants.transform_constants import KEY_CURRENT_INPUT_FILE
+from constants.comp_harm_constants import RAW_MEDIA_TYPE_COLUMN
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_HEADER
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 
@@ -26,8 +26,9 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
     ):
 
         """
-        This function is creating a new column named RAW_MEDIA_TYPE to include media namesselected from sheet names
-        also he we will append everu sheet in one dataframe.
+        This function is creating a new column named RAW_MEDIA_TYPE
+        to include media names selected from sheet names
+        also he we will append every sheet in one dataframe.
         """
 
         df = pd.DataFrame()
@@ -35,31 +36,16 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
             temp_df = pd.read_excel(
                 self.config[KEY_CURRENT_INPUT_FILE],
                 sheet_name=sheet,
-                header=self.config['header'])
+                header=self.config[KEY_HEADER])
 
             # Create  RAW_MEDIA_TYPE column based on sheet names.
             temp_df[RAW_MEDIA_TYPE_COLUMN] = sheet
 
             # Append all sheet with same columns names,
-            # those columns names that do not match will be at the end of the dataframe (E.g.: "Header type" column).
+            # those columns names that do not match will
+            # be at the end of the dataframe
+            # (E.g., "Header type" column).
             df = df.append(temp_df)
 
         return df
 
-    def append_data_from_other_files_to_base_dataframe(self,
-                                                                  df,
-                                                                  ):
-        """
-
-        """
-
-        return df
-
-    def debug(
-            self,
-            df,
-            **kwargs
-    ):
-
-        import pdb; pdb.set_trace()
-        return df
