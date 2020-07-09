@@ -8,6 +8,7 @@ Last Modified: April 7, 2020
 
 import pandas as pd
 
+from constants import comp_harm_constants
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -28,4 +29,17 @@ class AedRussiaTransformFunctions(CommonCompHarmTransformFunctions):
         """Insert description here."""
         return df
 
+    def rename_HARMONIZED_CATEGORY_data_using_dictionary_values(
+            self,
+            df
+    ):
+        # As of July 8, 2020, Phyo decided that we will map multi-category advertisements for Russia into OC for now
+        NON_STANDARD_HARMONIZED_CATEGORY = {
+            "OC/PC":"Oral Care",
+            "OC/HC/PC":"Oral Care"
+        }
+        
+        df[comp_harm_constants.CATEGORY_COLUMN] = df[comp_harm_constants.CATEGORY_COLUMN].replace(NON_STANDARD_HARMONIZED_CATEGORY)
+
+        return df
 
