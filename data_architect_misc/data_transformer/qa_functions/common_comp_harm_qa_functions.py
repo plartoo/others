@@ -79,7 +79,8 @@ class CommonCompHarmQAFunctions:
         comp_harm_constants.GROSS_SPEND_COLUMN
     ]
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.logger = logging.getLogger(__name__)
 
     @staticmethod
