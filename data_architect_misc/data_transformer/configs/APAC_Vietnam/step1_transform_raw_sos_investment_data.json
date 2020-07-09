@@ -71,7 +71,7 @@
         "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
       },
       {
-        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Africa Pacific' as value.",
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Asia Pacific' as value.",
         "function_name": "add_HARMONIZED_REGION_column",
         "function_args": ["Asia Pacific"]
       },
@@ -120,7 +120,7 @@
         "function_args": ["Brand"]
       },
       {
-        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "__function_comment__": "Create RAW_SUBBRAND column with empty values.",
         "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
       },
       {
