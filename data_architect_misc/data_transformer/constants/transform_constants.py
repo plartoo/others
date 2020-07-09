@@ -119,5 +119,5 @@ WRITER_CONSTANTS = [
 
 # These constants below are used in transform.py
 # to pass JSON configs between transform functions
-KEY_CONFIG = 'meta_config'
 KEY_CURRENT_INPUT_FILE = 'current_input_file'
+KEY_HEADER = PandasFileDataReader.KEY_HEADER

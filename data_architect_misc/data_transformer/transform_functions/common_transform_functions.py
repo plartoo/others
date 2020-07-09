@@ -16,8 +16,7 @@ import pandas as pd
 import numpy as np
 
 import transform_errors
-from constants.comp_harm_constants import MEDIA_TYPE_COLUMN
-from constants.transform_constants import KEY_CONFIG, KEY_CURRENT_INPUT_FILE
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_HEADER
 
 
 def return_value_type_check(f):
@@ -108,9 +107,7 @@ class CommonTransformFunctions(TransformFunctions):
             temp_df = pd.read_excel(
                 self.config[KEY_CURRENT_INPUT_FILE],
                 sheet_name=sheet,
-                header=self.config['header'])
-            # TODO: Jholman needs to work on this to append to df the temp_df data
-            # REF: https://pbpython.com/pandas-excel-tabs.html
+                header=self.config[KEY_HEADER])
 
             # To append all sheet with same columns names,
             # those columns names that not match will be at the end of the dataframe
