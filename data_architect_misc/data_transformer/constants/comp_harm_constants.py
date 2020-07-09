@@ -130,14 +130,14 @@ ADVERTISER_MAPPINGS = {
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
     "(?i).*GLAXO.*": "GSK", # also catches "\u200EGlaxoSmithKline"
-    "(?i)^GSK": "GSK",
+    "(?i)^GSK.*": "GSK",
     "(?i).*HENKEL.*": "HENKEL",
     "(?i).*JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
     "(?i).*L'?OREAL.*": "LOREAL", # also catches 'LOREAL'
     "(?i).*PHILIPS.*": "PHILIPS",
-    "(?i).*PROCTER.*&.*GAMBLE": "P&G",
-    "(?i)P.*&.*G": "P&G",
+    "(?i).*PROCTER.*&.*GAMBLE.*": "P&G",
+    "(?i)P.*&.*G.*": "P&G",
     "(?i).*RECKITT.*": "RECKITT BENCKISER",
     "(?i)^RB\s*?$": "RECKITT BENCKISER",
     "(?i)^RB\sAG$": "RECKITT BENCKISER",
