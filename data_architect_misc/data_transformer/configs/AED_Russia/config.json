@@ -36,7 +36,7 @@
     "output_folder_path": "./output/AED_Russia/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "Transformed_Russia_2019FY_",
+    "output_file_name_prefix": "Transformed_Russia_20200101_20200430_",
 
     "__comment__": "(Optional) Path+name of the file that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
@@ -51,7 +51,7 @@
       {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [12]
+        "function_args": [ 12 ]
       },
       {
         "__function_comment__": "Russian agency likes to put spaces before and after the column names. We need to remove them.",
@@ -64,12 +64,12 @@
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing YEAR column name.",
         "function_name": "add_HARMONIZED_YEAR_column_by_renaming_existing_column",
-        "function_args": ["YEAR"]
+        "function_args": [ "YEAR" ]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing MONTH column name.",
         "function_name": "add_HARMONIZED_MONTH_column_by_renaming_existing_column",
-        "function_args": ["MONTH"]
+        "function_args": [ "MONTH" ]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -78,57 +78,61 @@
       {
         "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Africa-Eurasia' as value.",
         "function_name": "add_HARMONIZED_REGION_column",
-        "function_args": ["Africa-Eurasia"]
+        "function_args": [ "Africa-Eurasia" ]
       },
       {
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
         "function_name": "add_HARMONIZED_COUNTRY_column_using_existing_country_column",
-        "function_args": ["COUNTRY"]
+        "function_args": [ "COUNTRY" ]
       },
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["ADVERTISER"]
+        "function_args": [ "ADVERTISER" ]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["MEDIA TYPE GENERAL"]
+        "function_args": [ "MEDIA TYPE GENERAL" ]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'RUB' (Russian Ruble) as value.",
         "function_name": "add_HARMONIZED_CURRENCY_column",
-        "function_args": ["RUB"]
+        "function_args": [ "RUB" ]
       },
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["GROSS_SPEND_IN_LOCAL_CURRENCY"]
+        "function_args": [ "GROSS_SPEND_IN_LOCAL_CURRENCY" ]
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
-        "function_args": ["CATEGORY"]
+        "function_args": [ "CATEGORY" ]
+      },
+      {
+        "__function_comment__": "rename HARMONIZED_CATEGORY values (with standardized category names in aed_russia_transform_functions.py) from raw category name column.",
+        "function_name": "rename_HARMONIZED_CATEGORY_data_using_dictionary_values"
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
-        "function_args": ["SUBCATEGORY"]
+        "function_args": [ "SUBCATEGORY" ]
       },
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["BRAND"]
+        "function_args": [ "BRAND" ]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
         "function_name": "add_RAW_SUBBRAND_column_by_renaming_existing_column",
-        "function_args": ["SUBBRAND (Optional)"]
+        "function_args": [ "SUBBRAND (Optional)" ]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["PRODUCT_NAME"]
+        "function_args": [ "PRODUCT_NAME" ]
       },
       {
         "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
