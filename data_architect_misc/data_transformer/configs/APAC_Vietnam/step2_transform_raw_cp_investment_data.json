@@ -30,7 +30,7 @@
       },
       {
         "function_name": "drop_columns_by_name",
-        "function_args": [["Header type","Insertions","Duration [seconds]","GRP","Cont(000)"]]
+        "function_args": [["Header type", "Insertions", "Duration [seconds]", "GRP", "Cont(000)"]]
       },
       {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",

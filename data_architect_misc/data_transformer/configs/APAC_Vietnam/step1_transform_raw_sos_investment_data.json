@@ -12,12 +12,12 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Vietnam/",
-    "output_file_name_prefix": "Transformed_Vietnam_SOS_20200301_20200531_",
+    "output_file_name_prefix": "Transformed_Vietnam_20200301_20200531_",
 
     "custom_transform_functions_file": "./transform_functions/apac_vietnam_transform_functions.py",
 
     "functions_to_apply": [
-            {
+      {
         "__function_comment__": "We are expecting to process 'Spots', 'Press' and 'Radio' sheets in this order.",
         "__function_comment__": "If the order of the sheet is different, we must update the order of the sheet",
         "__function_comment__": "we use to load the data in the functions below.",
@@ -28,10 +28,9 @@
         "function_name": "create_new_dataframe_from_given_sheet_names_and_add_media_type_column_using_sheet_name",
         "function_args": [["Spots", "Press", "Radio"]]
       },
-
       {
-        "function_name": "drop_columns_by_name",
-        "function_args": [["Header type"]]
+        "function_name": "drop_columns_by_name_if_they_exist_in_dataframe",
+        "function_args": [["Header type", "Insertions", "Duration [seconds]", "GRP", "Cont(000)"]]
       },
       {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",

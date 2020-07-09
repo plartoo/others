@@ -1,0 +1,33 @@
+[
+  {
+    "__comment__": "Use this config AFTER running step 1 config.",
+    "__comment__": "IMPORTANT:: Make sure to update the name of the files in 'create_new_dataframe_from_input_files' function.",
+
+    "__comment__": "Vietnam files has more than 100K rows which is our default data loading limit. So we need to update that.",
+    "rows_per_read": 500000,
+
+    "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
+    "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
+    "header": 0,
+    "input_delimiter": "|",
+
+
+    "write_output": true,
+    "output_folder_path": "./output/APAC_Vietnam/",
+    "output_file_name_prefix": "Combined_Vietnam_Investment_20200301_20200531_",
+
+    "custom_transform_functions_file": "./transform_functions/apac_vietnam_transform_functions.py",
+
+    "functions_to_apply": [
+      {
+        "__comment__": "This function will first check to make sure that the input files listed below are of ",
+        "__comment__": "the SAME date range as the input file provided via commandline as base.",
+        "__comment__": "That's the only way for us to ensure that the user of this config does NOT forget to update ",
+        "__comment__": "the input file names.",
+        "function_name": "create_new_dataframe_from_input_CSV_files",
+        "function_args": [["./output/APAC_Vietnam/Transformed_Vietnam_20200301_20200531__rows_0_158773_20200709_142447.csv",
+          "./output/APAC_Vietnam/Transformed_Vietnam_20200301_20200531__rows_0_171273_20200709_142242.csv"]]
+      }
+    ]
+  }
+]
