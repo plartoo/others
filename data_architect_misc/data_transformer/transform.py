@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 
-from constants.transform_constants import KEY_CONFIG, KEY_CURRENT_INPUT_FILE
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from data_readers.file_data_reader import FileDataReader
 import transform_errors
 import transform_utils

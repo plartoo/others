@@ -16,7 +16,7 @@ import re
 import pandas as pd
 
 from constants import comp_harm_constants
-from constants.transform_constants import KEY_CONFIG, KEY_CURRENT_INPUT_FILE
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from qa_functions import qa_errors
 from transform_errors import OrderOfListContentsDifferentError
 
@@ -93,8 +93,7 @@ class CommonCompHarmQAFunctions:
     def assert_the_order_of_sheets_is_as_expected(
             self,
             df,
-            list_of_expected_sheet_order,
-            **kwargs
+            list_of_expected_sheet_order
     ):
         """
         There are times when we load data from Excel file
@@ -122,7 +121,7 @@ class CommonCompHarmQAFunctions:
         # Here, we expect the user to be using Python 3.7+
         # for dictionary to respect (keep) the order of the keys.
         temp_df = pd.read_excel(
-            kwargs[KEY_CONFIG][KEY_CURRENT_INPUT_FILE],
+            self.config[KEY_CURRENT_INPUT_FILE],
             sheet_name=None)
         all_sheets = temp_df.keys()
 
