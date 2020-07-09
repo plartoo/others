@@ -13,6 +13,7 @@ RAW_SUBCATEGORY_COLUMN = 'RAW_SUBCATEGORY'
 RAW_BRAND_COLUMN = 'RAW_BRAND'
 RAW_SUBBRAND_COLUMN = 'RAW_SUBBRAND'
 RAW_PRODUCT_NAME_COLUMN = 'RAW_PRODUCT_NAME'
+RAW_MEDIA_TYPE_COLUMN = 'RAW_MEDIA_TYPE'
 PRODUCT_NAME_COLUMN = 'HARMONIZED_PRODUCT_NAME'
 
 # Below are the regions, countries, categories, media types
@@ -92,7 +93,7 @@ MEDIA_TYPE_MAPPINGS = {
     "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-    "(?i)TV": "TV", "(?i)Television.*": "TV",
+    "(?i)TV": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital",
 }
 
@@ -160,45 +161,9 @@ CATEGORY_MAPPINGS = {
     "(?i)OTHER.*": "Other",
     "(?i)ALL.*OTHER.*": "Other",
 
-    "(?i).*AIR.*FRESHENER.*RANGE.*": "Home Care",
-    "(?i).*BABY NAPKINS.*": "Personal Care",
-    "(?i).*BABY.*BATH-SHOWER-SOAP.*": "Personal Care",
-    "(?i).*BABY.*CARE.*PRODUCTS.*": "Personal Care",
-    "(?i).*BODY.*CARE.*LINES.*": "Personal Care",
-    "(?i).*COSMETIC.*PRODUCT.*RANGE.*": "Personal Care",
-    "(?i).*COSMETICS.*CORPORATE.*": "Personal Care",
-    "(?i).*DELI.*HANDWASH.*LIQUID.*": "Personal Care",
-    "(?i).*DEODORANTS.*": "Personal Care",
-    "(?i).*DISHWASHER.*PRODUCTS.*": "Home Care",
-    "(?i).*FABRIC.*SOFTENER/FRESHENER.*": "Home Care",
-    "(?i).*FACE CREAM.*MOITURIZERS.*": "Personal Care",
-    "(?i).*FACE.*CLEANSERS.*": "Personal Care",
-    "(?i).*FACE.*SCRUB.*ANTI.*ACNE.*": "Personal Care",
-    "(?i).*FEMININE.*HYGIENE.*": "Personal Care",
-    "(?i).*FLOOR.*CLEANERS.*": "Home Care",
-    "(?i).*FOUNDATION.*": "Other",
-    "(?i).*HAIR.*CARE.*RANGES.*": "Personal Care",
-    "(?i).*HYGIENE.*CORPORATE.*": "Personal Care",
-    "(?i).*LIPSTICKS.*": "Personal Care",
-    "(?i).*MAKE-UP.*LINES.*": "Personal Care",
-    "(?i).*MAKE-UP.*REMOVERS.*": "Personal Care",
-    "(?i).*MASK.*": "Personal Care",
-    "(?i).*MEN'S.*FACIAL.*CARE.*LINE.*": "Personal Care",
-    "(?i).*MENS.*MANUAL.*RAZORS.*BLADES.*": "Other",
-    "(?i).*MEN'S.*SHAMPOO.*": "Personal Care",
-    "(?i).*MOUTH.*WASHES.*": "Oral Care",
-    "(?i).*NAIL.*VARNISH.*DECORATION.*": "Personal Care",
-    "(?i).*NAPIES.*": "Other",
-    "(?i).*PERSONAL.*HYGIENE.*RANGE.*": "Personal Care",
-    "(?i).*SHAMPOO.*": "Personal Care",
-    "(?i).*SHOWER.*PRODUCTS.*": "Personal Care",
-    "(?i).*SUN.*AFTER-SUN CARE.*": "Personal Care",
-    "(?i).*TOOTHPASTE.*": "Oral Care",
-    "(?i).*WASHING.*LIQUID.*": "Personal Care",
-    "(?i).*WASHING.*POWDER.*": "Home Care",
-    "(?i).*WASHING-UP.*PRODUCTS.*": "Home Care",
-    "(?i).*WATER-CLOSET.*CLEANERS.*": "Home Care",
-    "(?i).*WHITENING.*ESSENCE.*": "Personal Care",
-    "(?i).*WOMEN'S.*FRAGRANCES.*": "Personal Care",
+    "(?i).*FOOD.*": "Other",
+    "(?i).*HOUSEHOLD.*CLEANING.*": "Home Care",
+    "(?i).*HYGIENE.*BEAUTY.*": "Personal Care",
+    "(?i).*PHARMACY.*MEDICINE.*": "Other"
 }
 

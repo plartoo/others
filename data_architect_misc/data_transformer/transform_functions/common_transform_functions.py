@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 
 import transform_errors
+from constants.comp_harm_constants import MEDIA_TYPE_COLUMN
 from constants.transform_constants import KEY_CONFIG, KEY_CURRENT_INPUT_FILE
 
 
@@ -105,13 +106,17 @@ class CommonTransformFunctions(TransformFunctions):
         """
         for sheet in list_of_sheet_names:
             temp_df = pd.read_excel(
-                kwargs[KEY_CONFIG][KEY_CURRENT_INPUT_FILE],
-                sheet_name=sheet)
+                self.config[KEY_CURRENT_INPUT_FILE],
+                sheet_name=sheet,
+                header=self.config['header'])
             # TODO: Jholman needs to work on this to append to df the temp_df data
             # REF: https://pbpython.com/pandas-excel-tabs.html
 
-        return df
+            # To append all sheet with same columns names,
+            # those columns names that not match will be at the end of the dataframe
+            df = df.append(temp_df)
 
+        return df
 
     def drop_columns_by_index(
             self,
@@ -132,11 +137,13 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.drop(df.columns[list_of_col_idx], axis=1)
 
+
     def drop_columns_by_name(
             self,
             df,
             list_of_col_names
     ):
+
         """
         Drop columns from a dataframe using a list of column names (strings).
         REF: https://stackoverflow.com/a/18145399
@@ -201,7 +208,7 @@ class CommonTransformFunctions(TransformFunctions):
             self,
             df,
             list_of_col_names,
-            list_of_set_of_string_values
+            list_of_list_of_string_values
     ):
         """
         Drops rows if any of the columns in the list_of_col_names
@@ -211,36 +218,38 @@ class CommonTransformFunctions(TransformFunctions):
         For example, if we want to drop rows whenever 'QATAR',
         or 'SAUDI ARABIA' appears in the 'COUNTRY' column, we will
         call this method like below:
-        drop_rows_with_certain_string_values(df, ['COUNTRY'],
-        [{'SAUDI ARABIA', 'QATAR'}]).
+        drop_rows_with_certain_string_values(df, ['COUNTRY','REGION'],
+        [['SAUDI ARABIA', 'QATAR'], ['APAC']]).
 
         Args:
             df: Raw dataframe to transform.
             list_of_col_names: List of column names in which the code
             should check if the cell values matches and thus, the row
             should be dropped.
-            list_of_set_of_string_values: List of set (data type) of
+            list_of_list_of_string_values: List of lists (data type) of
             string values that will be checked against the existing
             values in the dataframe to see if the rows should be
-            dropped.
+            dropped. We unfortunately have to use list of lists because
+            JSON config does not allow us to represent 'set' data types
+            in Python.s
 
         Returns:
             Dataframe with rows dropped (if matches were found).
         """
         if not (isinstance(list_of_col_names, list)
-                and isinstance(list_of_set_of_string_values, list)):
+                and isinstance(list_of_list_of_string_values, list)):
             raise transform_errors.InputDataTypeError(
                 f"List of column names and list of set "
                 f"of string values must both be of list type.")
 
-        if len(list_of_col_names) != len(list_of_set_of_string_values):
+        if len(list_of_col_names) != len(list_of_list_of_string_values):
             raise transform_errors.InputDataLengthError(
                 f"The length of the list of column names: {len(list_of_col_names)} "
                 f"is NOT the same as the length of the set of string values: "
-                f"{len(list_of_set_of_string_values)}.")
+                f"{len(list_of_list_of_string_values)}.")
 
         for i, col_name in enumerate(list_of_col_names):
-            df = df[~df[col_name].isin(list_of_set_of_string_values[i])]
+            df = df[~df[col_name].isin(list_of_list_of_string_values[i])]
 
         return df
 

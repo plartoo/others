@@ -12,7 +12,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Vietnam/",
-    "output_file_name_prefix": "Transformed_Vietnam_SOS_Spots_Media_20200301_20200531_",
+    "output_file_name_prefix": "Transformed_Vietnam_SOS_20200301_20200531_",
 
     "custom_transform_functions_file": "./transform_functions/apac_vietnam_transform_functions.py",
 
@@ -24,100 +24,14 @@
         "function_name": "assert_the_order_of_sheets_is_as_expected",
         "function_args": [["Spots", "Press", "Radio"]]
       },
+
       {
         "function_name": "load_data_from_other_sheets_in_excel_file_and_append_to_the_main_dataframe",
-        "function_args": [["Press", "Radio"]]
+        "function_args": [["Press","Radio"]]
       },
       {
         "function_name": "drop_columns_by_name",
         "function_args": [["Header type"]]
-      },
-
-      {
-        "function_name": "debug",
-        "function_kwargs":{"test": "hello"}
-      },
-      {
-        "__function_comment__": "Excel file has empty columns. We need to drop them first",
-        "function_name": "drop_unnamed_columns"
-      },
-      {
-        "__function_comment__": "By the time we run this function, there should be only 9 columns total remaining in the raw data frame.",
-        "function_name": "assert_number_of_columns_equals",
-        "function_args": [9]
-      },
-      {
-        "__function_comment__": "Delete row with value 'Total' from Date column.",
-        "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["Date"],[["Total"]]]
-      },
-      {
-        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
-        "function_name": "add_PROCESSED_DATE_column_with_current_date"
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
-        "function_name": "add_HARMONIZED_YEAR_column_using_existing_date_column_values",
-        "function_args": ["Date"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
-        "function_name": "add_HARMONIZED_MONTH_column_using_existing_date_column_values",
-        "function_args": ["Date"]
-      },
-      {
-        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
-        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
-      },
-      {
-        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Africa-Eurasia' as value.",
-        "function_name": "add_HARMONIZED_REGION_column",
-        "function_args": ["Asia Pacific"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
-        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
-        "function_args": ["Vietnam"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
-        "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["Advertiser"]
-      },
-      {
-        "__function_comment__": "Add HARMONIZED_SUBMEDIA as a new column with '' as value.",
-        "function_name": "add_RAW_SUBBRAND_column",
-        "function_args": [""]
-      },
-      {
-        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
-        "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["Model"]
-      },
-      {
-        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
-        "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["Brand"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
-        "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["Cost in VND"]
-      },
-      {
-        "__function_comment__": "Add CURRENCY as a new column with 'UAH' as value.",
-        "function_name": "add_HARMONIZED_CURRENCY_column",
-        "function_args": ["VND"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
-        "function_args": ["Product"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
-        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_fixed_str_value",
-        "function_args": ["TV"]
       }
     ]
   }

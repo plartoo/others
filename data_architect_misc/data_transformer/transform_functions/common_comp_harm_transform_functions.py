@@ -293,7 +293,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     def add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column(
             self,
             df,
-            existing_media_type_col_name: str):
+            existing_media_type_col_name: str=comp_harm_constants.RAW_MEDIA_TYPE_COLUMN):
         """
         Add HARMONIZED_MEDIA_TYPE column based on string values found
         in an existing advertiser column. The HARMONIZED_MEDIA_TYPE column
@@ -307,7 +307,9 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         Args:
             df: Raw dataframe to transform.
             existing_media_type_col_name: Name of the existing column,
-            which has raw media type names (string values).
+            which has raw media type names (string values). We will
+            use default as 'RAW_MEDIA_TYPE' because that's the default
+            standard collumn name for media type in Comp. Harm. project.
 
         Returns:
             Dataframe with HARMONIZED_MEDIA_TYPE column which holds
@@ -588,4 +590,40 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         return self.add_new_column_with_fixed_str_value(
             df,
             comp_harm_constants.MEDIA_TYPE_COLUMN,
+            media_name)
+
+    def add_RAW_SUBBRAND_column_with_empty_values(self,
+                                         df,
+                                         media_name):
+        """
+        Add RAW_SUBBRAND column with the submedia name provided.
+
+        Args:
+            df: Raw dataframe to transform.
+            media_name: Name of the media to add.
+
+        Returns:
+            Dataframe with RAW_SUBBRAND column added.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.RAW_SUBBRAND_COLUMN,
+            media_name)
+
+    def add_RAW_SUBCATEGORY_column_with_empty_values(self,
+                                         df,
+                                         media_name):
+        """
+        Add RAW_SUBBRAND column with the submedia name provided.
+
+        Args:
+            df: Raw dataframe to transform.
+            media_name: Name of the media to add.
+
+        Returns:
+            Dataframe with RAW_SUBBRAND column added.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
             media_name)
