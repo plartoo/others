@@ -1,0 +1,23 @@
+[
+  {
+    "__comment__": "Vietnam files has more than 100K rows which is our default data loading limit. So we need to update that.",
+    "rows_per_read": 500000,
+
+    "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
+    "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
+    "input_sheet_name": 0,
+    "header": 1,
+    "skiprows": 2,
+    "skipfooter": 0,
+
+    "write_output": true,
+    "output_folder_path": "./output/APAC_Vietnam/",
+    "output_file_name_prefix": "Combined_Vietnam_Investment_20200301_20200531_",
+
+    "custom_transform_functions_file": "./transform_functions/apac_vietnam_transform_functions.py",
+
+    "functions_to_apply": [
+
+    ]
+  }
+]

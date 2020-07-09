@@ -8,20 +8,51 @@ Last Modified: April 13, 2020
 
 import pandas as pd
 
+from constants.comp_harm_constants import MEDIA_TYPE_COLUMN, RAW_MEDIA_TYPE_COLUMN
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 
 
 class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonCompHarmQAFunctions):
 
-    def load_data_from_another_sheet_in_excel_file_and_append_to_the_main_dataframe(
+    def __init__(self, config):
+        self.config = config
+
+    def create_new_dataframe_from_given_sheet_names_and_add_media_type_column_using_sheet_name(
             self,
             df,
-            *args,
-            **kwargs
+            list_of_sheet_names
     ):
-        import pdb;
-        pdb.set_trace()
+
+        """
+        This function is creating a new column named RAW_MEDIA_TYPE to include media namesselected from sheet names
+        also he we will append everu sheet in one dataframe.
+        """
+
+        df = pd.DataFrame()
+        for sheet in list_of_sheet_names:
+            temp_df = pd.read_excel(
+                self.config[KEY_CURRENT_INPUT_FILE],
+                sheet_name=sheet,
+                header=self.config['header'])
+
+            # Create  RAW_MEDIA_TYPE column based on sheet names.
+            temp_df[RAW_MEDIA_TYPE_COLUMN] = sheet
+
+            # Append all sheet with same columns names,
+            # those columns names that do not match will be at the end of the dataframe (E.g.: "Header type" column).
+            df = df.append(temp_df)
+
+        return df
+
+    def append_data_from_other_files_to_base_dataframe(self,
+                                                                  df,
+                                                                  ):
+        """
+
+        """
+
         return df
 
     def debug(
