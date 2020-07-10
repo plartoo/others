@@ -36,7 +36,7 @@
     "output_folder_path": "./output/AED_Russia/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "Transformed_Russia_2019FY_",
+    "output_file_name_prefix": "Transformed_Russia_20200101_20200430_",
 
     "__comment__": "(Optional) Path+name of the file that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
@@ -109,6 +109,10 @@
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
         "function_args": ["CATEGORY"]
+      },
+      {
+        "__function_comment__": "rename HARMONIZED_CATEGORY values (with standardized category names in aed_russia_transform_functions.py) from raw category name column.",
+        "function_name": "rename_HARMONIZED_CATEGORY_data_using_dictionary_values"
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
