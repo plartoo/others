@@ -49,3 +49,16 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
 
         return df
 
+    def drop_duplicated_rows(self,
+                             df):
+        """
+        This function was created for drop dupes values,
+        but we realized that those values could
+        be related for other columns that were not share
+        by local agency then we are not going to use this
+        function fro delete dupes values in "Vietnam".
+        """
+        df = df.drop_duplicates()
+
+        return df
+
