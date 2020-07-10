@@ -28,11 +28,11 @@ class AedRussiaTransformFunctions(CommonCompHarmTransformFunctions):
     ):
         # As of July 8, 2020, Phyo and Maicol decided that
         # we will map multi-category advertisements for Russia into OC for now
-        harmonized_category_mappings_for_russia = {
+        temporary_harmonized_category_mappings_for_russia = {
             "OC/PC": "Oral Care",
             "OC/HC/PC": "Oral Care"
         }
         df[comp_harm_constants.CATEGORY_COLUMN] = df[comp_harm_constants.CATEGORY_COLUMN]\
-            .replace(harmonized_category_mappings_for_russia)
+            .replace(temporary_harmonized_category_mappings_for_russia)
 
         return df
