@@ -1,47 +1,21 @@
 [
   {
-    "__comment__": "(Required) Input folder and file name or file name pattern such as 'SIRP_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "__comment__": "Input folder and file name or file name pattern such as 'IRP_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
-    "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
-    "input_folder_path": "./input/APAC_India/",
-    "input_file_name_or_pattern": "IRP_N_ALL_INV_MAP_20200501_20200531_20200701_NM.xlsx",
+    "__comment__": "India files has more than 100K rows which is our default data loading limit. So we need to update that.",
+    "rows_per_read": 100000,
 
-    "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
-    "input_sheet_name": "SA Data",
-
-    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
-    "write_output": true,
-
-    "__comment__": "(Optional) Enter the sheet name for the output Excel file. Default is 'Sheet1'.",
-    "output_sheet_name": "Raw Data",
-
-    "__comment__": "(Optional) Relative path of output folder if the data is going to be written to a file. Default is going to be the current working directory of transform.py",
-    "__comment__": "Default is going to be the current working directory of transform.py",
-    "output_folder_path": "./output/APAC_India/",
-
-    "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "transformed_India_20200501_20200531_",
-
-    "__comment__": "(Required if there's header row in your data) Enter the row index (>= 0) to extract column headers from. E.g., if column header row is the first row, enter 0 below.",
-    "__comment__": "If this value is NOT provided, the program will assume there is no header row in the input file.",
+    "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
+    "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
+    "input_sheet_name": "Raw Data",
     "header": 0,
-
-    "__comment__": "(Optional) Specify the row index (>= 0) where the data, *not including the column headers*, begins.",
-    "__comment__": "Default is 1 (the second row) because that's where the data usually begins in files (the first row is almost always the column headers).",
     "skiprows": 1,
+    "skipfooter": 0,
 
-    "__comment__": "(Optional) Number of rows (>=1) to drop/ignore from the bottom of the data file.",
-    "__comment__": "Default is 0, meaning ever row of data will be read, including the last line in the file.",
-    "__comment__": "Also, make to define the rows_per_read value such that the rows at the bottom to drop (skipfooter value below) are NOT read in two different iterations/chunks.",
-    "__comment__": " If that happens, then the skipfooter will not correctly drop the right number of rows at the bottom.",
-    "skipfooter": 1,
+    "write_output": true,
+    "output_folder_path": "./output/APAC_India/",
+    "output_file_name_prefix": "Transformed_India_20200501_20200531_",
 
-    "__comment__": "(Optional) Path+name of that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/apac_india_transform_functions.py",
 
-    "__comment__": "(Required) List of the functions and their parameters.",
-    "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
     "functions_to_apply": [
       {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",
@@ -58,13 +32,13 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
-        "function_name": "add_HARMONIZED_YEAR_column_using_existing_date_column_values",
-        "function_args": ["YEAR_MONTH"]
+        "function_name": "add_HARMONIZED_YEAR_column_using_existing_string_column_values",
+        "function_args": ["PERIOD"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
-        "function_name": "add_HARMONIZED_MONTH_column_using_existing_date_column_values",
-        "function_args": ["YEAR_MONTH"]
+        "function_name": "add_HARMONIZED_MONTH_column_using_existing_string_column_values",
+        "function_args": ["PERIOD"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -77,8 +51,8 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
-        "function_name": "add_HARMONIZED_COUNTRY_column_using_existing_country_column",
-        "function_args": ["COUNTRY"]
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
+        "function_args": ["India"]
       },
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
@@ -88,49 +62,40 @@
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["MEDIA_TYPE"]
+        "function_args": ["MEDIUM"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'ZAR' as value.",
         "function_name": "add_HARMONIZED_CURRENCY_column",
-        "function_args": ["ZAR"]
+        "function_args": ["INR"]
       },
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["GROSS_SPEND_IN_LOCAL_CURRENCY"]
+        "function_args": [["TAM COST"]]
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "__function_comment__": "The raw Category column is useless and that's why we have to use SUBCATEGORY column to find out the HARMONIZED_CATEGORY values.",
-        "__function_comment__": "See detail implementation of this method and mappings in aed_south_africa_transform_functions.py",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_raw_SUBCATEGORY_column_values",
-        "function_args": ["SUBCATEGORY"]
-      },
-      {
-        "__function_comment__": "Update HARMONIZED_CATEGORY column (with non standardized category names in aed_south_africa_transform_functions) from HARMONIZED_CATEGORY column.",
-        "__function_comment__": "See detail implementation of this method and mappings in aed_south_africa_transform_functions.py",
-        "function_name": "drop_data_with_non_standard_categories_from_HARMONIZED_CATEGORY_column"
-      },
-      {
-        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
-        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
-        "function_args": ["SUBCATEGORY"]
-      },
-      {
-        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
-        "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["BRAND"]
-      },
-      {
-        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
-        "function_name": "add_RAW_SUBBRAND_column_by_renaming_existing_column",
-        "function_args": ["SUBBRAND (Optional)"]
+        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
+        "function_args": ["SUPER CATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["PRODUCT_NAME"]
+        "function_args": ["PRODUCT"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
+        "function_args": ["PRODUCT GROUP"]
+      },
+      {
+        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
+        "function_name": "add_RAW_BRAND_column_with_empty_values"
+      },
+      {
+        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
       },
       {
         "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",

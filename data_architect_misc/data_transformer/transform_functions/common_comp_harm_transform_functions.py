@@ -178,6 +178,27 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             date_col_name,
             comp_harm_constants.YEAR_COLUMN)
 
+    def add_HARMONIZED_YEAR_column_using_existing_string_column_values(
+            self,
+            df,
+            date_col_name: str):
+        """
+        Add HARMONIZED_YEAR column with year value (integer)
+        extracted from existing date column in the dataframe.
+
+        Args:
+            df: Raw dataframe to transform.
+            date_col_name: Existing date column name in the dataframe
+            from which this code will extract year value from.
+
+        Returns:
+            Dataframe with HARMONIZED_YEAR column holding integer values.
+        """
+        return self.add_year_column_using_existing_string_column_with_string_values(
+            df,
+            date_col_name,
+            comp_harm_constants.YEAR_COLUMN)
+
     def add_HARMONIZED_MONTH_column_by_renaming_existing_column(
             self,
             df,
@@ -217,6 +238,27 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             Dataframe with HARMONIZED_MONTH column holding integer values.
         """
         return self.add_month_column_using_existing_date_column_with_date_values(
+            df,
+            date_col_name,
+            comp_harm_constants.MONTH_COLUMN)
+
+    def add_HARMONIZED_MONTH_column_using_existing_string_column_values(
+            self,
+            df,
+            date_col_name: str):
+        """
+        Add HARMONIZED_MONTH column with month value (integer)
+        extracted from existing date column in the dataframe.
+
+        Args:
+            df: Raw dataframe to transform.
+            date_col_name: Existing date column name in the dataframe
+            from which this code will extract month value from.
+
+        Returns:
+            Dataframe with HARMONIZED_MONTH column holding integer values.
+        """
+        return self.add_month_column_using_existing_string_mm_yyyy_column_with_string_values(
             df,
             date_col_name,
             comp_harm_constants.MONTH_COLUMN)
@@ -550,6 +592,26 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         return self.rename_columns(
             df,
             {raw_brand_col_name: comp_harm_constants.RAW_BRAND_COLUMN})
+
+    def add_RAW_BRAND_column_with_empty_values(
+            self,
+            df
+    ):
+        """
+        Add RAW_BRAND column with the empty strings (because
+        we sometimes don't receive brand info from raw data).
+
+        Args:
+            df: Raw dataframe to transform.
+
+        Returns:
+            Dataframe with RAW_BRAND column (with empty string
+            values) added.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.RAW_BRAND_COLUMN,
+            "")
 
     def add_RAW_SUBBRAND_column_by_renaming_existing_column(
             self,

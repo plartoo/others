@@ -2,8 +2,8 @@
 
 We will define transform functions specific to Ukraine here.
 
-Author: Phyo Thiha
-Last Modified: April 13, 2020
+Author: Jholman Jaramillo
+Last Modified: July 10, 2020
 """
 
 import pandas as pd
@@ -11,7 +11,7 @@ import pandas as pd
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
-class AedIndiaTransformFunctions(CommonCompHarmTransformFunctions):
+class ApacIndiaTransformFunctions(CommonCompHarmTransformFunctions):
     """
     All custom (uncommon) transform functions **SPECIFIC to
     individual processing task** must be defined as part

@@ -164,6 +164,30 @@ CATEGORY_MAPPINGS = {
     "(?i).*FOOD.*": "Other",
     "(?i).*HOUSEHOLD.*CLEANING.*": "Home Care",
     "(?i).*HYGIENE.*BEAUTY.*": "Personal Care",
-    "(?i).*PHARMACY.*MEDICINE.*": "Other"
+    "(?i).*PHARMACY.*MEDICINE.*": "Other",
+
+    "(?i).*Miscellaneous.*": "Other",
+    "(?i).*Media.*": "Other",
+    "(?i).*Services.*": "Other",
+    "(?i).*Education.*": "Other",
+    "(?i).*Agriculture.*": "Other",
+    "(?i).*Banking.*Finance.*Investment.*": "Other",
+    "(?i).*Retail.*": "Other",
+    "(?i).*Household.*Products.*": "Home Care",
+    "(?i).*Corporate.*Brand.*Image.*": "Other",
+    "(?i).*Laundry.*": "Home Care",
+    "(?i).*Cosmetics.*": "Personal Care",
+    "(?i).*Building.*Industrial.*Land.*Materials.*Equipments.*": "Other",
+    "(?i).*Personal.*Accessories.*": "Other",
+    "(?i).*Telecom.*Internet.*Service.*Providers.*": "Other",
+    "(?i).*Durables.*": "Other",
+    "(?i).*Textiles.*Clothing.*": "Other",
+    "(?i).*Fuel.*Petroleum.*Products.*": "Other",
+    "(?i).*Alcoholic.*Drinks.*": "Other",
+    "(?i).*Auto.*": "Other",
+    "(?i).*Telecom.*Products.*": "Other",
+    "(?i).*Computers.*": "Other",
+    "(?i).*Office.*Automation.*": "Other",
+    "(?i).*Tobacco.*Related.*Products.*": "Other"
 }
 
