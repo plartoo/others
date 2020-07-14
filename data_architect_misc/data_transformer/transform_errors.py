@@ -17,6 +17,19 @@ class ConfigFileError(TransformError):
                f"transform.py -h \nto learn the proper usage."
 
 
+class ExpectedColumnNotFoundError(TransformError):
+    """
+    Raised when the input file or dataframe does NOT
+    have expected column in it.
+    """
+
+    def __init__(self, error_msg):
+        self.error_msg = error_msg
+
+    def __str__(self):
+        return self.error_msg
+
+
 class FileNotFound(TransformError):
     """Raised when file(s) is not found."""
 

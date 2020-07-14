@@ -18,7 +18,7 @@ import pandas as pd
 from constants import comp_harm_constants
 from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from qa_functions import qa_errors
-from transform_errors import OrderOfListContentsDifferentError
+from transform_errors import OrderOfListContentsDifferentError, ExpectedColumnNotFoundError
 
 
 class CommonCompHarmQAFunctions:
@@ -152,6 +152,42 @@ class CommonCompHarmQAFunctions:
                 f"QA => Found these columns in transformed data that are not "
                 f"part of the expected column set: "
                 f"{set(df.columns) - set(self.EXPECTED_COLUMNS)}\n")
+
+        return df
+
+    def check_expected_columns_are_present_by_using_regex(
+            self,
+            df,
+            regex_pattern_for_expected_col_name: str
+    ):
+        """
+        This function will use regular expression to
+        check and see if the expected column(s) is(are)
+        present in the dataframe.
+
+        For example, the guy who prepares raw data for us
+        in India does NOT keep the cost column names consistent.
+        So we need to always check and see if he sent us the
+        actual cost column with expected name. Usually, we know
+        that the actual cost column has words like 'Actual' and
+        'Cost' together in it. So we will run this function
+        for India data processing like this:
+        check_expected_columns_are_present_by_using_regex(df,
+        ['Actual.*Cost'].
+        """
+        expected_col_found = False
+        for col_name in df.columns:
+            if re.findall(regex_pattern_for_expected_col_name, col_name, re.IGNORECASE):
+                expected_col_found = True
+
+        if not expected_col_found:
+            raise ExpectedColumnNotFoundError(
+                f"The column with actual cost (which is usually named "
+                f"with regex pattern '{regex_pattern_for_expected_col_name}' "
+                f"is NOT found in the dataframe. "
+                f"Please make sure to double check the input file "
+                f"and update the config file to pick the right column "
+                f"for spend values.")
 
         return df
 
