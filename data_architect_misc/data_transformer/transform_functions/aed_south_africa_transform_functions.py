@@ -6,6 +6,8 @@ Author: Maicol Contreras
 Last Modified: April 13, 2020
 """
 
+import logging
+
 import pandas as pd
 
 from constants import comp_harm_constants
@@ -20,6 +22,7 @@ class AedSouthAfricaTransformFunctions(CommonCompHarmTransformFunctions):
     """
     def __init__(self, config):
         self.config = config
+        self.logger = logging.getLogger(__name__)
 
     def add_HARMONIZED_CATEGORY_column_using_raw_SUBCATEGORY_column_values(
             self,
