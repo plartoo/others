@@ -1049,6 +1049,36 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def add_year_column_using_existing_string_column_with_string_values(
+            self,
+            df,
+            existing_date_col_name,
+            new_date_col_name='YEAR'):
+        """
+        Creates a new column for YEAR column by inferring from
+        the existing date string column in the dataframe.
+
+        For example, if we want to add 'YEAR' column by using
+        the date string column in the dataframe called 'YEAR_MONTH',
+        we call this method like below:
+        add_year_column_using_existing_string_column_with_string_values(
+        df, 'YEAR_MONTH')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_date_col_name: Column name in the dataframe
+            that has date data from which this code will infer
+            the YEAR information from.
+            new_year_col_name: Column name for the new year column.
+            Default is 'YEAR'.
+
+        Returns:
+            The dataframe with newly added YEAR column with integer year value.
+        """
+        df[new_date_col_name] = pd.to_datetime(df[existing_date_col_name]).dt.year
+
+        return df
+
     def add_month_column_using_existing_date_column_with_date_values(
             self,
             df,
@@ -1076,6 +1106,36 @@ class CommonTransformFunctions(TransformFunctions):
             The dataframe with newly added YEAR column with integer year value.
         """
         df[new_date_col_name] = df[existing_date_col_name].dt.month
+
+        return df
+
+    def add_month_column_using_existing_string_mm_yyyy_column_with_string_values(
+            self,
+            df,
+            existing_date_col_name,
+            new_date_col_name='MONTH'):
+        """
+        Creates a new column for MONTH column by inferring from
+        the existing date string column in the dataframe.
+
+        For example, if we want to add 'MONTH' column by using
+        the date string column in the dataframe called 'YEAR_MONTH',
+        we call this method like below:
+        add_month_column_using_existing_date_column_with_3_first_month_letters_values(
+        df, 'YEAR_MONTH')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_date_col_name: Column name in the dataframe
+            that has date data from which this code will infer
+            the MONTH information from.
+            new_year_col_name: Column name for the new year column.
+            Default is 'MONTH'.
+
+        Returns:
+            The dataframe with newly added YEAR column with integer year value.
+        """
+        df[new_date_col_name] = pd.to_datetime(df[existing_date_col_name]).dt.month
 
         return df
 
