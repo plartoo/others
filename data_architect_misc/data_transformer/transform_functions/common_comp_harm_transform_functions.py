@@ -157,46 +157,28 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             {raw_year_col_name: comp_harm_constants.YEAR_COLUMN})
 
-    def add_HARMONIZED_YEAR_column_using_existing_date_column_values(
+    def add_HARMONIZED_YEAR_column_using_existing_column_with_year_values(
             self,
             df,
-            date_col_name: str):
+            col_name_with_year_value: str):
         """
         Add HARMONIZED_YEAR column with year value (integer)
         extracted from existing date column in the dataframe.
 
+        Here, the year values from the existing column can be in the formats
+        as follows: 'Apr - 2020' (India); '1/1/2020' (Kenya)'
+
         Args:
             df: Raw dataframe to transform.
-            date_col_name: Existing date column name in the dataframe
-            from which this code will extract year value from.
+            col_name_with_year_value: : Existing column name in the dataframe
+            from which this code will extract the year value from.
 
         Returns:
             Dataframe with HARMONIZED_YEAR column holding integer values.
         """
-        return self.add_year_column_using_existing_date_column_with_date_values(
+        return self.add_year_column_using_existing_column_with_year_values(
             df,
-            date_col_name,
-            comp_harm_constants.YEAR_COLUMN)
-
-    def add_HARMONIZED_YEAR_column_using_existing_string_column_values(
-            self,
-            df,
-            date_col_name: str):
-        """
-        Add HARMONIZED_YEAR column with year value (integer)
-        extracted from existing date column in the dataframe.
-
-        Args:
-            df: Raw dataframe to transform.
-            date_col_name: Existing date column name in the dataframe
-            from which this code will extract year value from.
-
-        Returns:
-            Dataframe with HARMONIZED_YEAR column holding integer values.
-        """
-        return self.add_year_column_using_existing_string_column_with_string_values(
-            df,
-            date_col_name,
+            col_name_with_year_value,
             comp_harm_constants.YEAR_COLUMN)
 
     def add_HARMONIZED_MONTH_column_by_renaming_existing_column(
@@ -221,62 +203,51 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             {raw_month_col_name: comp_harm_constants.MONTH_COLUMN})
 
-    def add_HARMONIZED_MONTH_column_using_existing_date_column_values(
+    def add_HARMONIZED_MONTH_column_using_existing_column_with_month_values(
             self,
             df,
-            date_col_name: str):
+            col_name_with_year_value: str):
         """
-        Add HARMONIZED_MONTH column with month value (integer)
+        Add HARMONIZED_MONTH column with month values (integer or string)
         extracted from existing date column in the dataframe.
+
+        Here, the month values from the existing column can be in the formats
+        as follows: 'Apr - 2020' (India); '1/1/2020' (Kenya)'
 
         Args:
             df: Raw dataframe to transform.
-            date_col_name: Existing date column name in the dataframe
-            from which this code will extract month value from.
+            col_name_with_year_value: Existing column name in the dataframe
+            from which this code will extract the month value from.
 
         Returns:
             Dataframe with HARMONIZED_MONTH column holding integer values.
         """
-        return self.add_month_column_using_existing_date_column_with_date_values(
+        return self.add_month_column_using_existing_column_with_month_values(
             df,
-            date_col_name,
+            col_name_with_year_value,
             comp_harm_constants.MONTH_COLUMN)
 
-    def add_HARMONIZED_MONTH_column_using_existing_string_column_values(
+    def add_HARMONIZED_MONTH_column_using_existing_month_column_with_only_full_month_names(
             self,
             df,
-            date_col_name: str):
-        """
-        Add HARMONIZED_MONTH column with month value (integer)
-        extracted from existing date column in the dataframe.
-
-        Args:
-            df: Raw dataframe to transform.
-            date_col_name: Existing date column name in the dataframe
-            from which this code will extract month value from.
-
-        Returns:
-            Dataframe with HARMONIZED_MONTH column holding integer values.
-        """
-        return self.add_month_column_using_existing_string_mm_yyyy_column_with_string_values(
-            df,
-            date_col_name,
-            comp_harm_constants.MONTH_COLUMN)
-
-    def add_HARMONIZED_MONTH_column_using_existing_month_column_with_full_month_names(
-            self,
-            df,
-            existing_month_col_name_with_full_month_names: str):
+            existing_month_col_name_with_only_full_month_names: str):
         """
             Creates a new column for integer HARMONIZED_MONTH values using
             full month names (such as 'January', 'February', etc.) from
             an existing month column.
 
+            For example, in GCC input files, the 'YEAR_MONTH' column only
+            contains full month name (not year values). For those, we cannot
+            convert them to date-time values in Pandas like we do in most
+            other countries. This function can be used in that scenario.
+
             Args:
                 df: Raw dataframe to transform.
-                existing_col_name_with_full_month_names: Column name in the
-                raw dataframe that will be used as reference to assign
-                integer month values in the new HARMONIZED_MONTH column.
+                existing_month_col_name_with_only_full_month_names: Column
+                name in the raw dataframe, which has only full month name
+                (not year or date values). This column values will be used
+                as reference to assign integer month values in the new
+                HARMONIZED_MONTH column.
 
             Returns:
                 The dataframe with newly added HARMONIZED_MONTH column
@@ -284,7 +255,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         """
         return self.add_integer_month_column_using_existing_month_col_with_full_month_names(
             df,
-            existing_month_col_name_with_full_month_names,
+            existing_month_col_name_with_only_full_month_names,
             comp_harm_constants.MONTH_COLUMN)
 
     def add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values(
