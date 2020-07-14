@@ -77,7 +77,7 @@
       },
       {
         "__function_comment__": "Add MONTH column based on the values in YEAR_MONTH column.",
-        "function_name": "add_HARMONIZED_MONTH_column_using_existing_month_column_with_full_month_names",
+        "function_name": "add_HARMONIZED_MONTH_column_using_existing_month_column_with_only_full_month_names",
         "function_args": ["YEAR_MONTH"]
       },
       {
