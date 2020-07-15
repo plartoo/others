@@ -1052,6 +1052,39 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def add_year_column_using_existing_column_with_year_values_in_mmm_yy(
+            self,
+            df,
+            existing_date_col_name,
+            new_date_col_name='YEAR'):
+        """
+        Creates a new column for YEAR column by extract year
+        information from an existing column in the dataframe.
+        The existing column's year data can be in varying format
+        like this: 'Apr - 2020' (India); '1/1/2020' (Kenya)'
+        and this function will correctly extract the year value.
+
+        For example, if we want to add 'YEAR' column by using
+        the date string column in the dataframe called 'YEAR_MONTH',
+        we call this method like below:
+        add_year_column_using_existing_string_column_with_string_values(
+        df, 'YEAR_MONTH')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_date_col_name: Column name in the dataframe
+            that has date data from which this code will infer
+            the YEAR information from.
+            new_year_col_name: Column name for the new year column.
+            Default is 'YEAR'.
+
+        Returns:
+            The dataframe with newly added YEAR column with integer year value.
+        """
+        df[new_date_col_name] = pd.to_datetime(df[existing_date_col_name]).dt.year
+
+        return df
+
     def add_month_column_using_existing_column_with_month_values(
             self,
             df,

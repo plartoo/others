@@ -93,7 +93,7 @@ MEDIA_TYPE_MAPPINGS = {
     "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-    "(?i)TV": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV",
+    "(?i)TV": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital",
 }
 
@@ -147,23 +147,32 @@ ADVERTISER_MAPPINGS = {
 }
 
 CATEGORY_MAPPINGS = {
+    "(?i).*air.*care.*": "Home Care",
+    "(?i).*Bath.*": "Home Care",
     "(?i)^HC$": "Home Care",
     "(?i)HOME.*": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
     "(?i).*Laundry.*": "Home Care",
+    "(?i).*Toiletries.*": "Home Care",
+    "(?i).*Cleaning.*agent.*": "Home Care",
 
     "(?i)^OC$": "Oral Care",
     "(?i).*ORAL.*": "Oral Care",
     "(?i).*ORAL.*CARE.*": "Oral Care",
+    "(?i).*Dental.*": "Oral Care",
 
     "(?i).*BEAUTY.*": "Personal Care",
+    "(?i).*BODY.*CARE.*": "Personal Care",
     "(?i).*Cosmetics.*": "Personal Care",
+    "(?i).*Deodorant.*": "Personal Care",
+    "(?i).*FACE.*CARE.*": "Personal Care",
+    "(?i).*HAIR.*CARE.*": "Personal Care",
+    "(?i).*Hair.*": "Personal Care",
     "(?i).*HYGIENE.*": "Personal Care",
     "(?i)^PC$": "Personal Care",
     "(?i).*PERSONAL.*CARE.*": "Personal Care",
     "(?i).*BABY.*CARE.*": "Personal Care",
-    "(?i).*HAIR.*CARE.*": "Personal Care",
 
     "(?i)OTHER.*": "Other",
     "(?i).*Accessories.*": "Other",
@@ -188,13 +197,17 @@ CATEGORY_MAPPINGS = {
     "(?i).*Investment.*": "Other",
     "(?i).*Land.*": "Other",
     "(?i).*Materials.*": "Other",
+    "(?i).*Medicated.*": "Other",
     "(?i).*Miscellaneous.*": "Other",
     "(?i).*Office.*": "Other",
     "(?i).*Petroleum.*": "Other",
+    "(?i).*Pesticides.*": "Other",
     "(?i).*PHARMACY.*": "Other",
     "(?i).*Retail.*": "Other",
+    "(?i).*Remedy.*":"Other",
     "(?i).*Telecom.*": "Other",
     "(?i).*Textiles.*": "Other",
-    "(?i).*Tobacco.*": "Other"
+    "(?i).*Tobacco.*": "Other",
+    "(?i).*Vitamin.*": "Other"
 }
 
