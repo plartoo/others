@@ -1,9 +1,9 @@
 [
   {
-    "__comment__": "Use this config AFTER running step 1 config.",
+    "__comment__": "Use this config AFTER running step 2 config.",
     "__comment__": "IMPORTANT:: Make sure to update the name of the files in 'create_new_dataframe_from_input_files' function.",
 
-    "__comment__": "Vietnam files has more than 100K rows which is our default data loading limit. So we need to update that.",
+    "__comment__": "Malaysia files has more than 100K rows which is our default data loading limit. So we need to update that.",
     "rows_per_read": 100000,
 
     "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
@@ -24,8 +24,9 @@
         "__comment__": "That's the only way for us to ensure that the user of this config does NOT forget to update ",
         "__comment__": "the input file names.",
         "function_name": "create_new_dataframe_from_input_CSV_files",
-        "function_args": [["./output/APAC_Malaysia/Transformed_Malaysia_20200501_20200531__rows_0_70_20200715_165047.csv",
-          "./output/APAC_Malaysia/Transformed_Malaysia_20200501_20200531__rows_0_80_20200715_170330.csv"]]
+        "function_args": [["./output/APAC_Malaysia/Transformed_Malaysia_INV_20200501_20200531__rows_0_70_20200716_174548.csv",
+          "./output/APAC_Malaysia/Transformed_Malaysia_SOS_20200501_20200531__rows_0_80_20200716_174721.csv"]]
+
       }
     ]
   }

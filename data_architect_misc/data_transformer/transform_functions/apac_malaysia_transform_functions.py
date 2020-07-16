@@ -1,6 +1,6 @@
-"""This is the subclass of Transform function for Ukraine (AED division).
+"""This is the subclass of Transform function for Malaysia (APAC division).
 
-We will define transform functions specific to Ukraine here.
+We will define transform functions specific to Malaysia here.
 
 Author: Jholman Jaramillo
 Last Modified: July 15, 2020
@@ -11,7 +11,6 @@ import re
 import pandas as pd
 
 from constants import comp_harm_constants
-from transform_errors import ExpectedColumnNotFoundError
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -25,7 +24,13 @@ class ApacMalaysiaTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*Digestive.*.*": "Other",
         "(?i).*Respiratory.*": "Other",
         "(?i).*Tea.*": "Other",
-        "(?i).*JAM.*SPREADS.*": "Other"
+        "(?i).*JAM.*SPREADS.*": "Other",
+        "(?i).*HEADACHE.*": "Other",
+
+        "(?i)^Air.*care.*": "Home Care",
+
+        "(?i)^Bath.*Additives.*": "Personal Care",
+        "(?i)^Hair.*Shampoo.*": "Personal Care"
     }
 
     def __init__(self, config):
@@ -36,7 +41,7 @@ class ApacMalaysiaTransformFunctions(CommonCompHarmTransformFunctions):
             df,
             existing_category_col_name: str):
         """
-        We have some india-specific category mappings, so we will
+        We have some malaysia-specific category mappings, so we will
         wrap the common comp. harm. transform function with this one.
         """
         # REF: https://stackoverflow.com/a/1784128/1330974

@@ -147,15 +147,13 @@ ADVERTISER_MAPPINGS = {
 }
 
 CATEGORY_MAPPINGS = {
-    "(?i).*air.*care.*": "Home Care",
-    "(?i).*Bath.*": "Home Care",
     "(?i)^HC$": "Home Care",
     "(?i)HOME.*": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
     "(?i).*Laundry.*": "Home Care",
     "(?i).*Toiletries.*": "Home Care",
-    "(?i).*Cleaning.*agent.*": "Home Care",
+    "(?i)^Cleaning.*agent.*": "Home Care",
 
     "(?i)^OC$": "Oral Care",
     "(?i).*ORAL.*": "Oral Care",
@@ -166,9 +164,8 @@ CATEGORY_MAPPINGS = {
     "(?i).*BODY.*CARE.*": "Personal Care",
     "(?i).*Cosmetics.*": "Personal Care",
     "(?i).*Deodorant.*": "Personal Care",
-    "(?i).*FACE.*CARE.*": "Personal Care",
-    "(?i).*HAIR.*CARE.*": "Personal Care",
-    "(?i).*Hair.*": "Personal Care",
+    "(?i)^FACE.*CARE.*": "Personal Care",
+    "(?i)^HAIRCARE.*": "Personal Care",
     "(?i).*HYGIENE.*": "Personal Care",
     "(?i)^PC$": "Personal Care",
     "(?i).*PERSONAL.*CARE.*": "Personal Care",
@@ -201,13 +198,14 @@ CATEGORY_MAPPINGS = {
     "(?i).*Miscellaneous.*": "Other",
     "(?i).*Office.*": "Other",
     "(?i).*Petroleum.*": "Other",
-    "(?i).*Pesticides.*": "Other",
+    "(?i)^Pesticide.*": "Other",
     "(?i).*PHARMACY.*": "Other",
     "(?i).*Retail.*": "Other",
-    "(?i).*Remedy.*":"Other",
     "(?i).*Telecom.*": "Other",
     "(?i).*Textiles.*": "Other",
     "(?i).*Tobacco.*": "Other",
-    "(?i).*Vitamin.*": "Other"
+    "(?i).*Vitamin.*": "Other",
+
+    "(?i)Pet.*": "Pet Nutrition"
 }
 

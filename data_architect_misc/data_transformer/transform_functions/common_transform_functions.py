@@ -276,7 +276,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         for i, col_name in enumerate(list_of_col_names):
             df = df[~df[col_name].isin(list_of_list_of_string_values[i])]
-
         return df
 
     def rename_columns(self, df, old_to_new_cols_dict):
@@ -1052,39 +1051,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def add_year_column_using_existing_column_with_year_values_in_mmm_yy(
-            self,
-            df,
-            existing_date_col_name,
-            new_date_col_name='YEAR'):
-        """
-        Creates a new column for YEAR column by extract year
-        information from an existing column in the dataframe.
-        The existing column's year data can be in varying format
-        like this: 'Apr - 2020' (India); '1/1/2020' (Kenya)'
-        and this function will correctly extract the year value.
-
-        For example, if we want to add 'YEAR' column by using
-        the date string column in the dataframe called 'YEAR_MONTH',
-        we call this method like below:
-        add_year_column_using_existing_string_column_with_string_values(
-        df, 'YEAR_MONTH')
-
-        Args:
-            df: Raw dataframe to transform.
-            existing_date_col_name: Column name in the dataframe
-            that has date data from which this code will infer
-            the YEAR information from.
-            new_year_col_name: Column name for the new year column.
-            Default is 'YEAR'.
-
-        Returns:
-            The dataframe with newly added YEAR column with integer year value.
-        """
-        df[new_date_col_name] = pd.to_datetime(df[existing_date_col_name]).dt.year
-
-        return df
-
     def add_month_column_using_existing_column_with_month_values(
             self,
             df,
@@ -1232,6 +1198,33 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "be of string type.")
         # REF: https://stackoverflow.com/a/37103131
         df[new_date_col_name] = pd.to_datetime(datetime.datetime.now().date())
+
+        return df
+
+    def replace_rows_with_matching_string_values_for_empty_values(self,
+                                  df,
+                                  col_name,
+                                  string_value):
+        """
+        This function replaces string characters for empty values in column given.
+
+        For example, when we wanted to delete a comma(',') in spend values, or other special character in other column,
+        we just need to give the col_name and the string_value to replace this kind of characters.
+        we will call this method like below:
+        col_name(df, 'LOCAL_SPEND', ',')
+
+        Args:
+            df: Raw dataframe to transform.
+            col_name: column name in which the code
+            should check if the cell values matches and thus, the CHARACTER will be replacefor empty value.
+            string_value: String value that will be checked against the existing
+            values in the dataframe to see if the rows should be
+            replaced.
+        Returns:
+            Dataframe with rows without the string value (if matches were found).
+        """
+
+        df[col_name] = df[col_name].str.replace(string_value, "")
 
         return df
 

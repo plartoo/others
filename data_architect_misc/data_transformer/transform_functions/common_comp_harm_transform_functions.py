@@ -112,7 +112,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         Returns:
             The dataframe with PROCESSED_DATE with current date values.
         """
-        import pdb; pdb.set_trace()
         return self.add_date_column_with_current_date(
             df,
             comp_harm_constants.PROCESSED_DATE_COLUMN)
