@@ -7,6 +7,7 @@ destination.
 Author: Phyo Thiha
 Last Modified: May 16, 2020
 """
+import argparse
 from datetime import datetime, timedelta
 import fnmatch
 import json
@@ -17,8 +18,55 @@ import sys
 import time
 import uuid
 
-import pandas as pd
+# To get Azure storage SDK for Python, run this: pip install azure-storage-blob
+# REF: https://docs.microsoft.com/en-us/python/api/overview/azure/storage-index?view=azure-python
 from azure.storage.blob import BlobServiceClient, BlobClient, generate_account_sas, ResourceTypes, AccountSasPermissions
+import pandas as pd
+
+DESC = """
+This script is used in our Azure Data Factory pipeline to 
+convert raw input files, which are in xlsx, xls, xlsb or csv 
+format and are located in Azure blob, to a text (.txt) file 
+with delimiter (default delimiter is '|'). 
+
+Before writing the input data to the output .txt file, 
+this script loads the raw data as Pandas dataframe and 
+also allows the caller (user of this code) to apply additional 
+processing code (written in Python). This allows the caller 
+to apply some basic data transformation to the original 
+data (using Pandas dataframe as a base) before writing 
+it to the output .txt file.
+
+Embed this script to be run on Azure (e.g., Batch instance) 
+like this:
+> python3 process_and_convert_to_csv_2020.py
+while providing required parameters below as Azure Data Factory's  
+extended property names:
+1. sourceContainer (blob container name), 
+2. sourcePath (raw input file path in blob), 
+3. fileName (raw input file name),
+4. sheetName (if any and if the file is Excel), 
+5. skipHeaderRow (number of rows to skip at the top of the input file), 
+6. skipTrailingRow (number of rows to skip at the bottom of the input file), 
+7. archivePath (blob path to put the raw input file after processing), 
+8. outputFileDelimiter (delimiter to use in the output file), 
+9. outputPath (blob path to put the output/processed file) and
+10. dataTransformationCodePath (blob path to Python script that accepts 
+dataframe as input and apply necessary data transformation before 
+writing the transformed data to the destination blob).
+
+Or run this script on a local machine like this using the following input flags:
+> python process_and_convert_to_csv_2020.py 
+-sc 'colgate-palmolive' (source container name)
+-sp 'Test/Input' (input/source file path name)
+-fn 'Belgium.xlsb' (file name)
+-sn 'Sheet1' (sheet name, if the file is Excel)
+-skr 0 (skip header row)
+-str 0 (skip trailing row)
+-ap 'Test/Archive' (archive path)
+-op 'Test/Output' (output path)
+-dtc 'Test/Python_Code/transform_data.py'
+"""
 
 STORAGE_ACCOUNT_NAME = 'wmdatarfcolgate'
 STORAGE_ACCOUNT_URL = 'https://wmdatarfcolgate.blob.core.windows.net'
@@ -35,15 +83,12 @@ SAS_TOKEN = generate_account_sas(
 # Note: Never change this from '.txt' extension for comp harm project.
 OUTPUT_FILE_TYPE = '.txt'
 
-XLSB_ENGINE = 'pyxlsb'
-XLS_ENGINE = 'xlrd'
-XLSX_ENGINE = 'openpyxl'
-
 # If SHEET_NAME=None, then Pandas will convert all sheets in the Excel file
-SHEET_NAME = 0
-DELIMITER = '|'
-HEADER_ROWS_TO_SKIP = 0
-FOOTER_ROWS_TO_SKIP = 0
+DEFAULT_SHEET_NAME = 0
+DEFAULT_DELIMITER = '|'
+DEFAULT_ENCODING = 'utf-8'
+DEFAULT_HEADER_ROWS_TO_SKIP = 0
+DEFAULT_FOOTER_ROWS_TO_SKIP = 0
 
 
 def create_unique_local_download_directory(dir_name):
@@ -51,7 +96,7 @@ def create_unique_local_download_directory(dir_name):
         os.makedirs(dir_name)
 
 
-def append_new_sys_path(dir_name):
+def add_directory_to_sys_path(dir_name):
     new_sys_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_name)
     if new_sys_path not in sys.path:
         sys.path.append(new_sys_path)
@@ -67,6 +112,34 @@ def join_path_and_file_name(path, file_name, separator=os.sep):
     return separator.join(file_name_with_path)
 
 
+def get_file_extension(file_path_and_name):
+    return os.path.splitext(file_path_and_name)[-1]
+
+
+def is_xlsx_file(file_path_and_name):
+    return get_file_extension(file_path_and_name) == '.xlsx'
+
+
+def is_xls_file(file_path_and_name):
+    return get_file_extension(file_path_and_name) == '.xls'
+
+
+def is_xlsb_file(file_path_and_name):
+    return get_file_extension(file_path_and_name) == '.xlsb'
+
+
+def get_excel_engine(file_path_and_name):
+    # Based on the file extension, return the Excel engine to use
+    if is_xlsx_file(file_path_and_name):
+        return 'openpyxl'
+    elif is_xls_file(file_path_and_name):
+        return 'xlrd'
+    elif is_xlsb_file(file_path_and_name):
+        return 'pyxlsb'
+    else:
+        return None
+
+
 def read_excel_file(file_path_and_name,
                     sheet_name=0,
                     header=0,
@@ -74,15 +147,8 @@ def read_excel_file(file_path_and_name,
                     skipfooter=0):
 
     t1 = time.time()
-    engine = None
-    if os.path.splitext(file_path_and_name)[-1] == '.xlsb':
-        engine = XLSB_ENGINE
-    elif os.path.splitext(file_path_and_name)[-1] == '.xls':
-        engine = XLS_ENGINE
-    elif os.path.splitext(file_path_and_name)[-1] == '.xlsx':
-        engine = XLSX_ENGINE
-
-    df1 = pd.read_excel(file_path_and_name,
+    engine = get_excel_engine(file_path_and_name)
+    df = pd.read_excel(file_path_and_name,
                         sheet_name=sheet_name,
                         header=header,
                         skiprows=skiprows,
@@ -90,12 +156,15 @@ def read_excel_file(file_path_and_name,
                         engine=engine)
     print(f"Read Excel file: {file_path_and_name}")
     print(f"It took this many seconds to read the file: {time.time() - t1}\n")
-    return df1
+    return df
 
 
-def write_csv_file(data, output_file_path_and_name, sep=DELIMITER):
+def write_csv_file(data, output_file_path_and_name, sep=DEFAULT_DELIMITER):
     t1 = time.time()
-    data.to_csv(path_or_buf=output_file_path_and_name, sep=sep, index=False, encoding='utf-8')
+    data.to_csv(path_or_buf=output_file_path_and_name,
+                sep=sep,
+                index=False,
+                encoding=DEFAULT_ENCODING)
     print(f"Converted to CSV file and placed it here: {output_file_path_and_name}")
     print(f"It took this many seconds to write the CSV file: {time.time() - t1}\n")
 
@@ -103,17 +172,7 @@ def write_csv_file(data, output_file_path_and_name, sep=DELIMITER):
 def upload_local_file_to_blob(container_client, local_file, dest_blob_path_and_name):
     with open(local_file, "rb") as data:
         container_client.upload_blob(dest_blob_path_and_name, data)
-        print(f"Uploaded local file to destination blob: {dest_blob_path_and_name}")
-
-
-def extract_file_name_and_path(file_path_and_name):
-    return (os.path.split(file_path_and_name)[0],
-            os.path.split(file_path_and_name)[-1])
-
-
-def get_local_destination_path_for_file(local_dir_name, file_name):
-    """Join local path and downloaded blob file name."""
-    return os.path.join(local_dir_name, file_name)
+        print(f"Uploaded local file to the destination blob: {dest_blob_path_and_name}")
 
 
 def download_blob_file_to_local_folder(container_client, blob_name, local_file_with_path):
@@ -123,11 +182,38 @@ def download_blob_file_to_local_folder(container_client, blob_name, local_file_w
     print(f"\nDownloaded: {blob_name}\nand placed it here: {local_file_with_path}\n")
 
 
+def extract_file_path_and_name(file_path_and_name):
+    return (os.path.split(file_path_and_name)[0],
+            os.path.split(file_path_and_name)[-1])
+
+
 def main():
+    # 0. Process arguments passed into the program
+    parser = argparse.ArgumentParser(
+        description=DESC,
+        formatter_class=argparse.RawTextHelpFormatter,
+        usage=argparse.SUPPRESS)
+    # -sc 'colgate-palmolive' (source container name)
+    # -sp 'Test/Input' (input/source file path name)
+    # -fn 'Belgium.xlsb' (file name)
+    # -sn 'Sheet1' (sheet name, if the file is Excel)
+    # -skr 0 (skip header row)
+    # -str 0 (skip trailing row)
+    # -ap 'Test/Archive' (archive path)
+    # -op 'Test/Output' (output path)
+    # -dtc 'Test/Python_Code/transform_data.py'
+
+    parser.add_argument('-sc', required=True, type=str,
+                        help="Source (blob) container name [e.g., 'colgate-palmolive'")
+    parser.add_argument('-sp', required=False, type=str,
+                        help="Source file's blob path [e.g., 'Test/Input'")
+    args = parser.parse_args()
+
+    import pdb; pdb.set_trace()
     # 1. create local directory and append it to sys.path so that we can load Python modules in it later
     local_dir_name = str(uuid.uuid4())
     create_unique_local_download_directory(local_dir_name)
-    append_new_sys_path(local_dir_name)
+    add_directory_to_sys_path(local_dir_name)
 
     # Note: comment out two lines below and replace it with json_activity variable below in local testing
     read_activity = open('activity.json').read()
@@ -150,6 +236,8 @@ def main():
 
     # 2a. Get required config for this script from 'Extended Properties' passed from Azure Data Factory task
     config_dict = json_activity.get('typeProperties').get('extendedProperties')
+
+
     container_name = config_dict.get('sourceContainer')
     path_to_source_blob_file = config_dict.get('excelSourcePath')
     source_blob_file_name_or_pattern = config_dict.get('fileName')
@@ -157,10 +245,10 @@ def main():
     archive_blob_location = config_dict.get('excelArchivePath')
 
     # 2b. Get optional config for this script from 'Extended Properties' passed from Azure Data Factory task
-    delimiter = config_dict.get('outputFileDelimiter', DELIMITER)
-    sheet_name = config_dict.get('sheetName', SHEET_NAME)
-    header_rows_to_skip = int(config_dict.get('skipHeaderRow', HEADER_ROWS_TO_SKIP))
-    footer_rows_to_skip = int(config_dict.get('skipTrailingRow', FOOTER_ROWS_TO_SKIP))
+    delimiter = config_dict.get('outputFileDelimiter', DEFAULT_DELIMITER)
+    sheet_name = config_dict.get('sheetName', DEFAULT_SHEET_NAME)
+    header_rows_to_skip = int(config_dict.get('skipHeaderRow', DEFAULT_HEADER_ROWS_TO_SKIP))
+    footer_rows_to_skip = int(config_dict.get('skipTrailingRow', DEFAULT_FOOTER_ROWS_TO_SKIP))
     additional_processing_code = config_dict.get('additionalProcessingCode')
     print(f"Input parameters received:\n {json.dumps(config_dict, indent=4, sort_keys=True)}")
 
@@ -180,9 +268,8 @@ def main():
     if additional_processing_code is not None:
         for blob in blobs:
             if fnmatch.fnmatch(blob.name, additional_processing_code):
-                _, cur_blob_file_name = extract_file_name_and_path(blob.name)
-                local_python_file_name_with_path = get_local_destination_path_for_file(local_dir_name,
-                                                                                       cur_blob_file_name)
+                _, cur_blob_file_name = extract_file_path_and_name(blob.name)
+                local_python_file_name_with_path = os.path.join(local_dir_name, cur_blob_file_name)
                 download_blob_file_to_local_folder(container_client, blob.name, local_python_file_name_with_path)
                 print(f"Found matching code file at: {blob.name}\nand downloaded it to: "
                       f"{local_python_file_name_with_path}")
@@ -195,14 +282,14 @@ def main():
                                                               separator='/')
     # 5. Iterate over all existing blobs in the container
     for blob in blobs:
-        cur_blob_file_path, cur_blob_file_name = extract_file_name_and_path(blob.name)
-        target_blob_file_path, target_blob_file_name = extract_file_name_and_path(target_blob_file_name_with_path)
+        cur_blob_file_path, cur_blob_file_name = extract_file_path_and_name(blob.name)
+        target_blob_file_path, target_blob_file_name = extract_file_path_and_name(target_blob_file_name_with_path)
         if fnmatch.fnmatch(cur_blob_file_path, target_blob_file_path) \
                 and fnmatch.fnmatch(cur_blob_file_name, target_blob_file_name):
 
             # 6. If desired (matching) content in the blob is found,
             # download the blob and put it in a temp directory in local destination
-            local_excel_file_name_with_path = get_local_destination_path_for_file(local_dir_name, cur_blob_file_name)
+            local_excel_file_name_with_path = os.path.join(local_dir_name, cur_blob_file_name)
             download_blob_file_to_local_folder(container_client, blob.name, local_excel_file_name_with_path)
 
             # WARNING: Note that for xlsb files that have active cell
