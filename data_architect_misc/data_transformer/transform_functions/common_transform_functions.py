@@ -1201,7 +1201,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def replace_rows_with_matching_string_values_for_empty_values(
+    def remove_string_values_in_column(
             self,
             df,
             col_name,
@@ -1225,7 +1225,6 @@ class CommonTransformFunctions(TransformFunctions):
         Returns:
             Dataframe with rows without the string value (if matches are found).
         """
-
         df[col_name] = df[col_name].str.replace(regex_pattern_of_string_to_remove, "", regex = True)
 
         return df
