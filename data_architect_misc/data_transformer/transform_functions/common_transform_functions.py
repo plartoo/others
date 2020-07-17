@@ -1201,30 +1201,32 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def replace_rows_with_matching_string_values_for_empty_values(self,
-                                  df,
-                                  col_name,
-                                  string_value):
+    def replace_rows_with_matching_string_values_for_empty_values(
+            self,
+            df,
+            col_name,
+            regex_pattern_of_string_to_remove):
         """
-        This function replaces string characters for empty values in column given.
-
-        For example, when we wanted to delete a comma(',') in spend values, or other special character in other column,
-        we just need to give the col_name and the string_value to replace this kind of characters.
-        we will call this method like below:
-        col_name(df, 'LOCAL_SPEND', ',')
-
+        This function will remove string_value (based on the REGEX pattern
+        provided as input parameter) found in a given column.
+        For example, if we want to delete comma values (',') in spend column
+        we can call this function like below:
+        remove_string_values_in_column(df, 'Gross Spend', ',')
+        If we want to use REGEX, we will provide the pattern as the
+        input parameter like below:
+        remove_string_values_in_column(df, 'Category', '^Cleaning')
         Args:
             df: Raw dataframe to transform.
-            col_name: column name in which the code
-            should check if the cell values matches and thus, the CHARACTER will be replacefor empty value.
-            string_value: String value that will be checked against the existing
-            values in the dataframe to see if the rows should be
-            replaced.
+            col_name: Name of the column in which the function
+            will look for the string value to remove.
+            regex_pattern_of_string_to_remove: REGEX pattern which
+            will be used to find the string to remove.
+
         Returns:
-            Dataframe with rows without the string value (if matches were found).
+            Dataframe with rows without the string value (if matches are found).
         """
 
-        df[col_name] = df[col_name].str.replace(string_value, "")
+        df[col_name] = df[col_name].str.replace(regex_pattern_of_string_to_remove, "", regex = True)
 
         return df
 

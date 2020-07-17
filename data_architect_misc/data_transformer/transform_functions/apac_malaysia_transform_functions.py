@@ -27,10 +27,10 @@ class ApacMalaysiaTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*JAM.*SPREADS.*": "Other",
         "(?i).*HEADACHE.*": "Other",
 
-        "(?i)^Air.*care.*": "Home Care",
+        "(?i)Air.*care.*": "Home Care",
 
-        "(?i)^Bath.*Additives.*": "Personal Care",
-        "(?i)^Hair.*Shampoo.*": "Personal Care"
+        "(?i)Bath.*Additives.*": "Personal Care",
+
     }
 
     def __init__(self, config):

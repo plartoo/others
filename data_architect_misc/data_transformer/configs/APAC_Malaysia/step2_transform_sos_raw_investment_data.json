@@ -1,7 +1,8 @@
 [
   {
-    "__comment__": "Malaysia files has more than 100K rows which is our default data loading limit. So we need to update that.",
-    "rows_per_read": 100000,
+    "__comment__": "We decided to split Malaysia data processing into 2 steps because although the raw data files have similar structures, they have different number of rows to skip (skiprows) in the beginning.",
+    "__comment__": "It does not seem like it is worth it to split into two config files just because of this ONE difference. But we did it because if we combine both steps in one config file, we will have to use a function to load another file (because transform module only allows us to load ONE file as a base file in the beginning.",
+    "__comment__": "We want to prevent people forgetting to update the name of the new raw file to load every month. So we split these steps into two.",
 
     "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
     "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
@@ -113,6 +114,7 @@
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
         "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
       },
+
       {
         "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_PRODUCT_NAME_column"
