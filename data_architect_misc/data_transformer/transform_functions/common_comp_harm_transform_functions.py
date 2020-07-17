@@ -537,16 +537,43 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             {raw_subcategory_col_name: comp_harm_constants.RAW_SUBCATEGORY_COLUMN})
 
+    def add_RAW_SUBCATEGORY_column_with_empty_values(
+            self,
+            df
+    ):
+        """
+        Although this method name starts with 'add_*', it actually simply
+        renames an existing column (Subcategory, Brand, Subbrand, Product Name)
+        to standardized column name.
+
+        I decided to name it as such so that it is easier for team members
+        who aren't very familiar with coding to follow the "flow" in JSON
+        config file.
+
+        Args:
+            df: Raw dataframe to transform.
+            raw_subcategory_col_name: Name of the existing column, which
+            has Subcategory names (string values).
+
+        Returns:
+            Dataframe with original column (Subcategory, Brand, Subbrand, etc)
+            renamed to standardized column name.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
+            "")
+
     def add_RAW_BRAND_column_by_renaming_existing_column(
             self,
             df,
             raw_brand_col_name: str):
         """
-        Same as 'add_RAW_SUBCATEGORY_column' but this one is for
+        Same as 'add_RAW_BRAND_column' but this one is for
         RAW_BRAND column.
 
         Against DRY practices, I decided to duplicate and slightly
-        modified 'add_RAW_SUBCATEGORY_column' here because I want
+        modified 'add_RAW_BRAND_column' here because I want
         to make sure my team members are forced to declare this method
         via JSON config file (otherwise, I'm afraid they'll forget
         or just not pay attention much on data transformation process).

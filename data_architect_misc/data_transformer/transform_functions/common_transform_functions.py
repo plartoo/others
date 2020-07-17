@@ -276,7 +276,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         for i, col_name in enumerate(list_of_col_names):
             df = df[~df[col_name].isin(list_of_list_of_string_values[i])]
-
         return df
 
     def rename_columns(self, df, old_to_new_cols_dict):
@@ -1199,6 +1198,35 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "be of string type.")
         # REF: https://stackoverflow.com/a/37103131
         df[new_date_col_name] = pd.to_datetime(datetime.datetime.now().date())
+
+        return df
+
+    def replace_rows_with_matching_string_values_for_empty_values(
+            self,
+            df,
+            col_name,
+            regex_pattern_of_string_to_remove):
+        """
+        This function will remove string_value (based on the REGEX pattern
+        provided as input parameter) found in a given column.
+        For example, if we want to delete comma values (',') in spend column
+        we can call this function like below:
+        remove_string_values_in_column(df, 'Gross Spend', ',')
+        If we want to use REGEX, we will provide the pattern as the
+        input parameter like below:
+        remove_string_values_in_column(df, 'Category', '^Cleaning')
+        Args:
+            df: Raw dataframe to transform.
+            col_name: Name of the column in which the function
+            will look for the string value to remove.
+            regex_pattern_of_string_to_remove: REGEX pattern which
+            will be used to find the string to remove.
+
+        Returns:
+            Dataframe with rows without the string value (if matches are found).
+        """
+
+        df[col_name] = df[col_name].str.replace(regex_pattern_of_string_to_remove, "", regex = True)
 
         return df
 
