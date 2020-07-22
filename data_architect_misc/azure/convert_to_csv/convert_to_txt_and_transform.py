@@ -35,13 +35,15 @@ also allows the caller (user of this code) to apply additional
 processing code (written in Python). This allows the caller 
 to apply some basic data transformation to the original 
 data (using Pandas dataframe as a base) before writing 
-it to the output .txt file.
+it to the output .txt file. 'transform_data.py' is an example 
+script that shows how to write script to transform the original 
+dataframe.  
 
 Embed this script to be run on Azure Data Factory like this:
-> python3 process_and_convert_to_csv_2020.py -adf 1
+> python3 convert_to_txt_and_transform.py -adf 1
 
 Or run this script on local machine using input flags like below:
-> python process_and_convert_to_csv_2020.py
+> python convert_to_txt_and_transform.py
 -adf 0                  (0 is for running from local machine. 1 is to be used in production 
                         such as Azure Data Factory or Azure Batch instance.) 
 -sc 'colgate-palmolive' ([Required argument] blob container's name 
@@ -68,11 +70,12 @@ Or run this script on local machine using input flags like below:
                         and apply necessary data transformation before writing the 
                         transformed data to the destination blob. The python script 
                         must implement 'transform_data' method that takes pandas 
-                        dataframe as input and returns transformed pandas dataframe.)
+                        dataframe as input and returns transformed pandas dataframe.
+                        See 'transform_data.py' as an example.)
 
 One-line example is:
-> python process_and_convert_to_csv_2020.py -adf 0 -sc comp-harm -sp test/transformed_data/AED_GCC -fn transformed_GCC_20200101_20200531__rows_0_1560_20200624_165537.csv 
--id , -ap test/transformed_data/AED_GCC/archive -op test/transformed_data/converted -dtc test/python_scripts/gcc_test.py
+> python convert_to_txt_and_transform.py -adf 0 -sc comp-harm -sp test/transformed_data/AED_GCC -fn Transformed_GCC_2019FY___20200508_215927.csv 
+-id , -ap test/transformed_data/AED_GCC/archive -op test/transformed_data/AED_GCC/converted -dtc test/python_scripts/transform_data.py
 """
 
 STORAGE_PATH_SEPARATOR = '/'
@@ -111,7 +114,7 @@ def add_directory_to_sys_path(dir_name):
     if new_sys_path not in sys.path:
         sys.path.append(new_sys_path)
         print(f"New sys path appended: {new_sys_path}")
-        print(f"Current sys path is:\n{sys.path}\n")
+        print(f"to the current sys path which is:\n{sys.path}\n")
 
 
 def join_path_and_file_name(path, file_name, separator=os.sep):
@@ -180,9 +183,9 @@ def read_excel_file(file_path_and_name,
 
 def read_csv_file(file_path_and_name,
                   input_delimiter,
+                  input_encoding,
                   skip_rows,
-                  skip_footer,
-                  input_encoding):
+                  skip_footer):
     t1 = time.time()
     df = pd.read_csv(file_path_and_name,
                      delimiter=input_delimiter,
@@ -212,17 +215,17 @@ def read_data(file_path_and_name,
         # of how to achieve reading only the cells with data using
         # xlwings at the end of this code file.
         return read_excel_file(file_path_and_name,
-                               sheet_name=sheet_name,
-                               skiprows=skip_rows,
-                               skipfooter=skip_footer)
+                               sheet_name,
+                               skip_rows,
+                               skip_footer)
     elif is_csv_file(file_path_and_name):
         return read_csv_file(file_path_and_name,
-                             delimiter=input_delimiter,
-                             skiprows=skip_rows,
-                             skipfooter=skip_footer,
-                             encoding=input_encoding)
+                             input_delimiter,
+                             input_encoding,
+                             skip_rows,
+                             skip_footer)
     else:
-        raise Exception(f"File type not supported for reading: {file_path_and_name}")
+        raise Exception(f"File type not supported for reading: {file_path_and_name}\n")
 
 
 def write_output_file(
@@ -244,19 +247,25 @@ def write_output_file(
 def upload_local_file_to_blob(container_client, local_file, blob_path_and_file_name):
     with open(local_file, "rb") as data:
         container_client.upload_blob(blob_path_and_file_name, data)
-        print(f"Uploaded local file to the destination blob: {blob_path_and_file_name}")
+        print(f"Uploaded local file to the destination blob: {blob_path_and_file_name}\n")
 
 
 def download_blob_file_to_local(container_client, blob_name, local_path_and_file_name):
     with open(local_path_and_file_name, "wb") as my_blob:
         blob_data = container_client.download_blob(blob_name)
         blob_data.readinto(my_blob)
-    print(f"\nDownloaded: {blob_name}\nand placed it here: {local_path_and_file_name}\n")
+    print(f"Downloaded: {blob_name}\nand placed it here: {local_path_and_file_name}\n")
 
 
 def extract_file_path_and_name(file_path_and_name):
     return (os.path.split(file_path_and_name)[0],
             os.path.split(file_path_and_name)[-1])
+
+
+def get_absolute_module_name_out_of_file_path_and_name(file_path_and_name):
+    # Replaces file path separators with '.' and then remove the file extension
+    # E.g., 'folder1/folder2/transform_data.py' becomes 'folder1.folder2.transform_data'
+    return os.path.splitext(file_path_and_name.replace(os.sep,'.'))[0]
 
 
 def main():
@@ -338,7 +347,7 @@ def main():
     output_encoding = DEFAULT_ENCODING
 
     data_transform_script = config_dict.get('dataTransformCodePathAndFileName')
-    print(f"Input parameters received:\n {json.dumps(config_dict, indent=4, sort_keys=True)}")
+    print(f"Input parameters received:\n {json.dumps(config_dict, indent=4, sort_keys=True)}\n")
 
     # 1. create local directory and append it to sys.path so that we can load Python modules in it later
     local_dir_name = str(uuid.uuid4())
@@ -364,24 +373,25 @@ def main():
                 local_data_transform_code_path_and_file_name = os.path.join(local_dir_name, cur_blob_file_name)
                 download_blob_file_to_local(container_client, blob.name, local_data_transform_code_path_and_file_name)
                 print(f"Found matching code file at: {blob.name}\nand downloaded it to: "
-                      f"{local_data_transform_code_path_and_file_name}")
+                      f"{local_data_transform_code_path_and_file_name}\n")
 
-                file_path_and_name_without_extension = os.path.splitext(cur_blob_file_name)[0]
-                data_transform_module = importlib.import_module(os.path.join(file_path_and_name_without_extension))
-                print(f"Imported this module: {file_path_and_name_without_extension}")
+                data_transform_file_in_absolute_term = get_absolute_module_name_out_of_file_path_and_name(local_data_transform_code_path_and_file_name)
+                data_transform_module = importlib.import_module(data_transform_file_in_absolute_term)
+                print(f"Imported this module: {data_transform_file_in_absolute_term}\n")
 
     # 4. Iterate over all existing blobs in the container to find matching blob name for the source (input) file
     source_blob_file_path_and_name = join_path_and_file_name(source_path,
                                                              source_file_name,
                                                              separator=STORAGE_PATH_SEPARATOR)
+
     for blob in blobs:
-        cur_blob_file_path, cur_blob_file_name = extract_file_path_and_name(blob.name)
         if fnmatch.fnmatch(blob.name, source_blob_file_path_and_name):
             # 5. If source (input) file is found in the blob list,
             # download the blob and put it in a local temp directory created in step 1
+            print(f"Found this blob as source file: {blob.name}\n")
+            _, cur_blob_file_name = extract_file_path_and_name(blob.name)
             local_source_file_path_and_name = os.path.join(local_dir_name, cur_blob_file_name)
             download_blob_file_to_local(container_client, blob.name, local_source_file_path_and_name)
-
             df = read_data(local_source_file_path_and_name,
                            sheet_name=sheet_name,
                            input_delimiter=input_delimiter,
@@ -401,12 +411,13 @@ def main():
             write_output_file(df,
                               local_txt_file_path_and_name,
                               delimiter=output_delimiter,
-                              encoding=DEFAULT_ENCODING)
+                              encoding=output_encoding)
 
             # 8. Upload the (converted) local csv file to blob destination
             dest_blob_path_and_name = join_path_and_file_name(output_path,
                                                               local_txt_file_name,
                                                               separator=STORAGE_PATH_SEPARATOR)
+            print(f"Uploading converted txt file to blob.")
             upload_local_file_to_blob(container_client,
                                       local_txt_file_path_and_name,
                                       dest_blob_path_and_name)
@@ -415,20 +426,21 @@ def main():
             archive_blob_path_and_name = join_path_and_file_name(archive_path,
                                                                  cur_blob_file_name,
                                                                  separator=STORAGE_PATH_SEPARATOR)
+            print(f"Copying source file to blob's archive location.")
             upload_local_file_to_blob(container_client,
                                       local_source_file_path_and_name,
                                       archive_blob_path_and_name)
 
-            # 10. Delete the source blob
-            container_client.delete_blob(blob.name)
-            print(f"Deleted source blob: {blob.name}")
+            # # 10. Delete the source blob
+            # container_client.delete_blob(blob.name)
+            # print(f"Deleted source blob: {blob.name}")
 
     # 12. Delete the local folder and files downloaded temporarily from Azure blob
     try:
         shutil.rmtree(local_dir_name)
-        print(f"Deleted local (temp) folder and its contents: {local_dir_name}")
+        print(f"Deleted local (temp) folder and its contents: {local_dir_name}\n")
     except OSError as e:
-        print(f"Error: {e.filename} - {e.strerror}")
+        print(f"Error: {e.filename} - {e.strerror}\n")
 
 
 if __name__ == '__main__':
