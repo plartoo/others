@@ -20,7 +20,7 @@ import uuid
 
 # To get Azure storage SDK for Python, run this: pip install azure-storage-blob
 # REF: https://docs.microsoft.com/en-us/python/api/overview/azure/storage-index?view=azure-python
-from azure.storage.blob import BlobServiceClient, BlobClient, generate_account_sas, ResourceTypes, AccountSasPermissions
+from azure.storage.blob import BlobServiceClient, generate_account_sas, ResourceTypes, AccountSasPermissions
 import pandas as pd
 
 DESC = """
@@ -422,15 +422,16 @@ def main():
                                       local_txt_file_path_and_name,
                                       dest_blob_path_and_name)
 
-            # 9. Copy source file in the local temp folder to the blob archive folder
-            archive_blob_path_and_name = join_path_and_file_name(archive_path,
-                                                                 cur_blob_file_name,
-                                                                 separator=STORAGE_PATH_SEPARATOR)
-            print(f"Copying source file to blob's archive location.")
-            upload_local_file_to_blob(container_client,
-                                      local_source_file_path_and_name,
-                                      archive_blob_path_and_name)
-
+            # # Step 9 and 10 can be completed by ADF, so we'll comment them out
+            # # 9. Archive source file (i.e. copy source file in the local temp folder to the blob archive folder)
+            # archive_blob_path_and_name = join_path_and_file_name(archive_path,
+            #                                                      cur_blob_file_name,
+            #                                                      separator=STORAGE_PATH_SEPARATOR)
+            # print(f"Copying source file to blob's archive location.")
+            # upload_local_file_to_blob(container_client,
+            #                           local_source_file_path_and_name,
+            #                           archive_blob_path_and_name)
+            #
             # # 10. Delete the source blob
             # container_client.delete_blob(blob.name)
             # print(f"Deleted source blob: {blob.name}")
