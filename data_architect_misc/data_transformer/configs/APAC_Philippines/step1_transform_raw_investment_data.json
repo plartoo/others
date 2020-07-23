@@ -77,8 +77,14 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings",
+        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
         "function_args": ["Section"]
+      },
+      {
+        "__function_comment__": "Now we need to update the HARMONIZED_CATEGORY column values using raw subcategory column",
+        "__function_comment__": "(because raw category column values aren't very helpful to determine the HARMONIZED_CATEGORY in the step above)",
+        "function_name": "update_HARMONIZED_CATEGORY_column_using_raw_subcategory_column_values",
+        "function_args": ["Category", {"(?i).*Animal Feed.*": "Pet Nutrition"}]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",

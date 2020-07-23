@@ -20,28 +20,6 @@ class ApacPhilippinesTransformFunctions(CommonCompHarmTransformFunctions):
     individual processing task** must be defined as part
     of this class.
     """
-    PHILIPPINES_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i)Veterinary.*": "Pet Nutrition",
-    }
 
     def __init__(self, config):
         self.config = config
-
-    def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
-            self,
-            df,
-            existing_category_col_name: str):
-        """
-        We have some malaysia-specific category mappings, so we will
-        wrap the common comp. harm. transform function with this one.
-        """
-        # REF: https://stackoverflow.com/a/1784128/1330974
-        category_mappings = dict(comp_harm_constants.CATEGORY_MAPPINGS,
-                                 **ApacPhilippinesTransformFunctions.PHILIPPINES_SPECIFIC_CATEGORY_MAPPINGS)
-
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match \
-            (df,
-             existing_category_col_name,
-             comp_harm_constants.CATEGORY_COLUMN,
-             category_mappings
-             )
