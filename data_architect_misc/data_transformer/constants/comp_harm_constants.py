@@ -167,7 +167,6 @@ CATEGORY_MAPPINGS = {
     "(?i).*Cosmetics.*": "Personal Care",
     "(?i).*Deodorant.*": "Personal Care",
     "(?i)Face.*Care.*": "Personal Care",
-    "(?i)Haircare.*": "Personal Care",
     "(?i)Hair.*care.*": "Personal Care",
     "(?i)Hair.*Shampoo.*": "Personal Care",
     "(?i).*HYGIENE.*": "Personal Care",
@@ -214,7 +213,6 @@ CATEGORY_MAPPINGS = {
     "(?i).*Transport.*": "Other",
     "(?i).*Vitamin.*": "Other",
 
-    "(?i)Pet\s.*": "Pet Nutrition",
-    "(?i)Veterinary\s.*": "Pet Nutrition"
+    "(?i)Pet\s.*": "Pet Nutrition"
 }
 
