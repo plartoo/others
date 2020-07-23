@@ -553,6 +553,57 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def update_col1_values_based_on_values_in_col2_using_regex_mapping(
+            self,
+            df,
+            col1_name: str,
+            col2_name: str,
+            dictionary_of_regex_mappings: dict):
+        """
+        Update values in column 1 using dictionary of
+        regular-expression-based mappings between column 2's values
+        and column 1 desired values.
+
+        **If regular expression does NOT match the value in the existing
+        column, original value from the column 1 will remain in place.**
+
+        For example, in Philippines raw data, we can better deduce the
+        harmonized category by using values in raw subcategory column.
+        So we can call this function as below:
+        update_col1_values_based_on_values_in_col2_using_regex_mapping(
+        df, 'Raw Subcategory', 'Harmonized Category',
+        {'(i?)Animal Feeds': 'Pet Nutrition'}
+
+        Args:
+            df: Raw dataframe to transform.
+            col1_name: Name of the column whose values needs to be updated
+            based on another column.
+            col2_name: Name of the column whose values will be used as
+            reference to determine the values in the column 1.
+            dictionary_of_regex_mappings: Dictionary representing key-value pairs
+            in which keys represent **regular expression** values to look for
+            in column 2 and values representing the ones to be assigned
+            in column 1.
+
+        Returns:
+            The dataframe with the updated column 1 values (if any of the values in
+            the regex mapping matches).
+        """
+        if not (isinstance(col1_name, str) and isinstance(col2_name, str)):
+            raise transform_errors.InputDataTypeError("Column names must be of string type")
+
+        if not isinstance(dictionary_of_regex_mappings, dict):
+            raise transform_errors.InputDataTypeError(
+                "Mapping key-value pairs must be of dictionary type with keys representing "
+                "the regular expressions in column 2, and values the desired final string "
+                "values for the column 1.")
+
+        for pattern, new_str_value in dictionary_of_regex_mappings.items():
+            mask = df[col2_name].str.contains(pattern)
+            df.loc[mask, col1_name] = new_str_value
+
+        return df
+
     def update_str_values_in_col2_if_col1_has_one_of_given_values(self,
                                                                   df,
                                                                   col1_name,

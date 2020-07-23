@@ -487,7 +487,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             existing_category_col_name: str):
         """
         Add HARMONIZED_CATEGORY column based on string values found
-        in an existing advertiser column. The HARMONIZED_CATEGORY column
+        in raw category column. The HARMONIZED_CATEGORY column
         will contain standard names of the categories used by the
         competitive harmonization project.
 
@@ -510,6 +510,47 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  existing_category_col_name,
                  comp_harm_constants.CATEGORY_COLUMN,
                  comp_harm_constants.CATEGORY_MAPPINGS)
+
+    def update_HARMONIZED_CATEGORY_column_using_raw_subcategory_column_values(
+            self,
+            df,
+            raw_subcategory_column_name: str,
+            regex_mappings_from_raw_subcategory_values_to_harmonized_category_values: dict
+    ):
+        """
+        Update values in HARMONIZED_CATEGORY column based on string values
+        found of raw subcategory column.
+
+        This method needs to be called when the raw subcategory column's
+        values are better suited to deduce HARMONIZED_CATEGORY values.
+        For example, in Philippines raw data, we call
+        add_HARMONIZED_CATEGORY_column_using_existing_category_column
+        method and even after that there are some veterinary products
+        that needs to be mapped in the raw category column. But we can
+        better deduce the harmonized category by using raw subcategory
+        column. So we can call this function AFTER calling
+        add_HARMONIZED_CATEGORY_column_using_existing_category_column
+        like this:
+        update_HARMONIZED_CATEGORY_column_using_raw_subcategory_colum_values(
+        df, 'Subcategory', {'(i?)Animal Feeds': 'Pet Nutrition'}
+
+        Args:
+            df: Raw dataframe to transform.
+            raw_subcategory_column_name: Raw subcategory colum name.
+            regex_mappings_from_raw_subcategory_values_to_harmonized_category_values:
+            Dictionary of regular-expression-based mappings between values in
+            raw subcategory column and values that should be updated to in
+            HARMONIZED_CATEGORY column.
+
+        Returns:
+            Dataframe with HARMONIZED_CATEGORY column values updated
+            based on the raw subcategory column values.
+        """
+        return self.update_col1_values_based_on_values_in_col2_using_regex_mapping\
+                (df,
+                 comp_harm_constants.CATEGORY_COLUMN,
+                 raw_subcategory_column_name,
+                 regex_mappings_from_raw_subcategory_values_to_harmonized_category_values)
 
     def add_RAW_SUBCATEGORY_column_by_renaming_existing_column(
             self,
