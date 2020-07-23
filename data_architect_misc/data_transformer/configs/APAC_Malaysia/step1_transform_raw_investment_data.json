@@ -38,7 +38,7 @@
       },
       {
         "__function_comment__": "Replace comma(',') values in RM (Spend Values) column.",
-        "function_name": "replace_rows_with_matching_string_values_for_empty_values",
+        "function_name": "remove_string_values_in_column",
         "function_args": ["RM",","]
       },
       {
