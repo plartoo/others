@@ -48,7 +48,7 @@ Or run this script on local machine using input flags like below:
                         such as Azure Data Factory or Azure Batch instance.) 
 -sc 'colgate-palmolive' ([Required argument] blob container's name 
                         where input/source file is situated.)
--sp 'Test/Input'        ([Required argument] blob path for input/source file.)
+-sp 'test/source_file'  ([Required argument] blob path for input/source file.)
 -fn 'Belgium.xlsb'      ([Required argument] input/source file name.)
 -sn 'Sheet1'            (sheet name, if the input/source file is Excel.
                         Default is 'Sheet1'.)
@@ -60,22 +60,22 @@ Or run this script on local machine using input flags like below:
                         the top of the input file.)
 -str 0                  (skip trailing row, which means number of rows to skip at 
                         the bottom of the input file.)
--ap 'Test/Archive'      ([Required argument] blob path for archive file; that is, the 
-                        blob path to put the input/source file after converting it to 
-                        the output .txt file.)
--op 'Test/Output'       (blob path for the converted/output file.)
--od '|'                 (delimiter to use for output file. Default is '|'.)
--dtc 'Test/Python_Code/transform_data.py' 
-                        (blob path to Python script that accepts dataframe as input 
-                        and apply necessary data transformation before writing the 
-                        transformed data to the destination blob. The python script 
-                        must implement 'transform_data' method that takes pandas 
-                        dataframe as input and returns transformed pandas dataframe.
-                        See 'transform_data.py' as an example.)
+-ap 'test/archive_source'   ([Required argument] blob path to archive the source file; 
+                            that is, the blob path to put the input/source file after 
+                            converting it to .txt file.)
+-op 'test/converted_file'   (blob path for the converted/output file.)
+-od '|'                     (delimiter to use for output file. Default is '|'.)
+-dtc 'test/python_scripts/transform_data.py' 
+                            (blob path to Python script that accepts dataframe as input 
+                            and apply necessary data transformation before writing the 
+                            transformed data to the destination blob. The python script 
+                            must implement 'transform_data' method that takes pandas 
+                            dataframe as input and returns transformed pandas dataframe.
+                            See 'transform_data.py' as an example.)
 
 One-line example is:
 > python convert_to_txt_and_transform.py -adf 0 -sc comp-harm -sp test/transformed_data/AED_GCC -fn Transformed_GCC_2019FY___20200508_215927.csv 
--id , -ap test/transformed_data/AED_GCC/archive -op test/transformed_data/AED_GCC/converted -dtc test/python_scripts/transform_data.py
+-id , -ap test/transformed_data/AED_GCC/archive_source -op test/transformed_data/AED_GCC/converted_txt -dtc test/python_scripts/transform_data.py
 """
 
 STORAGE_PATH_SEPARATOR = '/'
@@ -303,7 +303,7 @@ def main():
                         help="Output blob path to write the processed/converted .txt file. [e.g., "
                              "'Test/Output']")
     parser.add_argument('-od', type=str, default=DEFAULT_DELIMITER,
-                        help="Delimiter to use for the converted/processed .txt file. Default is '|'.")
+                        help="Delimiter to use for the processed/converted .txt file. Default is '|'.")
     parser.add_argument('-dtc', type=str,
                         help="Full blob path of the data transform code (Python script that will be used to "
                              "transform the raw data). [e.g.,'Test/Python_Code/transform_belgium_data.py']")
@@ -422,19 +422,19 @@ def main():
                                       local_txt_file_path_and_name,
                                       dest_blob_path_and_name)
 
-            # # Step 9 and 10 can be completed by ADF, so we'll comment them out
-            # # 9. Archive source file (i.e. copy source file in the local temp folder to the blob archive folder)
-            # archive_blob_path_and_name = join_path_and_file_name(archive_path,
-            #                                                      cur_blob_file_name,
-            #                                                      separator=STORAGE_PATH_SEPARATOR)
-            # print(f"Copying source file to blob's archive location.")
-            # upload_local_file_to_blob(container_client,
-            #                           local_source_file_path_and_name,
-            #                           archive_blob_path_and_name)
-            #
-            # # 10. Delete the source blob
-            # container_client.delete_blob(blob.name)
-            # print(f"Deleted source blob: {blob.name}")
+            # Step 9 and 10 can be completed by ADF, so we'll comment them out
+            # 9. Archive source file (i.e. copy source file in the local temp folder to the blob archive folder)
+            archive_blob_path_and_name = join_path_and_file_name(archive_path,
+                                                                 cur_blob_file_name,
+                                                                 separator=STORAGE_PATH_SEPARATOR)
+            print(f"Copying source file to blob's archive location.")
+            upload_local_file_to_blob(container_client,
+                                      local_source_file_path_and_name,
+                                      archive_blob_path_and_name)
+
+            # 10. Delete the source blob
+            container_client.delete_blob(blob.name)
+            print(f"Deleted source blob: {blob.name}")
 
     # 12. Delete the local folder and files downloaded temporarily from Azure blob
     try:
