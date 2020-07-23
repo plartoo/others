@@ -126,6 +126,7 @@ ADVERTISER_MAPPINGS = {
     # This list will grow to a big one and must be kept maintained/updated constantly.
     "(?i)BDF.*": "BEIERSDORF",
     "(?i).*BEIERSDORF.*": "BEIERSDORF",
+    "(?i).*BIERSDORF.*": "BEIERSDORF",
     "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
@@ -159,6 +160,7 @@ CATEGORY_MAPPINGS = {
     "(?i).*ORAL.*": "Oral Care",
     "(?i).*ORAL.*CARE.*": "Oral Care",
     "(?i).*Dental.*": "Oral Care",
+    "(?i).*Dentifrices.*": "Oral Care",
 
     "(?i).*BEAUTY.*": "Personal Care",
     "(?i).*BODY.*CARE.*": "Personal Care",
@@ -166,6 +168,7 @@ CATEGORY_MAPPINGS = {
     "(?i).*Deodorant.*": "Personal Care",
     "(?i)Face.*Care.*": "Personal Care",
     "(?i)Haircare.*": "Personal Care",
+    "(?i)Hair.*care.*": "Personal Care",
     "(?i)Hair.*Shampoo.*": "Personal Care",
     "(?i).*HYGIENE.*": "Personal Care",
     "(?i)^PC$": "Personal Care",
@@ -178,11 +181,13 @@ CATEGORY_MAPPINGS = {
     "(?i).*Alcohol.*": "Other",
     "(?i)ALL.*OTHER.*": "Other",
     "(?i).*Automation.*": "Other",
+    "(?i).*Automotive.*": "Other",
     "(?i).*Banking.*": "Other",
     "(?i).*Building.*": "Other",
     "(?i).*Clothing.*": "Other",
     "(?i).*Computers.*": "Other",
     "(?i).*Corporate.*": "Other",
+    "(?i).*Dairy.*": "Other",
     "(?i).*Drinks.*": "Other",
     "(?i).*Durables.*": "Other",
     "(?i).*Education.*": "Other",
@@ -205,8 +210,11 @@ CATEGORY_MAPPINGS = {
     "(?i).*Telecom.*": "Other",
     "(?i).*Textiles.*": "Other",
     "(?i).*Tobacco.*": "Other",
+    "(?i).*Tourism.*": "Other",
+    "(?i).*Transport.*": "Other",
     "(?i).*Vitamin.*": "Other",
 
-    "(?i)Pet\s.*": "Pet Nutrition"
+    "(?i)Pet\s.*": "Pet Nutrition",
+    "(?i)Veterinary\s.*": "Pet Nutrition"
 }
 
