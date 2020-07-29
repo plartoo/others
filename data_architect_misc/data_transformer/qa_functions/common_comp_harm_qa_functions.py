@@ -59,6 +59,7 @@ class CommonCompHarmQAFunctions:
         comp_harm_constants.RAW_BRAND_COLUMN,
         comp_harm_constants.RAW_SUBBRAND_COLUMN,
         comp_harm_constants.RAW_PRODUCT_NAME_COLUMN,
+        comp_harm_constants.SUBCATEGORY_COLUMN,
         comp_harm_constants.PRODUCT_NAME_COLUMN
     }
     # the earliest year we started collecting data for comp. harm project
