@@ -27,26 +27,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    @staticmethod
-    def extract_date_range_from_file_path_and_name(file_path_and_name):
-        # If this method is returning 'IndexError: list index out of range'
-        # error, that means no match is found and you need to inspect your
-        # file name to make sure it has date range pattern like this:
-        # '*_YYYYMMDD_YYYYMMDD*rows', which is specific to comp harm project.
-        return re.findall(r'_(\d{8}_\d{8}).*rows', file_path_and_name)[0]
-
-    @staticmethod
-    def has_same_date_range_in_their_names(
-            file1_path_and_name,
-            file2_path_and_name):
-        # This method extracts date range of the data from the file names
-        # assuming that the file names are given following the standards
-        # used in comp_harm project ('*_YYYYMMDD_YYYYMMDD*rows'), and
-        # compare them. Based on the comparison, it returns boolean value
-        # if the date ranges in these file names match (or not).
-        return CommonCompHarmTransformFunctions.extract_date_range_from_file_path_and_name(file1_path_and_name) == \
-               CommonCompHarmTransformFunctions.extract_date_range_from_file_path_and_name(file2_path_and_name)
-
     def create_new_dataframe_from_input_CSV_files(
             self,
             df,
@@ -86,7 +66,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         """
         base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
         for file_path_and_name in list_of_file_path_and_names:
-            if not CommonCompHarmTransformFunctions.has_same_date_range_in_their_names(
+            if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
                 base_file_path_and_name,
                 file_path_and_name
             ):

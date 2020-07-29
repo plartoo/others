@@ -15,6 +15,7 @@ import re
 
 import pandas as pd
 
+import transform_errors
 from constants import comp_harm_constants
 from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from qa_functions import qa_errors
@@ -66,6 +67,51 @@ class CommonCompHarmQAFunctions:
         self.logger = logging.getLogger(__name__)
 
     @staticmethod
+    def extract_date_range_string_from_file_path_and_name(file_path_and_name):
+        # If this method is returning 'IndexError: list index out of range'
+        # error, that means no match is found and you need to inspect your
+        # file name to make sure it has date range pattern like this:
+        # '*_YYYYMMDD_YYYYMMDD*rows', which is specific to comp harm project.
+        return re.findall(r'_(\d{8}_\d{8}).*rows', file_path_and_name)[0]
+
+    @staticmethod
+    def extract_date_ranges_from_file_path_and_name(file_path_and_name):
+        """
+        Extract datetime objects from the date range string in the
+        form of YYYYMMDD_YYYYMMDD and returns two datetime objects in
+        a tuple.
+        """
+        date_range_str = CommonCompHarmQAFunctions.extract_date_range_string_from_file_path_and_name(
+            file_path_and_name
+        )
+        return [datetime.datetime.strptime(d_str, '%Y%m%d') for d_str in date_range_str.split('_')]
+
+    @staticmethod
+    def has_same_date_range_in_their_names(
+            file1_path_and_name,
+            file2_path_and_name):
+        # This method extracts date range of the data from the file names
+        # assuming that the file names are given following the standards
+        # used in comp_harm project ('*_YYYYMMDD_YYYYMMDD*rows'), and
+        # compare them. Based on the comparison, it returns boolean value
+        # if the date ranges in these file names match (or not).
+        return CommonCompHarmQAFunctions.extract_date_range_string_from_file_path_and_name(file1_path_and_name) == \
+               CommonCompHarmQAFunctions.extract_date_range_string_from_file_path_and_name(file2_path_and_name)
+
+    def assert_date_range_in_file_name_is_the_same_as_what_is_in_the_data(self, df):
+        d_start, d_end = CommonCompHarmQAFunctions.extract_date_ranges_from_file_path_and_name(
+            self.config[KEY_CURRENT_INPUT_FILE])
+        max_yr_in_df = max(df[comp_harm_constants.YEAR_COLUMN])
+        min_yr_in_df = min(df[comp_harm_constants.YEAR_COLUMN])
+        max_month_in_df = max(df[comp_harm_constants.MONTH_COLUMN])
+        min_month_in_df = min(df[comp_harm_constants.MONTH_COLUMN])
+        if ((d_start.year != min_yr_in_df) or (d_start.month != min_month_in_df)
+                or (d_end.year != max_yr_in_df) or (d_end.month != max_month_in_df)):
+            raise transform_errors.InputFileNameAndDataDateRangeMismatchError(
+                self.config[KEY_CURRENT_INPUT_FILE])
+        return df
+
+    @staticmethod
     def _is_contents_of_the_lists_are_in_same_order(list1, list2):
         for i, l1 in enumerate(list1):
             if l1 != list2[i]:
@@ -111,8 +157,8 @@ class CommonCompHarmQAFunctions:
         sheets_of_interest = [s for s in all_sheets if s in list_of_expected_sheet_order]
 
         if not CommonCompHarmQAFunctions._is_contents_of_the_lists_are_in_same_order(
-            sheets_of_interest,
-            list_of_expected_sheet_order
+                sheets_of_interest,
+                list_of_expected_sheet_order
         ):
             raise OrderOfListContentsDifferentError(
                 list_of_expected_sheet_order,
@@ -693,7 +739,7 @@ class CommonCompHarmQAFunctions:
                                                f"column names being string values.")
 
         for col_name in list_of_col_names:
-            df1 = df[col_name].astype(str)\
+            df1 = df[col_name].astype(str) \
                 .map(lambda x: [x, '0'] if len(x.split('.')) == 1 else x.split('.'))
 
             if any([len(x) > 2 for x in df1.values]):

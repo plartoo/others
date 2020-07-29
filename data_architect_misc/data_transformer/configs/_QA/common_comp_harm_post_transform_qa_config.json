@@ -29,6 +29,11 @@
     "__comment__": "These functions must be defined either in transform_functions.py or individual task's transform file such as ./transform_function/aed_gcc_transform_functions.py",
     "functions_to_apply": [
       {
+        "__function_comment__": "Someone might forgot to properly name the transformed output file with the correct date range.",
+        "__function_comment__": "This QA function will check that the date range used in the file name is the same as that is observed in the data itself.",
+        "function_name": "assert_date_range_in_file_name_is_the_same_as_what_is_in_the_data"
+      },
+      {
         "function_name": "check_expected_columns_are_present"
       },
       {
