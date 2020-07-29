@@ -103,7 +103,6 @@ MEDIA_TYPE_MAPPINGS = {
 COUNTRY_MAPPINGS = {
     # Mapping between raw country names in regular expression to standardized country names
     "(?i)BAHRAIN.*": "Bahrain",
-    "(?i)KENYA.*": "Kenya",
     "(?i)KAZAK.*": "Kazakhstan",
     "(?i)KAZAKHSTAN.*": "Kazakhstan",
     "(?i)KENYA.*": "Kenya",
@@ -143,8 +142,8 @@ ADVERTISER_MAPPINGS = {
     "(?i).*PROCTER.*&.*GAMBLE.*": "P&G",
     "(?i)P.*&.*G.*": "P&G",
     "(?i).*RECKITT.*": "RECKITT BENCKISER",
-    "(?i)^RB\s*?$": "RECKITT BENCKISER",
-    "(?i)^RB\sAG$": "RECKITT BENCKISER",
+    "(?i)^RB\\s*?$": "RECKITT BENCKISER",
+    "(?i)^RB\\sAG$": "RECKITT BENCKISER",
     "(?i)SANOFI.*": "SANOFI",
     "(?i)SC JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i).*UNILEVER.*": "UNILEVER"
@@ -216,5 +215,5 @@ CATEGORY_MAPPINGS = {
     "(?i).*Transport.*": "Other",
     "(?i).*Vitamin.*": "Other",
 
-    "(?i)Pet\s.*": "Pet Nutrition"
+    "(?i)Pet\\s.*": "Pet Nutrition"
 }
