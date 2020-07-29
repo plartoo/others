@@ -717,25 +717,32 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             {raw_product_col_name: comp_harm_constants.RAW_PRODUCT_NAME_COLUMN})
 
-    def add_empty_HARMONIZED_PRODUCT_NAME_column(
+    def add_empty_HARMONIZED_columns_for_automated_mapping(
             self,
             df):
         """
-        Add HARMONIZED_PRODUCT_NAME column with null values (pretty
-        much creating an empty column to be filled by automated mapping
-        process or human mapper later).
+        Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME columns
+        with null (empty string) values so that these can be populated
+        by automated mapping process or human mapper).
 
         Args:
             df: Raw dataframe to transform.
 
         Returns:
-            Dataframe with HARMONIZED_PRODUCT_NAME column with null
-            values added.
+            Dataframe with empty HARMONIZED columns added.
         """
-        return self.add_new_column_with_fixed_str_value(
-            df,
+        columns_to_add = [
             comp_harm_constants.PRODUCT_NAME_COLUMN,
-            "")
+            comp_harm_constants.SUBCATEGORY_COLUMN
+        ]
+
+        for col_name in columns_to_add:
+            df = self.add_new_column_with_fixed_str_value(
+                df,
+                col_name,
+                "")
+
+        return df
 
     def filter_and_rearrange_columns_for_final_output(self,
                                                       df):
@@ -752,6 +759,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             Dataframe with only necessary standard columns in the order
             that is easy to read/review by human.
         """
+        import pdb; pdb.set_trace()
         return self.update_order_of_columns_in_dataframe(
             df,
             [
@@ -770,6 +778,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                 comp_harm_constants.RAW_BRAND_COLUMN,
                 comp_harm_constants.RAW_SUBBRAND_COLUMN,
                 comp_harm_constants.RAW_PRODUCT_NAME_COLUMN,
+                comp_harm_constants.SUBCATEGORY_COLUMN,
                 comp_harm_constants.PRODUCT_NAME_COLUMN
             ]
         )
