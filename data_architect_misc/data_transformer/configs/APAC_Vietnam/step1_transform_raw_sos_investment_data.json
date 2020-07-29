@@ -123,8 +123,8 @@
         "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
       },
       {
-        "__function_comment__": "Add HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
-        "function_name": "add_empty_HARMONIZED_PRODUCT_NAME_column"
+        "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
+        "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",

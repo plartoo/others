@@ -33,7 +33,7 @@
       },
       {
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [16]
+        "function_args": [17]
       },
       {
         "function_name": "assert_no_null_value_in_essential_columns"
