@@ -7,7 +7,7 @@ and run the transform.py like this:
 >> python transform.py
 
 Author: Phyo Thiha
-Last Modified: April 13, 2020
+Last Modified: July 29, 2020
 """
 import datetime
 import logging
@@ -42,26 +42,7 @@ class CommonCompHarmQAFunctions:
     As a result, I have decided not inherit 'CustomFunctions' from
     'CustomQAFunctions'.
     """
-    EXPECTED_COLUMNS = {
-        # Standard column names we use in competitive harmonization project
-        comp_harm_constants.PROCESSED_DATE_COLUMN,
-        comp_harm_constants.YEAR_COLUMN,
-        comp_harm_constants.MONTH_COLUMN,
-        comp_harm_constants.DATE_COLUMN,
-        comp_harm_constants.REGION_COLUMN,
-        comp_harm_constants.COUNTRY_COLUMN,
-        comp_harm_constants.ADVERTISER_COLUMN,
-        comp_harm_constants.MEDIA_TYPE_COLUMN,
-        comp_harm_constants.CURRENCY_COLUMN,
-        comp_harm_constants.GROSS_SPEND_COLUMN,
-        comp_harm_constants.CATEGORY_COLUMN,
-        comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
-        comp_harm_constants.RAW_BRAND_COLUMN,
-        comp_harm_constants.RAW_SUBBRAND_COLUMN,
-        comp_harm_constants.RAW_PRODUCT_NAME_COLUMN,
-        comp_harm_constants.SUBCATEGORY_COLUMN,
-        comp_harm_constants.PRODUCT_NAME_COLUMN
-    }
+
     # the earliest year we started collecting data for comp. harm project
     MIN_YEAR = 2015
     MIN_MONTH = 1
@@ -143,16 +124,16 @@ class CommonCompHarmQAFunctions:
         The transformed data must have at least the minimal set of
         columns that we expect for competitive harmonization project.
         """
-        if set(self.EXPECTED_COLUMNS) - set(df.columns):
+        if set(comp_harm_constants.EXPECTED_COLUMNS) - set(df.columns):
             self.logger.warning(
                 f"QA => Missing these expected/standard columns in the "
-                f"transformed data: {set(self.EXPECTED_COLUMNS) - set(df.columns)}")
+                f"transformed data: {set(comp_harm_constants.EXPECTED_COLUMNS) - set(df.columns)}")
 
-        if set(df.columns) - set(self.EXPECTED_COLUMNS):
+        if set(df.columns) - set(comp_harm_constants.EXPECTED_COLUMNS):
             self.logger.info(
                 f"QA => Found these columns in transformed data that are not "
                 f"part of the expected column set: "
-                f"{set(df.columns) - set(self.EXPECTED_COLUMNS)}\n")
+                f"{set(df.columns) - set(comp_harm_constants.EXPECTED_COLUMNS)}\n")
 
         return df
 

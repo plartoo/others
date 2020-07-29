@@ -17,6 +17,27 @@ RAW_PRODUCT_NAME_COLUMN = 'RAW_PRODUCT_NAME'
 RAW_MEDIA_TYPE_COLUMN = 'RAW_MEDIA_TYPE'
 PRODUCT_NAME_COLUMN = 'HARMONIZED_PRODUCT_NAME'
 
+EXPECTED_COLUMNS = [
+    # Standard column names we use in competitive harmonization project
+    PROCESSED_DATE_COLUMN,
+    YEAR_COLUMN,
+    MONTH_COLUMN,
+    DATE_COLUMN,
+    REGION_COLUMN,
+    COUNTRY_COLUMN,
+    ADVERTISER_COLUMN,
+    MEDIA_TYPE_COLUMN,
+    CURRENCY_COLUMN,
+    GROSS_SPEND_COLUMN,
+    CATEGORY_COLUMN,
+    RAW_SUBCATEGORY_COLUMN,
+    RAW_BRAND_COLUMN,
+    RAW_SUBBRAND_COLUMN,
+    RAW_PRODUCT_NAME_COLUMN,
+    SUBCATEGORY_COLUMN,
+    PRODUCT_NAME_COLUMN
+]
+
 # Below are the regions, countries, categories, media types
 # and globally competing advertisers that we support as of April, 2020.
 # Whenever we come across new data items for constants below, add them.
@@ -70,25 +91,6 @@ GLOBAL_COMPETE_ADVERTISERS = {
 
 CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition'}
 
-# Minimum set of output columns expected after data transformation
-EXPECTED_STANDARD_OUTPUT_COLUMNS = {
-    "YEAR",
-    "MONTH",
-    "DATE",
-    "PROCESSED_DATE",
-    "HARMONIZED_REGION",
-    "HARMONIZED_COUNTRY",
-    "HARMONIZED_ADVERTISER",
-    "HARMONIZED_MEDIA_TYPE",
-    "CURRENCY",
-    "GROSS_SPEND_IN_LOCAL_CURRENCY",
-    "HARMONIZED_CATEGORY",
-    "RAW_SUBCATEGORY",
-    "RAW_BRAND",
-    "RAW_SUBBRAND",
-    "RAW_PRODUCT_NAME"
-}
-
 MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
     "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
@@ -131,12 +133,12 @@ ADVERTISER_MAPPINGS = {
     "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
-    "(?i).*GLAXO.*": "GSK", # also catches "\u200EGlaxoSmithKline"
+    "(?i).*GLAXO.*": "GSK",  # also catches "\u200EGlaxoSmithKline"
     "(?i)^GSK.*": "GSK",
     "(?i).*HENKEL.*": "HENKEL",
     "(?i).*JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
-    "(?i).*L'?OREAL.*": "LOREAL", # also catches 'LOREAL'
+    "(?i).*L'?OREAL.*": "LOREAL",  # also catches 'LOREAL'
     "(?i).*PHILIPS.*": "PHILIPS",
     "(?i).*PROCTER.*&.*GAMBLE.*": "P&G",
     "(?i)P.*&.*G.*": "P&G",
@@ -216,4 +218,3 @@ CATEGORY_MAPPINGS = {
 
     "(?i)Pet\s.*": "Pet Nutrition"
 }
-

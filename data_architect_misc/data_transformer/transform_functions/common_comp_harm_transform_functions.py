@@ -759,26 +759,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             Dataframe with only necessary standard columns in the order
             that is easy to read/review by human.
         """
-        import pdb; pdb.set_trace()
         return self.update_order_of_columns_in_dataframe(
             df,
-            [
-                comp_harm_constants.PROCESSED_DATE_COLUMN,
-                comp_harm_constants.YEAR_COLUMN,
-                comp_harm_constants.MONTH_COLUMN,
-                comp_harm_constants.DATE_COLUMN,
-                comp_harm_constants.REGION_COLUMN,
-                comp_harm_constants.COUNTRY_COLUMN,
-                comp_harm_constants.ADVERTISER_COLUMN,
-                comp_harm_constants.MEDIA_TYPE_COLUMN,
-                comp_harm_constants.CURRENCY_COLUMN,
-                comp_harm_constants.GROSS_SPEND_COLUMN,
-                comp_harm_constants.CATEGORY_COLUMN,
-                comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
-                comp_harm_constants.RAW_BRAND_COLUMN,
-                comp_harm_constants.RAW_SUBBRAND_COLUMN,
-                comp_harm_constants.RAW_PRODUCT_NAME_COLUMN,
-                comp_harm_constants.SUBCATEGORY_COLUMN,
-                comp_harm_constants.PRODUCT_NAME_COLUMN
-            ]
+            comp_harm_constants.EXPECTED_COLUMNS
         )
