@@ -322,7 +322,7 @@ def main():
             'inputCsvEncoding': args.ie,
             'skipHeaderRow': args.skr,
             'skipTrailingRow': args.str,
-            'archivePath': args.ap,
+            'sourceArchivePath': args.ap,
             'outputPath': args.op,
             'outputCsvDelimiter': args.od,
             'dataTransformCodePathAndFileName': args.dtc,
@@ -341,7 +341,7 @@ def main():
     header_rows_to_skip = int(config_dict.get('skipHeaderRow', DEFAULT_HEADER_ROWS_TO_SKIP))
     footer_rows_to_skip = int(config_dict.get('skipTrailingRow', DEFAULT_FOOTER_ROWS_TO_SKIP))
 
-    archive_path = config_dict.get('archivePath')
+    archive_path = config_dict.get('sourceArchivePath')
     output_path = config_dict.get('outputPath')
     output_delimiter = config_dict.get('outputCsvDelimiter', DEFAULT_DELIMITER)
     output_encoding = DEFAULT_ENCODING
