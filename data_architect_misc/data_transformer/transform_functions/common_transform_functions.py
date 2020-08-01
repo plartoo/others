@@ -1280,6 +1280,45 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def add_new_column_using_one_of_the_existing_column_with_several_possible_names(
+            self,
+            df,
+            new_col_name,
+            list_of_possible_names_of_existing_col):
+        """
+        This function will validate between the dataframe columns and the list
+        of columns names given to the function args provided as input parameter,
+        and will assign
+        For example, if we want to validate multiple columns because
+        in the file the column date columns is changing,
+        we can call this function like below:
+        add_new_column_using_one_of_the_existing_column_with_several_possible_names(df, [Date],["Month","CP_Period","As Selected"])
+        Args:
+            df: Raw dataframe to transform.
+            col_name: Name of the column in which the function
+            will look for the string value to remove.
+            list_of_possible_names_of_existing_col: List of possible names for the existing column names.
+        Returns:
+            Dataframe with a new column name based on the list of possible column names when it matched.
+        """
+
+        if not isinstance(list_of_possible_names_of_existing_col, list):
+            raise transform_errors.InputDataTypeError("Possible column names given must be in a list type.")
+
+        if not isinstance(new_col_name, list):
+            raise transform_errors.InputDataTypeError("New column name given must be in a list type.")
+
+        existing_cols = set(df.columns)
+        matching_col_name = existing_cols.intersection(set(list_of_possible_names_of_existing_col))
+
+        if len(matching_col_name) != 1:
+            raise transform_errors.InputDataTypeError("Hey, we found more than one matching column names "
+                                                      "in the given list of possible names of existing column")
+
+        df[new_col_name] = df[matching_col_name]
+
+        return df
+
     def remove_dollar_sign(self):
         """
         Remove the dollar sign given a data frame.
