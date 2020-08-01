@@ -74,7 +74,7 @@ Or run this script on local machine using input flags like below:
                             See 'transform_data.py' as an example.)
 
 One-line example is:
-> python convert_to_txt_and_transform.py -adf 0 -sc comp-harm -sp test/transformed_data/AED_GCC -fn Transformed_GCC_2019FY___20200508_215927.csv 
+> python convert_to_txt_and_transform.py -adf 0 -sc comp-harm -sp test/transformed_data/AED_GCC -fn Transformed_GCC_20200601_20200630__rows_0_225_20200729_123451.csv 
 -id , -ap test/transformed_data/AED_GCC/archive_source -op test/transformed_data/AED_GCC/converted_txt -dtc test/python_scripts/transform_data.py
 """
 
