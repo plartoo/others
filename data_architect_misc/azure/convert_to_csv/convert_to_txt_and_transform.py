@@ -29,6 +29,10 @@ convert raw input files, which are in xlsx, xls, xlsb or csv
 format and are located in Azure blob, to a text (.txt) file 
 with delimiter (default delimiter is '|'). 
 
+This script will return the blob path and file name of 
+the converted txt file so that it will be available 
+as the output of custom activity in the Azure Data Factory.
+  
 Before writing the input data to the output .txt file, 
 this script loads the raw data as Pandas dataframe and 
 also allows the caller (user of this code) to apply additional 
@@ -443,6 +447,9 @@ def main():
     except OSError as e:
         print(f"Error: {e.filename} - {e.strerror}\n")
 
+    print(f"Returning blob path and file name of the converted file (to be used in Custom Activity of ADF): "
+          f"{dest_blob_path_and_name}")
+    return dest_blob_path_and_name
 
 if __name__ == '__main__':
     main()
