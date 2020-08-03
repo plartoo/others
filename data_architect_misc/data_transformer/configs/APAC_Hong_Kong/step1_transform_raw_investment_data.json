@@ -1,6 +1,6 @@
 [
   {
-    "__comment__": "We decided to split Hong Kong data processing into 2 steps because although the raw data files have similar structures, they have different number of rows to skip (skiprows) in the beginning.",
+    "__comment__": "Hong Kong data processing files will be transformed using this python code for INV and SOS because the raw data files have same structures.",
     "__comment__": "It does not seem like it is worth it to split into two config files just because of this ONE difference. But we did it because if we combine both steps in one config file, we will have to use a function to load another file (because transform module only allows us to load ONE file as a base file in the beginning.",
     "__comment__": "We want to prevent people forgetting to update the name of the new raw file to load every month. So we split these steps into two.",
 
@@ -41,11 +41,6 @@
         "__function_comment__": "Replace comma(',') values in RM (Spend Values) column.",
         "function_name": "remove_string_values_in_column",
         "function_args": ["$",","]
-      },
-      {
-        "__function_comment__": "For empty values in Spend column ($) assigns a NaN value to be dropped in the next function.",
-        "function_name": "update_na_values_with_empty_str_values",
-        "function_args": ["$"]
       },
       {
         "__function_comment__": "Drop NaN values assigned in the previous function to the Spend column ($) with empty values.",

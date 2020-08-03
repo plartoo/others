@@ -25,6 +25,7 @@ class ApacHongKongTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*Birth.*Control.*": "Other",
         "(?i).*Condom.*": "Other",
         "(?i).*Contact.*Lens.*Cleansers.*": "Other",
+        "(?i).*Dermatology.*": "Other",
         "(?i).*Humidifier.*Dehumidifier.*": "Other",
         "(?i).*Hepatic.*": "Other",
         "(?i).*Heart.*Internal.*Circulation.*": "Other",
@@ -35,12 +36,14 @@ class ApacHongKongTransformFunctions(CommonCompHarmTransformFunctions):
 
         "(?i)Tissue.*Napkins.*": "Home Care",
 
-        "(?i)Sun.*Products.*": "Personal Care",
-        "(?i)Cleansers.*Toners.*": "Personal Care",
         "(?i)Baby.*Products.*": "Personal Care",
-        "(?i)Sheet.*Masks.*": "Personal Care",
         "(?i)Children.*Supplements.*": "Personal Care",
+        "(?i)Cleansers.*Toners.*": "Personal Care",
+        "(?i).*Eye.*Care.*": "Personal Care",
+        "(?i).*Foundation.*": "Personal Care",
         "(?i)Perfume.*Fragrance.*": "Personal Care",
+        "(?i)Sheet.*Masks.*": "Personal Care",
+        "(?i)Sun.*Products.*": "Personal Care",
     }
 
     def __init__(self, config):
@@ -51,7 +54,7 @@ class ApacHongKongTransformFunctions(CommonCompHarmTransformFunctions):
             df,
             existing_category_col_name: str):
         """
-        We have some malaysia-specific category mappings, so we will
+        We have some Hong Kong-specific category mappings, so we will
         wrap the common comp. harm. transform function with this one.
         """
         # REF: https://stackoverflow.com/a/1784128/1330974
