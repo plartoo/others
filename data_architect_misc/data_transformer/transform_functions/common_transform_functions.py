@@ -1286,36 +1286,46 @@ class CommonTransformFunctions(TransformFunctions):
             new_col_name,
             list_of_possible_names_of_existing_col):
         """
-        This function will validate between the dataframe columns and the list
-        of columns names given to the function args provided as input parameter,
-        and will assign
-        For example, if we want to validate multiple columns because
-        in the file the column date columns is changing,
-        we can call this function like below:
-        add_new_column_using_one_of_the_existing_column_with_several_possible_names(df, [Date],["Month","CP_Period","As Selected"])
+        This function will check the dataframe to see if any of the columns
+        in the list_of_possible_names_of_existing_col is present. If it is,
+        it will copy content in that column to create a new column with the
+        new_col_name.
+
+        For example, Hong Kong raw data files keep changing name of the date
+        column every month. In that case, we need to use this method to
+        rename them as 'Date' column like below:
+        add_new_column_using_one_of_the_existing_column_with_several_possible_names(
+        df, ["Date"],["Month", "CP_Period", "As Selected"])
         Args:
             df: Raw dataframe to transform.
-            col_name: Name of the column in which the function
-            will look for the string value to remove.
-            list_of_possible_names_of_existing_col: List of possible names for the existing column names.
+            new_col_name: Name of the new column that will be created using the
+            existing column.
+            list_of_possible_names_of_existing_col: List of possible names for
+            the base column that could be found in the raw dataframe.
         Returns:
-            Dataframe with a new column name based on the list of possible column names when it matched.
+            Dataframe with a new column name based on one of the columns, if found,
+            in the list of possible column names.
         """
 
         if not isinstance(list_of_possible_names_of_existing_col, list):
-            raise transform_errors.InputDataTypeError("Possible column names given must be in a list type.")
+            raise transform_errors.InputDataTypeError(
+                "list_of_possible_names_of_existing_col must be of list type.")
 
         if not isinstance(new_col_name, list):
-            raise transform_errors.InputDataTypeError("New column name given must be in a list type.")
+            raise transform_errors.InputDataTypeError(
+                "new_col_name must be of list type.")
 
         existing_cols = set(df.columns)
-        matching_col_name = existing_cols.intersection(set(list_of_possible_names_of_existing_col))
+        matching_existing_col_name = existing_cols.intersection(set(list_of_possible_names_of_existing_col))
 
-        if len(matching_col_name) != 1:
-            raise transform_errors.InputDataTypeError("Hey, we found more than one matching column names "
-                                                      "in the given list of possible names of existing column")
+        if len(matching_existing_col_name) != 1:
+            raise transform_errors.InputDataTypeError(
+                f"Found more than one matching column names between "
+                f"list_of_possible_names_of_existing_col and columns in the raw "
+                f"dataframe. There should only be one match. Please decide on "
+                f"the correct column name and update the config file to proceed.")
 
-        df[new_col_name] = df[matching_col_name]
+        df[new_col_name] = df[matching_existing_col_name]
 
         return df
 
