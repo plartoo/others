@@ -33,17 +33,17 @@
         "function_args": [10]
       },
       {
-        "__function_comment__": "Delete row with value '*' from 'Cost in VND' column.",
+        "__function_comment__": "In HK data file, the rows under '$' column sometimes have asterisk characters. We need to remove them.",
         "function_name": "drop_rows_with_matching_string_values",
         "function_args": [["$"],[["*"]]]
       },
       {
-        "__function_comment__": "Replace comma(',') values in RM (Spend Values) column.",
+        "__function_comment__": "In HK data file, the rows under '$' column (spend values) sometimes have commas with them. We should remove them.",
         "function_name": "remove_string_values_in_column",
         "function_args": ["$",","]
       },
       {
-        "__function_comment__": "Drop NaN values assigned in the previous function to the Spend column ($) with empty values.",
+        "__function_comment__": "Drop empty rows in '$' column.",
         "function_name": "drop_empty_rows",
         "function_args": [["$"]]
       },
@@ -101,7 +101,9 @@
         "function_args": [["$"]]
       },
       {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
+        "__function_comment__": "In HK files, Subcategory column has the most information and it is useful ",
+        "__function_comment__": "(better than Category column) for creating HARMONIZED_CATEGORY column.",
+        "__function_comment__": "Therefore, we will use 'Subcategory' column for both HARMONIZED_CATEGORY.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings",
         "function_args": ["Subcategory"]
       },
