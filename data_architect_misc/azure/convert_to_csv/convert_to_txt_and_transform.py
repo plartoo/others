@@ -269,7 +269,7 @@ def extract_file_path_and_name(file_path_and_name):
 def get_absolute_module_name_out_of_file_path_and_name(file_path_and_name):
     # Replaces file path separators with '.' and then remove the file extension
     # E.g., 'folder1/folder2/transform_data.py' becomes 'folder1.folder2.transform_data'
-    return os.path.splitext(file_path_and_name.replace(os.sep,'.'))[0]
+    return os.path.splitext(file_path_and_name.replace(os.sep, '.'))[0]
 
 
 def main():
@@ -379,7 +379,8 @@ def main():
                 print(f"Found matching code file at: {blob.name}\nand downloaded it to: "
                       f"{local_data_transform_code_path_and_file_name}\n")
 
-                data_transform_file_in_absolute_term = get_absolute_module_name_out_of_file_path_and_name(local_data_transform_code_path_and_file_name)
+                data_transform_file_in_absolute_term = get_absolute_module_name_out_of_file_path_and_name(
+                    local_data_transform_code_path_and_file_name)
                 data_transform_module = importlib.import_module(data_transform_file_in_absolute_term)
                 print(f"Imported this module: {data_transform_file_in_absolute_term}\n")
 
@@ -407,7 +408,8 @@ def main():
                 # 6. Apply data transformation function, transform_data(),
                 # from data transform module to the dataframe.
                 df = data_transform_module.transform_data(df)
-                print(f"Successfully applied data transformation code: {local_data_transform_code_path_and_file_name}\n")
+                print(
+                    f"Successfully applied data transformation code: {local_data_transform_code_path_and_file_name}\n")
 
             # 7. Write the (transformed) dataframe as local txt file
             local_txt_file_name = ''.join([os.path.splitext(cur_blob_file_name)[0], OUTPUT_FILE_TYPE])
@@ -447,9 +449,14 @@ def main():
     except OSError as e:
         print(f"Error: {e.filename} - {e.strerror}\n")
 
-    print(f"Returning blob path and file name of the converted file (to be used in Custom Activity of ADF): "
-          f"{dest_blob_path_and_name}")
-    return dest_blob_path_and_name
+    print(f"Writing blob path and file name of the converted file (to be used in Custom Activity of ADF) to "
+          f"'outputs.json' file: {dest_blob_path_and_name}")
+    output_dict = {'dest_blob_path_and_name': dest_blob_path_and_name}
+    with open('outputs.json', 'w') as outfile:  # writing values to custom output
+        json.dump(output_dict, outfile)
+
+    return
+
 
 if __name__ == '__main__':
     main()
