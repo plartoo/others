@@ -72,7 +72,7 @@ class CommonCompHarmQAFunctions:
         # error, that means no match is found and you need to inspect your
         # file name to make sure it has date range pattern like this:
         # '*_YYYYMMDD_YYYYMMDD*rows', which is specific to comp harm project.
-        return re.findall(r'_(\d{8}_\d{8}).*rows', file_path_and_name)[0]
+        return re.findall(r'_(\d{8}_\d{8})', file_path_and_name)[0]
 
     @staticmethod
     def extract_date_ranges_from_file_path_and_name(file_path_and_name):
