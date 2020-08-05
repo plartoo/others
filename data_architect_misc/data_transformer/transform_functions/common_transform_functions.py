@@ -224,10 +224,8 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "names being string values.")
         for col_name in list_of_col_names:
             df = df[df[col_name].astype(bool)]
-
         if reset_index:
             return df.reset_index(drop=True)
-
         return df
 
     def drop_rows_with_matching_string_values(

@@ -2,6 +2,7 @@ import logging
 import re
 
 import pandas as pd
+from glob import glob
 
 import transform_errors
 from constants import comp_harm_constants
@@ -30,7 +31,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     def create_new_dataframe_from_input_CSV_files(
             self,
             df,
-            list_of_file_path_and_names
+            folder_name
     ):
         """
         This function will create a new dataframe from the
@@ -43,7 +44,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         we provided in commandline (with '-i' flag) or
         JSON config has the same date range in its name
         (e.g., Transformed_Vietnam_20200101_20200331_*)
-        as the file names in list_of_file_path_and_names.
+        as the file names in folder_name.
 
         The reason why we had to do this check is because
         we want to make sure our team members pay attention
@@ -54,7 +55,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         Args:
             df: Base dataframe loaded from input file
             provided via commandline
-            list_of_file_path_and_names: List of path and
+            folder_name: List of path and
             file names that we want to load into the new
             dataframe for later transformation.
             delimiter: Delimiter for the input CSV file.
@@ -64,6 +65,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             the input files provided as paramter to this
             function.
         """
+        list_of_file_path_and_names = glob(folder_name+'/*')
         base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
         for file_path_and_name in list_of_file_path_and_names:
             if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
@@ -71,14 +73,12 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                 file_path_and_name
             ):
                 raise transform_errors.InputFilesDateRangeMismatchError(base_file_path_and_name, file_path_and_name)
-
         df = pd.DataFrame()
         for cur_file in list_of_file_path_and_names:
             temp_df = pd.read_csv(cur_file,
                                   delimiter=self.config[KEY_DELIMITER],
                                   header=self.config[KEY_HEADER])
             df = df.append(temp_df)
-
         return df
 
     def add_PROCESSED_DATE_column_with_current_date(self, df):
@@ -238,6 +238,31 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             existing_month_col_name_with_only_full_month_names,
             comp_harm_constants.MONTH_COLUMN)
 
+    
+    def add_HARMONIZED_MONTH_using_existing_column_with_month_values_and_float_values(
+            self,
+            df,
+            col_name_with_month_value: str):
+        df[col_name_with_month_value] = df[col_name_with_month_value].astype(int)
+        """
+        Add HARMONIZED_MONTH column with month values (integer or string)
+        extracted from existing date column in the dataframe.
+
+        Here, the month values from the existing column can be in the formats
+        as follows: 'Apr - 2020' (India); '1/1/2020' (Kenya)'
+
+        Args:
+            df: Raw dataframe to transform.
+            col_name_with_year_value: Existing column name in the dataframe
+            from which this code will extract the month value from.
+
+        Returns:
+            Dataframe with HARMONIZED_MONTH column holding integer values.
+        """
+        return self.rename_columns(
+            df,
+            {col_name_with_month_value: comp_harm_constants.MONTH_COLUMN})
+
     def add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values(
             self,
             df):
@@ -331,6 +356,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                 (df,
                  comp_harm_constants.COUNTRY_COLUMN,
                  fixed_str_value)
+
 
     def add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column(
             self,
@@ -454,7 +480,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             from the original (raw) gross spend column trimmed to just
             two decimal digits.
         """
-        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[existing_gross_spend_col_name]
+        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[existing_gross_spend_col_name].astype(float)
 
         return self.update_decimal_places_in_columns(
             df,
