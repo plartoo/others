@@ -370,7 +370,8 @@ def main():
     # REF: How to import Python module - https://stackoverflow.com/a/54956419
     # data_transform_module = None
     # local_data_transform_code_path_and_file_name = None
-    if data_transform_script is not None:
+    data_transform_module = None
+    if data_transform_script:
         for blob in blobs:
             if fnmatch.fnmatch(blob.name, data_transform_script):
                 _, cur_blob_file_name = extract_file_path_and_name(blob.name)
