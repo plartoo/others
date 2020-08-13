@@ -224,10 +224,8 @@ class CommonTransformFunctions(TransformFunctions):
                                                       "names being string values.")
         for col_name in list_of_col_names:
             df = df[df[col_name].astype(bool)]
-
         if reset_index:
             return df.reset_index(drop=True)
-
         return df
 
     def drop_rows_with_matching_string_values(
@@ -713,7 +711,7 @@ class CommonTransformFunctions(TransformFunctions):
         if not isinstance(number_of_decimal_places_to_round, int):
             raise transform_errors.InputDataTypeError("Value for number of decimal places "
                                                       "must be of integer type.")
-
+        
         # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.round.html
         return df.round({col: number_of_decimal_places_to_round for col in list_of_col_names})
 

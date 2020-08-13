@@ -93,7 +93,7 @@ CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition
 
 MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
-    "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
+    "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRENSA.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
     "(?i)TV": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV",
@@ -140,6 +140,7 @@ ADVERTISER_MAPPINGS = {
     "(?i).*L'?OREAL.*": "LOREAL",  # also catches 'LOREAL'
     "(?i).*PHILIPS.*": "PHILIPS",
     "(?i).*PROCTER.*&.*GAMBLE.*": "P&G",
+    "(?i).*PROCTER.*AND.*GAMBLE.*": "P&G",
     "(?i)P.*&.*G.*": "P&G",
     "(?i).*RECKITT.*": "RECKITT BENCKISER",
     "(?i)^RB\\s*?$": "RECKITT BENCKISER",
@@ -149,7 +150,7 @@ ADVERTISER_MAPPINGS = {
     "(?i).*UNILEVER.*": "UNILEVER"
 }
 
-CATEGORY_MAPPINGS = {
+ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)^HC$": "Home Care",
     "(?i)HOME.*": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
@@ -237,3 +238,15 @@ CATEGORY_MAPPINGS = {
 
     "(?i)Pet\\s.*": "Pet Nutrition"
 }
+
+SPANISH_CATEGORY_MAPPINGS = {
+    "(?i).*DETERGENTE.*": "Home Care",
+    "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*BUCAL.*": "Oral Care",
+    "(?i).*HIGIENE.*PERSONAL.*": "Personal Care",
+    "(?i).*PRODUCTO.*LIMPIEZA.*DOMESTICA.*": "Home Care",
+    "(?i).*PRODUCTO.*FARMACEUTICO.*": "Other",
+    "(?i).*PRODUCTO.*CABELLO.*": "Personal Care",
+}
+
+CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS, **ENGLISH_CATEGORY_MAPPINGS)
