@@ -150,7 +150,7 @@ ADVERTISER_MAPPINGS = {
     "(?i).*UNILEVER.*": "UNILEVER"
 }
 
-CATEGORY_MAPPINGS = {
+ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)^HC$": "Home Care",
     "(?i)HOME.*": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
@@ -238,3 +238,15 @@ CATEGORY_MAPPINGS = {
 
     "(?i)Pet\\s.*": "Pet Nutrition"
 }
+
+SPANISH_CATEGORY_MAPPINGS = {
+    "(?i).*DETERGENTE.*": "Home Care",
+    "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*BUCAL.*": "Oral Care",
+    "(?i).*HIGIENE.*PERSONAL.*": "Personal Care",
+    "(?i).*PRODUCTO.*LIMPIEZA.*DOMESTICA.*": "Home Care",
+    "(?i).*PRODUCTO.*FARMACEUTICO.*": "Other",
+    "(?i).*PRODUCTO.*CABELLO.*": "Personal Care",
+}
+
+CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS, **ENGLISH_CATEGORY_MAPPINGS)

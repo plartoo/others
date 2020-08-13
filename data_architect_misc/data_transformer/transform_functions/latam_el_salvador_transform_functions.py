@@ -19,18 +19,10 @@ class LatamElSalvadorTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     EL_SALVADOR_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*DETERGENTES/JABONES.*ROPA.*": "Home Care",
-        "(?i).*COSMETICOS.*": "Personal Care",
-        "(?i).*CREMAS\sPARA\sLA\sPIEL.*": "Personal Care",
-        "(?i).*HIGIENE\sCUIDADO\sBUCAL.*": "Oral Care",
-        "(?i).*HIGIENE\sINTIMA\sFEMENINA.*": "Personal Care",
-        "(?i).*HIGIENE\sPERSONAL.*": "Personal Care",
-        "(?i).*HIGIENE\sPRODUCTOS\sINFANTILES.*": "Personal Care",
-        "(?i).*PRODUCTOS\sDE\sLIMPIEZA\sDOMESTICA.*": "Home Care",
-        "(?i).*PRODUCTOS\sFARMACEUTICOS.*": "Other",
-        "(?i).*PRODUCTOS\sPARA\sEL\sCABELLO.*": "Personal Care",
-    }
-
+            "(?i).*CREMAS\sPARA\sLA\sPIEL.*": "Personal Care",
+            "(?i).*HIGIENE\sINTIMA\sFEMENINA.*": "Personal Care",
+            "(?i).*HIGIENE\sPRODUCTOS\sINFANTILES.*": "Personal Care",
+        }
     def __init__(self, config):
         self.config = config
     

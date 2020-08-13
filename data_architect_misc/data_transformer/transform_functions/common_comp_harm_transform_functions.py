@@ -65,7 +65,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             the input files provided as paramter to this
             function.
         """
-        list_of_file_path_and_names = glob(folder_name+'/*')
+        list_of_file_path_and_names = glob(''.join([folder_name,'/*']))
         base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
         for file_path_and_name in list_of_file_path_and_names:
             if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
@@ -480,7 +480,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             from the original (raw) gross spend column trimmed to just
             two decimal digits.
         """
-        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[existing_gross_spend_col_name].astype(float)
+        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[existing_gross_spend_col_name]
 
         return self.update_decimal_places_in_columns(
             df,

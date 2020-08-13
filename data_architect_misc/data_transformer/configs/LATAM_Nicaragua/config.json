@@ -22,21 +22,24 @@
         "function_args": ["./input/LATAM_Nicaragua/Nicaragua_May_2020"]
       },
       {
-        "__function_comment__": "CSV file has empty columns. We need to drop them first",
+        "__function_comment__": "The merged CSV file has multiple NaN rows that need to be cleaned, but first, they need to be changed",
+        "__function_comment__": "with empty values, Once this function is applied on this raw file the following function delete them",
         "function_name": "update_na_values_with_empty_str_values",
         "function_args": [["Inv","SUBSECTOR"]]
       },
       {
-        "__function_comment__": "CSV file has empty columns. We need to drop them first",
+        "__function_comment__": "Since the merged CSV file has empty columns. We need to drop them first based on the values into the columns",
+        "__function_comment__": "for Investment and Subsectors",
         "function_name": "drop_empty_rows",
         "function_args": [["Inv","SUBSECTOR"]]
       },
       {
-        "__function_comment__": "CSV file has empty columns. We need to drop them first",
+        "__function_comment__": "The merged CSV file has unnamed columns. We need to drop them",
         "function_name": "drop_unnamed_columns"
       },
       {
-        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 27 columns total remaining in the raw data frame.",
+        "__function_comment__": "this because the raw file contains the same structure as we come processing from the data tool.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [27]
       },
@@ -86,7 +89,7 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": [["Inv"]]
+        "function_args": ["Inv"]
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
