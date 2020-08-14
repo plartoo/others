@@ -67,18 +67,21 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         """
         list_of_file_path_and_names = glob(''.join([folder_name,'/*']))
         base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
+
         for file_path_and_name in list_of_file_path_and_names:
             if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
                 base_file_path_and_name,
                 file_path_and_name
             ):
                 raise transform_errors.InputFilesDateRangeMismatchError(base_file_path_and_name, file_path_and_name)
+
         df = pd.DataFrame()
         for cur_file in list_of_file_path_and_names:
             temp_df = pd.read_csv(cur_file,
                                   delimiter=self.config[KEY_DELIMITER],
                                   header=self.config[KEY_HEADER])
             df = df.append(temp_df)
+
         return df
 
     def add_PROCESSED_DATE_column_with_current_date(self, df):

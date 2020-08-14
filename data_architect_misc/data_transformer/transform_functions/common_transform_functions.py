@@ -711,9 +711,18 @@ class CommonTransformFunctions(TransformFunctions):
         if not isinstance(number_of_decimal_places_to_round, int):
             raise transform_errors.InputDataTypeError("Value for number of decimal places "
                                                       "must be of integer type.")
-        
+
         # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.round.html
-        return df.round({col: number_of_decimal_places_to_round for col in list_of_col_names})
+        # NOTE: The approach below, despite being recommended in Pandas documentation, doesn't work.
+        # df = df.round({col: number_of_decimal_places_to_round for col in list_of_col_names})
+        # Seems like it's because the numbers in a given column are objects instead of floats.
+        # df['HARMONIZED_GROSS_SPEND'] = df['HARMONIZED_GROSS_SPEND'].astype(float)
+        # If we explicitly convert the column's contents to 'float' before calling df.round({...})
+        # as shown above, it works. Because of this bug in Pandas, we'll take the following approach.
+        for col_name in list_of_col_names:
+            df[col_name] = df[col_name].astype(float).round(number_of_decimal_places_to_round)
+
+        return df
 
     def update_na_values_with_empty_str_values(self,
                                                df,
