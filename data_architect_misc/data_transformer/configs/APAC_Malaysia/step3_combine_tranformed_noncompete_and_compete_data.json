@@ -21,8 +21,7 @@
         "__comment__": "That's the only way for us to ensure that the user of this config does NOT forget to update ",
         "__comment__": "the input file names.",
         "function_name": "create_new_dataframe_from_input_CSV_files",
-        "function_args": [["./output/APAC_Malaysia/Transformed_Malaysia_INV_20200501_20200531__rows_0_70_20200717_092021.csv",
-          "./output/APAC_Malaysia/Transformed_Malaysia_SOS_20200501_20200531__rows_0_80_20200717_092055.csv"]]
+        "function_args": ["./output/APAC_Malaysia"]
 
       }
     ]
