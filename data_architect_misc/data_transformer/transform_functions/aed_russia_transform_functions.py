@@ -30,7 +30,8 @@ class AedRussiaTransformFunctions(CommonCompHarmTransformFunctions):
         # we will map multi-category advertisements for Russia into OC for now
         temporary_harmonized_category_mappings_for_russia = {
             "OC/PC": "Oral Care",
-            "OC/HC/PC": "Oral Care"
+            "OC/HC/PC": "Oral Care",
+            "HC/PC": "Oral Care"
         }
         df[comp_harm_constants.CATEGORY_COLUMN] = df[comp_harm_constants.CATEGORY_COLUMN]\
             .replace(temporary_harmonized_category_mappings_for_russia)
