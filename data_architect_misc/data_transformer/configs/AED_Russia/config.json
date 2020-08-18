@@ -36,7 +36,7 @@
     "output_folder_path": "./output/AED_Russia/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "Transformed_Russia_20200101_20200430_",
+    "output_file_name_prefix": "Transformed_Russia_20200501_20200630_",
 
     "__comment__": "(Optional) Path+name of the file that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",
@@ -51,7 +51,7 @@
       {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [12]
+        "function_args": [11]
       },
       {
         "__function_comment__": "Russian agency likes to put spaces before and after the column names. We need to remove them.",
