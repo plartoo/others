@@ -89,14 +89,6 @@ STORAGE_ACCOUNT_URL = 'https://wmdatarfcolgate.blob.core.windows.net'
 # This is only required for local run. On ADF, we will use linked services to read the storage key dynamically
 STORAGE_ACCOUNT_KEY = os.environ.get('STORAGE_ACCOUNT_KEY')
 
-SAS_TOKEN = generate_account_sas(
-    account_name=STORAGE_ACCOUNT_NAME,
-    account_key=STORAGE_ACCOUNT_KEY,
-    resource_types=ResourceTypes(service=True),
-    permission=AccountSasPermissions(read=True),
-    expiry=datetime.utcnow() + timedelta(hours=1)
-)
-
 # Important: NEVER change file extension other than '.txt' for comp harm project
 OUTPUT_FILE_TYPE = '.txt'
 
@@ -352,7 +344,14 @@ def main():
         # Connect to blob and create container client
         # REF: https://pypi.org/project/azure-storage-blob/
         # Alternative way to get blob service client is:
-        # blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=SAS_TOKEN)
+        # sas_token = generate_account_sas(
+        #     account_name=STORAGE_ACCOUNT_NAME,
+        #     account_key=STORAGE_ACCOUNT_KEY,
+        #     resource_types=ResourceTypes(service=True),
+        #     permission=AccountSasPermissions(read=True),
+        #     expiry=datetime.utcnow() + timedelta(hours=1)
+        # )
+        # blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=sas_token)
         blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=STORAGE_ACCOUNT_KEY)
     else:
         activity_config = get_activity_config()
@@ -450,19 +449,19 @@ def main():
                                       local_txt_file_path_and_name,
                                       dest_blob_path_and_name)
 
-            # Step 9 and 10 can be completed by ADF, so we'll comment them out
-            # 9. Archive source file (i.e. copy source file in the local temp folder to the blob archive folder)
-            archive_blob_path_and_name = join_path_and_file_name(archive_path,
-                                                                 cur_blob_file_name,
-                                                                 separator=STORAGE_PATH_SEPARATOR)
-            print(f"Copying source file to blob's archive location.")
-            upload_local_file_to_blob(container_client,
-                                      local_source_file_path_and_name,
-                                      archive_blob_path_and_name)
+            # # Step 9 and 10 can be completed by ADF, so we'll comment them out
+            # # 9. Archive source file (i.e. copy source file in the local temp folder to the blob archive folder)
+            # archive_blob_path_and_name = join_path_and_file_name(archive_path,
+            #                                                      cur_blob_file_name,
+            #                                                      separator=STORAGE_PATH_SEPARATOR)
+            # print(f"Copying source file to blob's archive location.")
+            # upload_local_file_to_blob(container_client,
+            #                           local_source_file_path_and_name,
+            #                           archive_blob_path_and_name)
 
-            # 10. Delete the source blob
-            container_client.delete_blob(blob.name)
-            print(f"Deleted source blob: {blob.name}")
+            # # 10. Delete the source blob
+            # container_client.delete_blob(blob.name)
+            # print(f"Deleted source blob: {blob.name}")
 
     # 12. Delete the local folder and files downloaded temporarily from Azure blob
     try:
@@ -473,7 +472,11 @@ def main():
 
     print(f"Writing blob path and file name of the converted file (to be used in Custom Activity of ADF) to "
           f"'outputs.json' file: {dest_blob_path_and_name}")
-    output_dict = {'dest_blob_path_and_name': dest_blob_path_and_name}
+    output_dict = {
+        'dest_blob_path_and_name': dest_blob_path_and_name,
+        'converted_txt_file_name': local_txt_file_name,
+        'cur_blob_file_name': cur_blob_file_name # current blob that needs to be deleted after everything is processed.
+    }
     with open('outputs.json', 'w') as outfile:  # writing values to custom output
         json.dump(output_dict, outfile)
 
