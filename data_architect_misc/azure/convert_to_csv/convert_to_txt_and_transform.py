@@ -326,11 +326,15 @@ def main():
                              "transform the raw data). [e.g.,'Test/Python_Code/transform_belgium_data.py']")
     args = parser.parse_args()
 
-    # TODO:
     if args.adf == 0:
-        for arg in [i for i in args._get_kwargs()]:
-            if (arg[0] in REQUIRED_INPUT_ARGS) and (arg[-1] is None):
-                raise Exception(f"Input parameter with flag, '{arg[0]}', is required.")
+        for argk, argv in vars(args).items():
+            # We unfortunately cannot use argparse's 'required=True' because this code is
+            # intended to be run locally as well as in Azure Batch instances. In the latter,
+            # using argparse's 'required' will cause issues in running this script.
+            # That's why we have to check if input args are required or not like below.
+            if (argk in REQUIRED_INPUT_ARGS) and (argv is None):
+                raise Exception(f"Input parameter with flag, '{argk}', is required.")
+
         activity_config = {
             'sourceContainer': args.sc,
             'sourcePath': args.sp,
@@ -345,7 +349,7 @@ def main():
             'outputCsvDelimiter': args.od,
             'dataTransformCodePathAndFileName': args.dtc,
         }
-        # 2. Connect to blob and create container client
+        # Connect to blob and create container client
         # REF: https://pypi.org/project/azure-storage-blob/
         # Alternative way to get blob service client is:
         # blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=SAS_TOKEN)
