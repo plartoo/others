@@ -79,13 +79,14 @@ Or run this script on local machine using input flags like below:
 
 One-line example is:
 > python convert_to_txt_and_transform.py -adf 0 -sc comp-harm -sp test/transformed_data/AED_GCC -fn Transformed_GCC_20200601_20200630__rows_0_225_20200729_123451.csv 
--id , -ap test/transformed_data/AED_GCC/archive_source -op test/transformed_data/AED_GCC/converted_txt -dtc test/python_scripts/transform_data.py
+-id , -ap test/transformed_data/AED_GCC/archive_source -op test/transformed_data/AED_GCC/converted_txt -dtc python_scripts/transform_data.py
 """
 
 STORAGE_PATH_SEPARATOR = '/'
 STORAGE_ACCOUNT_NAME = 'wmdatarfcolgate'
 STORAGE_ACCOUNT_URL = 'https://wmdatarfcolgate.blob.core.windows.net'
 # Note: Enter your Azure blob storage key below or set it as an environment variable
+# This is only required for local run. On ADF, we will use linked services to read the storage key dynamically
 STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
 
 SAS_TOKEN = generate_account_sas(
@@ -272,6 +273,18 @@ def get_absolute_module_name_out_of_file_path_and_name(file_path_and_name):
     return os.path.splitext(file_path_and_name.replace(os.sep, '.'))[0]
 
 
+def get_activity_config():
+    activity = open('activity.json').read()
+    activity_json = json.loads(activity)
+    return activity_json.get('typeProperties').get('extendedProperties')
+
+
+def get_blob_connection_string():
+    linked_services = open('linkedServices.json').read()
+    linked_services_json = json.loads(linked_services)
+    return linked_services_json[0]['properties']['typeProperties']['connectionString']
+
+
 def main():
     # 0. Extract input parameters for the program
     parser = argparse.ArgumentParser(
@@ -313,11 +326,12 @@ def main():
                              "transform the raw data). [e.g.,'Test/Python_Code/transform_belgium_data.py']")
     args = parser.parse_args()
 
+    # TODO:
     if args.adf == 0:
         for arg in [i for i in args._get_kwargs()]:
             if (arg[0] in REQUIRED_INPUT_ARGS) and (arg[-1] is None):
                 raise Exception(f"Input parameter with flag, '{arg[0]}', is required.")
-        config_dict = {
+        activity_config = {
             'sourceContainer': args.sc,
             'sourcePath': args.sp,
             'fileName': args.fn,
@@ -331,38 +345,41 @@ def main():
             'outputCsvDelimiter': args.od,
             'dataTransformCodePathAndFileName': args.dtc,
         }
+        # 2. Connect to blob and create container client
+        # REF: https://pypi.org/project/azure-storage-blob/
+        # Alternative way to get blob service client is:
+        # blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=SAS_TOKEN)
+        blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=STORAGE_ACCOUNT_KEY)
     else:
-        activity = open('activity.json').read()
-        json_activity = json.loads(activity)
-        config_dict = json_activity.get('typeProperties').get('extendedProperties')
+        activity_config = get_activity_config()
+        # On ADF, we'll dynamically fetch storage account key via Linked Services JSON
+        blob_connection_string = get_blob_connection_string()
+        blob_service_client = BlobServiceClient.from_connection_string(blob_connection_string)
 
-    source_container = config_dict.get('sourceContainer')
-    source_path = config_dict.get('sourcePath')
-    source_file_name = config_dict.get('fileName')
-    sheet_name = config_dict.get('sheetName', DEFAULT_SHEET_NAME)
-    input_delimiter = config_dict.get('inputCsvDelimiter', DEFAULT_DELIMITER)
-    input_encoding = config_dict.get('inputCsvEncoding', DEFAULT_ENCODING)
-    header_rows_to_skip = int(config_dict.get('skipHeaderRow', DEFAULT_HEADER_ROWS_TO_SKIP))
-    footer_rows_to_skip = int(config_dict.get('skipTrailingRow', DEFAULT_FOOTER_ROWS_TO_SKIP))
+    dest_blob_path_and_name = None
+    source_container = activity_config.get('sourceContainer')
+    source_path = activity_config.get('sourcePath')
+    source_file_name = activity_config.get('fileName')
+    sheet_name = activity_config.get('sheetName', DEFAULT_SHEET_NAME)
+    input_delimiter = activity_config.get('inputCsvDelimiter', DEFAULT_DELIMITER)
+    input_encoding = activity_config.get('inputCsvEncoding', DEFAULT_ENCODING)
+    header_rows_to_skip = int(activity_config.get('skipHeaderRow', DEFAULT_HEADER_ROWS_TO_SKIP))
+    footer_rows_to_skip = int(activity_config.get('skipTrailingRow', DEFAULT_FOOTER_ROWS_TO_SKIP))
 
-    archive_path = config_dict.get('sourceArchivePath')
-    output_path = config_dict.get('outputPath')
-    output_delimiter = config_dict.get('outputCsvDelimiter', DEFAULT_DELIMITER)
+    archive_path = activity_config.get('sourceArchivePath')
+    output_path = activity_config.get('outputPath')
+    output_delimiter = activity_config.get('outputCsvDelimiter', DEFAULT_DELIMITER)
     output_encoding = DEFAULT_ENCODING
 
-    data_transform_script = config_dict.get('dataTransformCodePathAndFileName')
-    print(f"Input parameters received:\n {json.dumps(config_dict, indent=4, sort_keys=True)}\n")
+    data_transform_script = activity_config.get('dataTransformCodePathAndFileName')
+    print(f"Input parameters received:\n {json.dumps(activity_config, indent=4, sort_keys=True)}\n")
 
-    # 1. create local directory and append it to sys.path so that we can load Python modules in it later
+    # 1. Create local directory and append it to sys.path so that we can load Python modules in it later
     local_dir_name = str(uuid.uuid4())
     create_unique_local_download_directory(local_dir_name)
     add_directory_to_sys_path(local_dir_name)
 
-    # 2. Connect to blob and create container client
-    # REF: https://pypi.org/project/azure-storage-blob/
-    # Alternative way to get blob service client is:
-    # blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=SAS_TOKEN)
-    blob_service_client = BlobServiceClient(account_url=STORAGE_ACCOUNT_URL, credential=STORAGE_ACCOUNT_KEY)
+    # 2. Create container client
     container_client = blob_service_client.get_container_client(source_container)
     blobs = [b for b in container_client.list_blobs()]
 
