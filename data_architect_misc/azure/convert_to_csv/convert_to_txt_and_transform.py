@@ -87,7 +87,7 @@ STORAGE_ACCOUNT_NAME = 'wmdatarfcolgate'
 STORAGE_ACCOUNT_URL = 'https://wmdatarfcolgate.blob.core.windows.net'
 # Note: Enter your Azure blob storage key below or set it as an environment variable
 # This is only required for local run. On ADF, we will use linked services to read the storage key dynamically
-STORAGE_ACCOUNT_KEY = os.environ['STORAGE_ACCOUNT_KEY']
+STORAGE_ACCOUNT_KEY = os.environ.get('STORAGE_ACCOUNT_KEY')
 
 SAS_TOKEN = generate_account_sas(
     account_name=STORAGE_ACCOUNT_NAME,
