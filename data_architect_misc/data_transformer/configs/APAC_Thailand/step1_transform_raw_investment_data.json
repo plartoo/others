@@ -1,21 +1,21 @@
 [
   {
-    "__comment__": "Indonesia data processing files will be transformed using this python code for INV and SOS because the raw data files have same structures.",
+    "__comment__": "Thailand data processing files will be transformed using this python code for INV and SOS because the raw data files have same structures.",
     "__comment__": "It does not seem like it is worth it to split into two config files just because of this ONE difference. But we did it because if we combine both steps in one config file, we will have to use a function to load another file (because transform module only allows us to load ONE file as a base file in the beginning.",
     "__comment__": "We want to prevent people forgetting to update the name of the new raw file to load every month. So we split these steps into two.",
 
     "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
     "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
     "input_sheet_name": 0,
-    "header": 9,
-    "skiprows": 10,
+    "header": 8,
+    "skiprows": 9,
     "skipfooter": 0,
 
     "write_output": true,
-    "output_folder_path": "./output/APAC_Indonesia/",
-    "output_file_name_prefix": "Transformed_Indonesia_20200301_20200531_",
+    "output_folder_path": "./output/APAC_Thailand/",
+    "output_file_name_prefix": "Transformed_Thailand_20200501_20200731_",
 
-    "custom_transform_functions_file": "./transform_functions/apac_indonesia_transform_functions.py",
+    "custom_transform_functions_file": "./transform_functions/apac_thailand_transform_functions.py",
 
     "functions_to_apply": [
       {
@@ -29,18 +29,17 @@
       {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [9]
+        "function_args": [10]
       },
       {
-        "__function_comment__": "In HK data file, the rows under '$' column (spend values) sometimes have commas with them. We should remove them.",
-        "__function_comment__": "Replace comma(',') values in RM (Spend Values) column.",
-        "function_name": "remove_string_values_in_column",
-        "function_args": ["Rp",","]
+        "__function_comment__": "Delete row with value '*' from 'Baht' column.",
+        "function_name": "drop_rows_with_matching_string_values",
+        "function_args": [["Baht"],[["*"]]]
       },
       {
-        "__function_comment__": "Drop empty rows in '$' column.",
+        "__function_comment__": "Drop empty rows in 'Baht' column.",
         "function_name": "drop_empty_rows",
-        "function_args": [["Rp"]]
+        "function_args": [["Baht"]]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -73,7 +72,7 @@
       {
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
         "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
-        "function_args": ["Indonesia"]
+        "function_args": ["Thailand"]
       },
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
@@ -88,15 +87,15 @@
       {
         "__function_comment__": "Add CURRENCY as a new column with 'ZAR' as value.",
         "function_name": "add_HARMONIZED_CURRENCY_column",
-        "function_args": ["IDR"]
+        "function_args": ["THB"]
       },
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": [["Rp"]]
+        "function_args": [["Baht"]]
       },
       {
-        "__function_comment__": "In Indonesia files, Subcategory column has the most information and it is useful ",
+        "__function_comment__": "In Thailand files, Subcategory column has the most information and it is useful ",
         "__function_comment__": "(better than Category column) for creating HARMONIZED_CATEGORY column.",
         "__function_comment__": "Therefore, we will use 'Subcategory' column for both HARMONIZED_CATEGORY.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings",
@@ -114,7 +113,8 @@
       },
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
-        "function_name": "add_RAW_BRAND_column_with_empty_values"
+        "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
+        "function_args": ["Brand Group"]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",

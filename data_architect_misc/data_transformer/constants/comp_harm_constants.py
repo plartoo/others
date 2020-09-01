@@ -189,7 +189,6 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*HYGIENE.*": "Personal Care",
     "(?i)^PC$": "Personal Care",
     "(?i)PERSONAL.*CARE.*": "Personal Care",
-
     "(?i)Shower.*": "Personal Care",
     "(?i).*Moisturizer.*": "Personal Care",
     "(?i).*Toiletries.*": "Personal Care",

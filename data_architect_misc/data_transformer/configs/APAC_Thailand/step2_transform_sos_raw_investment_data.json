@@ -7,8 +7,8 @@
     "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
     "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
     "input_sheet_name": 0,
-    "header": 8,
-    "skiprows": 9,
+    "header": 7,
+    "skiprows": 8,
     "skipfooter": 0,
 
     "write_output": true,
