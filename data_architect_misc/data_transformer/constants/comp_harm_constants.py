@@ -96,7 +96,7 @@ MEDIA_TYPE_MAPPINGS = {
     "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRENSA.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-    "(?i)TV": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV",
+    "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital", "(?i)MOBILE.*": "Digital",
 }
 
@@ -156,7 +156,6 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
     "(?i).*Laundry.*": "Home Care",
-    "(?i).*Toiletries.*": "Home Care",
     "(?i)Cleaning.*agent.*": "Home Care",
     "(?i).*Detergent.*": "Home Care",
 
@@ -165,7 +164,12 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*ORAL.*CARE.*": "Oral Care",
     "(?i).*Dental.*": "Oral Care",
     "(?i).*Dentifrices.*": "Oral Care",
+    "(?i).*Mouthwash.*": "Oral Care",
+    "(?i).*Toothpaste.*": "Oral Care",
+    "(?i).*Toothbrush.*": "Oral Care",
 
+    "(?i).*BABY.*CARE.*": "Personal Care",
+    "(?i)Bath.*": "Personal Care",
     "(?i).*BEAUTY.*": "Personal Care",
     "(?i).*BODY.*CARE.*": "Personal Care",
     "(?i).*Cosmetics.*": "Personal Care",
@@ -180,15 +184,14 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)Hair.*Styl.*": "Personal Care",
     "(?i)Hair.*Treatment.*": "Personal Care",
     "(?i)Hand.*Wash.*": "Personal Care",
-    "(?i)Shampoo.*": "Personal Care",
+    "(?i).*Shampoo.*": "Personal Care",
     "(?i)Conditioner.*": "Personal Care",
     "(?i).*HYGIENE.*": "Personal Care",
     "(?i)^PC$": "Personal Care",
     "(?i)PERSONAL.*CARE.*": "Personal Care",
-    "(?i).*BABY.*CARE.*": "Personal Care",
-    "(?i)Bath.*": "Personal Care",
     "(?i)Shower.*": "Personal Care",
     "(?i).*Moisturizer.*": "Personal Care",
+    "(?i).*Toiletries.*": "Personal Care",
 
     "(?i)\\bOTHER\\b": "Other",
     "(?i).*Accessories.*": "Other",
