@@ -28,8 +28,8 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*Colgate.*": "COLGATE-PALMOLIVE",
         "(?i).*Sensodyne.*": "GSK",
         "(?i).*Darlie.*": "HAWLEY & HAZEL",
-        "(?i).*Oral.*B.*": "P&G"
-
+        "(?i).*Oral.*B.*": "P&G",
+        "(?i).*Lyon.*Systema.*": "Lion Corporation"
     }
 
     def __init__(self, config):
@@ -58,13 +58,17 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
 
         return df
 
-    def add_RAW_ADVERTISER_column_using_existing_brand_column_with_country_specific_mappings(
+    def borrow_brand_names_in_SG_for_HARMONIZED_ADVERTISER_column(
             self,
             df,
             existing_brand_col_name: str):
         """
         We have some Singapore-specific brand mappings, so we will
         mapped Advertisers names based on Brand column values.
+
+        We mapped in Singapore the Advertisers using brand names because based on th brand names we can manage
+        the advertiser that is the owner of this brand, we did somethinf similar in the previous process
+        we used to transformer Singapore data.
         """
         # REF: https://stackoverflow.com/a/1784128/1330974
         brand_mappings = dict(**ApacSingaporeTransformFunctions.SINGAPORE_SPECIFIC_BRAND_MAPPINGS)
@@ -72,8 +76,19 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match \
             (df,
              existing_brand_col_name,
-             comp_harm_constants.RAW_ADVERTISER_COLUMN,
+             comp_harm_constants.ADVERTISER_COLUMN,
              brand_mappings
              )
 
-
+    def add_Unknown_for_empty_values_in_Advertiser_column(
+            self,
+            df):
+        """
+        This functions was added to manage those advertiser that are not related
+        to the Brand names we clasificated in the function
+        "borrow_brand_names_in_SG_for_HARMONIZED_ADVERTISER_column",
+        we will assign "Unknow" when using the SINGAPORE_SPECIFIC_BRAND_MAPPINGS none advertiser
+        could be found for the Brand Name in the SG data
+        """
+        df[comp_harm_constants.ADVERTISER_COLUMN] = df[comp_harm_constants.ADVERTISER_COLUMN].replace('', "Unknow")
+        return df

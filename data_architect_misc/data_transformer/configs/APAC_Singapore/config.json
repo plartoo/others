@@ -55,10 +55,15 @@
         "function_args": [["Section","Category","Product","Media"]]
       },
       {
-        "__function_comment__": "In Singapore files, Raw_Brand column has the information to mapped",
+        "__function_comment__": "In Singapore files, RAAW_BRAND column has the information to mapped",
         "__function_comment__": "and create HARMONIZED_ADVERTISER column.",
-        "function_name": "add_RAW_ADVERTISER_column_using_existing_brand_column_with_country_specific_mappings",
+        "function_name": "borrow_brand_names_in_SG_for_HARMONIZED_ADVERTISER_column",
         "function_args": ["RAW_BRAND"]
+      },
+      {
+        "__function_comment__": "In Singapore we do not have some Advertisers names so we are going to add 'Unknow'",
+        "__function_comment__": "where we do not have an Advetiser name related to the brand names, as was made in the previous function.",
+        "function_name": "add_Unknown_for_empty_values_in_Advertiser_column"
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -87,11 +92,6 @@
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
         "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
         "function_args": ["Singapore"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
-        "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["RAW_ADVERTISER"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
