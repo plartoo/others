@@ -109,6 +109,10 @@
         "function_args": [["$"]]
       },
       {
+        "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
+        "function_name": "multiply_HARMONIZED_GROSS_SPEND_by_thousand"
+      },
+      {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
         "function_args": ["Category"]
