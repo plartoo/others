@@ -53,7 +53,7 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
             df = pd.read_excel(file_path_and_name, header=self.config[KEY_HEADER])
             file_name = os.path.basename(file_path_and_name)
             # REF: https://stackoverflow.com/questions/27387415/how-would-i-get-everything-before-a-in-a-string-python
-            df['RAW_BRAND'] = re.split(r'(_)', file_name)[10]
+            df[comp_harm_constants.RAW_BRAND_COLUMN] = re.split(r'(_)', file_name)[10]
             df.to_excel(file_path_and_name, index = False)
 
         return df
