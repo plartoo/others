@@ -84,6 +84,60 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
 
         return df
 
+    def create_new_dataframe_from_input_EXCEL_files(
+            self,
+            df,
+            folder_name
+    ):
+        """
+        This function will create a new dataframe from the
+        list of files provided as parameter. Use this
+        function to merge two or more transformed output
+        files into one.
+
+        But before creating a new dataframe, this function
+        will check to make sure that the base input file
+        we provided in commandline (with '-i' flag) or
+        JSON config has the same date range in its name
+        (e.g., Transformed_Vietnam_20200101_20200331_*)
+        as the file names in folder_name.
+
+        The reason why we had to do this check is because
+        we want to make sure our team members pay attention
+        to the files they are processing and whenever they
+        process new files, they update the input parameters
+        of this function in the JSON config file.
+
+        Args:
+            df: Base dataframe loaded from input file
+            provided via commandline
+            folder_name: List of path and
+            file names that we want to load into the new
+            dataframe for later transformation.
+            delimiter: Delimiter for the input CSV file.
+
+        Returns:
+            New dataframe that is composed of data from
+            the input files provided as paramter to this
+            function.
+        """
+        list_of_file_path_and_names = glob(''.join([folder_name,'/*']))
+        base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
+
+        for file_path_and_name in list_of_file_path_and_names:
+            if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
+                base_file_path_and_name,
+                file_path_and_name
+            ):
+                raise transform_errors.InputFilesDateRangeMismatchError(base_file_path_and_name, file_path_and_name)
+
+        df = pd.DataFrame()
+        for cur_file in list_of_file_path_and_names:
+            temp_df = pd.read_excel(cur_file)
+            df = df.append(temp_df)
+
+        return df
+
     def add_PROCESSED_DATE_column_with_current_date(self, df):
         """
         Creates PROCESSED_DATE column with current date values
