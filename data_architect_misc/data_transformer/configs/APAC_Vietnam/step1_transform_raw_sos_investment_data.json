@@ -109,6 +109,10 @@
         "function_args": ["Cost in VND"]
       },
       {
+        "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
+        "function_name": "multiply_HARMONIZED_GROSS_SPEND_by_thousand"
+      },
+      {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
         "function_args": ["Product"]

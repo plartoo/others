@@ -826,3 +826,14 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.EXPECTED_COLUMNS
         )
+
+    def multiply_HARMONIZED_GROSS_SPEND_by_thousand(
+            self,
+            df):
+        """
+        This function multiply HARMONIZED_GROSS_SPEND values by 1000 for be used
+        in those countries were could be necessary due in some countries like APAC countries
+        usually gross values are without multiply by thousand.
+        """
+        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[comp_harm_constants.GROSS_SPEND_COLUMN] * 1000
+        return df
