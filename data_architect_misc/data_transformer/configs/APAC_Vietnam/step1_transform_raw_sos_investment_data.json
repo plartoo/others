@@ -110,6 +110,9 @@
       },
       {
         "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
+        "__function_comment__": "We validate the values for Vietnam and we realized that is necesary to multiply by 1000",
+        "__function_comment__": "For Vietnam in March the Local Spend is (1740008 for Spot + 595275 for Press+ 4338828for Radio = $288 USD)",
+        "__function_comment__": "So it doesn't make sense and we decided to multiply that with 1000",
         "function_name": "multiply_HARMONIZED_GROSS_SPEND_by_thousand"
       },
       {

@@ -110,6 +110,9 @@
       },
       {
         "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
+        "__function_comment__": "The numbers in raw files are small we validate and we decide multiply by 1000.",
+        "__function_comment__": "For Colgate brand in May 2020 the local spend is (9 = $6,59 USD)",
+        "__function_comment__": "It not make sense for an entire month",
         "function_name": "multiply_HARMONIZED_GROSS_SPEND_by_thousand"
       },
       {

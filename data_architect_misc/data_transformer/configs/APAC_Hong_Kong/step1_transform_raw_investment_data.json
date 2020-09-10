@@ -101,10 +101,6 @@
         "function_args": [["$"]]
       },
       {
-        "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
-        "function_name": "multiply_HARMONIZED_GROSS_SPEND_by_thousand"
-      },
-      {
         "__function_comment__": "In HK files, Subcategory column has the most information and it is useful ",
         "__function_comment__": "(better than Category column) for creating HARMONIZED_CATEGORY column.",
         "__function_comment__": "Therefore, we will use 'Subcategory' column for both HARMONIZED_CATEGORY.",
