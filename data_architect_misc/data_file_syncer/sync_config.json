@@ -1,0 +1,22 @@
+{
+  "__comment__": "storage_account_url MUST be provided in the config file.",
+  "storage_account_url": "https://wmdatarfcolgate.blob.core.windows.net",
+
+  "__comment__": "Define from/to (local and Azure blob) locations where the files must be synced as shown below.",
+  "locations_to_sync":
+  [
+    {
+      "from": {
+        "local": {
+          "path": ""
+        }
+      },
+      "to": {
+        "blob": {
+          "container_name": "",
+          "blob_path": ""
+        }
+      }
+    }
+  ]
+}
