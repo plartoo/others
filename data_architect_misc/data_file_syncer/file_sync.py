@@ -1,6 +1,6 @@
 """
-Script to upload/download files between local computer
-and/or Azure blob.
+Script to copy files from/to local computer folder and Azure blob.
+Use this script to sync files between local folder and Azure blob.
 
 Notes:
 1) This script only runs on local computer
@@ -8,23 +8,22 @@ Notes:
 like Azure Batch instances).
 
 2) This script expects user to either provide Azure storage
-account key as argument to the script or set it as an
-environment variable with variable name, STORAGE_ACCOUNT_KEY,
-in the local machine.
+account key as argument or set it as an environment variable
+with the variable name, STORAGE_ACCOUNT_KEY, in local machine.
 
 To set environment variable in Windows, one needs to
 enter this command below in command prompt:
 > setx STORAGE_ACCOUNT_KEY <azure storage account key>
 
-To set environment varaible in Mac or Unix command line
-interface:
+To set environment variable in Mac or Unix, enter this in
+command prompt (e.g., Bash):
 > export STORAGE_ACCOUNT_KEY=<azure storage account key>
 or embed it in one's user profile such as ~/.bash_profile.
 For more, Google how to set environment variables in
 corresponding OS that the user is running this script on.
 
 Author: Phyo Thiha
-Last Modified: Sep 10, 2020
+Development Started: Sep 10, 2020
 """
 import argparse
 import fnmatch
@@ -34,14 +33,8 @@ import os
 from azure.storage.blob import BlobServiceClient
 
 DESC = """
-This script is used to keep files synced between 
-our team's local machine folders and Azure blob 
-where we ultimately store our data files.
-
-Run this script periodically (preferably every time 
-you have processed/transformed data for individual 
-country) to keep files synced between local and Azure 
-blob. 
+Script to copy files from/to local computer folder and Azure blob.
+Use this script to sync files between local folder and Azure blob.
 
 Usage examples:
 1) If the STORAGE_ACCOUNT_KEY environment variable 
@@ -59,6 +52,22 @@ the files from and where to send them as final destination.
 
 TODO: explain how to write config file. 
 """
+
+
+def get_list_files_in_folder(path_of_local_folder):
+    # REF: https://stackoverflow.com/a/3207973
+    return [f for f in os.listdir(path_of_local_folder)
+            if os.path.isfile(os.path.join(path_of_local_folder, f))]
+
+
+def get_list_of_files_in_blob_path(container_client, blob_path):
+    # https://docs.microsoft.com/en-us/python/api/azure-storage-blob/azure.storage.blob.containerclient?view=azure-python#list-blobs-name-starts-with-none--include-none----kwargs-
+    return [b for b in container_client.list_blobs(name_starts_with=blob_path)]
+
+
+def are_both_keys_in_dict(dictionary, k1, k2):
+    # REF: https://stackoverflow.com/a/1285920
+    return all(k in dictionary for k in (k1, k2))
 
 
 def main():
@@ -91,11 +100,30 @@ def main():
     with open(args.c) as f:
         sync_config = json.load(f)
 
-    storage_accnt_url = sync_config['storage_account_url']
-    blob_service_client = BlobServiceClient(account_url=storage_accnt_url,
-                                            credential=storage_accnt_key)
-    # import pdb; pdb.set_trace()
-    print("End of program.")
+    for config in sync_config:
+        container_name = config['container_name']
+        storage_accnt_url = config['storage_account_url']
+        blob_service_client = BlobServiceClient(account_url=storage_accnt_url,
+                                                credential=storage_accnt_key)
+        container_client = blob_service_client.get_container_client(container_name)
+
+        for c in config['files_to_copy']:
+            if are_both_keys_in_dict(c, 'from_local_folder_path', 'to_blob_path'):
+                files_to_copy = get_list_files_in_folder(c['from_local_folder_path'])
+                files_in_destination = get_list_of_files_in_blob_path(container_client,
+                                                                      c['to_blob_path'])
+            elif are_both_keys_in_dict(c, 'from_blob_path', 'to_local_folder_path'):
+                files_to_copy = get_list_of_files_in_blob_path(container_client,
+                                                               c['from_blob_path'])
+                files_in_destination = get_list_files_in_folder(c['to_local_folder_path'])
+
+
+
+
+
+
+        # import pdb; pdb.set_trace()
+        print("End of program.")
 
 
 if __name__ == '__main__':
