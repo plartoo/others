@@ -61,9 +61,10 @@
         "function_args": ["RAW_BRAND"]
       },
       {
-        "__function_comment__": "In Singapore we do not have some Advertisers names so we are going to add 'Unknow'",
+        "__function_comment__": "In Singapore we do not have some Advertisers names so we are going to add 'Not Available'",
         "__function_comment__": "where we do not have an Advetiser name related to the brand names, as was made in the previous function.",
-        "function_name": "add_Unknown_for_empty_values_in_Advertiser_column"
+        "function_name": "replace_empty_values_with_NOT_AVAILABLE",
+        "function_args": ["HARMONIZED_ADVERTISER"]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -104,16 +105,21 @@
         "function_args": ["SGD"]
       },
       {
+        "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
+        "__function_comment__": "The numbers in raw files are small we validate and we decide multiply by 1000.",
+        "__function_comment__": "For Colgate advertiser in May 2020 the total local spend is (14010 = $479,23 USD)",
+        "__function_comment__": "It not make sense for an entire month",
+        "function_name": "multiply_values_in_column_by_a_thousand",
+        "function_args": [["$"]]
+      },
+      {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
         "function_args": [["$"]]
       },
       {
-        "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
-        "__function_comment__": "The numbers in raw files are small we validate and we decide multiply by 1000.",
-        "__function_comment__": "For Colgate brand in May 2020 the local spend is (9 = $6,59 USD)",
-        "__function_comment__": "It not make sense for an entire month",
-        "function_name": "multiply_HARMONIZED_GROSS_SPEND_by_thousand"
+        "__function_comment__": "This function will assure that Harmonized Gross Spend has 2 decimal places",
+        "function_name": "trim_HARMONIZED_GROSS_SPEND_column_to_two_decimals"
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
