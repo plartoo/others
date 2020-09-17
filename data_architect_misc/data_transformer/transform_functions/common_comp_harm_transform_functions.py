@@ -502,31 +502,18 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  comp_harm_constants.MEDIA_TYPE_COLUMN,
                  fixed_str_value)
 
-    def add_NOT_AVAILABLE_for_empty_values_in_HARMONIZED_ADVERTISER_column(
+    def replace_empty_values_with_NOT_AVAILABLE(
             self,
-            df):
+            df,
+            column_name):
         """
         This functions was added to manage those Advertiser that are not in the raw data files,
         we will assign "Not available" for those values that will not have an Advertiser name related
         """
-        if comp_harm_constants.ADVERTISER_COLUMN not in df:
-            df[comp_harm_constants.ADVERTISER_COLUMN] = comp_harm_constants.NOT_AVAILABLE
+        if column_name not in df:
+            df[column_name] = comp_harm_constants.NOT_AVAILABLE
         else:
-            df[comp_harm_constants.ADVERTISER_COLUMN] = df[comp_harm_constants.ADVERTISER_COLUMN].replace('', comp_harm_constants.NOT_AVAILABLE)
-
-        return df
-
-    def add_NOT_AVAILABLE_for_empty_values_in_HARMONIZED_CATEGORY_column(
-            self,
-            df):
-        """
-        This functions was added to manage those Categories that are not in the raw data files,
-        we will assign "Not available" for those values that will not have an Category name related
-        """
-        if comp_harm_constants.CATEGORY_COLUMN not in df:
-            df[comp_harm_constants.CATEGORY_COLUMN] = comp_harm_constants.NOT_AVAILABLE
-        else:
-            df[comp_harm_constants.CATEGORY_COLUMN] = df[comp_harm_constants.CATEGORY_COLUMN].replace('', comp_harm_constants.NOT_AVAILABLE)
+            df[column_name] = df[column_name].replace('', comp_harm_constants.NOT_AVAILABLE)
 
         return df
 
@@ -855,7 +842,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.EXPECTED_COLUMNS
         )
-    def multiply_values_in_given_column_by_thousand(
+    def multiply_values_in_column_by_a_thousand(
             self,
             df,
             column_name):
@@ -876,7 +863,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         """
         return self.multiply_values_in_given_column_by_thousand(df, comp_harm_constants.GROSS_SPEND_COLUMN)
 
-    def round_up_HARMONIZED_GROSS_SPEND_column_to_two_decimals(
+    def trim_HARMONIZED_GROSS_SPEND_column_to_two_decimals(
             self,
             df):
         """

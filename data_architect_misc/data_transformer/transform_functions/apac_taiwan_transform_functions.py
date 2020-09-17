@@ -56,6 +56,13 @@ class ApacTaiwanTransformFunctions(CommonCompHarmTransformFunctions):
         This function is creating a new column named Advertiser
         to include advertiser names selected from sheet names
         also he we will append every sheet in one dataframe.
+
+        Args:
+            df: Raw dataframe to capitalize the beginning of each word.
+            colum_name_to_be_assigned: The name of the column where the sheet names values will be assigned for Advetiser or Categories.
+
+            - In Taiwan 'CP' raw data the sheet names have the "Advertiser" names (E.g: Sheet name: BCM-Colgate Palmolive)
+            - In Taiwan 'Non CP' raw data the sheet name have the "Category" names (E.g: Sheet name: BCM-Facial Cleansers)
         """
         df = pd.DataFrame()
         excel_sheets = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE], sheet_name=None)
@@ -65,20 +72,6 @@ class ApacTaiwanTransformFunctions(CommonCompHarmTransformFunctions):
             temp_df[colum_name_to_be_assigned] = re.split(r'(-)', sheet)[2]
 
             df = df.append(temp_df)
-
-        return df
-
-    def unpivot_date_columns_in_dataframe(
-            self,
-            df):
-        """
-
-        """
-        raw_cols = df.columns.tolist()
-        date_cols = [i for i in raw_cols if re.match(r'\d{4}\/\d{2}', i)]
-        static_cols = [i for i in raw_cols if i not in date_cols]
-
-        df = df.melt(id_vars = static_cols, value_vars = date_cols, var_name = "Date", value_name= "Value")
 
         return df
 

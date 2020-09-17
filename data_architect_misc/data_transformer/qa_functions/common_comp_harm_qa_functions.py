@@ -771,7 +771,7 @@ class CommonCompHarmQAFunctions:
             df,
             [comp_harm_constants.GROSS_SPEND_COLUMN]
         )
-        import pdb; pdb.set_trace()
+
     def check_possible_duplicates_in_columns(self,
                                              df,
                                              list_of_col_names):

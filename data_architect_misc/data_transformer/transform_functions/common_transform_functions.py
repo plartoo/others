@@ -417,6 +417,42 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def unpivot_date_column_with_year_and_month_values(
+            self,
+            df,
+            final_variable_col_name,
+            final_value_col_name):
+        """
+        This functions is used for Taiwan due we can have multiple date columns like (2020/04, 2020/05)
+        from the original input like in Taiwan: (Status, Product, Media Selection, YYYY/MM, TTL $ (`000))
+        We acquire the columns with the date format (YYYY/MM) and those will be the columns that
+        will be use to be unpivoted, those date values will be added to a column named "Date" and
+        spend values will be added to the column named "Value".
+
+        Args:
+            df: Raw dataframe to capitalize the beginning of each word.
+            final_variable_col_name: The name of the column for the value that we are unpivotting.
+            E.g., if we are unpivoting Date columns, we want to set this variable as 'Date'.
+            final_value_col_name: The name of the column where we will put the original values
+            found under the variable column. E.g., if we are unpivotting Date columns each of which
+            has gross spend numbers in them, the unpivotted gross spend numbers will all be combined
+            under this 'final_value_col_name' variable (say, it's called 'Value').
+
+        Returns:
+            New dataframe that is composed of data from
+            the input files provided as paramter to this
+            function.
+            the columns returned will be:
+            (Advertiser, Product, Media Selection, Date, Value)
+        """
+        raw_cols = df.columns.tolist()
+        date_cols = [i for i in raw_cols if re.match(r'\d{4}\/\d{2}', i)]
+        non_date_cols = [i for i in raw_cols if i not in date_cols]
+
+        df = df.melt(id_vars=non_date_cols, value_vars=date_cols, var_name=final_variable_col_name, value_name=final_value_col_name)
+
+        return df
+
     def update_str_values_in_columns(self,
                                      df,
                                      list_of_col_names,

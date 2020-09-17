@@ -38,7 +38,8 @@
       {
         "__function_comment__": "This function will unpivot the data for those date columns that",
         "__function_comment__": "will be found in the columns names in the excel file",
-        "function_name": "unpivot_date_columns_in_dataframe"
+        "function_name": "unpivot_date_column_with_year_and_month_values",
+        "function_args": ["Date","Value"]
       },
       {
         "__function_comment__": "In Taiwan data file, there are rows in 'Value' column could have NaN (empty). We need to remove them.",
@@ -93,7 +94,7 @@
         "__function_comment__": "The numbers in raw files are small we validate and we decide multiply by 1000.",
         "__function_comment__": "For Colgate advertiser in May 2020 the total local spend is (14010 = $479,23 USD)",
         "__function_comment__": "It not make sense for an entire month",
-        "function_name": "multiply_values_in_given_column_by_thousand",
+        "function_name": "multiply_values_in_column_by_a_thousand",
         "function_args": [["Value"]]
       },
       {
@@ -103,11 +104,12 @@
       },
       {
         "__function_comment__": "This function will assure that Harmonized Gross Spend has 2 decimal places",
-        "function_name": "round_up_HARMONIZED_GROSS_SPEND_column_to_two_decimals"
+        "function_name": "trim_HARMONIZED_GROSS_SPEND_column_to_two_decimals"
       },
       {
         "__function_comment__": "In Taiwan INV data we do not have Category names so we are going to add 'Not Available'",
-        "function_name": "add_NOT_AVAILABLE_for_empty_values_in_HARMONIZED_CATEGORY_column"
+        "function_name": "replace_empty_values_with_NOT_AVAILABLE",
+        "function_args": ["HARMONIZED_CATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
