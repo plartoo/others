@@ -3,6 +3,7 @@ import re
 
 import pandas as pd
 from glob import glob
+import re
 
 import transform_errors
 from constants import comp_harm_constants
@@ -501,6 +502,34 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  comp_harm_constants.MEDIA_TYPE_COLUMN,
                  fixed_str_value)
 
+    def add_NOT_AVAILABLE_for_empty_values_in_HARMONIZED_ADVERTISER_column(
+            self,
+            df):
+        """
+        This functions was added to manage those Advertiser that are not in the raw data files,
+        we will assign "Not available" for those values that will not have an Advertiser name related
+        """
+        if comp_harm_constants.ADVERTISER_COLUMN not in df:
+            df[comp_harm_constants.ADVERTISER_COLUMN] = comp_harm_constants.NOT_AVAILABLE
+        else:
+            df[comp_harm_constants.ADVERTISER_COLUMN] = df[comp_harm_constants.ADVERTISER_COLUMN].replace('', comp_harm_constants.NOT_AVAILABLE)
+
+        return df
+
+    def add_NOT_AVAILABLE_for_empty_values_in_HARMONIZED_CATEGORY_column(
+            self,
+            df):
+        """
+        This functions was added to manage those Categories that are not in the raw data files,
+        we will assign "Not available" for those values that will not have an Category name related
+        """
+        if comp_harm_constants.CATEGORY_COLUMN not in df:
+            df[comp_harm_constants.CATEGORY_COLUMN] = comp_harm_constants.NOT_AVAILABLE
+        else:
+            df[comp_harm_constants.CATEGORY_COLUMN] = df[comp_harm_constants.CATEGORY_COLUMN].replace('', comp_harm_constants.NOT_AVAILABLE)
+
+        return df
+
     def add_HARMONIZED_CURRENCY_column(self,
                                        df,
                                        currency_name):
@@ -826,6 +855,16 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.EXPECTED_COLUMNS
         )
+    def multiply_values_in_given_column_by_thousand(
+            self,
+            df,
+            column_name):
+        """
+        This function could be used to multiply any column value passed to this function by 1000
+
+        """
+        df[column_name] = df[column_name] * 1000
+        return df
 
     def multiply_HARMONIZED_GROSS_SPEND_by_thousand(
             self,
@@ -835,5 +874,15 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         in those countries were could be necessary due in some countries like APAC countries
         usually gross values are without multiply by thousand.
         """
-        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[comp_harm_constants.GROSS_SPEND_COLUMN] * 1000
-        return df
+        return self.multiply_values_in_given_column_by_thousand(df, comp_harm_constants.GROSS_SPEND_COLUMN)
+
+    def round_up_HARMONIZED_GROSS_SPEND_column_to_two_decimals(
+            self,
+            df):
+        """
+        This function will be used to assure that spend values has 2 decimal places.
+        """
+        return self.update_decimal_places_in_columns(
+            df,
+            [comp_harm_constants.GROSS_SPEND_COLUMN],
+            2)

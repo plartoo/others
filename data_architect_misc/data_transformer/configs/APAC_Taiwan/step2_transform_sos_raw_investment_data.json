@@ -1,0 +1,142 @@
+[
+  {
+    "__comment__": "Taiwan data processing files will be transformed using this python code for INV and SOS because the raw data files have same structures.",
+
+    "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
+    "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
+    "input_sheet_name": 0,
+    "header": 1,
+    "skiprows": 0,
+    "skipfooter": 0,
+
+    "write_output": true,
+    "output_folder_path": "./output/APAC_Taiwan/",
+    "output_file_name_prefix": "Transformed_Taiwan_20200501_20200531_",
+
+    "custom_transform_functions_file": "./transform_functions/apac_taiwan_transform_functions.py",
+
+    "functions_to_apply": [
+      {
+        "__function_comment__": "This function create a new dataframe appening all sheet names",
+        "__function_comment__": "and add the sheet names as Category column",
+        "__function_comment__": "In SOS data the sheet names do not are Advertisers names, those look muchs as Category",
+        "function_name": "create_new_dataframe_from_given_sheet_names_and_add_advertiser_or_category_column_using_sheet_name",
+        "function_args": ["Category"]
+      },
+      {
+        "__function_comment__": "Excel file has empty columns. We need to drop them first",
+        "function_name": "drop_unnamed_columns"
+      },
+      {
+        "__function_comment__": "Delete row with value 'Grand Total' from 'Section' column.",
+        "function_name": "drop_rows_with_matching_string_values",
+        "function_args": [["Status"],[["Total"]]]
+      },
+      {
+        "function_name": "drop_columns_by_name_if_they_exist_in_dataframe",
+        "function_args": [["Status","TTL $ ('000)"]]
+      },
+      {
+        "__function_comment__": "This function will unpivot the data for those date columns that",
+        "__function_comment__": "will be found in the columns names in the excel file",
+        "function_name": "unpivot_date_columns_in_dataframe"
+      },
+      {
+        "__function_comment__": "In Taiwan data file, there are rows in 'Value' column could have NaN (empty). We need to remove them.",
+        "function_name": "drop_rows_with_matching_string_values",
+        "function_args": [["Value"],[["NaN"]]]
+      },
+      {
+        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
+        "function_name": "add_PROCESSED_DATE_column_with_current_date"
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
+        "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
+        "function_args": ["Date"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
+        "function_name": "add_HARMONIZED_MONTH_column_using_existing_column_with_month_values",
+        "function_args": ["Date"]
+      },
+      {
+        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
+        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Asia Pacific' as value.",
+        "function_name": "add_HARMONIZED_REGION_column",
+        "function_args": ["Asia Pacific"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
+        "function_args": ["Taiwan"]
+      },
+      {
+        "__function_comment__": "In Taiwan SOS data we do not have Advertisers names so we are going to add 'Not Available'",
+        "function_name": "add_NOT_AVAILABLE_for_empty_values_in_HARMONIZED_ADVERTISER_column"
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
+        "function_args": ["Media Selection"]
+      },
+      {
+        "__function_comment__": "Add CURRENCY as a new column with 'TWD' as value.",
+        "function_name": "add_HARMONIZED_CURRENCY_column",
+        "function_args": ["TWD"]
+      },
+      {
+        "__function_comment__": "Multiply HARMONIZED_GROSS_SPEND column by 1000 from raw gross spend column.",
+        "__function_comment__": "The numbers in raw files are small we validate and we decide multiply by 1000.",
+        "__function_comment__": "For Colgate advertiser in May 2020 the total local spend is (14010 = $479,23 USD)",
+        "__function_comment__": "It not make sense for an entire month",
+        "function_name": "multiply_values_in_given_column_by_thousand",
+        "function_args": [["Value"]]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
+        "function_name": "add_HARMONIZED_GROSS_SPEND_column",
+        "function_args": [["Value"]]
+      },
+      {
+        "__function_comment__": "This function will assure that Harmonized Gross Spend has 2 decimal places",
+        "function_name": "round_up_HARMONIZED_GROSS_SPEND_column_to_two_decimals"
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
+        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings",
+        "function_args": ["Category"]
+      },
+      {
+        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
+        "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
+        "function_args": ["Product"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
+        "function_args": ["Category"]
+      },
+      {
+        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
+        "function_name": "add_RAW_BRAND_column_with_empty_values"
+      },
+      {
+        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
+        "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
+        "function_name": "filter_and_rearrange_columns_for_final_output"
+      }
+
+    ]
+  }
+]
