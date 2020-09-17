@@ -549,14 +549,19 @@ class CommonCompHarmQAFunctions:
         Checks to make sure the values in ADVERTISER column are
         based on the ADVERTISER_MAPPINGS that we have been building
         gradually for competitive harmonization project.
-
         If any new advertiser value is found, this method will
         output an WARNING message so that data person can add
         new advertisers to the mapping if relevant.
         """
+        major_competitors = set(comp_harm_constants.ADVERTISER_MAPPINGS.values())
+        # Sometimes in countries like Taiwan, we do not get Advertiser names in SOS raw data.
+        # For that, we need to set them to 'Not Available' and deal with them later if the client asks us to.
+        # Therefore, the code below adds 'Not Available' as one of the allowed
+        major_competitors.add(comp_harm_constants.NOT_AVAILABLE)
+
         potentially_new_advertisers = (
                 set(df[comp_harm_constants.ADVERTISER_COLUMN]) -
-                set(comp_harm_constants.ADVERTISER_MAPPINGS.values())
+                major_competitors
         )
         if potentially_new_advertisers:
             self.logger.warning(
@@ -566,7 +571,6 @@ class CommonCompHarmQAFunctions:
                 f"please make sure to update the global advertiser mapping "
                 f"list in comp_harm_constants.py file.\n"
                 f"{sorted(potentially_new_advertisers)}")
-
         return df
 
     def assert_MEDIA_TYPE_values_are_valid(

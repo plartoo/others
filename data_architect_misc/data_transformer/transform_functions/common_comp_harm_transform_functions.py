@@ -3,6 +3,7 @@ import re
 
 import pandas as pd
 from glob import glob
+import re
 
 import transform_errors
 from constants import comp_harm_constants
@@ -501,6 +502,21 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  comp_harm_constants.MEDIA_TYPE_COLUMN,
                  fixed_str_value)
 
+    def replace_empty_values_with_NOT_AVAILABLE(
+            self,
+            df,
+            column_name):
+        """
+        This functions was added to manage those Advertiser that are not in the raw data files,
+        we will assign "Not available" for those values that will not have an Advertiser name related
+        """
+        if column_name not in df:
+            df[column_name] = comp_harm_constants.NOT_AVAILABLE
+        else:
+            df[column_name] = df[column_name].replace('', comp_harm_constants.NOT_AVAILABLE)
+
+        return df
+
     def add_HARMONIZED_CURRENCY_column(self,
                                        df,
                                        currency_name):
@@ -826,6 +842,16 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.EXPECTED_COLUMNS
         )
+    def multiply_values_in_column_by_a_thousand(
+            self,
+            df,
+            column_name):
+        """
+        This function could be used to multiply any column value passed to this function by 1000
+
+        """
+        df[column_name] = df[column_name] * 1000
+        return df
 
     def multiply_HARMONIZED_GROSS_SPEND_by_thousand(
             self,
@@ -835,5 +861,15 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         in those countries were could be necessary due in some countries like APAC countries
         usually gross values are without multiply by thousand.
         """
-        df[comp_harm_constants.GROSS_SPEND_COLUMN] = df[comp_harm_constants.GROSS_SPEND_COLUMN] * 1000
-        return df
+        return self.multiply_values_in_given_column_by_thousand(df, comp_harm_constants.GROSS_SPEND_COLUMN)
+
+    def trim_HARMONIZED_GROSS_SPEND_column_to_two_decimals(
+            self,
+            df):
+        """
+        This function will be used to assure that spend values has 2 decimal places.
+        """
+        return self.update_decimal_places_in_columns(
+            df,
+            [comp_harm_constants.GROSS_SPEND_COLUMN],
+            2)

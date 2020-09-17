@@ -16,6 +16,7 @@ RAW_SUBBRAND_COLUMN = 'RAW_SUBBRAND'
 RAW_PRODUCT_NAME_COLUMN = 'RAW_PRODUCT_NAME'
 RAW_MEDIA_TYPE_COLUMN = 'RAW_MEDIA_TYPE'
 PRODUCT_NAME_COLUMN = 'HARMONIZED_PRODUCT_NAME'
+NOT_AVAILABLE = 'Not Available'
 
 EXPECTED_COLUMNS = [
     # Standard column names we use in competitive harmonization project
@@ -89,14 +90,14 @@ GLOBAL_COMPETE_ADVERTISERS = {
     'UNILEVER'
 }
 
-CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition'}
+CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition', NOT_AVAILABLE}
 
 MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
-    "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRENSA.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
+    "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRENSA.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-    "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV",
+    "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV", "(?i)CB.*": "TV",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital", "(?i)MOBILE.*": "Digital",
 }
 
