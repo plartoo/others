@@ -79,16 +79,3 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
              comp_harm_constants.ADVERTISER_COLUMN,
              brand_mappings
              )
-
-    def add_Unknown_for_empty_values_in_Advertiser_column(
-            self,
-            df):
-        """
-        This functions was added to manage those advertiser that are not related
-        to the Brand names we clasificated in the function
-        "borrow_brand_names_in_SG_for_HARMONIZED_ADVERTISER_column",
-        we will assign "Unknow" when using the SINGAPORE_SPECIFIC_BRAND_MAPPINGS none advertiser
-        could be found for the Brand Name in the SG data
-        """
-        df[comp_harm_constants.ADVERTISER_COLUMN] = df[comp_harm_constants.ADVERTISER_COLUMN].replace('', "Unknow")
-        return df
