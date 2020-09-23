@@ -159,6 +159,14 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)Cleaning.*agent.*": "Home Care",
     "(?i).*Detergent.*": "Home Care",
 
+    "(?i).*SOAP.*": "Personal Care",
+    "(?i).*MOUTH.*CARE.*": "Personal Care",
+    "(?i).*ANTISEPTIC.*": "Other",
+    "(?i).*TEA.*": "Other",
+    "(?i).*DIAPER.*": "Personal Care",
+    "(?i).*SHAV.*": "Personal Care",
+    "(?i).*DEPILATOR.*": "Personal Care",
+
     "(?i)^OC$": "Oral Care",
     "(?i).*ORAL.*": "Oral Care",
     "(?i).*ORAL.*CARE.*": "Oral Care",
@@ -250,6 +258,21 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*PRODUCTO.*LIMPIEZA.*DOMESTICA.*": "Home Care",
     "(?i).*PRODUCTO.*FARMACEUTICO.*": "Other",
     "(?i).*PRODUCTO.*CABELLO.*": "Personal Care",
+
+    "(?i).*SERVICIO.*PUBLICO.*": "Other",
+    "(?i).*LACTEO.*": "Other",
+    "(?i).*HARINA.*": "Other",
+    "(?i).*HIGIENE.*PRODUCTO.*INFANTILE.*": "Other",
+    "(?i).*SERVICIO.*BANCARIO.*": "Other",
+    "(?i).*HOTEL.*": "Other",
+    "(?i).*CEREAL.*": "Other",
+    "(?i).*CREMA.*PIEL.*": "Personal Care",
+    "(?i).*HIGIENE.*FEMENIN*": "Personal Care",
+    "(?i).*INMOBILIARIA*": "Other",
+    
+    
+
+     
 }
 
 CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS, **ENGLISH_CATEGORY_MAPPINGS)
