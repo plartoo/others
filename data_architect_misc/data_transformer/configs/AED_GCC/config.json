@@ -15,7 +15,7 @@
     "output_folder_path": "./output/AED_GCC/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "Transformed_GCC_20200701_20200731_",
+    "output_file_name_prefix": "Transformed_GCC_20200801_20200831_",
 
     "__comment__": "(Required if there's header row in your data) Enter the row index (>= 0) to extract column headers from. E.g., if column header row is the first row, enter 0 below.",
     "__comment__": "If this value is NOT provided, the program will assume there is no header row in the input file.",
@@ -44,7 +44,7 @@
       {
         "__function_comment__": "Check that there are originally only 10 columns from GCC data file.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [14]
+        "function_args": [11]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -92,17 +92,17 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["amount"]
+        "function_args": ["Gross_Spend_in_Local_Currency"]
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
-        "function_args": ["Main Category"]
+        "function_args": ["Category"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
-        "function_args": ["SubCategory"]
+        "function_args": ["Sub-Category"]
       },
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
@@ -117,7 +117,7 @@
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["Product_name"]
+        "function_args": ["Product_Name"]
       },
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
