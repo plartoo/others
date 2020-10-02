@@ -114,7 +114,7 @@ COUNTRY_MAPPINGS = {
     "(?i)MORROCCO.*": "Morocco",
     "(?i)OMAN.*": "Oman",
     "(?i)PAN.*ARAB.*": "Pan Arab",
-    "(?i)PAN.*ASIAN.*": "Pan Asian",
+    "(?i)PAN.*ASIA.*": "Pan Asian",
     "(?i)QATAR.*": "Qatar",
     "(?i)RUSSIA.*": "Russia",
     "(?i)SOUTH.*AFRICA.*": "South Africa",
