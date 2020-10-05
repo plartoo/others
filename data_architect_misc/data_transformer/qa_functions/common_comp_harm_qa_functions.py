@@ -17,6 +17,7 @@ import pandas as pd
 
 import transform_errors
 from constants import comp_harm_constants
+from constants import one_ph_subcategory_category
 from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from qa_functions import qa_errors
 from transform_errors import OrderOfListContentsDifferentError, ExpectedColumnNotFoundError
@@ -620,6 +621,30 @@ class CommonCompHarmQAFunctions:
             comp_harm_constants.CATEGORY_COLUMN,
             comp_harm_constants.CATEGORIES
         )
+
+    @staticmethod
+    def _get_months_difference(later_datetime, older_datetime):
+        """Calcuates the approximate number of months between two datetime objects."""
+        return (later_datetime.year - older_datetime.year) * 12 + \
+               (older_datetime.month - later_datetime.month)
+
+    def assert_SUBCATEGORY_values_have_correct_1PH_CATEGORY_values_assigned(
+            self,
+            df):
+        today = datetime.datetime.now()
+        last_updated_date = datetime.datetime.strptime(one_ph_subcategory_category.last_updated, '%Y-%m-%d')
+
+        if CommonCompHarmQAFunctions._get_months_difference(today, last_updated_date) > 6:
+            raise qa_errors.QA_Reference_Data_Outdated(
+                f"The one_ph_subcategory_category.py file we use in this QA step "
+                f"has not been updated for more than 6 months. You must update the "
+                f"content in that file to make sure we are using the latest data from "
+                f" the 1PH table. Instructions on how to update that file are included "
+                f"in that same file ('one_ph_subcategory_category.py').")
+
+        # import pdb
+        # pdb.set_trace()
+        return df
 
     def assert_no_less_than_values_in_columns(self,
                                               df,

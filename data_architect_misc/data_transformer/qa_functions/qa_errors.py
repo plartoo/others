@@ -95,3 +95,12 @@ class UnexpectedColumnValuesFoundError(QAError):
     Raised when value(s) in a given column is(are) unexpected.
     """
     pass
+
+
+class QA_Reference_Data_Outdated(QAError):
+    """
+    Raised when the reference data we use in the QA process
+    is outdated (say, more than 6 months old) and need
+    updating.
+    """
+    pass
