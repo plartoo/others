@@ -80,6 +80,10 @@
         "function_name": "assert_CATEGORY_values_are_valid"
       },
       {
+        "__comment__": "To prevent us from mapping 'Toothpaste' to 'Personal Care' for example.",
+        "function_name": "assert_SUBCATEGORY_values_have_correct_1PH_CATEGORY_values_assigned"
+      },
+      {
         "function_name": "assert_GROSS_SPEND_column_has_no_negative_value"
       },
       {
