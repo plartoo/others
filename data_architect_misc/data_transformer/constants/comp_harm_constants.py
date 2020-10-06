@@ -243,13 +243,32 @@ ENGLISH_CATEGORY_MAPPINGS = {
 }
 
 SPANISH_CATEGORY_MAPPINGS = {
-    "(?i).*DETERGENTE.*": "Home Care",
-    "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*AUTOMOTOR.*": "Other",
     "(?i).*BUCAL.*": "Oral Care",
+    "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*CREMAS.*PIEL.*": "Personal Care",
+    "(?i).*CALZADO.*": "Other",
+    "(?i).*CEREAL.*": "Other",
+    "(?i).*DETERGENTE.*": "Home Care",
+    "(?i).*DEPORTES.*": "Other",
+    "(?i).*DIVERSION.*": "Other",
+    "(?i).*ENTIDAD.*FINANCIERA.*": "Other",
     "(?i).*HIGIENE.*PERSONAL.*": "Personal Care",
+    "(?i).*HIGIENE.*INTIMA.*FEMENINA.*": "Personal Care",
+    "(?i).*HIGIENE.*PRODUCTO.*INFANTIL.*": "Personal Care",
+    "(?i).*HARINA.*": "Other",
+    "(?i).*HOTEL.*": "Other",
+    "(?i).*INSECTICIDA.*": "Other",
+    "(?i).*LACTEO.*": "Other",
+    "(?i).*MUEBLE.*": "Other",
     "(?i).*PRODUCTO.*LIMPIEZA.*DOMESTICA.*": "Home Care",
     "(?i).*PRODUCTO.*FARMACEUTICO.*": "Other",
     "(?i).*PRODUCTO.*CABELLO.*": "Personal Care",
+    "(?i).*SOPA.*": "Other",
+    "(?i).*SERVICIO.*PUBLICO.*": "Other",
+    "(?i).*SERVICIO.*BANCARIO.*": "Other",
+    
+    
 }
 
 CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS, **ENGLISH_CATEGORY_MAPPINGS)
