@@ -642,8 +642,23 @@ class CommonCompHarmQAFunctions:
                 f" the 1PH table. Instructions on how to update that file are included "
                 f"in that same file ('one_ph_subcategory_category.py').")
 
-        # import pdb
-        # pdb.set_trace()
+        observed_pairings = dict(zip(df[comp_harm_constants.SUBCATEGORY_COLUMN].tolist(),
+                                     df[comp_harm_constants.CATEGORY_COLUMN].tolist()))
+
+        incorrect_pairings = {}
+        for subcat, cat in observed_pairings.items():
+            try:
+                if cat != one_ph_subcategory_category.subcategory_category_relations[subcat]:
+                    incorrect_pairings[subcat] = cat
+            except KeyError:
+                incorrect_pairings[subcat] = cat
+
+        if incorrect_pairings:
+            raise qa_errors.UnexpectedColumnValuesFoundError(
+                f"The following Subcategory and Category pairs do NOT follow 1PH table's "
+                f"standard pairing. Please review and fix them according to the values "
+                f"allowed in the 1PH table.\n {incorrect_pairings}"
+            )
         return df
 
     def assert_no_less_than_values_in_columns(self,
