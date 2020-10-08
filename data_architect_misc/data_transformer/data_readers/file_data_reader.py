@@ -30,7 +30,6 @@ class FileDataReader:
     parameters for different reader classes this
     factory class generates.
     """
-    TXT_FILE_EXTENSION = '.txt'
     CSV_FILE_EXTENSION = '.csv'
     EXCEL_FILE_EXTENSION_OLD = '.xls'
     EXCEL_FILE_EXTENSION_NEW = '.xlsx'
@@ -63,5 +62,4 @@ class FileDataReader:
         """Checks if file is a CSV file *by checking its file extension*"""
         file_extension = _get_file_extension(
             _extract_file_name(file_name_with_path))
-        return ((self.CSV_FILE_EXTENSION == file_extension.lower()) or
-                (self.TXT_FILE_EXTENSION == file_extension.lower()))
+        return self.CSV_FILE_EXTENSION == file_extension.lower()

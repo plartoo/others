@@ -1,0 +1,16 @@
+[
+  {
+    "__comment__": "storage_account_url and container_name MUST be provided in the config file.",
+    "storage_account_url": "https://wmdatarfcolgate.blob.core.windows.net",
+    "container_name": "comp-harm",
+
+    "__comment__": "Define from/to (local and Azure blob) locations where the files must be synced as shown below.",
+    "files_to_copy":
+    [
+      {
+        "from_local_folder_path": "../data_transformer/output/AED_GCC",
+        "to_blob_path": "test/transformed_data/AED_GCC"
+      }
+    ]
+  }
+]

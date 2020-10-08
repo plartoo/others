@@ -9,13 +9,9 @@ import transform_errors
 def load_config(config_file):
     """
     Loads the config file as JSON.
-    Note: We force transform module users to use 'utf-8' encoding 
-    in crafting the config files because we have an international 
-    team (Colombia, India, USA) that are using this module and 
-    UTF-8 is the best standard to write our config files with.
     REF: https://web.archive.org/web/20181002170353/https://hackernoon.com/4-ways-to-manage-the-configuration-in-python-4623049e841b
     """
-    with open(config_file, 'r', encoding='utf-8') as f:
+    with open(config_file, 'r') as f:
         return json.load(f)
 
 

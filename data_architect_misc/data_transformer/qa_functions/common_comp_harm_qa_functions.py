@@ -17,6 +17,7 @@ import pandas as pd
 
 import transform_errors
 from constants import comp_harm_constants
+from constants import one_ph_subcategory_category
 from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from qa_functions import qa_errors
 from transform_errors import OrderOfListContentsDifferentError, ExpectedColumnNotFoundError
@@ -549,14 +550,19 @@ class CommonCompHarmQAFunctions:
         Checks to make sure the values in ADVERTISER column are
         based on the ADVERTISER_MAPPINGS that we have been building
         gradually for competitive harmonization project.
-
         If any new advertiser value is found, this method will
         output an WARNING message so that data person can add
         new advertisers to the mapping if relevant.
         """
+        major_competitors = set(comp_harm_constants.ADVERTISER_MAPPINGS.values())
+        # Sometimes in countries like Taiwan, we do not get Advertiser names in SOS raw data.
+        # For that, we need to set them to 'Not Available' and deal with them later if the client asks us to.
+        # Therefore, the code below adds 'Not Available' as one of the allowed
+        major_competitors.add(comp_harm_constants.NOT_AVAILABLE)
+
         potentially_new_advertisers = (
                 set(df[comp_harm_constants.ADVERTISER_COLUMN]) -
-                set(comp_harm_constants.ADVERTISER_MAPPINGS.values())
+                major_competitors
         )
         if potentially_new_advertisers:
             self.logger.warning(
@@ -566,7 +572,6 @@ class CommonCompHarmQAFunctions:
                 f"please make sure to update the global advertiser mapping "
                 f"list in comp_harm_constants.py file.\n"
                 f"{sorted(potentially_new_advertisers)}")
-
         return df
 
     def assert_MEDIA_TYPE_values_are_valid(
@@ -616,6 +621,30 @@ class CommonCompHarmQAFunctions:
             comp_harm_constants.CATEGORY_COLUMN,
             comp_harm_constants.CATEGORIES
         )
+
+    @staticmethod
+    def _get_months_difference(later_datetime, older_datetime):
+        """Calcuates the approximate number of months between two datetime objects."""
+        return (later_datetime.year - older_datetime.year) * 12 + \
+               (older_datetime.month - later_datetime.month)
+
+    def assert_SUBCATEGORY_values_have_correct_1PH_CATEGORY_values_assigned(
+            self,
+            df):
+        today = datetime.datetime.now()
+        last_updated_date = datetime.datetime.strptime(one_ph_subcategory_category.last_updated, '%Y-%m-%d')
+
+        if CommonCompHarmQAFunctions._get_months_difference(today, last_updated_date) > 6:
+            raise qa_errors.QA_Reference_Data_Outdated(
+                f"The one_ph_subcategory_category.py file we use in this QA step "
+                f"has not been updated for more than 6 months. You must update the "
+                f"content in that file to make sure we are using the latest data from "
+                f" the 1PH table. Instructions on how to update that file are included "
+                f"in that same file ('one_ph_subcategory_category.py').")
+
+        # import pdb
+        # pdb.set_trace()
+        return df
 
     def assert_no_less_than_values_in_columns(self,
                                               df,

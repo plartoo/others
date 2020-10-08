@@ -16,6 +16,7 @@ RAW_SUBBRAND_COLUMN = 'RAW_SUBBRAND'
 RAW_PRODUCT_NAME_COLUMN = 'RAW_PRODUCT_NAME'
 RAW_MEDIA_TYPE_COLUMN = 'RAW_MEDIA_TYPE'
 PRODUCT_NAME_COLUMN = 'HARMONIZED_PRODUCT_NAME'
+NOT_AVAILABLE = 'Not Available'
 
 EXPECTED_COLUMNS = [
     # Standard column names we use in competitive harmonization project
@@ -89,14 +90,14 @@ GLOBAL_COMPETE_ADVERTISERS = {
     'UNILEVER'
 }
 
-CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition'}
+CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition', NOT_AVAILABLE}
 
 MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
-    "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRENSA.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
+    "(?i)MAGAZINE.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)PRENSA.*": "Print", "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-    "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV",
+    "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV", "(?i)CB.*": "TV",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital", "(?i)MOBILE.*": "Digital",
 }
 
@@ -113,7 +114,7 @@ COUNTRY_MAPPINGS = {
     "(?i)MORROCCO.*": "Morocco",
     "(?i)OMAN.*": "Oman",
     "(?i)PAN.*ARAB.*": "Pan Arab",
-    "(?i)PAN.*ASIAN.*": "Pan Asian",
+    "(?i)PAN.*ASIA.*": "Pan Asian",
     "(?i)QATAR.*": "Qatar",
     "(?i)RUSSIA.*": "Russia",
     "(?i)SOUTH.*AFRICA.*": "South Africa",
@@ -243,32 +244,13 @@ ENGLISH_CATEGORY_MAPPINGS = {
 }
 
 SPANISH_CATEGORY_MAPPINGS = {
-    "(?i).*AUTOMOTOR.*": "Other",
-    "(?i).*BUCAL.*": "Oral Care",
-    "(?i).*COSMETICO.*": "Personal Care",
-    "(?i).*CREMAS.*PIEL.*": "Personal Care",
-    "(?i).*CALZADO.*": "Other",
-    "(?i).*CEREAL.*": "Other",
     "(?i).*DETERGENTE.*": "Home Care",
-    "(?i).*DEPORTES.*": "Other",
-    "(?i).*DIVERSION.*": "Other",
-    "(?i).*ENTIDAD.*FINANCIERA.*": "Other",
+    "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*BUCAL.*": "Oral Care",
     "(?i).*HIGIENE.*PERSONAL.*": "Personal Care",
-    "(?i).*HIGIENE.*INTIMA.*FEMENINA.*": "Personal Care",
-    "(?i).*HIGIENE.*PRODUCTO.*INFANTIL.*": "Personal Care",
-    "(?i).*HARINA.*": "Other",
-    "(?i).*HOTEL.*": "Other",
-    "(?i).*INSECTICIDA.*": "Other",
-    "(?i).*LACTEO.*": "Other",
-    "(?i).*MUEBLE.*": "Other",
     "(?i).*PRODUCTO.*LIMPIEZA.*DOMESTICA.*": "Home Care",
     "(?i).*PRODUCTO.*FARMACEUTICO.*": "Other",
     "(?i).*PRODUCTO.*CABELLO.*": "Personal Care",
-    "(?i).*SOPA.*": "Other",
-    "(?i).*SERVICIO.*PUBLICO.*": "Other",
-    "(?i).*SERVICIO.*BANCARIO.*": "Other",
-    
-    
 }
 
 CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS, **ENGLISH_CATEGORY_MAPPINGS)

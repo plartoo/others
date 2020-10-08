@@ -11,7 +11,7 @@ non_temp_files = [f for f in files_to_convert if re.match(r'[^~]*.xlsx',f)]
 # sheet_names = ['TV', 'Radio', 'Magazine', 'Newspaper', 'Online Display', 'Online Video']
 sheet_names = ['Newspaper', 'Online Display', 'Online Video']
 essential_cols = {'CATEGORY', 'SUBCATEGORY', 'PARENT', 'ADVERTISER', 'BRAND', 'PRODUCT', 'MEDIA', 'DATE', 'DOLS'}
-all_cols_to_drop = {'TITLE', 'MARKET', 'TIME', 'EDITION', 'PAGE #', 'ZONE'}
+all_cols_to_drop = {'MARKET', 'TIME', 'EDITION', 'PAGE #', 'ZONE'}
 
 for sn in sheet_names:
     frames = []
@@ -34,7 +34,8 @@ for sn in sheet_names:
             df['MEDIA'] = sn
 
         if (not df.empty) and (set(df.columns) == essential_cols):
-            df = df[['CATEGORY', 'SUBCATEGORY', 'PARENT', 'ADVERTISER', 'BRAND', 'PRODUCT', 'MEDIA', 'DATE', 'DOLS']]
+            df = df[['CATEGORY', 'SUBCATEGORY', 'PARENT', 'ADVERTISER', 'BRAND', 'PRODUCT', 'TITLE',
+                     'MEDIA', 'DATE', 'DOLS']]
             frames.append(df)
 
     combined_df = pd.concat(frames)

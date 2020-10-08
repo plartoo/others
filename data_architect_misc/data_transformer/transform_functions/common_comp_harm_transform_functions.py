@@ -3,6 +3,7 @@ import re
 
 import pandas as pd
 from glob import glob
+import re
 
 import transform_errors
 from constants import comp_harm_constants
@@ -80,6 +81,60 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             temp_df = pd.read_csv(cur_file,
                                   delimiter=self.config[KEY_DELIMITER],
                                   header=self.config[KEY_HEADER])
+            df = df.append(temp_df)
+
+        return df
+
+    def create_new_dataframe_from_input_EXCEL_files(
+            self,
+            df,
+            folder_name
+    ):
+        """
+        This function will create a new dataframe from the
+        list of files provided as parameter. Use this
+        function to merge two or more transformed output
+        files into one.
+
+        But before creating a new dataframe, this function
+        will check to make sure that the base input file
+        we provided in commandline (with '-i' flag) or
+        JSON config has the same date range in its name
+        (e.g., Transformed_Vietnam_20200101_20200331_*)
+        as the file names in folder_name.
+
+        The reason why we had to do this check is because
+        we want to make sure our team members pay attention
+        to the files they are processing and whenever they
+        process new files, they update the input parameters
+        of this function in the JSON config file.
+
+        Args:
+            df: Base dataframe loaded from input file
+            provided via commandline
+            folder_name: List of path and
+            file names that we want to load into the new
+            dataframe for later transformation.
+            delimiter: Delimiter for the input CSV file.
+
+        Returns:
+            New dataframe that is composed of data from
+            the input files provided as paramter to this
+            function.
+        """
+        list_of_file_path_and_names = glob(''.join([folder_name,'/*']))
+        base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
+
+        for file_path_and_name in list_of_file_path_and_names:
+            if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
+                base_file_path_and_name,
+                file_path_and_name
+            ):
+                raise transform_errors.InputFilesDateRangeMismatchError(base_file_path_and_name, file_path_and_name)
+
+        df = pd.DataFrame()
+        for cur_file in list_of_file_path_and_names:
+            temp_df = pd.read_excel(cur_file)
             df = df.append(temp_df)
 
         return df
@@ -447,6 +502,21 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  comp_harm_constants.MEDIA_TYPE_COLUMN,
                  fixed_str_value)
 
+    def replace_empty_values_with_NOT_AVAILABLE(
+            self,
+            df,
+            column_name):
+        """
+        This functions was added to manage those Advertiser that are not in the raw data files,
+        we will assign "Not available" for those values that will not have an Advertiser name related
+        """
+        if column_name not in df:
+            df[column_name] = comp_harm_constants.NOT_AVAILABLE
+        else:
+            df[column_name] = df[column_name].replace('', comp_harm_constants.NOT_AVAILABLE)
+
+        return df
+
     def add_HARMONIZED_CURRENCY_column(self,
                                        df,
                                        currency_name):
@@ -772,3 +842,34 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.EXPECTED_COLUMNS
         )
+    def multiply_values_in_column_by_a_thousand(
+            self,
+            df,
+            column_name):
+        """
+        This function could be used to multiply any column value passed to this function by 1000
+
+        """
+        df[column_name] = df[column_name] * 1000
+        return df
+
+    def multiply_HARMONIZED_GROSS_SPEND_by_thousand(
+            self,
+            df):
+        """
+        This function multiply HARMONIZED_GROSS_SPEND values by 1000 for be used
+        in those countries were could be necessary due in some countries like APAC countries
+        usually gross values are without multiply by thousand.
+        """
+        return self.multiply_values_in_given_column_by_thousand(df, comp_harm_constants.GROSS_SPEND_COLUMN)
+
+    def trim_HARMONIZED_GROSS_SPEND_column_to_two_decimals(
+            self,
+            df):
+        """
+        This function will be used to assure that spend values has 2 decimal places.
+        """
+        return self.update_decimal_places_in_columns(
+            df,
+            [comp_harm_constants.GROSS_SPEND_COLUMN],
+            2)
