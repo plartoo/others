@@ -12,7 +12,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/LATAM_Mexico/",
-    "output_file_name_prefix": "Transformed_Mexico_NonTV_INV_20200701_20200731_",
+    "output_file_name_prefix": "Transformed_Mexico_NonTV_INV_20200801_20200831_",
 
     "custom_transform_functions_file": "./transform_functions/latam_mexico_transform_functions.py",
 
@@ -109,6 +109,10 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_value"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",

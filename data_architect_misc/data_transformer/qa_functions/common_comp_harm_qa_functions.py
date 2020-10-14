@@ -641,10 +641,17 @@ class CommonCompHarmQAFunctions:
                 f"content in that file to make sure we are using the latest data from "
                 f" the 1PH table. Instructions on how to update that file are included "
                 f"in that same file ('one_ph_subcategory_category.py').")
-
         observed_pairings = dict(zip(df[comp_harm_constants.SUBCATEGORY_COLUMN].tolist(),
                                      df[comp_harm_constants.CATEGORY_COLUMN].tolist()))
-
+        """
+        # We will remove 'Not Available' subcategory keys from observed_pairings because sometimes in countries like Guatemala, 
+        we can deduce Categories from product names using dictionaries, 
+        but we do not receive Subcategory names from raw data files.
+        """
+        try:
+            del observed_pairings[comp_harm_constants.NOT_AVAILABLE]
+        except KeyError:
+            pass
         incorrect_pairings = {}
         for subcat, cat in observed_pairings.items():
             try:

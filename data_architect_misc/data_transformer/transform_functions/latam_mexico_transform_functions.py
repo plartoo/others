@@ -61,6 +61,10 @@ class LatamMexicoTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*FASCICULO.*": "Other",
         "(?i).*EQUIPO.*SONIDO.*": "Other",
         "(?i).*FRACCIONAMIENTO.*": "Other",
+        "(?i).*ALIMENTO.*ANIMAL.*": "Other",
+        "(?i).*OTRA.*SEMILLA.*": "Other",
+        "(?i).*CAJETA.*": "Other",
+        "(?i).*PROD\sP/ADELGAZAR/REDUCTORES/CELULIT.*": "Other",
 
         "(?i).*BLANCOS.*": "Home Care",
     }

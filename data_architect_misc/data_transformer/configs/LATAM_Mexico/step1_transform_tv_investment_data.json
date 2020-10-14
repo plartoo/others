@@ -4,15 +4,15 @@
     "__comment__": "It does not seem like it is worth it to split into two config files just because of this ONE difference. But we did it because if we combine both steps in one config file, we will have to use a function to load another file (because transform module only allows us to load ONE file as a base file in the beginning.",
     "__comment__": "We want to prevent people forgetting to update the name of the new raw file to load every month. So we split these steps into two.",
 
-    "header": 55,
-    "skiprows": 57,
+    "header": 33,
+    "skiprows": 35,
     "input_delimiter": ";",
     "input_encoding" : "Windows-1252",
     "skipfooter": 0,
 
     "write_output": true,
     "output_folder_path": "./output/LATAM_Mexico/",
-    "output_file_name_prefix": "Transformed_Mexico_TV_INV_20200701_20200731_",
+    "output_file_name_prefix": "Transformed_Mexico_TV_INV_20200801_20200831_",
 
     "custom_transform_functions_file": "./transform_functions/latam_mexico_transform_functions.py",
 
@@ -109,6 +109,10 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_value"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
