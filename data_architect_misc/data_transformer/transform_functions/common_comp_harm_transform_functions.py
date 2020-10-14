@@ -326,16 +326,15 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             col_name_with_month_value: str,
             regex_for_format):
+        """
+        In countries like Guatemala, the month's name come in the form of something like,
+        '01Abr20' and we need to harmonize them.
+        """
         import re
-        """
-        you can find a way to apply regex to ALL rows in a dataframe's column
-        then apply that regex to get the month's name in a new column called constants.comp_harm_constants.MONTH_COLUMN
-        then you can update the month's name in Spanish using the dictionary that you will be creating for Spanish to English months
-        """
+
         df[col_name_with_month_value] = df[col_name_with_month_value].apply(lambda x:re.findall(regex_for_format,x)[0])
         df[col_name_with_month_value] = df[col_name_with_month_value].map(comp_harm_constants.MONTH_REFERENCE_BY_LANGUAGE)
 
-        
         return self.add_integer_month_column_using_existing_month_col_with_full_month_names(
             df,
             col_name_with_month_value,
@@ -522,7 +521,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  comp_harm_constants.MEDIA_TYPE_COLUMN,
                  fixed_str_value)
 
-    def replace_empty_values_with_NOT_AVAILABLE(
+    def replace_empty_string_values_with_NOT_AVAILABLE(
             self,
             df,
             column_name):
@@ -592,12 +591,11 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         category_mappings = dict(comp_harm_constants.CATEGORY_MAPPINGS,
                                  **dict_country_specific_categories)
 
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match \
-            (df,
-             existing_category_col_name,
-             comp_harm_constants.CATEGORY_COLUMN,
-             category_mappings
-             )
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            existing_category_col_name,
+            comp_harm_constants.CATEGORY_COLUMN,
+            category_mappings)
 
     def add_HARMONIZED_CATEGORY_column_using_existing_category_column(
             self,
@@ -623,16 +621,17 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             standardized category names used by the competitive
             harmonization project.
         """
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
-                (df,
-                 existing_category_col_name,
-                 comp_harm_constants.CATEGORY_COLUMN,
-                 comp_harm_constants.CATEGORY_MAPPINGS)
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            existing_category_col_name,
+            comp_harm_constants.CATEGORY_COLUMN,
+            comp_harm_constants.CATEGORY_MAPPINGS)
 
-    def add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_value(
+    def add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values(
         self, 
         df):
-        return self.replace_empty_values_with_NOT_AVAILABLE(df,
+        return self.replace_empty_string_values_with_NOT_AVAILABLE(
+            df,
             comp_harm_constants.SUBCATEGORY_COLUMN)
 
     def update_HARMONIZED_CATEGORY_column_using_raw_subcategory_column_values(

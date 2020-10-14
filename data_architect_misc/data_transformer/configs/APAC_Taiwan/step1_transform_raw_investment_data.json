@@ -108,7 +108,7 @@
       },
       {
         "__function_comment__": "In Taiwan INV data we do not have Category names so we are going to add 'Not Available'",
-        "function_name": "replace_empty_values_with_NOT_AVAILABLE",
+        "function_name": "replace_empty_string_values_with_NOT_AVAILABLE",
         "function_args": ["HARMONIZED_CATEGORY"]
       },
       {

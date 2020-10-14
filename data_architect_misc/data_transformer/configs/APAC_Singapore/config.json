@@ -63,7 +63,7 @@
       {
         "__function_comment__": "In Singapore we do not have some Advertisers names so we are going to add 'Not Available'",
         "__function_comment__": "where we do not have an Advetiser name related to the brand names, as was made in the previous function.",
-        "function_name": "replace_empty_values_with_NOT_AVAILABLE",
+        "function_name": "replace_empty_string_values_with_NOT_AVAILABLE",
         "function_args": ["HARMONIZED_ADVERTISER"]
       },
       {
