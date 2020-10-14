@@ -14,9 +14,14 @@ formula -
 in column 'C' and replace the existing variable,
 'subcategory_category_relations', below.
 """
+from constants.comp_harm_constants import NOT_AVAILABLE
 
 last_updated = '2020-10-05'
 subcategory_category_relations = {
+    # Sometimes in countries like Guatemala, we do not receive subcategory column.
+    # Then, we must assign them to 'Not Available' as subcategory and leave category as empty. 
+    NOT_AVAILABLE: NOT_AVAILABLE,
+
     'Air Freshners': 'Home Care',
     'Bleach': 'Home Care',
     'Cleaners Glass': 'Home Care',

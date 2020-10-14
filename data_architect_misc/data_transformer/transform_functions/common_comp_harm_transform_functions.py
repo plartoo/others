@@ -320,6 +320,26 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         return self.rename_columns(
             df,
             {col_name_with_month_value: comp_harm_constants.MONTH_COLUMN})
+    
+    def add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex(
+            self,
+            df,
+            col_name_with_month_value: str,
+            regex_for_format):
+        import re
+        """
+        you can find a way to apply regex to ALL rows in a dataframe's column
+        then apply that regex to get the month's name in a new column called constants.comp_harm_constants.MONTH_COLUMN
+        then you can update the month's name in Spanish using the dictionary that you will be creating for Spanish to English months
+        """
+        df[col_name_with_month_value] = df[col_name_with_month_value].apply(lambda x:re.findall(regex_for_format,x)[0])
+        df[col_name_with_month_value] = df[col_name_with_month_value].map(comp_harm_constants.MONTH_REFERENCE_BY_LANGUAGE)
+
+        
+        return self.add_integer_month_column_using_existing_month_col_with_full_month_names(
+            df,
+            col_name_with_month_value,
+            comp_harm_constants.MONTH_COLUMN)
 
     def add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values(
             self,
@@ -514,7 +534,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df[column_name] = comp_harm_constants.NOT_AVAILABLE
         else:
             df[column_name] = df[column_name].replace('', comp_harm_constants.NOT_AVAILABLE)
-
         return df
 
     def add_HARMONIZED_CURRENCY_column(self,
@@ -609,6 +628,12 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  existing_category_col_name,
                  comp_harm_constants.CATEGORY_COLUMN,
                  comp_harm_constants.CATEGORY_MAPPINGS)
+
+    def add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_value(
+        self, 
+        df):
+        return self.replace_empty_values_with_NOT_AVAILABLE(df,
+            comp_harm_constants.SUBCATEGORY_COLUMN)
 
     def update_HARMONIZED_CATEGORY_column_using_raw_subcategory_column_values(
             self,
