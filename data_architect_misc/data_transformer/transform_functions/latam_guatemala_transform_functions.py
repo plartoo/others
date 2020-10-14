@@ -31,7 +31,6 @@ class LatamGuatemalaTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*PAQUETE.*FIJO.*HOGAR.*": "Other",
         "(?i).*EQUIPO.*INSTRUMENTO.*MEDICO.*": "Other",
         "(?i).*ELEARNING.*": "Other",
-         
     }
 
     def __init__(self, config):
