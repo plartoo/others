@@ -18,7 +18,7 @@
         "__comment__": "the SAME date range as the input file provided via commandline as base.",
         "__comment__": "That's the only way for us to ensure that the user of this config does NOT forget to update ",
         "__comment__": "the input file names.",
-        "function_name": "create_new_dataframe_from_input_CSV_files",
+        "function_name": "create_new_dataframe_from_input_CSV_files ",
         "function_args": ["./output/LATAM_Costa_Rica"]
 
       }

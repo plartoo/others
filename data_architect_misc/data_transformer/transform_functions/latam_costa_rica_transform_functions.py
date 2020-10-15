@@ -37,6 +37,7 @@ class LatamCostaRicaTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*COURIER.*": "Other",
         "(?i).*BEBE.*GENERICO.*": "Other",
         "(?i).*CENTRO.*COM.*OTROS.*": "Other",
+        
     }
 
     def __init__(self, config):
