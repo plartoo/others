@@ -1,0 +1,27 @@
+[
+  {
+    "__comment__": "Use this config AFTER running step 1 config.",
+    "__comment__": "IMPORTANT:: Make sure to update the name of the files in 'create_new_dataframe_from_input_files' function.",
+
+    "header": 0,
+    "input_delimiter": "|",
+
+    "write_output": true,
+    "output_folder_path": "./output/LATAM_Costa_Rica/",
+    "output_file_name_prefix": "Combined_Costa_Rica_Investment_20200801_20200801_",
+
+    "custom_transform_functions_file": "./transform_functions/latam_costa_rica_transform_functions.py",
+
+    "functions_to_apply": [
+      {
+        "__comment__": "This function will first check to make sure that the input files listed below are of ",
+        "__comment__": "the SAME date range as the input file provided via commandline as base.",
+        "__comment__": "That's the only way for us to ensure that the user of this config does NOT forget to update ",
+        "__comment__": "the input file names.",
+        "function_name": "create_new_dataframe_from_input_CSV_files ",
+        "function_args": ["./output/LATAM_Costa_Rica"]
+
+      }
+    ]
+  }
+]
