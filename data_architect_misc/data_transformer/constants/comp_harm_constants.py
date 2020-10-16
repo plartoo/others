@@ -140,6 +140,7 @@ ADVERTISER_MAPPINGS = {
     "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
+    "(?i)GENOMMA.*": "GENOMMA LAB",
     "(?i).*GLAXO.*": "GSK",  # also catches "\u200EGlaxoSmithKline"
     "(?i)^GSK.*": "GSK",
     "(?i).*HENKEL.*": "HENKEL",
@@ -585,6 +586,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*PAPA.*TOSTADA.*": "Other",
     "(?i).*FARMACIA.*": "Other",
     "(?i).*HEMORROIDE.*": "Other",
+    "(?i).*PRESERVATIVO.*": "Other",
 
     "(?i).*ALIMENTO.*PERRO.*": "Pet Nutrition",
     
@@ -636,10 +638,20 @@ SPANISH_CATEGORY_MAPPINGS = {
 CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS, **ENGLISH_CATEGORY_MAPPINGS)
 
 MONTH_REFERENCE_BY_LANGUAGE = {
-    "Ene": "January",
-    "Enero": "January",
-    "Abr": "April",
-    "Abril": "April",
-    "Ago": "August",
-    "Agosto": "August",
+     "Ene": "January",
+     "Enero": "January",
+     "Febrero": "February",
+     "Marzo": "March",
+     "Abr": "April",
+     "Abril": "April",
+     "Mayo": "May",
+     "Junio": "June",
+     "Julio": "July",
+     "Ago": "August",
+     "Agosto": "August",
+     "Septiembre": "September",
+     "Octubre": "October",
+     "Noviembre": "November",
+     "Dic": "December",
+     "Diciembre": "December",
 }
