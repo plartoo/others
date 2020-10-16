@@ -37,6 +37,14 @@ class PandasCSVDataReader(PandasFileDataReader):
     KEY_SKIP_BLANK_LINES = 'skip_blank_lines'
     DEFAULT_SKIP_BLANK_LINES = False
 
+    # Should CSV quoting - control field behavior per csv.quote
+    QUOTING_BEHAVIOR_CSV = 'quoting_behavior'
+    DEFAULT_QUOTING_BEHAVIOR_CSV = 0
+    
+    # Should CSV escape character
+    ESCAPE_CHARACTER_CSV = 'escape_character'
+    DEFAULT_ESCAPE_CHARACTER_CSV = None
+
     def __init__(self, input_file_path_and_name, config):
         super().__init__(config)
         self.logger = logging.getLogger(__name__)
@@ -50,6 +58,10 @@ class PandasCSVDataReader(PandasFileDataReader):
                                    self.DEFAULT_INPUT_FILE_ENCODING)
         self.skip_blank_lines = config.get(self.KEY_SKIP_BLANK_LINES,
                                            self.DEFAULT_SKIP_BLANK_LINES)
+        self.quoting = config.get(self.QUOTING_BEHAVIOR_CSV,
+                                           self.DEFAULT_QUOTING_BEHAVIOR_CSV)
+        self.escape_char = config.get(self.ESCAPE_CHARACTER_CSV,
+                                           self.DEFAULT_ESCAPE_CHARACTER_CSV)
         self.headers = self.read_header_row()
         # Number of times read_next_dataframe is called
         self.read_iter_count = 0
@@ -72,6 +84,8 @@ class PandasCSVDataReader(PandasFileDataReader):
             header=self.header_row_index,
             encoding=self.encoding,
             delimiter=self.delimiter,
+            quoting=self.quoting,
+            escapechar=self.escape_char,
             nrows=0
         ).columns.to_list()
 
@@ -88,6 +102,8 @@ class PandasCSVDataReader(PandasFileDataReader):
                 encoding=self.encoding,
                 delimiter=self.delimiter,
                 skiprows=row_idx_to_start_reading,
+                quoting=self.quoting,
+                escapechar=self.escape_char,
                 nrows=rows_to_read
             )
 
