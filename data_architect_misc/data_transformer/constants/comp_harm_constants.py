@@ -150,13 +150,11 @@ ADVERTISER_MAPPINGS = {
     "(?i).*PROCTER.*&.*GAMBLE.*": "P&G",
     "(?i).*PROCTER.*AND.*GAMBLE.*": "P&G",
     "(?i)P.*&.*G.*": "P&G",
-    "(?i).*RECKITT.*": "RECKITT BENCKISER",
-    "(?i).*RECKIT.*BENCKISER.*": "RECKITT BENCKISER",
+    "(?i).*RECKIT(T)?.*": "RECKITT BENCKISER",
     "(?i)^RB\\s*?$": "RECKITT BENCKISER",
     "(?i)^RB\\sAG$": "RECKITT BENCKISER",
     "(?i)SANOFI.*": "SANOFI",
-    "(?i)SC JOHNSON.*": "JOHNSON & JOHNSON",
-    "(?i)S.C. JOHNSON.*": "JOHNSON & JOHNSON",
+    "(?i)S(.)?C(.)? JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i).*UNILEVER.*": "UNILEVER"
 }
 
@@ -168,7 +166,6 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*Laundry.*": "Home Care",
     "(?i)Cleaning.*agent.*": "Home Care",
     "(?i).*Detergent.*": "Home Care",
-
 
     "(?i)^OC$": "Oral Care",
     "(?i).*ORAL.*": "Oral Care",

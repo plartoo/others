@@ -37,16 +37,15 @@ class LatamCostaRicaTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*COURIER.*": "Other",
         "(?i).*BEBE.*GENERICO.*": "Other",
         "(?i).*CENTRO.*COM.*OTROS.*": "Other",
-        
     }
 
     def __init__(self, config):
         self.config = config
 
-    def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(self,
-                                                   df,
-                                                   existing_category_col_name: str
-                                                   ):
+    def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(
+            self,
+            df,
+            existing_category_col_name: str):
         """
         Helper function to invoke the common comp harm function that will help us apply
         country-specific mappings for HARMONIZED_CATEGORY column.
