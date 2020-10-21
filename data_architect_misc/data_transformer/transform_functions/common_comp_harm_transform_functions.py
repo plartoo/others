@@ -219,6 +219,23 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             col_name_with_year_value,
             comp_harm_constants.YEAR_COLUMN)
 
+    def add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex(
+            self,
+            df,
+            col_name_with_year_value: str,
+            regex_for_format):
+        """
+        In countries like Peru, the year's value come in the form of something like,
+        'Setiembre del 2020' and we need to harmonize them.
+        """
+        import re
+
+        df[comp_harm_constants.YEAR_COLUMN] = df[col_name_with_year_value].apply(lambda x:re.findall(regex_for_format,x)[0])
+
+        return self.add_year_column_using_existing_column_with_year_values(
+            df,
+            comp_harm_constants.YEAR_COLUMN)
+
     def add_HARMONIZED_MONTH_column_by_renaming_existing_column(
             self,
             df,
@@ -334,7 +351,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
 
         df[col_name_with_month_value] = df[col_name_with_month_value].apply(lambda x:re.findall(regex_for_format,x)[0])
         df[col_name_with_month_value] = df[col_name_with_month_value].map(comp_harm_constants.MONTH_REFERENCE_BY_LANGUAGE)
-
         return self.add_integer_month_column_using_existing_month_col_with_full_month_names(
             df,
             col_name_with_month_value,
