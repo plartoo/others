@@ -42,7 +42,7 @@
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name but using a format with a regex.",
         "function_name": "add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex",
-        "function_args": ["MES","\\w+$"]
+        "function_args": ["MES","\\d+$"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex.",
