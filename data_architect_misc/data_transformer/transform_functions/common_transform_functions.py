@@ -1209,6 +1209,7 @@ class CommonTransformFunctions(TransformFunctions):
             raise transform_errors.InputDataTypeError("Parameters for existing month column "
                                                       "name and new month column name must be "
                                                       "of string type.")
+
         df[new_month_col_name] = df[existing_month_col_name_with_full_month_names].map(
             lambda x: datetime.datetime.strptime(x, '%B').month)
 
