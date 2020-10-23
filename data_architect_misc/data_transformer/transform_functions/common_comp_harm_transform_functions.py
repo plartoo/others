@@ -350,15 +350,14 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         """
         import re
 
-        df[col_name_with_month_value] = df[col_name_with_month_value].apply(
+        df[col_name_with_month_value] = df[col_name_with_month_value].str.lower().apply(
             lambda x:re.findall(regex_for_format, x)[0])
         df[col_name_with_month_value] = df[col_name_with_month_value].map(
             comp_harm_constants.MONTH_REFERENCE_BY_LANGUAGE)
 
-        return self.add_integer_month_column_using_existing_month_col_with_full_month_names(
+        return self.rename_columns(
             df,
-            col_name_with_month_value,
-            comp_harm_constants.MONTH_COLUMN)
+            {col_name_with_month_value: comp_harm_constants.MONTH_COLUMN})
 
     def add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values(
             self,
