@@ -92,6 +92,7 @@ if __name__ == '__main__':
 
             row_count = 0
             cur_df = reader.read_next_dataframe()
+
             while not cur_df.empty:
                 for func_and_params in transform_utils.get_functions_to_apply(config):
                     # logger.info(f"Invoking function:{json.dumps(func_and_params, sort_keys=True, indent=4)}")
