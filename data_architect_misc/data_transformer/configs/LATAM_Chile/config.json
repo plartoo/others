@@ -21,7 +21,7 @@
     "functions_to_apply": [
       {
         "__function_comment__": "Excel file has rows that not belong to the original data. We need to drop them first",
-        "function_name": "drop_rows_if_a_string_contain_specific_value",
+        "function_name": "drop_rows_with_matching_string_values",
         "function_args": [["Año","Mes","Categoria","Empresa","Subrubro","Producto","Marca","Calidad","Medio","Ag Creativa","Rubro","Ag Medios","Avisos","Fisico"],[" Total"," Total"," Total"," Total"," Total"," Total"," Total"," Total"," Total"," Total"," Total"," Total"," Total"," Total"]]
       },
       {
