@@ -19,27 +19,6 @@ class LatamChileTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     CHILE_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*ISOTONICA.*": "Other",
-        "(?i).*MASA\sREFRIGERADA.*": "Other",
-        "(?i).*DELIVERY\sOTROS.*": "Other",
-        "(?i).*(\b)?GIN(\b)?.*": "Other",
-        "(?i).*(\b)?LANA(\b)?.*": "Other",
-        "(?i).*(\b)?PUERTA(\b)?.*": "Other",
-        "(?i).*CECINAS.*": "Other",
-        "(?i).*QUINCALLERIA.*": "Other",
-        "(?i).*LINEA\sTRABAJO.*": "Other",
-        "(?i).*PISCO.*": "Other",
-        "(?i).*ISAPRES.*": "Other",
-        "(?i).*BODEGAJE.*": "Other",
-        "(?i).*GRUPO\sGENERADOR.*": "Other",
-        "(?i).*CALENTADOR\sAMBIENTAL.*": "Other",
-        "(?i).*COCHE.*BEBE.*": "Other",
-        "(?i).*PAPEL\sMURAL.*": "Other",
-        "(?i).*PREVISION\sPRIVADA.*": "Other",
-        "(?i).*CORRETAJE.*": "Other",
-        "(?i).*ELECTRO\sBLANCA.*": "Other",
-        "(?i).*TUBO.*SANITARIO.*": "Other",
-
         "(?i).*TRAPEADOR.*": "Home Care",
     }
 
