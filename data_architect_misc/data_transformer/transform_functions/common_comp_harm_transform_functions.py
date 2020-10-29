@@ -596,6 +596,15 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             [comp_harm_constants.GROSS_SPEND_COLUMN],
             2)
+    
+    def replace_non_standard_category_values_with_EMPTY_values(self,
+            df,
+            new_col_name = comp_harm_constants.CATEGORY_COLUMN):
+        temporal_categories = comp_harm_constants.CATEGORIES.copy()
+        temporal_categories.remove('Other')
+        df[new_col_name] = df[new_col_name].apply(lambda x : x if x in temporal_categories else None)
+
+        return df
 
     def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
             self,
@@ -609,6 +618,11 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         # REF: https://stackoverflow.com/a/1784128/1330974
         category_mappings = dict(comp_harm_constants.CATEGORY_MAPPINGS,
                                  **dict_country_specific_categories)
+        
+        # We found that there are a lot of possible mappings for 'Other' category.
+        # So instead of creating individual mappings for them in regex, which slows 
+        # down the data processing by a lot, we will just mark them as 'Not Available'
+        # and we will remap them SQL after product mappings are done.
 
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
@@ -746,6 +760,33 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
             "")
+
+    def add_RAW_CATEGORY_column_by_renaming_existing_column(
+            self,
+            df,
+            raw_category_col_name: str
+    ):
+        """
+        Although this method name starts with 'add_*', it actually simply
+        renames an existing column (Category, Subcategory, Brand, Subbrand, Product Name)
+        to standardized column name.
+
+        I decided to name it as such so that it is easier for team members
+        who aren't very familiar with coding to follow the "flow" in JSON
+        config file.
+
+        Args:
+            df: Raw dataframe to transform.
+            raw_category_col_name: Name of the existing column, which
+            has category names (string values).
+
+        Returns:
+            Dataframe with original column (Category, Subcategory, Brand, Subbrand, etc)
+            renamed to standardized column name.
+        """
+        return self.rename_columns(
+            df,
+            {raw_category_col_name: comp_harm_constants.RAW_CATEGORY_COLUMN})
 
     def add_RAW_BRAND_column_by_renaming_existing_column(
             self,
