@@ -38,7 +38,7 @@
       },
       {
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [17]
+        "function_args": [18]
       },
       {
         "function_name": "assert_no_null_value_in_essential_columns"
@@ -75,6 +75,9 @@
       },
       {
         "function_name": "alert_standard_MEDIA_TYPE_values_that_are_not_found_in_data"
+      },
+      {
+        "function_name": "alert_category_values_that_are_not_found_in_data_and_are_mapped_as_empty_values"
       },
       {
         "function_name": "assert_CATEGORY_values_are_valid"
