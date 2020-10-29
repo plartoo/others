@@ -609,23 +609,30 @@ class CommonCompHarmQAFunctions:
 
         return df
 
-    def alert_category_values_that_are_not_found_in_data_and_are_mapped_as_empty_values(
+    def alert_category_values_that_cannot_be_mapped_using_our_mapping_dictionary(
             self,
             df):
         """
-        Checks and alert about some categories that potentially could be mapped due to these values 
-        had to be mapped as EMPTY based on all standard category mapping.
+        We eventually found that there are so many categories (especially in 'Other' category)
+        that we can never anticipate and create mappings in comp_harm_constants.CATEGORY_MAPPINGS.
+        In that case, we decided to leave the corresponding HARMONIZED_CATEGORY cell as empty.
+        This QA check will collect such cells with empty string values (in HARMONIZED_CATEGORY)
+        and alert the user that there are categories that are NOT mapped.
+
+        The hope here is that the reviewer of this QA alert will add in new mappings as necessary
+        or decide to leave it as empty so that the final stage in our data processing will take
+        care of filling the blanks.
         """
-        potentially_categories_that_are_not_classified = (
+        raw_category_names_that_cannot_be_harmonized = (
                 set(df.loc[df[comp_harm_constants.CATEGORY_COLUMN] == ''][comp_harm_constants.RAW_CATEGORY_COLUMN])
         )
-        if potentially_categories_that_are_not_classified:
+        if raw_category_names_that_cannot_be_harmonized:
             self.logger.warning(
-                f"QA => These CATEGORIES are NOT being mapped in the transformed data. "
-                f"Make sure that it is normal/excepted:\n"
-                f"These CATEGORIES could belong to Personal Care, Oral Care and Home Care. "
-                f"Make sure to map the categories under the categories in scope on the comp_harm_constant:\n"
-                f"{sorted(potentially_categories_that_are_not_classified)}")
+                f"QA => These RAW CATEGORY names cannot be mapped by the transform module. "
+                f"Please quickly scan them to see if they are expected. If you see anything "
+                f"that can be added to the mapping dictionary in the transform module, please "
+                f"alert the developers to do so.\n"
+                f"{sorted(raw_category_names_that_cannot_be_harmonized)}")
 
         return df
 

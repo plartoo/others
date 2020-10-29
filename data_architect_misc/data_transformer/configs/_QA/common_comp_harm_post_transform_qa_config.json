@@ -77,10 +77,10 @@
         "function_name": "alert_standard_MEDIA_TYPE_values_that_are_not_found_in_data"
       },
       {
-        "function_name": "alert_category_values_that_are_not_found_in_data_and_are_mapped_as_empty_values"
+        "function_name": "assert_CATEGORY_values_are_valid"
       },
       {
-        "function_name": "assert_CATEGORY_values_are_valid"
+        "function_name": "alert_category_values_that_are_not_found_in_data_and_are_mapped_as_empty_values"
       },
       {
         "__comment__": "To prevent us from mapping 'Toothpaste' to 'Personal Care' for example.",
