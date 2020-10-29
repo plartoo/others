@@ -59,7 +59,6 @@ class CommonCompHarmQAFunctions:
         comp_harm_constants.COUNTRY_COLUMN,
         comp_harm_constants.ADVERTISER_COLUMN,
         comp_harm_constants.MEDIA_TYPE_COLUMN,
-        comp_harm_constants.CATEGORY_COLUMN,
         comp_harm_constants.GROSS_SPEND_COLUMN
     ]
 
@@ -444,7 +443,8 @@ class CommonCompHarmQAFunctions:
             # to avoid the dreaded FutureWarning from numpy
             # Read more here:
             # https://stackoverflow.com/a/46721064/1330974
-            if not df.loc[df[col_name].astype(str) == ''].empty and col_name != comp_harm_constants.CATEGORY_COLUMN:
+            if not df.loc[df[col_name].astype(str) == ''].empty:
+                # We will
                 cols_with_empty_str.append(col_name)
 
         if cols_with_empty_str:
@@ -543,7 +543,7 @@ class CommonCompHarmQAFunctions:
             comp_harm_constants.COUNTRIES
         )
 
-    def checks_ADVERTISER_values_that_do_not_have_mapping(
+    def check_ADVERTISER_values_that_do_not_have_mapping(
             self,
             df):
         """
@@ -555,6 +555,7 @@ class CommonCompHarmQAFunctions:
         new advertisers to the mapping if relevant.
         """
         major_competitors = set(comp_harm_constants.ADVERTISER_MAPPINGS.values())
+
         # Sometimes in countries like Taiwan, we do not get Advertiser names in SOS raw data.
         # For that, we need to set them to 'Not Available' and deal with them later if the client asks us to.
         # Therefore, the code below adds 'Not Available' as one of the allowed

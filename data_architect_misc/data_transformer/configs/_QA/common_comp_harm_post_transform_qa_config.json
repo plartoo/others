@@ -68,7 +68,7 @@
         "function_name": "assert_COUNTRY_values_are_valid"
       },
       {
-        "function_name": "checks_ADVERTISER_values_that_do_not_have_mapping"
+        "function_name": "check_ADVERTISER_values_that_do_not_have_mapping"
       },
       {
         "function_name": "assert_MEDIA_TYPE_values_are_valid"
