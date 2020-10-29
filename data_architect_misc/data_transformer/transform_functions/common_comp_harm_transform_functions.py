@@ -596,21 +596,14 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             [comp_harm_constants.GROSS_SPEND_COLUMN],
             2)
-    
-    def replace_non_standard_category_values_with_EMPTY_values(self,
-            df,
-            new_col_name = comp_harm_constants.CATEGORY_COLUMN):
-        temporal_categories = comp_harm_constants.CATEGORIES.copy()
-        temporal_categories.remove('Other')
-        df[new_col_name] = df[new_col_name].apply(lambda x : x if x in temporal_categories else None)
-
-        return df
 
     def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
             self,
             df,
             dict_country_specific_categories,
-            existing_category_col_name: str):
+            existing_category_col_name: str,
+            leave_empty_if_no_match=False
+    ):
         """
         We have some specific category mappings in different countries, so we will
         wrap the common comp. harm. transform function with this one.
@@ -628,7 +621,9 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             existing_category_col_name,
             comp_harm_constants.CATEGORY_COLUMN,
-            category_mappings)
+            category_mappings,
+            leave_empty_if_no_match
+        )
 
     def add_HARMONIZED_CATEGORY_column_using_existing_category_column(
             self,

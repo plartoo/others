@@ -952,7 +952,9 @@ class CommonTransformFunctions(TransformFunctions):
             df,
             existing_col_name,
             new_col_name,
-            dictionary_of_mappings):
+            dictionary_of_mappings,
+            leave_empty_if_no_match=False
+    ):
         """
         Creates a new column with values based on the dictionary of
         mappings in which keys represent **REGULAR EXPRESSION** values
@@ -961,14 +963,19 @@ class CommonTransformFunctions(TransformFunctions):
         existing column, the new column will be assigned corresponding
         value from the dictionary.
 
-        **If regular expression does NOT match the value in the existing
-        column, original value from the existing column will be copied
-        to the new column.**
+        **When 'leave_empty_if_no_match' is set to False and if none
+        of the regular expressions in the dictionary_of_mappings match
+        with the value in the existing column, original value from the
+        existing column will be copied to the new column. This allows
+        us to decide whether to copy raw values into the new column
+        when mapping does not exist or just leave the new column values
+        blank.**
 
-        Suppose we want to create a new column named "Harmonized_Advertiser"
-        based on "Advertiser" column. When we see "L'OREAL PARIS",
-        "L'oreal Paris" and "l'oreal" in 'Advertiser' column, we want to
-        assign in the value "LOREAL" in 'Harmonized_Advertiser' column.
+        Usage example: suppose we want to create a new column named
+        "Harmonized_Advertiser" based on the "Advertiser" column.
+        When we see "L'OREAL PARIS", "L'oreal Paris" and "l'oreal" in
+        the "Advertiser" column, we want to assign in the value
+        "LOREAL" in 'Harmonized_Advertiser' column.
         Then we can call this method with parameters like this:
         add_new_column_with_values_based_on_another_column_values_using_regex_match(
         df, "Advertiser", "Harmonized_Advertiser", {"(i?)l\'oreal.*": "LOREAL"}).
@@ -990,6 +997,11 @@ class CommonTransformFunctions(TransformFunctions):
             in which keys represent **regular expression** values to look for
             in existing column and values representing the ones to be assigned
             in the new column.
+            leave_empty_if_no_match: When it's set to False (by default),
+            if the dictionary_of_mappings don't have matching regex for the
+            raw value in the column, the raw value will be copied to the new
+            column. When set to True, the new column will be left with an
+            empty string value.
 
         Returns:
             The dataframe with the new column attached with values either from
@@ -1006,6 +1018,13 @@ class CommonTransformFunctions(TransformFunctions):
                 "new column.")
 
         df[new_col_name] = df[existing_col_name].replace(regex=dictionary_of_mappings)
+
+        if leave_empty_if_no_match:
+            df.loc[df[new_col_name] == df[existing_col_name]] = ''
+            # do something Maicol
+            # If the regex mapping does NOT exist, we need to leave this cell blank
+            # Test it on Chile and another country, please
+            pass
 
         return df
 
