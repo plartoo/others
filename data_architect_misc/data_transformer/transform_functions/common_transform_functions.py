@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 
 import transform_errors
+from constants import comp_harm_constants
 from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_HEADER
 
 

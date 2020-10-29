@@ -444,7 +444,7 @@ class CommonCompHarmQAFunctions:
             # to avoid the dreaded FutureWarning from numpy
             # Read more here:
             # https://stackoverflow.com/a/46721064/1330974
-            if not df.loc[df[col_name].astype(str) == ''].empty:
+            if not df.loc[df[col_name].astype(str) == ''].empty and col_name != comp_harm_constants.CATEGORY_COLUMN:
                 cols_with_empty_str.append(col_name)
 
         if cols_with_empty_str:
@@ -605,6 +605,26 @@ class CommonCompHarmQAFunctions:
                 f"QA => These MEDIA_TYPEs are NOT found in the transformed data. "
                 f"Make sure that it is normal/exepcted:\n"
                 f"{sorted(potentially_missing_media_types)}")
+
+        return df
+
+    def alert_category_values_that_are_not_found_in_data_and_are_mapped_as_empty_values(
+            self,
+            df):
+        """
+        Checks and alert about some categories that potentially could be mapped due to these values 
+        had to be mapped as EMPTY based on all standard category mapping.
+        """
+        potentially_categories_that_are_not_classified = (
+                set(df.loc[df[comp_harm_constants.CATEGORY_COLUMN] == ''][comp_harm_constants.RAW_CATEGORY_COLUMN])
+        )
+        if potentially_categories_that_are_not_classified:
+            self.logger.warning(
+                f"QA => These CATEGORIES are NOT being mapped in the transformed data. "
+                f"Make sure that it is normal/excepted:\n"
+                f"These CATEGORIES could belong to Personal Care, Oral Care and Home Care. "
+                f"Make sure to map the categories under the categories in scope on the comp_harm_constant:\n"
+                f"{sorted(potentially_categories_that_are_not_classified)}")
 
         return df
 
