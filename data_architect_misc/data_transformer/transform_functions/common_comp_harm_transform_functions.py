@@ -708,18 +708,43 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
                  raw_subcategory_column_name,
                  regex_mappings_from_raw_subcategory_values_to_harmonized_category_values)
 
+    def add_RAW_CATEGORY_column_by_renaming_existing_column(
+            self,
+            df,
+            raw_category_col_name: str
+    ):
+        """
+        Renames an existing column name, which has raw category data,
+        to standardized RAW_CATEGORY_COLUMN name.
+
+        Note: Although this method name starts with 'add_*', it just renames
+        an existing column (Category, Subcategory, Brand, Subbrand,
+        Product Name, etc.) to their standardized column names.
+
+        I decided to name it this way so that it is easier for team members
+        who aren't very familiar with coding to follow the "flow" in the JSON
+        config file.
+
+        Args:
+            df: Raw dataframe to transform.
+            raw_category_col_name: Name of the existing column, which
+            has category names (string values).
+
+        Returns:
+            Dataframe with original column (Category, Subcategory, Brand, Subbrand, etc)
+            renamed to standardized column name.
+        """
+        return self.rename_columns(
+            df,
+            {raw_category_col_name: comp_harm_constants.RAW_CATEGORY_COLUMN})
+
     def add_RAW_SUBCATEGORY_column_by_renaming_existing_column(
             self,
             df,
             raw_subcategory_col_name: str):
         """
-        Although this method name starts with 'add_*', it actually simply
-        renames an existing column (Subcategory, Brand, Subbrand, Product Name)
-        to standardized column name.
-
-        I decided to name it as such so that it is easier for team members
-        who aren't very familiar with coding to follow the "flow" in JSON
-        config file.
+        Same as 'add_RAW_CATEGORY_column_by_renaming_existing_column'
+        but this one is for RAW_SUBCATEGORY column.
 
         Args:
             df: Raw dataframe to transform.
@@ -739,13 +764,12 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df
     ):
         """
-        Although this method name starts with 'add_*', it actually simply
-        renames an existing column (Subcategory, Brand, Subbrand, Product Name)
-        to standardized column name.
-
-        I decided to name it as such so that it is easier for team members
-        who aren't very familiar with coding to follow the "flow" in JSON
-        config file.
+        This methods instantiates an empty column with standardized
+        RAW_SUBCATEGORY_COLUMN name. Sometimes, we call this function before
+        modifying the raw values and copying them into this empty column.
+        Sometimes, we call this function because there is simply no raw
+        subcategory data available, but 1PH standard requires us to
+        have a HARMONIZED_SUBCATEGORY column.
 
         Args:
             df: Raw dataframe to transform.
@@ -761,46 +785,20 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
             "")
 
-    def add_RAW_CATEGORY_column_by_renaming_existing_column(
-            self,
-            df,
-            raw_category_col_name: str
-    ):
-        """
-        Although this method name starts with 'add_*', it actually simply
-        renames an existing column (Category, Subcategory, Brand, Subbrand, Product Name)
-        to standardized column name.
-
-        I decided to name it as such so that it is easier for team members
-        who aren't very familiar with coding to follow the "flow" in JSON
-        config file.
-
-        Args:
-            df: Raw dataframe to transform.
-            raw_category_col_name: Name of the existing column, which
-            has category names (string values).
-
-        Returns:
-            Dataframe with original column (Category, Subcategory, Brand, Subbrand, etc)
-            renamed to standardized column name.
-        """
-        return self.rename_columns(
-            df,
-            {raw_category_col_name: comp_harm_constants.RAW_CATEGORY_COLUMN})
-
     def add_RAW_BRAND_column_by_renaming_existing_column(
             self,
             df,
             raw_brand_col_name: str):
         """
-        Same as 'add_RAW_BRAND_column' but this one is for
-        RAW_BRAND column.
+        Same as 'add_RAW_CATEGORY_column_by_renaming_existing_column'
+        but this one is for RAW_BRAND column.
 
-        Against DRY practices, I decided to duplicate and slightly
-        modified 'add_RAW_BRAND_column' here because I want
-        to make sure my team members are forced to declare this method
-        via JSON config file (otherwise, I'm afraid they'll forget
-        or just not pay attention much on data transformation process).
+        Against the DRY suggestion in coding, I decided to duplicate
+        'add_RAW_CATEGORY_column_by_renaming_existing_column' method
+        here because I want to make sure that team members are forced
+        to declare this method in the JSON config file. This helps
+        reader of the JSON config file to know what exactly is being
+        carried out in each data processing flow.
 
         Args:
             df: Raw dataframe to transform.
