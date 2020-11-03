@@ -27,7 +27,8 @@ class LatamChileTransformFunctions(CommonCompHarmTransformFunctions):
 
     def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(self,
                                                    df,
-                                                   existing_category_col_name: str
+                                                   existing_category_col_name: str,
+                                                   leave_empty_if_no_match = False,
                                                    ):
         """
         Helper function to invoke the common comp harm function that will help us apply
@@ -36,5 +37,6 @@ class LatamChileTransformFunctions(CommonCompHarmTransformFunctions):
         return self. add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
             df,
             LatamChileTransformFunctions.CHILE_SPECIFIC_CATEGORY_MAPPINGS,
-            existing_category_col_name
+            existing_category_col_name,
+            leave_empty_if_no_match
         )
