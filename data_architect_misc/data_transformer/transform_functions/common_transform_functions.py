@@ -1018,13 +1018,9 @@ class CommonTransformFunctions(TransformFunctions):
                 "new column.")
 
         df[new_col_name] = df[existing_col_name].replace(regex=dictionary_of_mappings)
-
         if leave_empty_if_no_match:
-            df.loc[df[new_col_name] == df[existing_col_name]] = ''
-            # do something Maicol
+            df.loc[df[new_col_name] == df[existing_col_name],new_col_name] = ''
             # If the regex mapping does NOT exist, we need to leave this cell blank
-            # Test it on Chile and another country, please
-            pass
 
         return df
 
