@@ -10,7 +10,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Malaysia/",
-    "output_file_name_prefix": "Combined_Malaysia_Investment_20200501_20200531_",
+    "output_file_name_prefix": "Combined_Malaysia_Investment_20200901_20200901_",
 
     "custom_transform_functions_file": "./transform_functions/apac_malaysia_transform_functions.py",
 

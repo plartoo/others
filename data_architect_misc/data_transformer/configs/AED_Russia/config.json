@@ -93,7 +93,7 @@
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["MEDIA TYPE GENERAL"]
+        "function_args": ["MEDIA_TYPE"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'RUB' (Russian Ruble) as value.",
@@ -103,11 +103,16 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["GROSS_SPEND_IN_LOCAL_CURRENCY"]
+        "function_args": ["GROSS_SPEND_IN_RUSSIAN RUBLE"]
       },
       {
         "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
         "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
+        "function_args": ["CATEGORY"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
         "function_args": ["CATEGORY"]
       },
       {
@@ -137,6 +142,10 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",

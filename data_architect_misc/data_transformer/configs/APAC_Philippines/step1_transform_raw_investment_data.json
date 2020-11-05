@@ -56,6 +56,11 @@
         "function_args": ["Philippines"]
       },
       {
+        "__function_comment__": "Add new column name based of possible columns names for date column",
+        "function_name": "add_new_column_using_one_of_the_existing_column_with_several_possible_names",
+        "function_args": [["Advertiser"],["Advertiser","Advertiser "]]
+      },
+      {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
         "function_args": ["Advertiser"]
@@ -87,6 +92,16 @@
         "function_args": ["Category", {"(?i).*Animal Feed.*": "Pet Nutrition"}]
       },
       {
+        "__function_comment__": "Create RAW_CATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
+        "function_args": ["Section"]
+      },
+      {
+        "__function_comment__": "Add new column name based of possible columns names for date column",
+        "function_name": "add_new_column_using_one_of_the_existing_column_with_several_possible_names",
+        "function_args": [["Brand"],["Brand","Brand "]]
+      },
+      {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
         "function_args": ["Brand"]
@@ -108,6 +123,10 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",

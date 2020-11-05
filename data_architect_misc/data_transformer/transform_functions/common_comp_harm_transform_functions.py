@@ -237,6 +237,29 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.YEAR_COLUMN)
 
+    def add_HARMONIZED_YEAR_with_prefix_value_from_raw_data_with_YY_or_YYYY_format_using_regex(
+            self,
+            df,
+            col_name_with_year_value: str,
+            regex_for_format):
+        """
+        In countries like Peru, the year's value come in the form of something like,
+        'Setiembre del 2020' and we need to harmonize them.
+        """
+        from datetime import datetime
+        import re
+
+        df[comp_harm_constants.YEAR_COLUMN] = df[col_name_with_year_value].apply(
+            lambda x:re.findall(regex_for_format, x)[0])
+
+        df[comp_harm_constants.YEAR_COLUMN] = df[comp_harm_constants.YEAR_COLUMN].apply(
+            lambda x: datetime.strptime(x, '%Y') if len(x)>2 else datetime.strptime(x, '%y'))
+
+        return self.add_year_column_using_existing_column_with_year_values(
+            df,
+            comp_harm_constants.YEAR_COLUMN,
+            comp_harm_constants.YEAR_COLUMN)
+
     def add_HARMONIZED_MONTH_column_by_renaming_existing_column(
             self,
             df,
@@ -352,6 +375,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
 
         df[col_name_with_month_value] = df[col_name_with_month_value].str.lower().apply(
             lambda x:re.findall(regex_for_format, x)[0])
+
         df[col_name_with_month_value] = df[col_name_with_month_value].map(
             comp_harm_constants.MONTH_REFERENCE_BY_LANGUAGE)
 
@@ -939,16 +963,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             comp_harm_constants.EXPECTED_COLUMNS
         )
-    def multiply_values_in_column_by_a_thousand(
-            self,
-            df,
-            column_name):
-        """
-        This function could be used to multiply any column value passed to this function by 1000
-
-        """
-        df[column_name] = df[column_name] * 1000
-        return df
 
     def multiply_HARMONIZED_GROSS_SPEND_by_thousand(
             self,
@@ -958,7 +972,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         in those countries were could be necessary due in some countries like APAC countries
         usually gross values are without multiply by thousand.
         """
-        return self.multiply_values_in_given_column_by_thousand(df, comp_harm_constants.GROSS_SPEND_COLUMN)
+        return self.multiply_values_in_column_by_a_thousand(df, comp_harm_constants.GROSS_SPEND_COLUMN)
 
     def trim_HARMONIZED_GROSS_SPEND_column_to_two_decimals(
             self,
