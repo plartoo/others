@@ -34,7 +34,7 @@
       {
         "__function_comment__": "Delete row with value '*' from 'Cost in VND' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["RM"],[["*"]]]
+        "function_args": [["RM"],["\\*"]]
       },
       {
         "__function_comment__": "Replace comma(',') values in RM (Spend Values) column.",
@@ -90,8 +90,15 @@
         "function_args": [["RM"]]
       },
       {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings",
+        "__function_comment__": "Apply category mappings in comp_harm_constants.py and specific category mapping for ",
+        "__function_comment__": "this country to create HARMONIZED_CATEGORY column. If the mapping does not exist, ",
+        "__function_comment__": "leave the cell blank (as empty string) and we will use 1PH table to map them in SQL.",
+        "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
+        "function_args": ["Category", true]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
         "function_args": ["Category"]
       },
       {
@@ -115,6 +122,10 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",

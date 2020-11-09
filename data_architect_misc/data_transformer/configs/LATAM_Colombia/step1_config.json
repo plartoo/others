@@ -77,8 +77,15 @@
         "function_args": [["Total_Inversion"]]
       },
       {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
+        "__function_comment__": "Apply category mappings in comp_harm_constants.py and specific category mapping for ",
+        "__function_comment__": "this country to create HARMONIZED_CATEGORY column. If the mapping does not exist, ",
+        "__function_comment__": "leave the cell blank (as empty string) and we will use 1PH table to map them in SQL.",
         "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
+        "function_args": ["Categoria", true]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
         "function_args": ["Categoria"]
       },
       {

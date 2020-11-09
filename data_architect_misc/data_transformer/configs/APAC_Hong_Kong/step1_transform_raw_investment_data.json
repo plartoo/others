@@ -7,7 +7,7 @@
     "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
     "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
     "input_sheet_name": 0,
-    "input_encoding": "windows-1252",
+    "input_encoding": "gb18030",
     "header": 8,
     "skiprows": 9,
     "skipfooter": 0,
@@ -33,9 +33,9 @@
         "function_args": [10]
       },
       {
-        "__function_comment__": "In HK data file, the rows under '$' column sometimes have asterisk characters. We need to remove them.",
-        "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["$"],[["*"]]]
+        "__function_comment__": "Drop empty rows in '$' column.",
+        "function_name": "drop_empty_rows",
+        "function_args": [["$"]]
       },
       {
         "__function_comment__": "In HK data file, the rows under '$' column (spend values) sometimes have commas with them. We should remove them.",
@@ -43,9 +43,9 @@
         "function_args": ["$",","]
       },
       {
-        "__function_comment__": "Drop empty rows in '$' column.",
-        "function_name": "drop_empty_rows",
-        "function_args": [["$"]]
+        "__function_comment__": "In HK data file, the rows under '$' column sometimes have asterisk characters. We need to remove them.",
+        "function_name": "drop_rows_with_matching_string_values",
+        "function_args": [["$"],["\\*"]]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -58,13 +58,13 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
-        "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
-        "function_args": ["Date"]
+        "function_name": "add_HARMONIZED_YEAR_with_prefix_value_from_raw_data_with_YY_or_YYYY_format_using_regex",
+        "function_args": ["Date","\\d{2}$"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
-        "function_name": "add_HARMONIZED_MONTH_column_using_existing_column_with_month_values",
-        "function_args": ["Date"]
+        "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex",
+        "function_args": ["Date","\\w+"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -108,6 +108,11 @@
         "function_args": ["Subcategory"]
       },
       {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
+        "function_args": ["Category"]
+      },
+      {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
         "function_args": ["Product"]
@@ -128,6 +133,10 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",

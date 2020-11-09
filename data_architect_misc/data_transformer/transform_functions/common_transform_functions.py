@@ -1323,6 +1323,17 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def multiply_values_in_column_by_a_thousand(
+            self,
+            df,
+            column_name):
+        """
+        This function could be used to multiply any column value passed to this function by 1000
+
+        """
+        df[column_name] = df[column_name] * 1000
+        return df
+
     def remove_string_values_in_column(
             self,
             df,

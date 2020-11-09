@@ -10,7 +10,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Hong_Kong/",
-    "output_file_name_prefix": "Combined_Hong_Kong_Investment_20200501_20200531_",
+    "output_file_name_prefix": "Combined_Hong_Kong_Investment_20200801_20200831_",
 
     "custom_transform_functions_file": "./transform_functions/apac_hong_kong_transform_functions.py",
 
