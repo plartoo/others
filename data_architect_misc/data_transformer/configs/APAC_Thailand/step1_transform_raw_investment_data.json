@@ -34,7 +34,7 @@
       {
         "__function_comment__": "Delete row with value '*' from 'Baht' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["Baht"],[["*"]]]
+        "function_args": [["Baht"],["\\*"]]
       },
       {
         "__function_comment__": "Drop empty rows in 'Baht' column.",
@@ -98,7 +98,12 @@
         "__function_comment__": "In Thailand files, Subcategory column has the most information and it is useful ",
         "__function_comment__": "(better than Category column) for creating HARMONIZED_CATEGORY column.",
         "__function_comment__": "Therefore, we will use 'Subcategory' column for both HARMONIZED_CATEGORY.",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings",
+        "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
+        "function_args": ["Category", true]
+      },
+      {
+        "__function_comment__": "Create RAW_CATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
         "function_args": ["Category"]
       },
       {
@@ -107,9 +112,8 @@
         "function_args": ["Product"]
       },
       {
-        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
-        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
-        "function_args": ["Category"]
+        "__function_comment__": "Create RAW_SUBCATEGORY column with empty values.",
+        "function_name": "add_RAW_SUBCATEGORY_column_with_empty_values"
       },
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
@@ -123,6 +127,10 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
