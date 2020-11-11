@@ -1,0 +1,142 @@
+[
+  {
+    "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
+    "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
+    "header": 7,
+    "skiprows": 8,
+    "skipfooter": 6,
+
+    "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
+    "input_sheet_name": "Resumen de Inversiones",
+
+    "__comment__": "(Optional) Enter the sheet name for the output Excel file. Default is 'Sheet1'.",
+    "output_sheet_name": "Sheet1",
+
+    "write_output": true,
+    "output_folder_path": "./output/LATAM_Argentina/",
+    "output_file_name_prefix": "Transformed_Argentina_20200701_20200831_",
+
+    "custom_transform_functions_file": "./transform_functions/latam_argentina_transform_functions.py",
+
+    "functions_to_apply": [
+      {
+        "__function_comment__": "IMPORTANT: Change the folder name to get all files into it",
+        "__function_comment__": "Validate all files to process for this country they must be an amount of files equals to 3",
+        "function_name": "create_new_dataframe_from_input_EXCEL_files",
+        "function_args": ["./input/LATAM_Argentina/August_2020_data"]
+      },
+      {
+        "__function_comment__": "The merged CSV file has unnamed columns. We need to drop them",
+        "function_name": "drop_unnamed_columns"
+      },
+      {
+        "__function_comment__": "In Taiwan data file, there are rows in 'Value' column could have NaN (empty). We need to remove them.",
+        "function_name": "drop_rows_with_matching_string_values",
+        "function_args": [["Mes"],["nan"]]
+      },
+      {
+        "__function_comment__": "Validate the column name if it exist inside the file, if it does not exist this function will create it.",
+        "function_name": "add_new_column_if_it_does_not_exist",
+        "function_args": ["Tema"]
+      },
+      {
+        "__function_comment__": "By the time we run this function, there should be only 14 columns total remaining in the raw data frame.",
+        "__function_comment__": "this because the raw file contains the same structure as we come processing from the data tool.",
+        "function_name": "assert_number_of_columns_equals",
+        "function_args": [14]
+      },
+      {
+        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
+        "function_name": "add_PROCESSED_DATE_column_with_current_date"
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name but using a format with a regex.",
+        "function_name": "add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex",
+        "function_args": ["Mes","\\d+"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex.",
+        "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex",
+        "function_args": ["Mes","\\w+$"]
+      },
+      {
+        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
+        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Asia Pacific' as value.",
+        "function_name": "add_HARMONIZED_REGION_column",
+        "function_args": ["Latin America"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
+        "function_args": ["Argentina"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
+        "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
+        "function_args": ["Anunciante"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
+        "function_args": ["Medio"]
+      },
+      {
+        "__function_comment__": "Add CURRENCY as a new column with 'ARS' as value.",
+        "function_name": "add_HARMONIZED_CURRENCY_column",
+        "function_args": ["ARS"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
+        "function_name": "add_HARMONIZED_GROSS_SPEND_column",
+        "function_args": ["Inversión"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
+        "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
+        "function_args": ["Segmento", true]
+      },
+      {
+        "__function_comment__": "Create RAW_CATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
+        "function_args": ["Segmento"]
+      },
+      {
+        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
+        "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
+        "function_args": ["Producto"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_SUBCATEGORY_column_with_empty_values"
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
+        "function_args": ["Marca"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
+        "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
+      },
+      {
+        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
+        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
+      },
+      {
+        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
+        "function_name": "filter_and_rearrange_columns_for_final_output"
+      }
+    ]
+  }
+]
