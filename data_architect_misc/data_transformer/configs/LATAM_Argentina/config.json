@@ -35,7 +35,8 @@
         "function_args": [["Mes"],["nan"]]
       },
       {
-        "__function_comment__": "Validate the column name if it exist inside the file, if it does not exist this function will create it.",
+        "__function_comment__": "In Argentina, we usually receive 3 files. 2 of them contains 'Tema' column, but one of them doesn't. Therefore, we need to add",
+        "__function_comment__": "'Tema' with the function below so that we can use the SAME config file to process all three Argentina files.",
         "function_name": "add_new_column_if_it_does_not_exist",
         "function_args": ["Tema"]
       },
@@ -124,10 +125,6 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
-      },
-      {
-        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
-        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
