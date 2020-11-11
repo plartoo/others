@@ -134,7 +134,8 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
 
         df = pd.DataFrame()
         for cur_file in list_of_file_path_and_names:
-            temp_df = pd.read_excel(cur_file)
+            temp_df = pd.read_excel(cur_file,
+                                  header=self.config[KEY_HEADER])
             df = df.append(temp_df)
 
         return df
@@ -372,7 +373,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         '01Abr20' and we need to harmonize them.
         """
         import re
-
+        
         df[col_name_with_month_value] = df[col_name_with_month_value].str.lower().apply(
             lambda x:re.findall(regex_for_format, x)[0])
 
@@ -802,6 +803,32 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         return self.add_new_column_with_fixed_str_value(
             df,
             comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
+            "")
+
+    def add_RAW_CATEGORY_column_with_empty_values(
+            self,
+            df
+    ):
+        """
+        This methods instantiates an empty column with standardized
+        RAW_CATEGORY_COLUMN name. Sometimes, we call this function before
+        modifying the raw values and copying them into this empty column.
+        Sometimes, we call this function because there is simply no raw
+        subcategory data available, but 1PH standard requires us to
+        have a RAW_CATEGORY column.
+
+        Args:
+            df: Raw dataframe to transform.
+            raw_subcategory_col_name: Name of the existing column, which
+            has Subcategory names (string values).
+
+        Returns:
+            Dataframe with original column (Subcategory, Brand, Subbrand, etc)
+            renamed to standardized column name.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.RAW_CATEGORY_COLUMN,
             "")
 
     def add_RAW_BRAND_column_by_renaming_existing_column(
