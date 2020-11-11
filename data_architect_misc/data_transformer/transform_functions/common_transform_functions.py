@@ -908,9 +908,9 @@ class CommonTransformFunctions(TransformFunctions):
         """
         Creates a new column if it does not exist.
 
-        For example, In Argentina sometimes the column "Tema" comes as usual but if
-        the column does not appear inside the file, we need to add 'Tema' column in the dataframe
-        with empty values, we will call this function like below:
+        For example, the some of the files for Argentina does NOT contain 'Tema' column while some do. 
+        In order to process these files with the same config file, we need to add 'Tema' column, 
+        if it does not exist in the raw file. To do so, we can call the function like below: 
         add_new_column_if_it_does_not_exist(df, 'Tema')
 
         Args:

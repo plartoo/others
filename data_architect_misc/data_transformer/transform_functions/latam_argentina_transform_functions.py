@@ -44,7 +44,7 @@ class LatamArgentinaTransformFunctions(CommonCompHarmTransformFunctions):
 
     def __init__(self, config):
         self.config = config
-        
+
     def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(self,
                                                    df,
                                                    existing_category_col_name: str,
@@ -54,7 +54,7 @@ class LatamArgentinaTransformFunctions(CommonCompHarmTransformFunctions):
         Helper function to invoke the common comp harm function that will help us apply
         country-specific mappings for HARMONIZED_CATEGORY column.
         """
-        return self. add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
+        return self.add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
             df,
             LatamArgentinaTransformFunctions.ARGENTINA_SPECIFIC_CATEGORY_MAPPINGS,
             existing_category_col_name,
