@@ -902,6 +902,32 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def add_new_column_if_it_does_not_exist(self,
+                                            df,
+                                            new_col_name):
+        """
+        Creates a new column if it does not exist.
+
+        For example, In Argentina sometimes the column "Tema" comes as usual but if
+        the column does not appear inside the file, we need to add 'Tema' column in the dataframe
+        with empty values, we will call this function like below:
+        add_new_column_if_it_does_not_exist(df, 'Tema')
+
+        Args:
+            df: Raw dataframe to transform.
+            new_col_name: Name of the new column to be added.
+
+        Returns:
+            The dataframe with newly added column with empty values.
+        """
+        if not (isinstance(new_col_name, str)):
+            raise transform_errors.InputDataTypeError("Column name "
+                                                      "must be of string type")
+        if new_col_name not in df.columns:
+            df[new_col_name] = ''
+
+        return df
+
     def add_new_column_by_copying_values_from_another_column(
             self,
             df,
