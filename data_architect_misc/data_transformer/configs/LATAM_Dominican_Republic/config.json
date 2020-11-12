@@ -72,7 +72,7 @@
         "function_args": ["DOP"]
       },
       {
-        "__function_comment__": "In HK data file, the rows under '$' column (spend values) sometimes have commas with them. We should remove them.",
+        "__function_comment__": "In Dominican data file, the rows under 'Investment' column (spend values) sometimes have points, spaces and $ character with them. We should remove them.",
         "function_name": "remove_string_values_in_column",
         "function_args": ["Investment","[\\.\\s\\$]"]
       },
