@@ -11,7 +11,7 @@ import os,re
 from glob import glob
 
 from constants import comp_harm_constants
-from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_DELIMITER, KEY_HEADER
+from constants.transform_constants import KEY_DELIMITER, KEY_HEADER
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -34,10 +34,13 @@ class LatamDominicanRepublicTransformFunctions(CommonCompHarmTransformFunctions)
             folder_name
     ):
         """
-        For Singapore we create the raw advertiser columns selecting the name from the filename assigned,
-        each file has one advertiser name in the file name, (E.g. SGP_N_ALL_INV_ADE_Colgate_20200601_20200630_20200729_JC,
-        SGP_N_ALL_INV_ADE_Sensodyne_20200601_20200630_20200729_JC)
-        this function will be specific for Singapore.
+        For Dominican Republic, we create the raw media type column by extracting
+        part of file name. For example, if the raw file name is:
+        DOM_N_M-Radio_ALL_ARI_20200901_20200930_20201103_NM.xlsx
+        we will extract 'Radio' and put it under HARMONIZED_MEDIA_TYPE column.
+
+        If the file name does not conform to the standard and this code
+        extracted unexpected media type, the QA process will catch it.
         """
         list_of_file_path_and_names = glob(''.join([folder_name, '/*']))
 
