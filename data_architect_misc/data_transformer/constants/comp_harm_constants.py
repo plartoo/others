@@ -98,11 +98,11 @@ CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition
 
 ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
-    "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print",  "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
+    "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)JORNAL.*": "Print",  "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH","(?i)Bus/Taxis.*":"OOH", "(?i)Posters/Rail/Digital.*":"OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
     "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV", "(?i)CB.*": "TV",
-    "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital", "(?i)MOBILE.*": "Digital",
+    "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital", "(?i)MOBILE.*": "Digital", "(?i)SEARCH.*": "Digital",
 }
 
 SPANISH_MEDIA_TYPE_MAPPINGS = {
@@ -227,6 +227,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*BOUTIQUE.*": "Other",
     "(?i).*KETCHUP.*": "Other",
     "(?i)(\b)?OTHER(\b)?": "Other",
+    "(?i)(\b)?Others(\b)?": "Other",
     "(?i).*Accessories.*": "Other",
     "(?i).*Agriculture.*": "Other",
     "(?i).*Alcohol.*": "Other",
@@ -300,7 +301,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*DETERGENTE.*": "Home Care",
     "(?i).*REMOV.*MANCHA.*": "Home Care",
     "(?i).*PRODUCTO.*LIMPIEZA.*DOMESTICA.*": "Home Care",
-    "(?i).*LIMPIEZA.*": "Home Care",
+    "(?i).*LIMP(I)?EZA.*": "Home Care",
     "(?i).*LIMP.*DOM.*": "Home Care",
     "(?i).*BLANQUEADOR.*": "Home Care",
     "(?i).*QUITAMANCHA.*": "Home Care",
@@ -324,6 +325,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*DESMANCHADOR.*": "Home Care",
 
     "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*MAQUIAGEM.*": "Personal Care",
     "(?i).*BELLEZA.*": "Personal Care",
     "(?i).*ESTRIA.*": "Personal Care",
     "(?i).*COSMETOLOG.*": "Personal Care",
@@ -331,14 +333,13 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*TALCO.*": "Personal Care",
     "(?i).*CREM.*HIDRAT.*": "Personal Care",
     "(?i).*CREM.*ANTIARRU.*": "Personal Care",
-    "(?i).*CUIDADO.*INTIMO.*": "Personal Care",
+    "(?i).*INTIM(O)?.*": "Personal Care",
     "(?i).*RINSE.*": "Personal Care",
     "(?i).*CHAMPU.*": "Personal Care",
     "(?i).*CREMA.*PIEL.*": "Personal Care",
     "(?i).*CREMA.*REGENERADOR.*": "Personal Care",
     "(?i).*MASCARILLA.*FAC.*": "Personal Care",
     "(?i).*HIG.*PERSONA.*": "Personal Care",
-    "(?i).*HIGIENE.*INTIMA.*FEMENINA.*": "Personal Care",
     "(?i).*TRATAMIENTO.*": "Personal Care",
     "(?i).*PROTECCION.*FEMENINA.*": "Personal Care",
     "(?i).*HIGIENE.*PRODUCTO.*INFANTIL.*": "Personal Care",
@@ -366,6 +367,8 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*CAPILAR.*": "Personal Care",
     "(?i).*COLAGENO.*": "Personal Care",
     "(?i).*JABON.*": "Personal Care",
+    "(?i).*SABAO.*": "Personal Care",
+    "(?i).*SABONETE.*": "Personal Care",
     "(?i).*MAQUILLAJE.*": "Personal Care",
     "(?i).*TOALLA.*MAQUILL.*": "Personal Care",
     "(?i).*TOALLA.*HIGIENICA.*": "Personal Care",
@@ -373,6 +376,8 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*CREMA.*MANCHA.*": "Personal Care",
     "(?i).*VARICE.*": "Personal Care",
     "(?i).*PERFUME.*": "Personal Care",
+    "(?i).*FRAGRANCIA.*": "Personal Care",
+    "(?i).*FRALDA.*": "Personal Care",
     "(?i).*TOALL.*HUM.*": "Personal Care",
     "(?i).*AFEIT.*": "Personal Care",
     "(?i).*PESTA(Ñ)?.*": "Personal Care",
@@ -645,11 +650,19 @@ MONTH_REFERENCE_BY_LANGUAGE = {
      "jun": 6,
      "jul": 7,
      "ago": 8,
-     "aug": 8,
      "sep": 9,
      "oct": 10,
      "nov": 11,
      "dic": 12,
+     
+     "aug": 8,
+
+     "jan" : 1,
+     "fev": 2,
+     "mai": 5,
+     "set": 9,
+     "out": 10,
+     "dez": 12,
 
      "enero": 1,
      "febrero": 2,
@@ -660,11 +673,12 @@ MONTH_REFERENCE_BY_LANGUAGE = {
      "julio": 7,
      "agosto": 8,
      "septiembre": 9,
-     "september": 9,
      "octubre": 10,
-     "october": 10,
      "noviembre": 11,
      "diciembre": 12,
+
+     "september": 9,
+     "october": 10,
 
      "setiembre": 9,
 }
