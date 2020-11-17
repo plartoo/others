@@ -1,0 +1,29 @@
+[
+  {
+    "__comment__": "Use this config AFTER running step 4 config or if the Search data comes this time, Use this config AFTER running step 5.",
+    "__comment__": "IMPORTANT:: Make sure to update the name of the files in 'create_new_dataframe_from_input_files' function.",
+
+    "__comment__": "If we pass None for 'sheet_name' parameter in reading Excel files, pandas will read ALL the sheets.",
+    "__comment__": "The equivalent of None in JSON file is null. That's why we are providing null below to read all the sheets in the file.",
+    "header": 0,
+    "input_delimiter": "|",
+
+    "write_output": true,
+    "output_folder_path": "./output/LATAM_Brazil/",
+    "output_file_name_prefix": "Combined_Brazil_Investment_20200801_20200831_",
+
+    "custom_transform_functions_file": "./transform_functions/latam_brazil_transform_functions.py",
+
+    "functions_to_apply": [
+      {
+        "__comment__": "This function will first check to make sure that the input files listed below are of ",
+        "__comment__": "the SAME date range as the input file provided via commandline as base.",
+        "__comment__": "That's the only way for us to ensure that the user of this config does NOT forget to update ",
+        "__comment__": "the input file names.",
+        "function_name": "create_new_dataframe_from_input_CSV_files",
+        "function_args": ["./output/LATAM_Brazil"]
+
+      }
+    ]
+  }
+]
