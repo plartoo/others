@@ -5,6 +5,7 @@
     "header": 7,
     "skiprows": 8,
     "skipfooter": 5,
+    "rows_per_read" : 200000,
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
     "input_sheet_name": "First GroupM Template",
