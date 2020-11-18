@@ -101,12 +101,12 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)JORNAL.*": "Print",  "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH","(?i)Bus/Taxis.*":"OOH", "(?i)Posters/Rail/Digital.*":"OOH",
     "(?i)RADIO.*": "Radio", "(?i)RD.*": "Radio",
-    "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV", "(?i)CB.*": "TV",
+    "(?i)TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV", "(?i)CB.*": "TV", "(?i)Pay TV.*": "TV",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital", "(?i)MOBILE.*": "Digital", "(?i)SEARCH.*": "Digital",
 }
 
 SPANISH_MEDIA_TYPE_MAPPINGS = {
-    "(?i)Televisión.*": "TV",
+    "(?i)Televisión.*": "TV", 
     "(?i)PUBLICIDAD\sEXTERIOR.*": "OOH","(?i)VP.*": "OOH","(?i)Vía\sPública.*": "OOH", "(?i)Metro.*": "OOH",
     "(?i)Revista.*": "Print", "(?i)PRENSA.*": "Print", "(?i)DIARIO.*": "Print", "(?i)Suplemento.*": "Print",
 }
@@ -166,10 +166,9 @@ ADVERTISER_MAPPINGS = {
 
 ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)^HC$": "Home Care",
-    "(?i)HOME.*": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
-    "(?i).*Laundry.*": "Home Care",
+    "(?i).*LAUNDRY.*": "Home Care",
     "(?i)Cleaning.*agent.*": "Home Care",
     "(?i).*Detergent.*": "Home Care",
 
@@ -188,7 +187,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)Bath.*": "Personal Care",
     "(?i).*BEAUTY.*": "Personal Care",
     "(?i).*BODY.*CARE.*": "Personal Care",
-    "(?i)Conditioner.*": "Personal Care",
+    "(?i).*Conditioner.*": "Personal Care",
     "(?i).*Cosmetics.*": "Personal Care",
     "(?i).*CREMA.*PIEL.*": "Personal Care",
     "(?i).*Deodorant.*": "Personal Care",
