@@ -287,6 +287,29 @@ class CommonTransformFunctions(TransformFunctions):
             df = df[~df[col_name].astype(str).str.contains(list_of_list_of_string_values[i])]
 
         return df
+    
+    def drop_rows_with_empty_values_or_nan_values(
+            self,
+            df,
+            list_of_col_names
+    ):
+        """
+        Drops rows if any of the columns in the list_of_col_names
+        contains a empty value or a NaN value.
+
+        Args:
+            df: Raw dataframe to transform.
+            list_of_col_names: List of column names in which the code
+            should check if the cell values matches and thus, the row
+            should be dropped.
+           
+        Returns:
+            Dataframe with rows dropped (if matches were found).
+        """
+        for i, col_name in enumerate(list_of_col_names):
+            df = df[~((df[col_name] == "") | (df[col_name].isnull()))]
+
+        return df
 
     def rename_columns(self, df, old_to_new_cols_dict):
         """
