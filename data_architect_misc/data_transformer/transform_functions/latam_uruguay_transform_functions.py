@@ -20,7 +20,7 @@ class LatamUruguayTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     URUGUAY_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*TRAPEADOR.*": "Home Care",
+        # Add any Uruguay-specific mappings that cannot be used for other LATAM countries here.
     }
 
     def __init__(self, config):
