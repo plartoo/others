@@ -19,7 +19,7 @@ class LatamChileTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     CHILE_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*TRAPEADOR.*": "Home Care",
+        # Add any Chile-specific mappings that cannot be used for other LATAM countries here.
     }
 
     def __init__(self, config):

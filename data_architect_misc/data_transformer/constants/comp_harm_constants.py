@@ -322,6 +322,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*DESINFEC.*": "Home Care",
     "(?i).*ARTICULO.*HOGAR.*": "Home Care",
     "(?i).*DESMANCHADOR.*": "Home Care",
+    "(?i).*TRAPEADOR.*": "Home Care",
 
     "(?i).*COSMETICO.*": "Personal Care",
     "(?i).*MAQUIAGEM.*": "Personal Care",

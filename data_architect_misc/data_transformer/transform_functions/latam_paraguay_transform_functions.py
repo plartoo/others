@@ -19,7 +19,7 @@ class LatamParaguayTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     PARAGUAY_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*TRAPEADOR.*": "Home Care",
+        # Add any Paraguay-specific mappings that cannot be used for other LATAM countries here.
     }
 
     def __init__(self, config):

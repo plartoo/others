@@ -19,7 +19,7 @@ class LatamBrazilTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     BRAZIL_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*TRAPEADOR.*": "Home Care",
+        # Add any Brazil-specific mappings that cannot be used for other LATAM countries here.
     }
 
     def __init__(self, config):

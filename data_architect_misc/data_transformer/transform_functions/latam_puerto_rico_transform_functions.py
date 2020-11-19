@@ -19,7 +19,6 @@ class LatamPuertoRicoTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     PUERTO_RICO_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*TRAPEADOR.*": "Home Care",
         "(?i)STORE-HOME-FURNISHING": "Other",
         "(?i)STORE-HOME\sIMPROVEMENT": "Other",
         "(?i)NURSING\sHOME": "Other",

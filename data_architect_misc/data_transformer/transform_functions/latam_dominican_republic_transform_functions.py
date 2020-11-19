@@ -22,7 +22,7 @@ class LatamDominicanRepublicTransformFunctions(CommonCompHarmTransformFunctions)
     of this class.
     """
     DOMINICAN_REPUBLIC_SPECIFIC_CATEGORY_MAPPINGS = {
-        "(?i).*TRAPEADOR.*": "Home Care",
+        # Add any Dominican Republic-specific mappings that cannot be used for other LATAM countries here.
     }
 
     def __init__(self, config):
