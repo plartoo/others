@@ -21,11 +21,6 @@
         "function_name": "drop_unnamed_columns"
       },
       {
-        "__function_comment__": "Excel file has empty columns. We need to drop them first",
-        "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["Medio"],["TV"]]
-      },
-      {
         "__function_comment__": "By the time we run this function, there should be only 11 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [11]
