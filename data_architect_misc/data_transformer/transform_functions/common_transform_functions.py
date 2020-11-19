@@ -116,6 +116,34 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def join_several_columns_into_a_new_column(
+            self,
+            df,
+            list_of_col_names,
+            new_colum_name
+    ):
+        """
+        Args:
+            df: Raw dataframe to transform.
+            list_of_col_names: List of column names in which the code
+            should check if the cell values matches and thus, the column
+            should be joined.
+            new_column_name: The new column name where the list of the columns 
+            are going to be joined
+
+        Returns:
+            Dataframe with rows dropped (if matches were found).
+        """
+        if not (isinstance(list_of_col_names, list)
+                and isinstance(new_colum_name, str)):
+            raise transform_errors.InputDataTypeError(
+                f"List of column names must be list type and the name of the column "
+                f"must both be a string type.")
+
+        df[new_colum_name] = df[list_of_col_names].apply(lambda x:''.join(str(y) for y in x.values),axis=1)
+
+        return df
+
     def drop_columns_by_index(
             self,
             df,
@@ -927,7 +955,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def add_new_column_if_it_does_not_exist(self,
                                             df,
-                                            new_col_name):
+                                            list_new_col_name):
         """
         Creates a new column if it does not exist.
 
@@ -943,11 +971,12 @@ class CommonTransformFunctions(TransformFunctions):
         Returns:
             The dataframe with newly added column with empty values.
         """
-        if not (isinstance(new_col_name, str)):
-            raise transform_errors.InputDataTypeError("Column name "
-                                                      "must be of string type")
-        if new_col_name not in df.columns:
-            df[new_col_name] = ''
+        if not (isinstance(list_new_col_name, list)):
+            raise transform_errors.InputDataTypeError("The columns name "
+                                                      "must be inside of a list")
+        for new_column in list_new_col_name:
+            if new_column not in df.columns:
+                df[new_column] = ''
 
         return df
 
