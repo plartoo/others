@@ -11,24 +11,19 @@
 
     "write_output": true,
     "output_folder_path": "./output/LATAM_Paraguay/",
-    "output_file_name_prefix": "Transformed_Paraguay_TVAbierta_and_TVCable_INV_20200801_20200801_",
+    "output_file_name_prefix": "Transformed_Paraguay_INV_20200801_20200801_",
 
     "custom_transform_functions_file": "./transform_functions/latam_paraguay_transform_functions.py",
 
     "functions_to_apply": [
       {
-        "__function_comment__": "all excel file needs to have the same amoutn of columns for that reason we need to validate four columns on them",
-        "function_name": "add_new_columns_with_empty_str_value_if_not_exist",
-        "function_args": [["Sector Horario de TV", "Red de TV","Canal de TV Assinatura", "Sector Horario de TV Cable"]]
-      },
-      {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",
         "function_name": "drop_unnamed_columns"
       },
       {
-        "__function_comment__": "By the time we run this function, there should be only 15 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 11 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [15]
+        "function_args": [11]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
