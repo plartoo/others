@@ -35,9 +35,10 @@
         "function_args": [["Mes"],["nan"]]
       },
       {
-        "__function_comment__": "In Argentina, we usually receive 3 files. 2 of them contains 'Tema' column, but one of them doesn't. Therefore, we need to add",
-        "__function_comment__": "'Tema' with the function below so that we can use the SAME config file to process all three Argentina files.",
-        "function_name": "add_new_column_if_it_does_not_exist",
+        "__function_comment__": "In Argentina, we usually receive 3 files. 2 of them contains 'Tema' column, but one of them doesn't.",
+        "__function_comment__": "Therefore, we need to add 'Tema' column using the function below so that ",
+        "__function_comment__": "the SAME config file to process all three Argentina files.",
+        "function_name": "add_new_columns_with_empty_str_value_if_not_exist",
         "function_args": ["Tema"]
       },
       {

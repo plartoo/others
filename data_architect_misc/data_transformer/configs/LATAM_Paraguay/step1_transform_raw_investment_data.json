@@ -92,7 +92,7 @@
       },
       {
         "__function_comment__": "Create PRODUCT NAME column contatenating two columns in one.",
-        "function_name": "join_several_columns_into_a_new_column",
+        "function_name": "join_str_values_in_several_columns_to_create_a_new_column",
         "function_args": [["Ítem","Marca"],"PRODUCT_NAME"]
       },
       {

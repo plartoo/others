@@ -18,8 +18,8 @@
     "functions_to_apply": [
       {
         "__function_comment__": "all excel file needs to have the same amoutn of columns for that reason we need to validate four columns on them",
-        "function_name": "add_new_column_if_it_does_not_exist",
-        "function_args": [["Sector Horario de TV","Red de TV","Canal de TV Assinatura","Sector Horario de TV Cable"]]
+        "function_name": "add_new_columns_with_empty_str_value_if_not_exist",
+        "function_args": [["Sector Horario de TV", "Red de TV","Canal de TV Assinatura", "Sector Horario de TV Cable"]]
       },
       {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",
@@ -92,7 +92,7 @@
       },
       {
         "__function_comment__": "Create PRODUCT NAME column contatenating two columns in one.",
-        "function_name": "join_several_columns_into_a_new_column",
+        "function_name": "join_str_values_in_several_columns_to_create_a_new_column",
         "function_args": [["Ítem","Marca"],"PRODUCT_NAME"]
       },
       {
