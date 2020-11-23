@@ -171,6 +171,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*LAUNDRY.*": "Home Care",
     "(?i)Cleaning.*agent.*": "Home Care",
     "(?i).*Detergent.*": "Home Care",
+    "(?i).*FABRIC.*SOFTENER.*": "Home Care",
 
     "(?i)^OC$": "Oral Care",
     "(?i).*ORAL.*": "Oral Care",
