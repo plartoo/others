@@ -944,6 +944,32 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             {raw_product_col_name: comp_harm_constants.RAW_PRODUCT_NAME_COLUMN})
 
+    def add_RAW_PRODUCT_NAME_column_with_empty_values(
+            self,
+            df
+    ):
+        """
+        This methods instantiates an empty column with standardized
+        RAW_PRODUCT_COLUMN name. Sometimes, we call this function before
+        modifying the raw values and copying them into this empty column.
+        Sometimes, we call this function because there is simply no raw
+        PRODUCT data available, but 1PH standard requires us to
+        have a HARMONIZED_PRODUCT column.
+
+        Args:
+            df: Raw dataframe to transform.
+            raw_product_col_name: Name of the existing column, which
+            has product names (string values).
+
+        Returns:
+            Dataframe with original column (product, Brand, Subbrand, etc)
+            renamed to standardized column name.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.RAW_PRODUCT_NAME_COLUMN,
+            "")
+
     def add_empty_HARMONIZED_columns_for_automated_mapping(
             self,
             df):
