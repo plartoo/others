@@ -29,7 +29,7 @@ class NaUnitedStatesTransformFunctions(CommonCompHarmTransformFunctions):
     def __init__(self, config):
         self.config = config
 
-    def create_a_new_date_column_based_taking_the_date_from_the_TOTAL_column(self,
+    def create_date_column_based_on_header_with_month_name_as_column(self,
                                                    df
                                                    ):
         df = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE],header=self.config[KEY_HEADER],skipfooter=self.config['skipfooter'],sheet_name=self.config['input_sheet_name'])

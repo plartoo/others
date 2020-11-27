@@ -18,8 +18,8 @@
 
     "functions_to_apply": [
       {
-        "__function_comment__": "We need to create the date column using a specific column in the header of the file",
-        "function_name": "create_a_new_date_column_based_taking_the_date_from_the_TOTAL_column"
+        "__function_comment__": "We need to create the date column using the header with month name as column",
+        "function_name": "create_date_column_based_on_header_with_month_name_as_column"
       },
       {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",
