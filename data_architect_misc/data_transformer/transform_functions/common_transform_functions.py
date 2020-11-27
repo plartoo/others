@@ -343,7 +343,7 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with rows dropped (if matches were found).
         """
         for i, col_name in enumerate(list_of_col_names):
-            df = df[~((df[col_name] == "") | (df[col_name].isnull()))]
+            df = df.loc[~((df[col_name].astype(str) == "") | (df[col_name].isnull()))]
 
         return df
 
