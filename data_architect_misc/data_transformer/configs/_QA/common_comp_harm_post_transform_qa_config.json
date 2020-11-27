@@ -12,6 +12,9 @@
     "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",
     "__comment__": "If this value is NOT provided, program will assume there is no header row in the input file",
     "header": 0,
+    
+    "__comment__": "(Optional) Enter the row numbers to get all information in order to include in one QA validation.",
+    "rows_per_read": 2000000,
 
     "__comment__": "(Optional) Specify which row index (starting from 0) the data begins. Default is 1 (the second row) because that's where the data usually begins in files.",
     "skiprows": 1,
