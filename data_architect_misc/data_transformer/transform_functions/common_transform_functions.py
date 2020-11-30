@@ -331,9 +331,11 @@ class CommonTransformFunctions(TransformFunctions):
     ):
         """
         Drops rows if any of the columns in the list_of_col_names
-        contains a empty value or a NaN value.
-        This function will delete empty rows from columns with
-        integer and float values or string values.
+        contains empty values (such as empty string and null/NaN).
+
+        Strictly speaking, this function will only delete empty rows
+        from columns with integer, float and string data types.
+
         Args:
             df: Raw dataframe to transform.
             list_of_col_names: List of column names in which the code
@@ -344,14 +346,18 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with rows dropped (if matches were found).
         """
         for i, col_name in enumerate(list_of_col_names):
-            if df[col_name].dtype == str:
+            if pd.api.types.is_string_dtype(df[col_name]):
+                # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.api.types.is_string_dtype.html
                 df = df[~(df[col_name] == "")]
-            elif ((df[col_name].dtype  == np.integer) or (df[col_name].dtype == np.floating)):
+            elif pd.api.types.is_integer_dtype(df[col_name]) or pd.api.types.is_float_dtype(df[col_name]):
+                # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.api.types.is_integer_dtype.html
+                # REF: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.api.types.is_float_dtype.html
                 df = df[~(df[col_name].isnull())]
             else:
                 raise transform_errors.InputDataTypeError(
                     f"This function only drops rows from columns "
                     f"with integer, float or string data type.")
+
         return df
 
     def rename_columns(self, df, old_to_new_cols_dict):
