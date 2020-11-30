@@ -1,9 +1,7 @@
 import logging
-import re
 
 import pandas as pd
 from glob import glob
-import re
 
 import transform_errors
 from constants import comp_harm_constants
@@ -26,6 +24,8 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     we want to make sure the column names stand out for
     our team members when they use them.
     """
+    CATEGORY_MAPPINGS = 'category_mappings'
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
@@ -603,7 +603,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             existing_gross_spend_col_name):
         """
-        Add HARMONIZED_CURRENCY column with the currency name provided.
+        Add HARMONIZED_GROSS_SPEND column with the currency name provided.
 
         Args:
             df: Raw dataframe to transform.
@@ -611,7 +611,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             column.
 
         Returns:
-            Dataframe with HARMONIZED_HARMONIZED column that has values
+            Dataframe with HARMONIZED_GROSS_SPEND column that has values
             from the original (raw) gross spend column trimmed to just
             two decimal digits.
         """
@@ -623,23 +623,49 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             2)
 
 # TODO: Update LATAM countries and others to include their specific mappings
-    def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
+    def add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column(
+    # def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
             self,
             df,
-            dict_country_specific_categories,
-            existing_category_col_name: str,
+            existing_col_name: str,
             leave_empty_if_no_match=False
     ):
-        # We found that there are a lot of possible mappings for 'Other' category.
-        # So instead of creating individual mappings for them in regex, which slows 
-        # down the data processing by a lot, we will just mark them as 'Not Available'
-        # and we will remap them SQL after product mappings are done.
+        """
+        Add HARMONIZED_CATEGORY column by mapping the values in an existing (raw) column.
+        The mapping (dictionary) will be retrieved by calling
+        'get_country_specific_category_mappings' function. If the function is not defined,
+        then defaults to comp_harm_constants.CATEGORY_MAPPINGS.
+
+        Side Note: We found that there are a lot of possible mappings for 'Other' category.
+        So instead of creating individual mappings for them in regex, which slows
+        down the data processing by a lot, we will just mark them as 'Not Available'
+        and we will remap them SQL after product mappings are done.
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_col_name: Name of the existing column that will be used
+            as a base in mapping to HARMONIZED_CATEGORY names.
+            leave_empty_if_no_match: If set to True, the HARMONIZED_CATEGORY
+            column will have empty string values when there is no mapping
+            available in the mapping dictionary. Default value is False.
+
+        Returns:
+            Dataframe with the HARMONIZED_CATEGORY added.
+        """
+        # This default mapping dictionary  is less preferred
+        # because CATEGORY_MAPPINGS has both Spanish and English
+        # mappings combined, which has ~470 mappings as of
+        # November, 2020.
+        mapping_dict = comp_harm_constants.CATEGORY_MAPPINGS
+
+        if hasattr(self, CommonCompHarmTransformFunctions.CATEGORY_MAPPINGS):
+            mapping_dict = self.category_mappings
 
         return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
             df,
-            existing_category_col_name,
+            existing_col_name,
             comp_harm_constants.CATEGORY_COLUMN,
-            dict_country_specific_categories,
+            mapping_dict,
             leave_empty_if_no_match
         )
 
