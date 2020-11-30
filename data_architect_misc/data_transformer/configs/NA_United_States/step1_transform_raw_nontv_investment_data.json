@@ -23,10 +23,6 @@
 
     "functions_to_apply": [
       {
-        "__function_comment__": "We need to create the date column using the header with month name as column",
-        "function_name": "add_HARMONIZED_MONTH_and_HARMONIZED_YEAR_columns_by_extracting_info_from_raw_spend_column"
-      },
-      {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",
         "function_name": "drop_unnamed_columns"
       },
@@ -45,7 +41,10 @@
         "function_name": "add_PROCESSED_DATE_column_with_current_date"
       },
       {
-        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
+        "function_name": "add_HARMONIZED_MONTH_and_HARMONIZED_YEAR_columns_by_extracting_info_from_raw_spend_column"
+      },
+      {
+        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in the previous step***.",
         "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
       },
       {
@@ -83,39 +82,35 @@
         "__function_comment__": "this country to create HARMONIZED_CATEGORY column. If the mapping does not exist, ",
         "__function_comment__": "leave the cell blank (as empty string) and we will use 1PH table to map them in SQL.",
         "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
-        "function_args": ["SUBCATEGORY", true]
+        "function_args": ["CATEGORY", true]
       },
       {
-        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "__function_comment__": "Create RAW_CATEGORY column from existing category column.",
         "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
+        "function_args": ["CATEGORY"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column.",
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
         "function_args": ["SUBCATEGORY"]
       },
       {
-        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
+        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
         "function_args": ["PRODUCT"]
       },
       {
-        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
-        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
-        "function_args": ["CATEGORY"]
-      },
-      {
-        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
+        "__function_comment__": "Create RAW_BRAND column from existing brand column.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
         "function_args": ["ADVERTISER"]
       },
       {
-        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column.",
         "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
       },
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
-      },
-      {
-        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
-        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
