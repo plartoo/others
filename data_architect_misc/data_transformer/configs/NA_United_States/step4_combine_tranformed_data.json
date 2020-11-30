@@ -8,7 +8,7 @@
     "header": 0,
     "input_delimiter": "|",
     
-    "rows_per_read": 2000000,
+    "rows_per_read": 3000000,
 
     "write_output": true,
     "output_folder_path": "./output/NA_United_States/",
