@@ -24,7 +24,7 @@
     "functions_to_apply": [
       {
         "__function_comment__": "We need to create the date column using the header with month name as column",
-        "function_name": "create_date_column_based_on_header_with_month_name_as_column"
+        "function_name": "add_HARMONIZED_MONTH_and_HARMONIZED_YEAR_columns_by_extracting_info_from_raw_spend_column"
       },
       {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",
@@ -43,16 +43,6 @@
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
         "function_name": "add_PROCESSED_DATE_column_with_current_date"
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
-        "function_name": "add_HARMONIZED_YEAR_column_by_renaming_existing_column",
-        "function_args": ["YEAR"]
-      },
-      {
-        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
-        "function_name": "add_HARMONIZED_MONTH_column_by_renaming_existing_column",
-        "function_args": ["MONTH"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
