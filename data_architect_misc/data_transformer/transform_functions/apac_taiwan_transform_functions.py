@@ -7,15 +7,11 @@ Last Modified: September 10, 2020
 """
 
 import re
-import os
 import pandas as pd
-from glob import glob
 
-import transform_errors
 from constants import comp_harm_constants
-from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_DELIMITER, KEY_HEADER
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
-from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 
 class ApacTaiwanTransformFunctions(CommonCompHarmTransformFunctions):
     """
@@ -46,6 +42,11 @@ class ApacTaiwanTransformFunctions(CommonCompHarmTransformFunctions):
 
     def __init__(self, config):
         self.config = config
+        # Define self.category_mappings below if we want to use
+        # specific category mapping for this country
+        self.category_mappings = dict(
+            comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS,
+            **ApacTaiwanTransformFunctions.TAIWAN_SPECIFIC_CATEGORY_MAPPINGS)
 
     def create_new_dataframe_from_given_sheet_names_and_add_advertiser_or_category_column_using_sheet_name(
             self,
@@ -74,22 +75,3 @@ class ApacTaiwanTransformFunctions(CommonCompHarmTransformFunctions):
             df = df.append(temp_df)
 
         return df
-
-    def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
-            self,
-            df,
-            existing_category_col_name: str):
-        """
-        We have some Taiwan-specific category mappings, so we will
-        wrap the common comp. harm. transform function with this one.
-        """
-        # REF: https://stackoverflow.com/a/1784128/1330974
-        category_mappings = dict(comp_harm_constants.CATEGORY_MAPPINGS,
-                                 **ApacTaiwanTransformFunctions.TAIWAN_SPECIFIC_CATEGORY_MAPPINGS)
-
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match \
-            (df,
-             existing_category_col_name,
-             comp_harm_constants.CATEGORY_COLUMN,
-             category_mappings
-             )

@@ -3,13 +3,8 @@
 We will define transform functions specific to Malaysia here.
 
 Author: Jholman Jaramillo
-Last Modified: July 22, 2020
+Last Modified: Nov 30, 2020
 """
-
-import re
-
-import pandas as pd
-
 from constants import comp_harm_constants
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
@@ -23,3 +18,4 @@ class ApacPhilippinesTransformFunctions(CommonCompHarmTransformFunctions):
 
     def __init__(self, config):
         self.config = config
+        self.category_mappings = comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS

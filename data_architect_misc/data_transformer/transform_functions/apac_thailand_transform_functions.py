@@ -3,13 +3,8 @@
 We will define transform functions specific to Thailand here.
 
 Author: Jholman Jaramillo
-Last Modified: August 31, 2020
+Last Modified: Nov 30, 2020
 """
-
-import re
-
-import pandas as pd
-
 from constants import comp_harm_constants
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
@@ -55,6 +50,11 @@ class ApacThailandTransformFunctions(CommonCompHarmTransformFunctions):
 
     def __init__(self, config):
         self.config = config
+        # Define self.category_mappings below if we want to use
+        # specific category mapping for this country
+        self.category_mappings = dict(
+            comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS,
+            **ApacThailandTransformFunctions.THAILAND_SPECIFIC_CATEGORY_MAPPINGS)
 
     def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(self,
                                                    df,
@@ -65,7 +65,7 @@ class ApacThailandTransformFunctions(CommonCompHarmTransformFunctions):
         Helper function to invoke the common comp harm function that will help us apply
         country-specific mappings for HARMONIZED_CATEGORY column.
         """
-        return self. add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
+        return self. add_HARMONIZED_CATEGORY_column_by_applying_country_specific_mappings_to_existing_column(
             df,
             ApacThailandTransformFunctions.THAILAND_SPECIFIC_CATEGORY_MAPPINGS,
             existing_category_col_name,

@@ -3,7 +3,7 @@
 We will define transform functions specific to Singapore here.
 
 Author: Jholman Jaramillo
-Last Modified: September 03, 2020
+Last Modified: Nov 30, 2020
 """
 
 import re
@@ -11,11 +11,9 @@ import os
 import pandas as pd
 from glob import glob
 
-import transform_errors
 from constants import comp_harm_constants
-from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_DELIMITER, KEY_HEADER
+from constants.transform_constants import KEY_HEADER
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
-from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
 
 
 class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
@@ -34,6 +32,9 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
 
     def __init__(self, config):
         self.config = config
+        # Define self.category_mappings below if we want to use
+        # specific category mapping for this country
+        self.category_mappings = comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS
 
     def add_RAW_BRAND_column_for_multiple_files_using_specific_string_part_of_filename(
             self,
@@ -41,10 +42,10 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
             folder_name
     ):
         """
-        For Singapore we create the raw advertiser columns selecting the name from the filename assigned,
-        each file has one advertiser name in the file name, (E.g. SGP_N_ALL_INV_ADE_Colgate_20200601_20200630_20200729_JC,
+        For Singapore we create the raw advertiser columns by extracting the names of the raw data files.
+        Each file has one advertiser name in the file name, (E.g.
+        SGP_N_ALL_INV_ADE_Colgate_20200601_20200630_20200729_JC and
         SGP_N_ALL_INV_ADE_Sensodyne_20200601_20200630_20200729_JC)
-        this function will be specific for Singapore.
         """
         list_of_file_path_and_names = glob(''.join([folder_name, '/*']))
 
@@ -64,7 +65,7 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
             existing_brand_col_name: str):
         """
         We have some Singapore-specific brand mappings, so we will
-        mapped Advertisers names based on Brand column values.
+        map Advertisers names based on Brand column values.
 
         We mapped in Singapore the Advertisers using brand names because based on th brand names we can manage
         the advertiser that is the owner of this brand, we did somethinf similar in the previous process
@@ -73,9 +74,9 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
         # REF: https://stackoverflow.com/a/1784128/1330974
         brand_mappings = dict(**ApacSingaporeTransformFunctions.SINGAPORE_SPECIFIC_BRAND_MAPPINGS)
 
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match \
-            (df,
-             existing_brand_col_name,
-             comp_harm_constants.ADVERTISER_COLUMN,
-             brand_mappings
-             )
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
+            df,
+            existing_brand_col_name,
+            comp_harm_constants.ADVERTISER_COLUMN,
+            brand_mappings
+        )

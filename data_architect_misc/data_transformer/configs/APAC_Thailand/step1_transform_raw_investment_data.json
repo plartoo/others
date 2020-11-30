@@ -27,7 +27,7 @@
         "function_args": [["#"]]
       },
       {
-        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 10 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [10]
       },
@@ -95,10 +95,7 @@
         "function_args": [["Baht"]]
       },
       {
-        "__function_comment__": "In Thailand files, Subcategory column has the most information and it is useful ",
-        "__function_comment__": "(better than Category column) for creating HARMONIZED_CATEGORY column.",
-        "__function_comment__": "Therefore, we will use 'Subcategory' column for both HARMONIZED_CATEGORY.",
-        "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
         "function_args": ["Category", true]
       },
       {

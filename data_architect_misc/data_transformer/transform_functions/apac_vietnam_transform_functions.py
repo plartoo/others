@@ -8,7 +8,7 @@ Last Modified: April 13, 2020
 
 import pandas as pd
 
-from constants.comp_harm_constants import RAW_MEDIA_TYPE_COLUMN
+from constants.comp_harm_constants import RAW_MEDIA_TYPE_COLUMN, ENGLISH_CATEGORY_MAPPINGS
 from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_HEADER
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 from qa_functions.common_comp_harm_qa_functions import CommonCompHarmQAFunctions
@@ -18,13 +18,12 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
 
     def __init__(self, config):
         self.config = config
+        self.category_mappings = ENGLISH_CATEGORY_MAPPINGS
 
     def create_new_dataframe_from_given_sheet_names_and_add_media_type_column_using_sheet_name(
             self,
             df,
-            list_of_sheet_names
-    ):
-
+            list_of_sheet_names):
         """
         This function is creating a new column named RAW_MEDIA_TYPE
         to include media names selected from sheet names
@@ -48,17 +47,3 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
             df = df.append(temp_df)
 
         return df
-
-    def drop_duplicated_rows(self,
-                             df):
-        """
-        This function was created for drop dupes values,
-        but we realized that those values could
-        be related for other columns that were not share
-        by local agency then we are not going to use this
-        function fro delete dupes values in "Vietnam".
-        """
-        df = df.drop_duplicates()
-
-        return df
-

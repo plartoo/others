@@ -3,15 +3,10 @@
 We will define transform functions specific to Ukraine here.
 
 Author: Jholman Jaramillo
-Last Modified: July 10, 2020
+Last Modified: Nov 30, 2020
 """
 
-import re
-
-import pandas as pd
-
 from constants import comp_harm_constants
-from transform_errors import ExpectedColumnNotFoundError
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -31,6 +26,9 @@ class ApacIndiaTransformFunctions(CommonCompHarmTransformFunctions):
 
     def __init__(self, config):
         self.config = config
+        self.category_mappings = dict(
+            comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS,
+            **ApacIndiaTransformFunctions.INDIA_SPECIFIC_CATEGORY_MAPPINGS)
 
     def assert_that_actual_tam_cost_column_exists(
             self,
@@ -51,22 +49,3 @@ class ApacIndiaTransformFunctions(CommonCompHarmTransformFunctions):
             df,
             regex_for_expected_column
         )
-
-    def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
-            self,
-            df,
-            existing_category_col_name: str):
-        """
-        We have some india-specific category mappings, so we will
-        wrap the common comp. harm. transform function with this one.
-        """
-        # REF: https://stackoverflow.com/a/1784128/1330974
-        category_mappings = dict(comp_harm_constants.CATEGORY_MAPPINGS,
-                                 **ApacIndiaTransformFunctions.INDIA_SPECIFIC_CATEGORY_MAPPINGS)
-
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
-                (df,
-                 existing_category_col_name,
-                 comp_harm_constants.CATEGORY_COLUMN,
-                 category_mappings
-                 )
