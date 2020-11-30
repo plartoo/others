@@ -7,7 +7,6 @@ Last Modified: November 24, 2020
 """
 
 import pandas as pd
-import re
 import numpy as np
 from time import strptime
 
@@ -51,18 +50,26 @@ class NaUnitedStatesTransformFunctions(CommonCompHarmTransformFunctions):
 
         return df
 
-    def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(self,
-                                                   df,
-                                                   existing_category_col_name: str,
-                                                   leave_empty_if_no_match = False
-                                                   ):
-        """
-        Helper function to invoke the common comp harm function that will help us apply
-        country-specific mappings for HARMONIZED_CATEGORY column.
-        """
-        return self. add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
+    def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(
+            self,
             df,
-            NaUnitedStatesTransformFunctions.UNITED_STATES_SPECIFIC_CATEGORY_MAPPINGS,
+            existing_category_col_name: str,
+            leave_empty_if_no_match=False
+    ):
+        """
+        Helper function to apply country-specific mappings for HARMONIZED_CATEGORY column.
+
+        We have some specific category mappings for different countries with different
+        languages. We will prepare the category mapping (dictionary) in this helper function.
+        """
+        # REF: https://stackoverflow.com/a/1784128/1330974
+        country_specific_category_mappings = dict(
+            comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS,
+            **NaUnitedStatesTransformFunctions.UNITED_STATES_SPECIFIC_CATEGORY_MAPPINGS)
+
+        return self.add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
+            df,
+            country_specific_category_mappings,
             existing_category_col_name,
             leave_empty_if_no_match
         )
