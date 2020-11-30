@@ -29,19 +29,26 @@ class NaUnitedStatesTransformFunctions(CommonCompHarmTransformFunctions):
     def __init__(self, config):
         self.config = config
 
-    def create_date_column_based_on_header_with_month_name_as_column(self,
-                                                   df
-                                                   ):
+    def add_HARMONIZED_MONTH_and_HARMONIZED_YEAR_columns_by_extracting_info_from_raw_spend_column(
+        self,
+        df):
+        """
+        Function to extract Month and Year values from a spend column header 
+        and create HARMONIZED_MONTH and HARMONIZED_YEAR columns out of it.
+
+        In USA raw data files, we do not have dedicated columns for 
+        Date/Month/Year, but we have a column header like this:
+        'Sep 2020 (B) DOLS (000)'. This function helps extracts 
+        the Month and Year info from such column header to create 
+        HARMONIZED columns.
+        """
         df = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE],header=self.config[KEY_HEADER],skipfooter=self.config['skipfooter'],sheet_name=self.config['input_sheet_name'])
         raw_date = [date for date in df.columns.tolist() if '(B) DOLS' in date]
-        df.insert(len(df.columns)-1,column='MONTH',value=np.nan)
-        df.insert(len(df.columns)-1,column='YEAR',value=np.nan)
-        df.loc[:,'MONTH'] = strptime(raw_date[0].split(' ')[0],'%b').tm_mon
-        df.loc[:,'YEAR'] = raw_date[0].split(' ')[1]
+        df.insert(len(df.columns)-1,column=comp_harm_constants.MONTH_COLUMN,value=np.nan)
+        df.insert(len(df.columns)-1,column=comp_harm_constants.YEAR_COLUMN,value=np.nan)
+        df.loc[:, comp_harm_constants.MONTH_COLUMN] = strptime(raw_date[0].split(' ')[0],'%b').tm_mon
+        df.loc[:, comp_harm_constants.YEAR_COLUMN] = raw_date[0].split(' ')[1]
 
-        """
-        function to create a date column getting the date range from the Total column
-        """
         return df
 
     def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(self,
