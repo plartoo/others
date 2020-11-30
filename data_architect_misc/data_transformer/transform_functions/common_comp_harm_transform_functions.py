@@ -725,9 +725,9 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         that needs to be mapped in the raw category column. But we can
         better deduce the harmonized category by using raw subcategory
         column. So we can call this function AFTER calling
-        add_HARMONIZED_CATEGORY_column_using_existing_category_column
+        add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column
         like this:
-        update_HARMONIZED_CATEGORY_column_using_raw_subcategory_colum_values(
+        update_HARMONIZED_CATEGORY_column_using_raw_subcategory_column_values(
         df, 'Subcategory', {'(i?)Animal Feeds': 'Pet Nutrition'}
 
         Args:
