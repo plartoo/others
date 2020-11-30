@@ -4,8 +4,6 @@
     "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
     "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
     "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
-    "input_folder_path": "./input/AED_South_Africa/",
-    "input_file_name_or_pattern": "South_Africa_20200401_20200430_20200618.xlsx",
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
     "input_sheet_name": "SA Data",
@@ -101,21 +99,18 @@
         "function_args": ["GROSS_SPEND_IN_LOCAL_CURRENCY"]
       },
       {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "__function_comment__": "The raw Category column is useless and that's why we have to use SUBCATEGORY column to find out the HARMONIZED_CATEGORY values.",
-        "__function_comment__": "See detail implementation of this method and mappings in aed_south_africa_transform_functions.py",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_raw_SUBCATEGORY_column_values",
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
         "function_args": ["SUBCATEGORY"]
-      },
-      {
-        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
-        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
-        "function_args": ["CATEGORY"]
       },
       {
         "__function_comment__": "Update HARMONIZED_CATEGORY column (with non standardized category names in aed_south_africa_transform_functions) from HARMONIZED_CATEGORY column.",
         "__function_comment__": "See detail implementation of this method and mappings in aed_south_africa_transform_functions.py",
         "function_name": "drop_data_with_non_standard_categories_from_HARMONIZED_CATEGORY_column"
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
+        "function_args": ["CATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",

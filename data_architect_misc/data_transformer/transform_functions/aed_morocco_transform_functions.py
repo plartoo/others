@@ -6,8 +6,7 @@ Author: Phyo Thiha
 Last Modified: April 12, 2020
 """
 
-import pandas as pd
-
+from constants import comp_harm_constants
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -19,12 +18,7 @@ class AedMoroccoTransformFunctions(CommonCompHarmTransformFunctions):
     """
     def __init__(self, config):
         self.config = config
-
-    def implement_country_specific_transform_functions_in_this_file_like_this(
-            self,
-            df
-    ):
-        """Insert description here."""
-        return df
-
+        # Define self.category_mappings below if we want to use
+        # specific category mapping for this country
+        self.category_mappings = comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS
 

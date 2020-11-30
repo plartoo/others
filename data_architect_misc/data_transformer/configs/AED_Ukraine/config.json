@@ -4,8 +4,6 @@
     "__comment__": "Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
     "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
     "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
-    "input_folder_path": "./input/AED_Ukraine/",
-    "input_file_name_or_pattern": "Ukraine_20200101_20200531_20200611.xlsx",
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
     "input_sheet_name": "DateTemplate",
@@ -101,8 +99,7 @@
         "function_args": ["GROSS_SPEND_IN_LOCAL_CURRENCY"]
       },
       {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
         "function_args": ["CATEGORY"]
       },
       {

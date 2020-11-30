@@ -3,11 +3,9 @@
 We will define transform functions specific to Ukraine here.
 
 Author: Phyo Thiha
-Last Modified: April 13, 2020
+Last Modified: Nov 30, 2020
 """
-
-import pandas as pd
-
+from constants import comp_harm_constants
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -19,10 +17,4 @@ class AedUkraineTransformFunctions(CommonCompHarmTransformFunctions):
     """
     def __init__(self, config):
         self.config = config
-
-    def implement_country_specific_transform_functions_in_this_file_like_this(
-            self,
-            df
-    ):
-        """Insert description here."""
-        return df
+        self.category_mappings = comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS

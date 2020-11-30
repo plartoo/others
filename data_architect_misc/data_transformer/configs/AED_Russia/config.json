@@ -106,18 +106,13 @@
         "function_args": ["GROSS_SPEND_IN_RUSSIAN RUBLE"]
       },
       {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "function_name": "add_HARMONIZED_CATEGORY_column_using_existing_category_column",
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
         "function_args": ["CATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
         "function_args": ["CATEGORY"]
-      },
-      {
-        "__function_comment__": "rename HARMONIZED_CATEGORY values (with standardized category names in aed_russia_transform_functions.py) from raw category name column.",
-        "function_name": "rename_HARMONIZED_CATEGORY_data_using_dictionary_values"
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
