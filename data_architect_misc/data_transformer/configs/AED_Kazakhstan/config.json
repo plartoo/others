@@ -134,10 +134,6 @@
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
       },
       {
-        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
-        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
-      },
-      {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
         "function_name": "filter_and_rearrange_columns_for_final_output"
       }

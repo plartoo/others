@@ -667,13 +667,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             leave_empty_if_no_match
         )
 
-    def add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values(
-        self, 
-        df):
-        return self.replace_empty_string_values_with_NOT_AVAILABLE(
-            df,
-            comp_harm_constants.SUBCATEGORY_COLUMN)
-
     def update_HARMONIZED_CATEGORY_column_using_raw_subcategory_column_values(
             self,
             df,
