@@ -207,7 +207,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)Hair.*Colour.*": "Personal Care",
     "(?i)Hair.*Shampoo.*": "Personal Care",
     "(?i).*Hair.*Removal.*": "Personal Care",
-    "(?i)Hair.*Styl.*": "Personal Care",
+    "(?i)*.Hair.*Styl.*": "Personal Care",
     "(?i)Hair.*Treatment.*": "Personal Care",
     "(?i)Hand.*Wash.*": "Personal Care",
     "(?i).*HIGIENE.*FEMENIN.*": "Personal Care",

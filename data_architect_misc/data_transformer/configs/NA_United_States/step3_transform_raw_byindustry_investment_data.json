@@ -27,9 +27,9 @@
         "function_args": [["TOTAL DOLS (000)"]]
       },
       {
-        "__function_comment__": "By the time we run this function, there should be only 9 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 7 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [9]
+        "function_args": [7]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
