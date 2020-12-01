@@ -622,9 +622,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             [comp_harm_constants.GROSS_SPEND_COLUMN],
             2)
 
-# TODO: Update LATAM countries and others to include their specific mappings
     def add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column(
-    # def add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
             self,
             df,
             existing_col_name: str,
@@ -669,37 +667,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             leave_empty_if_no_match
         )
 
-# TODO: Update comp_harm_constants.CATEGORY_MAPPINGS to something else
-    def add_HARMONIZED_CATEGORY_column_using_existing_category_column(
-            self,
-            df,
-            existing_category_col_name: str):
-        """
-        Add HARMONIZED_CATEGORY column based on string values found
-        in raw category column. The HARMONIZED_CATEGORY column
-        will contain standard names of the categories used by the
-        competitive harmonization project.
-
-        If a raw category name does not have corresponding mapping
-        defined as CATEGORY_MAPPINGS in comp_harm_constants.py file,
-        the raw value will be assigned in the harmonized column.
-
-        Args:
-            df: Raw dataframe to transform.
-            existing_category_col_name: Name of the existing column,
-            which has raw category names (string values).
-
-        Returns:
-            Dataframe with HARMONIZED_CATEGORY column which holds
-            standardized category names used by the competitive
-            harmonization project.
-        """
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match(
-            df,
-            existing_category_col_name,
-            comp_harm_constants.CATEGORY_COLUMN,
-            comp_harm_constants.CATEGORY_MAPPINGS)
-
     def add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values(
         self, 
         df):
@@ -720,12 +687,11 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         This method needs to be called when the raw subcategory column's
         values are better suited to deduce HARMONIZED_CATEGORY values.
         For example, in Philippines raw data, we call
-        add_HARMONIZED_CATEGORY_column_using_existing_category_column
+        add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column
         method and even after that there are some veterinary products
         that needs to be mapped in the raw category column. But we can
-        better deduce the harmonized category by using raw subcategory
-        column. So we can call this function AFTER calling
-        add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column
+        further improve harmonized category mappings by using raw subcategory
+        column. So we can call this function in the next transformation step
         like this:
         update_HARMONIZED_CATEGORY_column_using_raw_subcategory_column_values(
         df, 'Subcategory', {'(i?)Animal Feeds': 'Pet Nutrition'}
