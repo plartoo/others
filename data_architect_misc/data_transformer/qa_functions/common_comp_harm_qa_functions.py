@@ -654,7 +654,7 @@ class CommonCompHarmQAFunctions:
 
     @staticmethod
     def _get_months_difference(later_datetime, older_datetime):
-        """Calcuates the approximate number of months between two datetime objects."""
+        """Calculates the approximate number of months between two datetime objects."""
         return (later_datetime.year - older_datetime.year) * 12 + \
                (older_datetime.month - later_datetime.month)
 
@@ -671,21 +671,26 @@ class CommonCompHarmQAFunctions:
                 f"content in that file to make sure we are using the latest data from "
                 f" the 1PH table. Instructions on how to update that file are included "
                 f"in that same file ('one_ph_subcategory_category.py').")
+
         observed_pairings = dict(zip(df[comp_harm_constants.SUBCATEGORY_COLUMN].tolist(),
                                      df[comp_harm_constants.CATEGORY_COLUMN].tolist()))
-        """
-        # We will remove 'Not Available' subcategory keys from observed_pairings because sometimes in countries like Guatemala, 
-        we can deduce Categories from product names using dictionaries, 
-        but we do not receive Subcategory names from raw data files.
-        """
         try:
+            """
+            # We will remove 'Not Available' subcategory keys from observed_pairings because 
+            sometimes in countries like Guatemala, we can deduce Categories from product 
+            names using dictionaries, but we do not receive Subcategory names from raw data files.
+            """
             del observed_pairings[comp_harm_constants.NOT_AVAILABLE]
         except KeyError:
             pass
+
         incorrect_pairings = {}
         for subcat, cat in observed_pairings.items():
             try:
-                if cat != one_ph_subcategory_category.subcategory_category_relations[subcat]:
+                if subcat and (cat != one_ph_subcategory_category.subcategory_category_relations[subcat]):
+                    # If the HARMONIZED_SUBCATEGORY is not an empty string (because we allow empty strings for
+                    # ** unmapped ** HARMONIZED_SUBCATEGORY column) and if the category observed is NOT equal
+                    # to the expected 1PH category, we will record and alert the user about it.
                     incorrect_pairings[subcat] = cat
             except KeyError:
                 incorrect_pairings[subcat] = cat
