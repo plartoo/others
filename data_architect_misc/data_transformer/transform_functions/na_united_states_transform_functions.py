@@ -43,14 +43,12 @@ class NaUnitedStatesTransformFunctions(CommonCompHarmTransformFunctions):
         the Month and Year info from such column header to create 
         HARMONIZED columns.
         """
-        df = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE],
+        df_temp = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE],
                            header=self.config[KEY_HEADER],
                            skipfooter=self.config['skipfooter'],
                            sheet_name=self.config['input_sheet_name'])
 
-        raw_date = [date for date in df.columns.tolist() if '(B) DOLS' in date]
-        df.insert(len(df.columns)-1,column=comp_harm_constants.MONTH_COLUMN,value=np.nan)
-        df.insert(len(df.columns)-1,column=comp_harm_constants.YEAR_COLUMN,value=np.nan)
+        raw_date = [date for date in df_temp.columns.tolist() if '(B) DOLS' in date]
         df.loc[:, comp_harm_constants.MONTH_COLUMN] = strptime(raw_date[0].split(' ')[0],'%b').tm_mon
         df.loc[:, comp_harm_constants.YEAR_COLUMN] = raw_date[0].split(' ')[1]
 
