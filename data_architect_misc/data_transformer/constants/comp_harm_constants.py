@@ -169,6 +169,7 @@ ADVERTISER_MAPPINGS = {
 }
 
 ENGLISH_CATEGORY_MAPPINGS = {
+    # TODO: we need to reorder these mappings alphabetically and remove duplicates
     "(?i)^HC$": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
