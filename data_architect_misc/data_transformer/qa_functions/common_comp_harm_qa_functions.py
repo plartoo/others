@@ -105,10 +105,12 @@ class CommonCompHarmQAFunctions:
         min_yr_in_df = min(df[comp_harm_constants.YEAR_COLUMN])
         max_month_in_df = max(df[comp_harm_constants.MONTH_COLUMN])
         min_month_in_df = min(df[comp_harm_constants.MONTH_COLUMN])
+
         if ((d_start.year != min_yr_in_df) or (d_start.month != min_month_in_df)
                 or (d_end.year != max_yr_in_df) or (d_end.month != max_month_in_df)):
             raise transform_errors.InputFileNameAndDataDateRangeMismatchError(
                 self.config[KEY_CURRENT_INPUT_FILE])
+
         return df
 
     @staticmethod
