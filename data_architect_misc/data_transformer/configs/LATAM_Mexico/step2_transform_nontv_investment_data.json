@@ -84,8 +84,7 @@
         "function_args": [["Inversion {Sum}"]]
       },
       {
-        "__function_comment__": "Create HARMONIZED_CATEGORY column (with standardized category names in comp_harm_constants.py) from raw category name column.",
-        "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
         "function_args": ["Categoria"]
       },
       {
@@ -109,10 +108,6 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
-      },
-      {
-        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
-        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_value"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",

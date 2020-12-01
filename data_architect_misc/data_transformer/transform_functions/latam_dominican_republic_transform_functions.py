@@ -27,6 +27,9 @@ class LatamDominicanRepublicTransformFunctions(CommonCompHarmTransformFunctions)
 
     def __init__(self, config):
         self.config = config
+        self.category_mappings = dict(
+            comp_harm_constants.SPANISH_CATEGORY_MAPPINGS,
+            **LatamDominicanRepublicTransformFunctions.DOMINICAN_REPUBLIC_SPECIFIC_CATEGORY_MAPPINGS)
 
     def add_RAW_MEDIA_column_for_multiple_files_using_specific_string_part_of_filename(
             self,
@@ -53,19 +56,3 @@ class LatamDominicanRepublicTransformFunctions(CommonCompHarmTransformFunctions)
             df = df.append(temp_df)
 
         return df
-
-    def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(self,
-                                                   df,
-                                                   existing_category_col_name: str,
-                                                   leave_empty_if_no_match = False
-                                                   ):
-        """
-        Helper function to invoke the common comp harm function that will help us apply
-        country-specific mappings for HARMONIZED_CATEGORY column.
-        """
-        return self. add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
-            df,
-            LatamDominicanRepublicTransformFunctions.DOMINICAN_REPUBLIC_SPECIFIC_CATEGORY_MAPPINGS,
-            existing_category_col_name,
-            leave_empty_if_no_match
-        )

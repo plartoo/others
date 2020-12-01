@@ -1,7 +1,5 @@
 [
   {
-    "__comment__": "We want to prevent people forgetting to update the name of the new raw file to load every month. So we split these steps into two.",
-
     "header": 7,
     "skiprows": 8,
     "skipfooter": 1,
@@ -82,10 +80,7 @@
         "function_args": [["Inversion MP"]]
       },
       {
-        "__function_comment__": "Apply category mappings in comp_harm_constants.py and specific category mapping for ",
-        "__function_comment__": "this country to create HARMONIZED_CATEGORY column. If the mapping does not exist, ",
-        "__function_comment__": "leave the cell blank (as empty string) and we will use 1PH table to map them in SQL.",
-        "function_name": "apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column",
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
         "function_args": ["Subrubro", true]
       },
       {
@@ -114,10 +109,6 @@
       {
         "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
         "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
-      },
-      {
-        "__function_comment__": "update HARMONIZED_SUBCATEGORY column and set the NOT AVAILABLE values in columns with empty values.",
-        "function_name": "add_HARMONIZED_SUBCATEGORY_column_with_NOT_AVAILABLE_string_values"
       },
       {
         "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
