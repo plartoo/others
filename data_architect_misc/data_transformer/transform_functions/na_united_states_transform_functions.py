@@ -5,13 +5,12 @@ We will define transform functions specific to United States here.
 Author: Maicol Contreras
 Last Modified: November 24, 2020
 """
-
 import pandas as pd
 import numpy as np
 from time import strptime
 
 from constants import comp_harm_constants
-from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_DELIMITER, KEY_HEADER
+from constants.transform_constants import KEY_CURRENT_INPUT_FILE, KEY_HEADER
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -27,10 +26,13 @@ class NaUnitedStatesTransformFunctions(CommonCompHarmTransformFunctions):
 
     def __init__(self, config):
         self.config = config
+        self.category_mappings = dict(
+            comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS,
+            **NaUnitedStatesTransformFunctions.UNITED_STATES_SPECIFIC_CATEGORY_MAPPINGS)
 
     def add_HARMONIZED_MONTH_and_HARMONIZED_YEAR_columns_by_extracting_info_from_raw_spend_column(
-        self,
-        df):
+            self,
+            df):
         """
         Function to extract Month and Year values from a spend column header 
         and create HARMONIZED_MONTH and HARMONIZED_YEAR columns out of it.
@@ -41,7 +43,11 @@ class NaUnitedStatesTransformFunctions(CommonCompHarmTransformFunctions):
         the Month and Year info from such column header to create 
         HARMONIZED columns.
         """
-        df = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE],header=self.config[KEY_HEADER],skipfooter=self.config['skipfooter'],sheet_name=self.config['input_sheet_name'])
+        df = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE],
+                           header=self.config[KEY_HEADER],
+                           skipfooter=self.config['skipfooter'],
+                           sheet_name=self.config['input_sheet_name'])
+
         raw_date = [date for date in df.columns.tolist() if '(B) DOLS' in date]
         df.insert(len(df.columns)-1,column=comp_harm_constants.MONTH_COLUMN,value=np.nan)
         df.insert(len(df.columns)-1,column=comp_harm_constants.YEAR_COLUMN,value=np.nan)
@@ -50,26 +56,3 @@ class NaUnitedStatesTransformFunctions(CommonCompHarmTransformFunctions):
 
         return df
 
-    def apply_country_specific_category_mapping_to_HARMONIZED_CATEGORY_column(
-            self,
-            df,
-            existing_category_col_name: str,
-            leave_empty_if_no_match=False
-    ):
-        """
-        Helper function to apply country-specific mappings for HARMONIZED_CATEGORY column.
-
-        We have some specific category mappings for different countries with different
-        languages. We will prepare the category mapping (dictionary) in this helper function.
-        """
-        # REF: https://stackoverflow.com/a/1784128/1330974
-        country_specific_category_mappings = dict(
-            comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS,
-            **NaUnitedStatesTransformFunctions.UNITED_STATES_SPECIFIC_CATEGORY_MAPPINGS)
-
-        return self.add_HARMONIZED_CATEGORY_column_using_existing_category_column_with_country_specific_mappings(
-            df,
-            country_specific_category_mappings,
-            existing_category_col_name,
-            leave_empty_if_no_match
-        )
