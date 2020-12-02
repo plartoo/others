@@ -294,6 +294,30 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*Vitamin.*": "Other",
 }
 
+ITALIAN_CATEGORY_MAPPINGS = {
+    # TODO: we need to reorder these mappings alphabetically and remove duplicates
+    "(?i).*DETERGENTI.*": "Home Care",
+    "(?i).*PULITORI.*": "Home Care",
+
+    "(?i).*IGIENE.*ORALE.*": "Oral Care",
+    "(?i).*ORALE.*": "Oral Care",
+    "(?i).*DENTI.*": "Oral Care",
+    "(?i).*SPAZZOLINI.*": "Oral Care",
+
+    "(?i).*CURA.*PERSONA.*": "Personal Care",
+    "(?i).*DOCCIASCHIUMA.*": "Personal Care",
+    "(?i).*CURA.*CORPO.*": "Personal Care",
+    "(?i).*CURA.*VISO.*": "Personal Care",
+    "(?i).*LINEA.*CURA.*": "Personal Care",
+    "(?i).*DEODORANTI.*": "Personal Care",
+    "(?i).*SAPONI.*": "Personal Care",
+    "(?i).*SHAMPOO.*": "Personal Care",
+     
+    "(?i).*(\b)?Pet\\s.*": "Pet Nutrition",
+
+    "(?i).*STERILIZZATORI.*": "Other",
+}
+
 SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*INDEFINIDO.*": NOT_AVAILABLE,
     "(?i).*NO\sDISPONIBLE.*": NOT_AVAILABLE,
