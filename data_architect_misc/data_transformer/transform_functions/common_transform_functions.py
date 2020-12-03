@@ -1094,6 +1094,21 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def convert_date_column_to_a_different_format(
+        self, 
+        df, 
+        date_col_name: str, 
+        format_str: str):
+
+        if not isinstance(format_str, str) and not isinstance(date_col_name, str):
+            raise transform_errors.InputDataTypeError(
+                " The date column name is not string type or "
+                " The format is not string type. ")
+
+        df.loc[:,date_col_name] = df[date_col_name].apply(lambda x:datetime.datetime.strptime(x, format_str))
+
+        return df
+
     def add_new_column_with_values_based_on_another_column_values_using_exact_str_match(
             self,
             df,
@@ -1268,6 +1283,7 @@ class CommonTransformFunctions(TransformFunctions):
         Returns:
             The dataframe with newly added YEAR column with integer year value.
         """
+        
         df[new_date_col_name] = pd.to_datetime(df[existing_date_col_name]).dt.month
 
         return df
