@@ -115,7 +115,16 @@ SPANISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)Revista.*": "Print", "(?i)PRENSA.*": "Print", "(?i)DIARIO.*": "Print", "(?i)Suplemento.*": "Print",
 }
 
-MEDIA_TYPE_MAPPINGS = dict(ENGLISH_MEDIA_TYPE_MAPPINGS, **SPANISH_MEDIA_TYPE_MAPPINGS)
+GERMAN_MEDIA_TYPE_MAPPINGS = {
+    "(?i)KINO.*": "Cinema",
+    "(?i)DESKTOP.*": "Digital",
+    "(?i)FERNSEHEN.*": "TV", 
+    "(?i)AT-RETAIL-MEDIA.*": "In-store",
+    "(?i)TRANSPORT\\sMEDIA.*": "OOH",  "(?i)PLAKAT.*": "OOH", "(?i)FACHZEITSCHRIFTEN.*": "OOH", "(?i)AMBIENT\\sMEDIA.*": "OOH",
+    "(?i)WERBESENDUNGEN.*": "Print", "(?i)ZEITUNGEN.*": "Print", "(?i)PUBLIKUMSZEITSCHRIFTEN.*": "Print",
+}
+
+MEDIA_TYPE_MAPPINGS = dict(ENGLISH_MEDIA_TYPE_MAPPINGS, **SPANISH_MEDIA_TYPE_MAPPINGS, **GERMAN_MEDIA_TYPE_MAPPINGS)
 
 COUNTRY_MAPPINGS = {
     # Mapping between raw country names in regular expression to standardized country names
@@ -312,10 +321,28 @@ ITALIAN_CATEGORY_MAPPINGS = {
     "(?i).*DEODORANTI.*": "Personal Care",
     "(?i).*SAPONI.*": "Personal Care",
     "(?i).*SHAMPOO.*": "Personal Care",
-     
-    "(?i).*(\b)?Pet\\s.*": "Pet Nutrition",
 
     "(?i).*STERILIZZATORI.*": "Other",
+}
+
+GERMAN_CATEGORY_MAPPINGS = {
+    # TODO: we need to reorder these mappings alphabetically and remove duplicates
+    "(?i).*GESCHIRRSPUELMITTEL.*": "Home Care",
+    "(?i).*PFLEGEMITTEL.*": "Home Care",
+    "(?i).*REINIG.*": "Home Care",
+    "(?i).*WASCHMITTEL.*": "Home Care",
+    "(?i).*BECKENSTEINE.*": "Home Care",
+    "(?i).*WEICHSPUELER.*": "Home Care",
+
+    "(?i).*MUNDPFLEGE.*": "Oral Care",
+    "(?i).*MUNDWASSER.*": "Oral Care",
+    "(?i).*ZAHN.*": "Oral Care", 
+
+    "(?i).*BADEZUSAETZE.*": "Personal Care",
+    "(?i).*DUSCHZUSAETZE.*": "Personal Care",
+    "(?i).*FEINSEIFEN.*": "Personal Care",
+    "(?i).*RASIERPFLEGE.*": "Personal Care",
+    "(?i).*BADEKOSMETIK.*": "Personal Care",
 }
 
 SPANISH_CATEGORY_MAPPINGS = {
