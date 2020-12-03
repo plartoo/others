@@ -98,30 +98,39 @@ CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition
 
 ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
-    "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)JORNAL.*": "Print",  "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
+
+    "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
+    "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
     "(?i).*(\b)?Mag.*": "Print",
 
-    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH","(?i)Bus/Taxis.*":"OOH", "(?i)Posters/Rail/Digital.*":"OOH",
+    "(?i)AMBIENT\\sMEDIA.*": "OOH",
+    "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)Bus/Taxis.*":"OOH", "(?i)Metro.*": "OOH",
+    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
+    "(?i)Posters/Rail/Digital.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",
+
     "(?i).*(\b)?RADIO.*": "Radio", "(?i)RD.*": "Radio",
-    "(?i)TV.*": "TV", "(?i).*(\b)?TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV", "FTA.*": "TV", "(?i)CABLE.*": "TV", "(?i)CB.*": "TV", "(?i)Pay TV.*": "TV",
+
+    "(?i)CABLE.*": "TV", "(?i)CB.*": "TV", "FTA.*": "TV",
+    "(?i)Pay TV.*": "TV",
+    "(?i)TV.*": "TV", "(?i).*(\b)?TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV",
     "(?i)Syndication.*": "TV",
 
-    "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)ONLINE.*": "Digital", "(?i)MOBILE.*": "Digital", "(?i)SEARCH.*": "Digital", "(?i).*Display.*": "Digital", 
+    "(?i)DESKTOP.*": "Digital", "(?i).*Display.*": "Digital",
+    "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)MOBILE.*": "Digital",
+    "(?i)ONLINE.*": "Digital", "(?i)SEARCH.*": "Digital",
 }
 
 SPANISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)Televisión.*": "TV", 
-    "(?i)PUBLICIDAD\sEXTERIOR.*": "OOH","(?i)VP.*": "OOH","(?i)Vía\sPública.*": "OOH", "(?i)Metro.*": "OOH",
+    "(?i)PUBLICIDAD\\sEXTERIOR.*": "OOH","(?i)VP.*": "OOH","(?i)Vía\\sPública.*": "OOH",
     "(?i)Revista.*": "Print", "(?i)PRENSA.*": "Print", "(?i)DIARIO.*": "Print", "(?i)Suplemento.*": "Print",
 }
 
 GERMAN_MEDIA_TYPE_MAPPINGS = {
+    "(?i)FERNSEHEN.*": "TV",
     "(?i)KINO.*": "Cinema",
-    "(?i)DESKTOP.*": "Digital",
-    "(?i)FERNSEHEN.*": "TV", 
-    "(?i)AT-RETAIL-MEDIA.*": "In-store",
-    "(?i)TRANSPORT\\sMEDIA.*": "OOH",  "(?i)PLAKAT.*": "OOH", "(?i)FACHZEITSCHRIFTEN.*": "OOH", "(?i)AMBIENT\\sMEDIA.*": "OOH",
-    "(?i)WERBESENDUNGEN.*": "Print", "(?i)ZEITUNGEN.*": "Print", "(?i)PUBLIKUMSZEITSCHRIFTEN.*": "Print",
+    "(?i)FACHZEITSCHRIFTEN.*": "OOH", "(?i)PLAKAT.*": "OOH",
+    "(?i)PUBLIKUMSZEITSCHRIFTEN.*": "Print", "(?i)WERBESENDUNGEN.*": "Print", "(?i)ZEITUNGEN.*": "Print"
 }
 
 MEDIA_TYPE_MAPPINGS = dict(ENGLISH_MEDIA_TYPE_MAPPINGS, **SPANISH_MEDIA_TYPE_MAPPINGS, **GERMAN_MEDIA_TYPE_MAPPINGS)
@@ -224,7 +233,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*Moisturizer.*": "Personal Care",
     "(?i).*MOUTH.*CARE.*": "Personal Care",
     "(?i)^PC$": "Personal Care",
-    "(?i).*[A-z]PERSONAL.*[A-z]CARE.*": "Personal Care",
+    "(?i).*[A-z]PERSONAL.*[A-z]CARE.*": "Personal Care", # TODO: we need to test with US file to see why Maicol needs to add [A-z]
     "(?i).*SOAP.*": "Personal Care",
     "(?i).*Shampoo.*": "Personal Care",
     "(?i).*SHAVE.*": "Personal Care",
@@ -347,7 +356,7 @@ GERMAN_CATEGORY_MAPPINGS = {
 
 SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*INDEFINIDO.*": NOT_AVAILABLE,
-    "(?i).*NO\sDISPONIBLE.*": NOT_AVAILABLE,
+    "(?i).*NO\\sDISPONIBLE.*": NOT_AVAILABLE,
 
     "(?i).*BUCAL.*": "Oral Care",
     "(?i).*ANTISARR.*": "Oral Care",
@@ -696,7 +705,9 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*ESTACION.*": "Other",
 }
 
-CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS, **ENGLISH_CATEGORY_MAPPINGS)
+CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS,
+                         **ENGLISH_CATEGORY_MAPPINGS,
+                         **GERMAN_CATEGORY_MAPPINGS)
 
 MONTH_REFERENCE_BY_LANGUAGE = {
      "ene": 1,
