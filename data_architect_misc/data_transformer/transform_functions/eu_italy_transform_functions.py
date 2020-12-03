@@ -31,52 +31,62 @@ class EuItalyTransformFunctions(CommonCompHarmTransformFunctions):
             comp_harm_constants.ITALIAN_CATEGORY_MAPPINGS,
             **EuItalyTransformFunctions.ITALY_SPECIFIC_CATEGORY_MAPPINGS)
 
+    @staticmethod
+    def _merge_dataframe_columns_into_strings(df_columns):
+        # In Italy raw file, we read the first three lines of data including 
+        # Media Type, Month-Year and Spot Length. We will combine these into 
+        # something like, 'Television_07-01-2020_10' so that we can eventually 
+        # unpivot them and split them back into three separate columns.
+        concatenated_col_names = []
+        for i, columns in enumerate(df_columns):
+            str_to_combine = []
+            for j, columns_data in enumerate(df_columns[columns]):
+                if columns_data:
+                    if isinstance(columns_data, dt): 
+                        columns_data = columns_data.strftime('%m-%d-%Y')
+                    str_to_combine.append(columns_data)
+            concatenated_col_names.append('_'.join(str_to_combine))
+
+        return concatenated_col_names
+
     def create_dataframe_pivotting_the_media_date_and_spend_values(
             self,
             df):
         """
-        Function to organize the data and pivot the media, date and spend columns.
-        """
-        df_pivot_final = pd.DataFrame()
-        permanent_columns = ['Subcategory','Advertiser','Brand','Product','DATA']
-        columns_concat = []
-        
-        df.drop(df.columns[[0]],axis=1,inplace = True) #Deleting the column 0 since there are no nnull values
-        df_columns = df[0:3].fillna("") #Getting the first three original header
-        df_data = df.drop(df.index[0:3],axis=0) #Getting only the data with no including the three header
+        Function to reshape the Italy raw data which comes in with 
+        Media Type, Month-Year and Spot Length preceding the actual 
+        column headers.
+        """        
+        df.drop(df.columns[[0]],axis=1,inplace = True) # Deleting the first column because it is empty
+        df_columns = df[0:3].fillna("") # Read the first three rows that include Media type, Month-Year and Spot Length
+        df_data = df.drop(df.index[0:3],axis=0) # Read the data frame without the first three rows above
 
-        #---------- Merging the three header in just one header ---------
-        for index,columns in enumerate(df_columns):
-            list_string = ""
-            for ind,columns_data in enumerate(df_columns[columns]):
-                if columns_data != "":
-                    if isinstance(columns_data, dt): 
-                        columns_data = columns_data.strftime('%m-%d-%Y')
-                    list_string += str(columns_data) + "_"
-            list_string_long = len(list_string)
-            columns_concat.append(list_string[:list_string_long - 1])
-        #---------- ----------------------------------------- ---------
+        # Rename the column names with Spot Length to the names which is concatenated version of 
+        # Media Type, Month-Year and Spot Length (e.g., 'Television_07-01-2020_10')
+        col_names_after_str_concat = EuItalyTransformFunctions._merge_dataframe_columns_into_strings(df_columns)
+        df_data.columns = col_names_after_str_concat
 
-        df_data.columns = columns_concat #Replacing the columns in the original data with the merged columns
-
-        """
-        We will delete the GRP data due to these values are not necessary to be pivoted
-        """
+        # Keep only the rows with spend data in it (in other words, discard the GRP rows)
         df_data = df_data.loc[df_data['DATA'] == '€']
 
-        #To validate the columns that contain values and they are going to be pivotting, it's necessary to separate them of the all header
-        columns_to_pivot = [column_ok for column_ok in columns_concat if len(column_ok.split('_'))>1]
+        # When we updated the column names by concatenating them with '_' above, 
+        # we included the column names such as 'Sector', 'Subsector', ..., 'Product'. 
+        # We don't need to unpivot them, so we will leave them out with the filter below.
+        cols_to_unpivot = [c for c in col_names_after_str_concat if '_' in c]
 
-        """
-        It's much better to pivot column by column because it takes a long time doing the pivotting process using all columns at the same time
-        """
-        for columnstomelt in columns_to_pivot:
-            df_pivot_temp = pd.melt(df_data,id_vars=permanent_columns, value_vars=columnstomelt,var_name='Merged_Columns', value_name='Values')
-            df_pivot_temp = df_pivot_temp.loc[df_pivot_temp['Values'] > 0] #Deleting the 0 values the data is much easier to be splitted
-            #Creating the Date column and Media column using the merged columns based on its order 
-            df_pivot_temp.loc[:,'Media'] = df_pivot_temp['Merged_Columns'].apply(lambda x:x.split('_')[0])
-            df_pivot_temp.loc[:,'Date'] = df_pivot_temp['Merged_Columns'].apply(lambda x:x.split('_')[1])
-            #Joining all interactions  in just one dataframe, this is because the local agency sometimes send us the data with more months than necessary
-            df_pivot_final = df_pivot_final.append(df_pivot_temp,sort=False)
+        # Note: We are unpivoting column by column because it takes a long time 
+        # to unpivot them at once (in one function call)
+        df_unpivotted = pd.DataFrame()
+        pivoted_columns = ['Subcategory','Advertiser','Brand','Product','DATA']
+        for columnstomelt in cols_to_unpivot:
+            df_unpivot_temp = pd.melt(df_data, id_vars=pivoted_columns, value_vars=columnstomelt, var_name='Merged_Columns', value_name='Values')
+            df_unpivot_temp = df_unpivot_temp.loc[df_unpivot_temp['Values'] > 0] # Keep only the values with spend > 0 
 
-        return df_pivot_final
+            # Creating the Date and Media columns from the combined string column created in earlier steps above
+            df_unpivot_temp.loc[:, 'Media'] = df_unpivot_temp['Merged_Columns'].apply(lambda x:x.split('_')[0])
+            df_unpivot_temp.loc[:, 'Date'] = df_unpivot_temp['Merged_Columns'].apply(lambda x:x.split('_')[1])
+
+            # Keep adding unpivotted data back to the final dataframe that is to be returned
+            df_unpivotted = df_unpivotted.append(df_unpivot_temp, sort=False)
+
+        return df_unpivotted
