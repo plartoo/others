@@ -94,7 +94,7 @@ OUTPUT_FILE_TYPE = '.txt'
 
 REQUIRED_INPUT_ARGS = ['sc', 'sp', 'fn', 'ap', 'op']
 # Note: If SHEET_NAME=None, then Pandas will convert all sheets in the Excel file
-DEFAULT_SHEET_NAME = 'Sheet1'
+DEFAULT_SHEET_NAME = 0
 DEFAULT_DELIMITER = '|'
 DEFAULT_ENCODING = 'utf-8'
 DEFAULT_HEADER_ROWS_TO_SKIP = 0
@@ -384,7 +384,6 @@ def main():
 
     # 2. Create container client
     container_client = blob_service_client.get_container_client(source_container)
-    blobs = [b for b in container_client.list_blobs()]
 
     # 3. If there's data transform code, download the code file to local directory and import the module in it
     # REF: How to import Python module - https://stackoverflow.com/a/54956419
@@ -392,7 +391,7 @@ def main():
     # local_data_transform_code_path_and_file_name = None
     data_transform_module = None
     if data_transform_script:
-        for blob in blobs:
+        for blob in [b for b in container_client.list_blobs(name_starts_with=data_transform_script)]:
             if fnmatch.fnmatch(blob.name, data_transform_script):
                 _, cur_blob_file_name = extract_file_path_and_name(blob.name)
                 local_data_transform_code_path_and_file_name = os.path.join(local_dir_name, cur_blob_file_name)
@@ -410,14 +409,22 @@ def main():
                                                              source_file_name,
                                                              separator=STORAGE_PATH_SEPARATOR)
 
-    for blob in blobs:
-        if fnmatch.fnmatch(blob.name, source_blob_file_path_and_name):
+
+    # Exclude blobs from archive path and output path, which do not need to be processed.
+    all_blob_names_under_source_path = [b['name'] for b in container_client.list_blobs(name_starts_with=source_path)]
+    all_archive_blob_names = [b['name'] for b in container_client.list_blobs(name_starts_with=archive_path)]
+    all_output_blob_names = [b['name'] for b in container_client.list_blobs(name_starts_with=output_path)]
+    all_blob_names_to_process = set(all_blob_names_under_source_path) - (set(all_archive_blob_names).union(set(all_output_blob_names)))
+
+    local_txt_file_name = None
+    for blob_name in list(all_blob_names_to_process):
+        if fnmatch.fnmatch(blob_name, source_blob_file_path_and_name):
             # 5. If source (input) file is found in the blob list,
             # download the blob and put it in a local temp directory created in step 1
-            print(f"Found this blob as source file: {blob.name}\n")
-            _, cur_blob_file_name = extract_file_path_and_name(blob.name)
+            print(f"Found this blob as source file: {blob_name}\n")
+            _, cur_blob_file_name = extract_file_path_and_name(blob_name)
             local_source_file_path_and_name = os.path.join(local_dir_name, cur_blob_file_name)
-            download_blob_file_to_local(container_client, blob.name, local_source_file_path_and_name)
+            download_blob_file_to_local(container_client, blob_name, local_source_file_path_and_name)
             df = read_data(local_source_file_path_and_name,
                            sheet_name=sheet_name,
                            input_delimiter=input_delimiter,
@@ -444,10 +451,12 @@ def main():
             dest_blob_path_and_name = join_path_and_file_name(output_path,
                                                               local_txt_file_name,
                                                               separator=STORAGE_PATH_SEPARATOR)
-            print(f"Uploading converted txt file to blob.")
+            print(f"Uploading converted txt file: {local_txt_file_path_and_name} "
+                  f"\nto blob: {dest_blob_path_and_name}.\n")
             upload_local_file_to_blob(container_client,
                                       local_txt_file_path_and_name,
                                       dest_blob_path_and_name)
+            print(f"========\n")
 
             # # Step 9 and 10 can be completed by ADF, so we'll comment them out
             # # 9. Archive source file (i.e. copy source file in the local temp folder to the blob archive folder)
@@ -460,8 +469,8 @@ def main():
             #                           archive_blob_path_and_name)
 
             # # 10. Delete the source blob
-            # container_client.delete_blob(blob.name)
-            # print(f"Deleted source blob: {blob.name}")
+            # container_client.delete_blob(blob_name)
+            # print(f"Deleted source blob: {blob_name}")
 
     # 12. Delete the local folder and files downloaded temporarily from Azure blob
     try:
