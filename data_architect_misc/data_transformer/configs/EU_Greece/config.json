@@ -14,7 +14,7 @@
     
     "functions_to_apply": [
       {
-        "__function_comment__": "By the time we run this function, there should be only 67 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 15 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [15]
       },
