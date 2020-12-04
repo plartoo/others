@@ -1,36 +1,22 @@
 [
   {
-    "header": 8,
-    "skiprows": 9,
-    "skipfooter": 6,
-    "input_delimiter": ";",
-
-    "rows_per_read": 500000,
+    "header": 0,
+    "skiprows": 1,
 
     "__comment__": "(Optional) Enter the sheet name for the output Excel file. Default is 'Sheet1'.",
     "output_sheet_name": "Sheet1",
 
     "write_output": true,
-    "output_folder_path": "./output/EU_Germany/",
-    "output_file_name_prefix": "Transformed_Germany_INV_20180101_20201001_",
+    "output_folder_path": "./output/EU_Greece/",
+    "output_file_name_prefix": "Transformed_Greece_INV_20180101_20201001_",
 
-    "custom_transform_functions_file": "./transform_functions/eu_germany_transform_functions.py",
+    "custom_transform_functions_file": "./transform_functions/eu_greece_transform_functions.py",
     
     "functions_to_apply": [
       {
-        "__function_comment__": "Rename the unnamed column that contain spend values and don't leave that drop_unnamed_columns works",
-        "function_name": "rename_columns",
-        "function_args": [{"Unnamed: 63":"EUR"}]
-      },
-      {
-        "__function_comment__": "Format the column date with a specific order",
-        "function_name": "convert_date_column_to_a_different_format",
-        "function_args": ["Datum","%d.%m.%Y"]
-      },
-      {
-        "__function_comment__": "By the time we run this function, there should be only 67 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 15 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [67]
+        "function_args": [15]
       },
       {
         "__function_comment__": "Excel file has empty columns. We need to drop them first",
@@ -42,13 +28,13 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
-        "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
-        "function_args": ["Datum"]
+        "function_name": "add_HARMONIZED_YEAR_column_by_renaming_existing_column",
+        "function_args": ["Year"]
       },
       {
-        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex due to the spanish comes in spanish and needs to check with the dictionary.",
-        "function_name": "add_HARMONIZED_MONTH_column_using_existing_column_with_month_values",
-        "function_args": ["Datum"]
+        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
+        "function_name": "add_HARMONIZED_MONTH_column_by_renaming_existing_column",
+        "function_args": ["Month"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -62,17 +48,17 @@
       {
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
         "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
-        "function_args": ["Germany"]
+        "function_args": ["Greece"]
       },
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["Firma"]
+        "function_args": ["Advertiser"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["Mediengruppe"]
+        "function_args": ["Media Type"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'EUR' as value.",
@@ -82,30 +68,31 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": [["EUR"]]
+        "function_args": [["Spend (in Euros)"]]
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["Produktfamilie", true]
+        "function_args": ["Category", true]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
-        "function_args": ["Produktfamilie"]
+        "function_args": ["Category"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["Produkt"]
+        "function_args": ["Product"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
-        "function_name": "add_RAW_SUBCATEGORY_column_with_empty_values"
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
+        "function_args": ["Subcategory"]
       },
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["Marke"]
+        "function_args": ["Brand"]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
