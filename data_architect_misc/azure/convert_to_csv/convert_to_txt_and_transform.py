@@ -97,7 +97,7 @@ OUTPUT_FILE_TYPE = '.txt'
 
 REQUIRED_INPUT_ARGS = ['sc', 'sp', 'fn', 'ap', 'op']
 # Note: If SHEET_NAME=None, then Pandas will convert all sheets in the Excel file
-DEFAULT_SHEET_NAME = 0
+DEFAULT_SHEET = 0
 DEFAULT_DELIMITER = '|'
 DEFAULT_ENCODING = 'utf-8'
 DEFAULT_HEADER_ROWS_TO_SKIP = 0
@@ -198,7 +198,7 @@ def read_csv_file(file_path_and_name,
 
 
 def read_data(file_path_and_name,
-              sheet_name=DEFAULT_SHEET_NAME,
+              sheet_name=DEFAULT_SHEET,
               input_delimiter=DEFAULT_DELIMITER,
               input_encoding=DEFAULT_ENCODING,
               skip_rows=DEFAULT_HEADER_ROWS_TO_SKIP,
@@ -295,7 +295,7 @@ def main():
                         help="Source file's blob path [e.g., 'Test/Input']")
     parser.add_argument('-fn', type=str,
                         help="Source file's name [e.g., 'Belgium_Data.xlsx']")
-    parser.add_argument('-sn', type=str, default=DEFAULT_SHEET_NAME,
+    parser.add_argument('-sn', type=str, default=DEFAULT_SHEET,
                         help="Sheet name to read (if input file is an Excel file). Default is 'Sheet1'.")
     parser.add_argument('-id', type=str, default=DEFAULT_DELIMITER,
                         help="Delimiter to use in parsing the input file if it is CSV. Default is '|'.")
@@ -366,7 +366,11 @@ def main():
     source_container = activity_config.get('sourceContainer')
     source_path = activity_config.get('sourcePath')
     source_file_name = activity_config.get('fileName')
-    sheet_name = activity_config.get('sheetName', DEFAULT_SHEET_NAME)
+    # If 'sheetName' is set to NULL in SQL DB, it comes as None in activity_config JSON (case 1).
+    # If 'sheetName' key is not present in JSON (case 2).
+    # We need to manage both of the above cases because these can happen.
+    sheet_name = DEFAULT_SHEET if activity_config.get('sheetName') is None else activity_config.get('sheetName', DEFAULT_SHEET)
+
     input_delimiter = activity_config.get('inputCsvDelimiter', DEFAULT_DELIMITER)
     input_encoding = activity_config.get('inputCsvEncoding', DEFAULT_ENCODING)
     header_rows_to_skip = int(activity_config.get('skipHeaderRow', DEFAULT_HEADER_ROWS_TO_SKIP))
