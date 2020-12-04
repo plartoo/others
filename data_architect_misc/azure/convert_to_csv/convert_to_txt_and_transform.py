@@ -13,6 +13,7 @@ import fnmatch
 import json
 import importlib
 import os
+import re
 import shutil
 import sys
 import time
@@ -80,6 +81,8 @@ Or run this script on local machine using input flags like below:
 One-line example is:
 > python convert_to_txt_and_transform.py -adf 0 -sc comp-harm -sp test/transformed_data/AED_GCC -fn Transformed_GCC_20200601_20200630__rows_0_225_20200729_123451.csv 
 -id , -ap test/transformed_data/AED_GCC/archive_source -op test/transformed_data/AED_GCC/converted_txt -dtc python_scripts/transform_data.py
+OR for a much simpler use:
+> python convert_to_txt_and_transform.py -adf 0 -sc comp-harm -sp mapped_data/AED_GCC -fn *apped_*.xlsx -ap mapped_data/AED_GCC/archive_source -op mapped_data/AED_GCC/converted_txt
 """
 
 STORAGE_PATH_SEPARATOR = '/'
@@ -409,15 +412,22 @@ def main():
                                                              source_file_name,
                                                              separator=STORAGE_PATH_SEPARATOR)
 
-
     # Exclude blobs from archive path and output path, which do not need to be processed.
     all_blob_names_under_source_path = [b['name'] for b in container_client.list_blobs(name_starts_with=source_path)]
     all_archive_blob_names = [b['name'] for b in container_client.list_blobs(name_starts_with=archive_path)]
     all_output_blob_names = [b['name'] for b in container_client.list_blobs(name_starts_with=output_path)]
-    all_blob_names_to_process = set(all_blob_names_under_source_path) - (set(all_archive_blob_names).union(set(all_output_blob_names)))
+    all_blob_names_to_process = set(all_blob_names_under_source_path) - \
+                                (set(all_archive_blob_names).union(set(all_output_blob_names)))
+
+    # Unfortunately, we have some 'Archive_Excel', 'Archive_TXT' etc. legacy folders.
+    # We need to filter them out from the list of the blobs to process.
+    all_blob_names_to_process = [b_name for b_name in list(all_blob_names_to_process)
+                                 if not (re.match(r'.*/archive_.*', b_name, re.I) or
+                                         (re.match(r'.*/converted_.*', b_name, re.I)))]
 
     local_txt_file_name = None
-    for blob_name in list(all_blob_names_to_process):
+    cur_blob_file_name = None
+    for blob_name in all_blob_names_to_process:
         if fnmatch.fnmatch(blob_name, source_blob_file_path_and_name):
             # 5. If source (input) file is found in the blob list,
             # download the blob and put it in a local temp directory created in step 1
@@ -436,8 +446,8 @@ def main():
                 # 6. Apply data transformation function, transform_data(),
                 # from data transform module to the dataframe.
                 df = data_transform_module.transform_data(df)
-                print(
-                    f"Successfully applied data transformation code: {local_data_transform_code_path_and_file_name}\n")
+                print(f"Successfully applied data transformation code: "
+                      f"{local_data_transform_code_path_and_file_name}\n")
 
             # 7. Write the (transformed) dataframe as local txt file
             local_txt_file_name = ''.join([os.path.splitext(cur_blob_file_name)[0], OUTPUT_FILE_TYPE])
