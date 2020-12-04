@@ -23,7 +23,7 @@
         "function_args": [{"Unnamed: 63":"EUR"}]
       },
       {
-        "__function_comment__": "Rename the unnamed column that contain spend values and don't leave that drop_unnamed_columns works",
+        "__function_comment__": "Format the column date with a specific order",
         "function_name": "convert_date_column_to_a_different_format",
         "function_args": ["Datum","%d.%m.%Y"]
       },
