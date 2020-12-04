@@ -1099,13 +1099,30 @@ class CommonTransformFunctions(TransformFunctions):
         df, 
         date_col_name: str, 
         format_str: str):
+        """
+        Function to convert date format in a given column (date_col_name)
+        to a different format using Python's date/time format codes:
+        https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes
+
+        Args:
+            df: Dataframe to transform.
+            date_col_name: Name of the date/datetime column that
+            needs to be converted to a new format.
+            format_str: Format string for the new date/datetime format.
+            For example, '%m-%d-%Y'.
+
+        Returns:
+            The dataframe which has the datetime column with the desired format.
+        """
 
         if not isinstance(format_str, str) and not isinstance(date_col_name, str):
             raise transform_errors.InputDataTypeError(
                 " The date column name is not string type or "
                 " The format is not string type. ")
 
-        df.loc[:,date_col_name] = df[date_col_name].apply(lambda x:datetime.datetime.strptime(x, format_str))
+        df.loc[:, date_col_name] = df[date_col_name].apply(
+            lambda x:datetime.datetime.strptime(x, format_str)
+        )
 
         return df
 
