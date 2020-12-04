@@ -103,9 +103,9 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
     "(?i).*(\b)?Mag.*": "Print",
 
-    "(?i)AMBIENT\\sMEDIA.*": "OOH",
+    "(?i)AMBIENT\\sMEDIA.*": "OOH", "(?i)AW.*": "OOH",
     "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)Bus/Taxis.*":"OOH", "(?i)Metro.*": "OOH",
-    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH",
+    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH", 
     "(?i)Posters/Rail/Digital.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",
 
     "(?i).*(\b)?RADIO.*": "Radio", "(?i)RD.*": "Radio",
@@ -117,7 +117,7 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
 
     "(?i)DESKTOP.*": "Digital", "(?i).*Display.*": "Digital",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)MOBILE.*": "Digital",
-    "(?i)ONLINE.*": "Digital", "(?i)SEARCH.*": "Digital",
+    "(?i)ONLINE.*": "Digital", "(?i)OLW.*": "Digital", "(?i)SEARCH.*": "Digital",
 }
 
 SPANISH_MEDIA_TYPE_MAPPINGS = {
