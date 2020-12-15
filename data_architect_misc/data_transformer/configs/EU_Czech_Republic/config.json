@@ -27,12 +27,12 @@
         "function_name": "add_PROCESSED_DATE_column_with_current_date"
       },
       {
-        "__function_comment__": "Create HARMONIZED_YEAR column setting the year as constant.",
+        "__function_comment__": "Create HARMONIZED_YEAR column from existing year column name.",
         "function_name": "add_HARMONIZED_YEAR_column_by_renaming_existing_column",
         "function_args": ["Year"]
       },
       {
-        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
+        "__function_comment__": "Create HARMONIZED_MONTH column from existing month column name.",
         "function_name": "add_HARMONIZED_MONTH_column_using_existing_month_column_with_only_full_month_names",
         "function_args": ["Month"]
       },
