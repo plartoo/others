@@ -107,6 +107,7 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)Bus/Taxis.*":"OOH", "(?i)Metro.*": "OOH",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH", 
     "(?i)Posters/Rail/Digital.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",
+    "(?i)PUBLICITE\\sEXTERIEURE.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",
 
     "(?i).*(\b)?RADIO.*": "Radio", "(?i)RD.*": "Radio",
 
@@ -726,11 +727,23 @@ MONTH_REFERENCE_BY_LANGUAGE = {
      "aug": 8,
 
      "jan" : 1,
+     "janvier": 1,
      "fev": 2,
+     "février": 2,
+     "mars": 3,
+     "avr": 4,
+     "avril": 4,
      "mai": 5,
+     "juin": 6,
+     "juillet": 7,
+     "août": 8,
      "set": 9,
+     "septembre": 9,
      "out": 10,
+     "octobre": 10,
+     "novembre": 11,
      "dez": 12,
+     "décembre": 12,
 
      "enero": 1,
      "febrero": 2,
