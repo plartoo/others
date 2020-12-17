@@ -99,7 +99,7 @@ CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition
 ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
 
-    "(?i)DIRECT\\sMAIL.*": "Print", "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
+    "(?i)DIRECT\\sMAIL.*": "Print", "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)NEWPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
     "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
     "(?i).*(\b)?Mag.*": "Print",
 
