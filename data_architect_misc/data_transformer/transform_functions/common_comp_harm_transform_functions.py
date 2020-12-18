@@ -192,6 +192,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             Dataframe with original year column renamed to
             standardized year column name.
         """
+
         return self.rename_columns(
             df,
             {raw_year_col_name: comp_harm_constants.YEAR_COLUMN})
@@ -236,6 +237,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
 
         return self.add_year_column_using_existing_column_with_year_values(
             df,
+            comp_harm_constants.YEAR_COLUMN,
             comp_harm_constants.YEAR_COLUMN)
 
     def add_HARMONIZED_YEAR_with_prefix_value_from_raw_data_with_YY_or_YYYY_format_using_regex(
@@ -245,7 +247,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             regex_for_format):
         """
         In countries like Peru, the year's value come in the form of something like,
-        'Setiembre del 2020' and we need to harmonize them.
+        'Setiembre del 20' and we need to harmonize them.
         """
         from datetime import datetime
         import re
@@ -373,7 +375,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         '01Abr20' and we need to harmonize them.
         """
         import re
-        
+
         df[col_name_with_month_value] = df[col_name_with_month_value].str.lower().apply(
             lambda x:re.findall(regex_for_format, x)[0])
 
