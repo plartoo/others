@@ -3,7 +3,7 @@
 We will define transform functions specific to Latvia here.
 
 Author: Maicol Contreras
-Last Modified: December 4, 2020
+Last Modified: December 21, 2020
 """
 from constants import comp_harm_constants
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
