@@ -7,7 +7,6 @@ Last Modified: December 21, 2020
 """
 from constants import comp_harm_constants
 import pandas as pd
-import xlrd
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -45,12 +44,11 @@ class EuNorwayTransformFunctions(CommonCompHarmTransformFunctions):
     def join_sheets_in_a_unique_dataframe(self,df):
         columns_to_use = ['category', 'subcategory', 'brand', 'product', 'advertiser', 'period', 'media channel', 'gross']
         final_df = pd.DataFrame(columns=columns_to_use)
-        wb = xlrd.open_workbook(self.config['current_input_file'])
-        worksheets = wb.sheet_names()
-        worksheets_to_use = [sheet for sheet in worksheets if len(sheet.split())==2 and sheet.split()[1].isnumeric()]
-        for worksheet in worksheets_to_use:
-            if wb.sheet_by_name(worksheet).visibility == 0:
-                dt_to_clean = pd.read_excel(self.config['current_input_file'],skiprows=self.config['header'],sheet_name=worksheet)
+        wb = pd.ExcelFile(self.config['current_input_file'])
+        worksheets = wb.book.sheets()
+        for sheet in worksheets:
+            if sheet.visibility == 0 and (len(sheet.name.split())==2 and sheet.name.split()[1].isnumeric()):
+                dt_to_clean = wb.parse(sheet.name,header=self.config['header'])
                 dt_to_clean.dropna(how='all',axis=1,inplace=True) #Delete columns with NA values
                 dt_to_clean.dropna(how='all',axis=0,inplace=True) #Delete rows with NA values 
                 columns_to_check = [EuNorwayTransformFunctions._columns_reference(str(x)) for x in dt_to_clean.columns.str.lower().tolist()]
