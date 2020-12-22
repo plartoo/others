@@ -7,7 +7,6 @@ Last Modified: December 21, 2020
 """
 from constants import comp_harm_constants
 import pandas as pd
-from openpyxl import load_workbook
 from transform_functions.common_comp_harm_transform_functions import CommonCompHarmTransformFunctions
 
 
@@ -31,13 +30,13 @@ class EuNetherlandsTransformFunctions(CommonCompHarmTransformFunctions):
         columns_to_use = ['Productklasse', 'Merk', 'Product', 'Adverteerder',
         'Mediumtype', 'Jaar', 'Maand', 'Week', 'Spend']
         final_df = pd.DataFrame(columns=columns_to_use)
-        wb = load_workbook(self.config['current_input_file'])
-        worksheets = wb.sheetnames
-        worksheets_to_use = [sheet for sheet in worksheets if len(sheet.split())==2 and sheet.split()[1].isnumeric()]
-        for worksheet in worksheets_to_use:
-            dt_to_clean = pd.read_excel(self.config['current_input_file'],skiprows=self.config['header'],sheet_name=worksheet)
-            dt_to_clean.dropna(thresh=9,inplace=True)
-            dt_to_clean['Jaar'] = dt_to_clean['Jaar'].astype(int)
-            dt_to_clean = dt_to_clean[~dt_to_clean['Spend'].isnull()]
-            final_df = final_df.append(dt_to_clean[columns_to_use],sort=False)
+        wb = pd.ExcelFile(self.config['current_input_file'])
+        worksheets = wb.book.sheets()
+        for sheet in worksheets:
+            if sheet.visibility == 0 and (len(sheet.name.split())==2 and sheet.name.split()[1].isnumeric()):
+                dt_to_clean = wb.parse(sheet.name,header=self.config['header'])
+                dt_to_clean.dropna(thresh=9,inplace=True)
+                dt_to_clean['Jaar'] = dt_to_clean['Jaar'].astype(int)
+                dt_to_clean = dt_to_clean[~dt_to_clean['Spend'].isnull()]
+                final_df = final_df.append(dt_to_clean[columns_to_use],sort=False)
         return final_df
