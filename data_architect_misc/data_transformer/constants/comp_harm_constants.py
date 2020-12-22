@@ -101,7 +101,9 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
 
     "(?i)DIRECT\\sMAIL.*": "Print", "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)NEWPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
     "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print", "(?i)DAILIES.*": "Print",
-    "(?i).*(\b)?Mag.*": "Print",
+    "(?i).*(\b)?Mag.*": "Print", 
+    
+    "(?i)Vaktijdschriften.*": "Print", "(?i)Dagbladen.*": "Print", "(?i)Folders.*": "Print",
 
     "(?i)AMBIENT\\sMEDIA.*": "OOH", "(?i)AW.*": "OOH",
     "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)Bus/Taxis.*":"OOH", "(?i)Metro.*": "OOH",
@@ -115,6 +117,8 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)Pay TV.*": "TV",
     "(?i)TV.*": "TV", "(?i).*(\b)?TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV",
     "(?i)Syndication.*": "TV",
+
+    "(?i)Televisie.*": "TV",
 
     "(?i)DESKTOP.*": "Digital", "(?i).*Display.*": "Digital",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)MOBILE.*": "Digital",
@@ -759,7 +763,19 @@ MONTH_REFERENCE_BY_LANGUAGE = {
      "noviembre": 11,
      "diciembre": 12,
 
+     "januari": 1,
+     "februari": 2,
+     "maart": 3,
+     "april": 4,
+     "mei": 5,
+     "juni": 6,
+     "juli": 7,
+     "augustus": 8,
      "september": 9,
+     "oktober": 10,
+     "november": 11,
+     "december": 12,
+
      "october": 10,
 
      "setiembre": 9,
