@@ -29,7 +29,7 @@ class EuNorwayTransformFunctions(CommonCompHarmTransformFunctions):
 
     @staticmethod
     def _columns_reference(columns_ref):
-        # In France raw file, we need to validate that all columns always come with the same name
+        # In Norway raw file, we need to validate that all columns always come with the same name
         # In some ocassions, the local agency shares with us the data with other column but the same data.
         # We make sure the name of the columns using a remap of columns.
         try:
