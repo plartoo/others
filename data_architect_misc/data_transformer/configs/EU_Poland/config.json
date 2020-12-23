@@ -1,5 +1,6 @@
 [
   {
+    "__comment__": "Please use this config file to clean all input files for Poland (Personal Care, Home Care and Oral Care).",
     "header": 0,
     "skiprows": 1,
 
@@ -14,7 +15,7 @@
     
     "functions_to_apply": [
       {
-        "__function_comment__": "Excel file has empty columns. We need to drop them first",
+        "__function_comment__": "Join all sheets in a just one dataframe",
         "function_name": "join_sheets_in_a_unique_dataframe"
       },
       {

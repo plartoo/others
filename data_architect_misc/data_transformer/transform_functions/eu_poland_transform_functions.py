@@ -3,7 +3,7 @@
 We will define transform functions specific to Poland here.
 
 Author: Maicol Contreras
-Last Modified: December 4, 2020
+Last Modified: December 23, 2020
 """
 from constants import comp_harm_constants
 import pandas as pd
@@ -28,7 +28,7 @@ class EuPolandTransformFunctions(CommonCompHarmTransformFunctions):
 
     @staticmethod
     def _columns_reference(columns_ref):
-        # In Norway raw file, we need to validate that all columns always come with the same name
+        # In Poland raw file, we need to validate that all columns always come with the same name
         # In some ocassions, the local agency shares with us the data with other column but the same data.
         # We make sure the name of the columns using a remap of columns.
         try:
