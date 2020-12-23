@@ -102,6 +102,8 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)DIRECT\\sMAIL.*": "Print", "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)NEWPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
     "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print", "(?i)DAILIES.*": "Print",
     "(?i).*(\b)?Mag.*": "Print", 
+
+    "(?i)Gazety.*": "Print",
     
     "(?i)Vaktijdschriften.*": "Print", "(?i)Dagbladen.*": "Print", "(?i)Folders.*": "Print",
 
@@ -114,13 +116,13 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i).*(\b)?RADIO.*": "Radio", "(?i)RD.*": "Radio",
 
     "(?i)CABLE.*": "TV", "(?i)CB.*": "TV", "FTA.*": "TV",
-    "(?i)Pay TV.*": "TV",
+    "(?i)Pay TV.*": "TV", 
     "(?i)TV.*": "TV", "(?i).*(\b)?TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV",
     "(?i)Syndication.*": "TV",
 
-    "(?i)Televisie.*": "TV",
+    "(?i)Televisie.*": "TV", "(?i)Telewizja.*": "TV", "(?i)Kina.*": "TV",
 
-    "(?i)DESKTOP.*": "Digital", "(?i).*Display.*": "Digital",
+    "(?i)DESKTOP.*": "Digital", "(?i).*Display.*": "Digital", "(?i).*DOOH.*": "Digital",
     "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)MOBILE.*": "Digital",
     "(?i)ONLINE.*": "Digital", "(?i)OLW.*": "Digital", "(?i)SEARCH.*": "Digital",
 }
