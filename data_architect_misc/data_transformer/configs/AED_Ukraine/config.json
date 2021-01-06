@@ -6,10 +6,13 @@
     "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
 
     "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
-    "input_sheet_name": "DateTemplate",
+    "input_sheet_name": "DataTemplate",
 
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,
+
+    "__comment__": "Ukraine raw files seem to use UTF-16 as encoding, so we have to write them back out as UTF-16",
+    "output_encoding": "utf-16",
 
     "__comment__": "(Optional) Enter the sheet name of the output Excel file. Default is 'Sheet1'.",
     "output_sheet_name": "Sheet1",
