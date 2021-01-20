@@ -666,7 +666,7 @@ class CommonCompHarmQAFunctions:
 
         if CommonCompHarmQAFunctions._get_months_difference(today, last_updated_date) > 6:
             raise qa_errors.QA_Reference_Data_Outdated(
-                f"The one_ph_subcategory_category.py file we use in this QA step "
+                f"The constant/one_ph_subcategory_category.py file we use in this QA step "
                 f"has not been updated for more than 6 months. You must update the "
                 f"content in that file to make sure we are using the latest data from "
                 f" the 1PH table. Instructions on how to update that file are included "
