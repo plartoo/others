@@ -37,6 +37,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "By the time we run this function, there should be only 27 columns total remaining in the raw data frame.",
         "__function_comment__": "this because the raw file contains the same structure as we come processing from the data tool.",
         "function_name": "assert_number_of_columns_equals",
@@ -49,12 +53,12 @@
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
         "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
-        "function_args": ["Fecha"]
+        "function_args": ["FECHA"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
         "function_name": "add_HARMONIZED_MONTH_using_existing_column_with_month_values_and_float_values",
-        "function_args": ["Mes"]
+        "function_args": ["MES"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -88,7 +92,7 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["Inv"]
+        "function_args": ["INV"]
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
@@ -102,7 +106,7 @@
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
-        "function_args": ["Categoria"]
+        "function_args": ["CATEGORIA"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",

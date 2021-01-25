@@ -23,6 +23,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "function_name": "drop_columns_by_name_if_they_exist_in_dataframe",
         "function_args": [["#"]]
       },
@@ -34,12 +38,12 @@
       {
         "__function_comment__": "Delete row with value '*' from 'Baht' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["Baht"],["\\*"]]
+        "function_args": [["BAHT"],["\\*"]]
       },
       {
         "__function_comment__": "Drop empty rows in 'Baht' column.",
         "function_name": "drop_empty_rows",
-        "function_args": [["Baht"]]
+        "function_args": [["BAHT"]]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -48,17 +52,17 @@
       {
         "__function_comment__": "Add new column name based of possible columns names for date column",
         "function_name": "add_new_column_using_one_of_the_existing_column_with_several_possible_names",
-        "function_args": [["CP_Period"],["Month","CP_Period","As Selected"]]
+        "function_args": [["CP_PERIOD"],["MONTH","CP_PERIOD","AS SELECTED"]]
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
         "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
-        "function_args": ["CP_Period"]
+        "function_args": ["CP_PERIOD"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
         "function_name": "add_HARMONIZED_MONTH_column_using_existing_column_with_month_values",
-        "function_args": ["CP_Period"]
+        "function_args": ["CP_PERIOD"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -77,12 +81,12 @@
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["Advertiser"]
+        "function_args": ["ADVERTISER"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["Media Type"]
+        "function_args": ["MEDIA TYPE"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'ZAR' as value.",
@@ -92,21 +96,21 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": [["Baht"]]
+        "function_args": [["BAHT"]]
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["Category", true]
+        "function_args": ["CATEGORY", true]
       },
       {
         "__function_comment__": "Create RAW_CATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
-        "function_args": ["Category"]
+        "function_args": ["CATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["Product"]
+        "function_args": ["PRODUCT"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column with empty values.",
@@ -115,7 +119,7 @@
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["Brand Group"]
+        "function_args": ["BRAND GROUP"]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",

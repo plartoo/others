@@ -23,6 +23,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
         "function_name": "add_PROCESSED_DATE_column_with_current_date"
       },
@@ -76,28 +80,28 @@
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["Colgate subcategory", true]
+        "function_args": ["COLGATE SUBCATEGORY", true]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
-        "function_args": ["Colgate subcategory"]
+        "function_args": ["COLGATE SUBCATEGORY"]
       },
       {
         "__function_comment__": "Create a temporal column with a separator '-' to use in merged column later .",
         "function_name": "add_new_column_with_fixed_str_value",
-        "function_args": ["connector","-"]
+        "function_args": ["CONNECTOR","-"]
       },
       {
         "__function_comment__": "Join string values in BRAND and SUBBRAND columns using a separator and leave all this in the product column.",
         "function_name": "join_str_values_in_several_columns_to_create_a_new_column",
-        "function_args": [["BRAND","connector","SUBBRAND"],"Product"]
+        "function_args": [["BRAND","CONNECTOR","SUBBRAND"],"Product"]
       },
       
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["Product"]
+        "function_args": ["PRODUCT"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",

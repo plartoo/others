@@ -30,16 +30,20 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "In Taiwan data file, there are rows in 'Value' column could have NaN (empty). We need to remove them.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["Mes"],["nan"]]
+        "function_args": [["MES"],["nan"]]
       },
       {
         "__function_comment__": "In Argentina, we usually receive 3 files. 2 of them contains 'Tema' column, but one of them doesn't.",
         "__function_comment__": "Therefore, we need to add 'Tema' column using the function below so that ",
         "__function_comment__": "the SAME config file to process all three Argentina files.",
         "function_name": "add_new_columns_with_empty_str_value_if_not_exist",
-        "function_args": ["Tema"]
+        "function_args": ["TEMA"]
       },
       {
         "__function_comment__": "By the time we run this function, there should be only 14 columns total remaining in the raw data frame.",
@@ -54,12 +58,12 @@
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name but using a format with a regex.",
         "function_name": "add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex",
-        "function_args": ["Mes","\\d+"]
+        "function_args": ["MES","\\d+"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex.",
         "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex",
-        "function_args": ["Mes","\\w+$"]
+        "function_args": ["MES","\\w+$"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -78,12 +82,12 @@
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["Anunciante"]
+        "function_args": ["ANUNCIANTE"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["Medio"]
+        "function_args": ["MEDIO"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'ARS' as value.",
@@ -93,21 +97,21 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": ["Inversión"]
+        "function_args": ["INVERSIÓN"]
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["Segmento", true]
+        "function_args": ["SEGMENTO", true]
       },
       {
         "__function_comment__": "Create RAW_CATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
-        "function_args": ["Segmento"]
+        "function_args": ["SEGMENTO"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["Producto"]
+        "function_args": ["PRODUCTO"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
@@ -116,7 +120,7 @@
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["Marca"]
+        "function_args": ["MARCA"]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",

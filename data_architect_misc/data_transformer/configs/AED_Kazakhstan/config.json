@@ -48,6 +48,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [10]
@@ -122,7 +126,7 @@
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
         "function_name": "add_RAW_SUBBRAND_column_by_renaming_existing_column",
-        "function_args": ["SUBBRAND (Optional)"]
+        "function_args": ["SUBBRAND (OPTIONAL)"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",

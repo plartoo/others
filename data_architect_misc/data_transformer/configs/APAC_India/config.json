@@ -22,12 +22,16 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "In India, the person who provides data to us never name the columns consistently.",
         "__function_comment__": "We always want to extract spend from 'Actual TAM Cost' column or something similar to that.",
         "__function_comment__": "It is because the spend in that 'Actual.*' column is usually already multiplied by 1000.",
         "__function_comment__": "If this function raises an error, you need to update the input arguments to functions related to HARMONIZED_GROSS_SPEND column.",
         "function_name": "assert_that_actual_tam_cost_column_exists",
-        "function_args": ["Actual.*Cost"]
+        "function_args": ["ACTUAL.*COST"]
       },
       {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
@@ -80,7 +84,7 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": [["Actual Cost"]]
+        "function_args": [["ACTUAL COST"]]
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
