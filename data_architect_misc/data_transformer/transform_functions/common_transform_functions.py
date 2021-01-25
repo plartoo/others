@@ -339,6 +339,19 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with column headers renamed.
         """
         return df.rename(columns=old_to_new_cols_dict)
+    
+    def capitalize_columns_name(self, df):
+        """
+        Capitalize column headers namse.
+
+        Args:
+            df: Raw dataframe to transform.
+
+        Returns:
+            Dataframe with column names into uppercase.
+        """
+        df.columns = [x.upper() for x in df.columns.tolist()]
+        return df
 
     def capitalize_first_letter_of_each_word_in_columns(self,
                                                         df,
