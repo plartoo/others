@@ -42,6 +42,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "Check that there are originally only 11 columns from GCC data file.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [11]
@@ -53,12 +57,12 @@
       {
         "__function_comment__": "Add MONTH column based on the values in YEAR_MONTH column.",
         "function_name": "add_HARMONIZED_YEAR_column_by_renaming_existing_column",
-        "function_args": ["Year"]
+        "function_args": ["YEAR"]
       },
       {
         "__function_comment__": "Add MONTH column based on the values in YEAR_MONTH column.",
         "function_name": "add_HARMONIZED_MONTH_column_using_existing_month_column_with_only_full_month_names",
-        "function_args": ["Month"]
+        "function_args": ["MONTH"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",

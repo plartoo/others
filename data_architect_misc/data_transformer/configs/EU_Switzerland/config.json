@@ -1,28 +1,28 @@
 [
   {
-    "__instruction__": "Update values for the keys labeled as 'Required' below. Optional parameters can be left empty.",
-    "__instruction__": "Exclusive means only one of the ensuing options must be used.",
+    
+    "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
+    "input_sheet_name": "Gaba Report",
 
-    "__comment__": "(Required) Input folder and file name or file name pattern such as 'SWI_N_ALL_INV*.xlsx' (to process multiple files using the same configuration).",
-    "input_folder_path": "./input/switzerland/",
-    "input_file_name_or_pattern": "SWI_N_ALL_INV_MFO_20191101_20191130_20200117_MC.xlsx",
+    "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
+    "write_output": true,
 
+    "__comment__": "(Optional) Enter the sheet name of the output Excel file. Default is 'Sheet1'.",
+    "output_sheet_name": "Sheet1",
+    
     "__comment__": "(Required) Output folder path is required.",
-    "output_folder_path": "./output/switzerland/",
+    "output_folder_path": "./output/EU_Switzerland/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "transformed_switzerland_",
-
-    "__comment__": "(Optional Country-specific file (path+name) that has data transforming functions, which will be imported and used in the transform process.",
-    "transform_functions_file": "./transform_functions/switzerland_transform_functions.py",
+    "output_file_name_prefix": "transformed_Switzerland_20200101_20200531_",
 
     "__comment__": "(Required if there's header row in your data) Enter the row index (>= 0) to extract column headers from. E.g., if column header row is the first row, enter 0 below.",
     "__comment__": "If this value is NOT provided, the program will assume there is no header row in the input file.",
-    "header": 7,
+    "header": 6,
 
     "__comment__": "(Optional) Specify the row index (>= 0) where the data, *not including the column headers*, begins.",
     "__comment__": "Default is 1 (the second row) because that's where the data usually begins in files (the first row is almost always the column headers).",
-    "skiprows": 8,
+    "skiprows": 7,
 
     "__comment__": "(Optional) Number of rows (>=1) to drop/ignore from the bottom of the data file.",
     "__comment__": "Default is 0, meaning ever row of data will be read, including the last line in the file.",
@@ -30,64 +30,119 @@
     "__comment__": " If that happens, then the skipfooter will not correctly drop the right number of rows at the bottom.",
     "skipfooter": 5,
 
+    "__comment__": "(Optional Country-specific file (path+name) that has data transforming functions, which will be imported and used in the transform process.",
+    "custom_transform_functions_file": "./transform_functions/eu_switzerland_transform_functions.py",
+
     "__comment__": "(Required) List of the functions and their parameters in a list like [[\"drop_columns\",[0,2]], ....]",
     "__comment__": "These functions must be defined either in transform_functions.py or individual countries transform file such as switzerland_transform_functions.py",
     "__comment__": "If these functions aren't provided, error would be raised because why even bother running this program if there's nothing to transform/apply, right?",
     "functions_to_apply": [
       {
-        "__function_comment__": "Every month, we must adjust the following column indexes in this function because the raw files have different number of columns each month.",
-        "transform_function_name": "drop_columns_by_index",
-        "transform_function_args": [[10, 11, 12, 13, 14, 15, 16, 17, 21]]
+        "__function_comment__": "Excel file has empty columns. We need to drop them first",
+        "function_name": "unpivot_month_columns_with_spend_values"
       },
       {
-        "transform_function_name": "drop_columns_by_name",
-        "transform_function_args": [["Werbungtreibender", "Verlag/Vermarkter", "Sprachgebiet"]]
+        "__function_comment__": "Excel file has empty columns. We need to drop them first",
+        "function_name": "drop_unnamed_columns"
       },
       {
-        "transform_function_name": "rename_columns",
-        "transform_function_args": [{
-            "Branche": "Sector",
-            "Produktgruppe": "Subsector",
-            "Produktsegment": "Category",
-            "Firma": "Advertiser",
-            "Marke": "Brand",
-            "Produkt": "Product",
-            "Mediengruppe": "Media"
-          }]
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
       },
       {
-        "__function_comment__": "When we run this function, there are only 13 columns total left in the raw data frame.",
-        "assert_function_name": "assert_number_of_columns_equals",
-        "assert_function_args": [[10]]
+        "__function_comment__": "Excel file has empty rows. We need to drop them first",
+        "function_name": "drop_empty_rows",
+        "function_args": [["LOCAL_SPEND"]]
+      },
+      {
+        "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
+        "function_name": "assert_number_of_columns_equals",
+        "function_args": [12]
+      },
+      {
+        "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
+        "function_name": "add_PROCESSED_DATE_column_with_current_date"
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name but using a format with a regex.",
+        "function_name": "add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex",
+        "function_args": ["DATE","\\d+$"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex.",
+        "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex",
+        "function_args": ["DATE","^\\w+"]
+      },
+      {
+        "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
+        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_REGION as a new column with 'Africa-Eurasia' as value.",
+        "function_name": "add_HARMONIZED_REGION_column",
+        "function_args": ["Europe"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
+        "function_args": ["Switzerland"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
+        "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
+        "function_args": ["FIRMA"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
+        "function_args": ["MEDIENGRUPPE"]
+      },
+      {
+        "__function_comment__": "Add CURRENCY as a new column with 'EUR' as value.",
+        "function_name": "add_HARMONIZED_CURRENCY_column",
+        "function_args": ["EUR"]
+      },
+      {
+        "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
+        "function_name": "add_HARMONIZED_GROSS_SPEND_column",
+        "function_args": ["LOCAL_SPEND"]
+      },
+      {
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
+        "function_args": ["PRODUKTGRUPPE"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
+        "function_args": ["PRODUKTGRUPPE"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
+        "function_args": ["PRODUKTSEGMENT"]
+      },
+      {
+        "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
+        "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
+        "function_args": ["MARKE"]
+      },
+      {
+        "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
+        "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
+      },
+      {
+        "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
+        "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
+        "function_args": ["PRODUKT"]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME column and empty/NULL values so that automated mapping process or human mapper can fill it out later.",
+        "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
+        "function_name": "filter_and_rearrange_columns_for_final_output"
       }
-    ],
-
-
-    "__comment__": "(Optional) Enter sheet name to process. Default is the first sheet in the Excel file.",
-    "sheet_name_of_excel_file": "Gaba Report - Gaba Report",
-
-    "__comment__": "(Optional) CSV encoding and delimiters. If empty, the program uses Pandas defaults (UTF-8 and comma).",
-    "input_encoding": "",
-    "input_delimiter": "",
-    "output_encoding": "",
-    "output_delimiter": "",
-
-    "__comment__": "(Optional) For CSV files, Maximum number of rows to read, process and output in each program iteration (to not overload computer memory).",
-    "__comment__": "If below field is deleted, we use 1,500,000 rows as default value, which is defined in transform_utils.py.",
-    "rows_per_chunk_for_csv": 1500000,
-
-    "functions_to_apply_to_data_frame": {
-      "maybe we don't need this": "#maybe we don't need this"
-    },
-
-    "functions_to_apply_to_columns": {
-      "column1": ["Like convert to float"],
-      "column2": []
-    },
-
-    "functions_to_apply_to_rows": ["Like if column 1 is null, ignore row"],
-    "functions_to_apply_to_the_whole_dataframe": [],
-
-    "new_columns_to_add": [{"new_column": ["rules_used_to_populate_this_column"]}]
+    ]
   }
 ]

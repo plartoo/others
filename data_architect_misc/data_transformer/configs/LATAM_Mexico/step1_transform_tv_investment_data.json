@@ -26,6 +26,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "By the time we run this function, there should be only 24 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [24]
@@ -33,7 +37,7 @@
       {
         "__function_comment__": "Replace comma(',') values in Price {Sum} (Spend Values) column.",
         "function_name": "remove_string_values_in_column",
-        "function_args": ["Price {Sum}",","]
+        "function_args": ["PRICE {SUM}",","]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -42,12 +46,12 @@
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
         "function_name": "add_HARMONIZED_YEAR_column_by_renaming_existing_column",
-        "function_args": ["Year"]
+        "function_args": ["YEAR"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name.",
         "function_name": "add_HARMONIZED_MONTH_column_by_renaming_existing_column",
-        "function_args": ["Month"]
+        "function_args": ["MONTH"]
       },
       {
         "__function_comment__": "Add DATE column based on the values in ***YEAR and MONTH columns created in previous steps***.",
@@ -66,7 +70,7 @@
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["Advertiser"]
+        "function_args": ["ADVERTISER"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Media Type names in comp_harm_constants.py) from raw media type column.",
@@ -81,16 +85,16 @@
       {
         "__function_comment__": "Create HARMONIZED_GROSS_SPEND column (with values rounded to 2-decimal places) from raw gross spend column.",
         "function_name": "add_HARMONIZED_GROSS_SPEND_column",
-        "function_args": [["Price {Sum}"]]
+        "function_args": [["PRICE {SUM}"]]
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["Category"]
+        "function_args": ["CATEGORY"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
         "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
-        "function_args": ["SubBrand"]
+        "function_args": ["SUBBRAND"]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
@@ -99,7 +103,7 @@
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["Brand"]
+        "function_args": ["BRAND"]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",

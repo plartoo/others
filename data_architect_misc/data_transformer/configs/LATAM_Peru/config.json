@@ -22,6 +22,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "Excel file has empty rows. We need to drop them first",
         "function_name": "drop_empty_rows",
         "function_args": [["MEDIO","DURACION","ANUNCIANTE","MARCA","PRODUCTO","CATEGORIA"]]

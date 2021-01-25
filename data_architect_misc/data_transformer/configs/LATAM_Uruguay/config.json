@@ -19,6 +19,10 @@
         "function_name": "drop_unnamed_columns"
       },
       {
+        "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
         "__function_comment__": "By the time we run this function, there should be only 11 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
         "function_args": [11]
@@ -54,12 +58,12 @@
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",
         "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
-        "function_args": ["Anunciante"]
+        "function_args": ["ANUNCIANTE"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MEDIA_TYPE column (with standardized Medio names in comp_harm_constants.py) from raw media type column.",
         "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
-        "function_args": ["Medio"]
+        "function_args": ["MEDIO"]
       },
       {
         "__function_comment__": "Add CURRENCY as a new column with 'PYG' as value.",
@@ -73,17 +77,17 @@
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["Categoría", true]
+        "function_args": ["CATEGORÍA", true]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",
         "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
-        "function_args": ["Categoría"]
+        "function_args": ["CATEGORÍA"]
       },
       {
         "__function_comment__": "Create PRODUCT NAME column contatenating two columns in one.",
         "function_name": "join_str_values_in_several_columns_to_create_a_new_column",
-        "function_args": [["Ítem","Producto"],"PRODUCT_NAME"]
+        "function_args": [["ÍTEM","PRODUCTO"],"PRODUCT_NAME"]
       },
       {
         "__function_comment__": "Create RAW_PRODUCT_NAME column from existing product name column.",
@@ -97,7 +101,7 @@
       {
         "__function_comment__": "Create RAW_BRAND column from existing brand column name.",
         "function_name": "add_RAW_BRAND_column_by_renaming_existing_column",
-        "function_args": ["Producto"]
+        "function_args": ["PRODUCTO"]
       },
       {
         "__function_comment__": "Create RAW_SUBBRAND column from existing subbrand column name.",
