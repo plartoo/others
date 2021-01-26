@@ -1133,7 +1133,7 @@ class CommonTransformFunctions(TransformFunctions):
                 " The format is not string type. ")
 
         df.loc[:, date_col_name] = df[date_col_name].apply(
-            lambda x:datetime.datetime.strptime(x, format_str))
+            lambda x:datetime.datetime.strptime(str(x), format_str))
 
         return df
 
