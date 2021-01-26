@@ -36,7 +36,7 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
         # specific category mapping for this country
         self.category_mappings = comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS
 
-    def create_new_dataframe_and_add_RAW_BRAND_column_for_multiple_files_using_specific_string_part_of_filename(
+    def create_new_dataframe_with_RAW_BRAND_column_from_multiple_input_file_with_brand_names_as_part_of_the_file_names(
             self,
             df,
             folder_name

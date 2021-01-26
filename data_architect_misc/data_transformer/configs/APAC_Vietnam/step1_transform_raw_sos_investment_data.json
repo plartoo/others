@@ -25,7 +25,7 @@
         "function_args": [["Spots", "Press", "Radio"]]
       },
       {
-        "function_name": "create_new_dataframe_from_given_sheet_names_and_add_media_type_column_using_sheet_name",
+        "function_name": "create_new_dataframe_with_RAW_MEDIA_TYPE_column_from_input_file_with_multiple_sheets_dedicated_to_each_media_type",
         "function_args": [["Spots", "Press", "Radio"]]
       },
       {
