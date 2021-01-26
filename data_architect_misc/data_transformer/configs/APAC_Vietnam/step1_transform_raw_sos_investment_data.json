@@ -25,7 +25,7 @@
         "function_args": [["Spots", "Press", "Radio"]]
       },
       {
-        "function_name": "create_new_dataframe_from_given_sheet_names_and_add_media_type_column_using_sheet_name",
+        "function_name": "create_new_dataframe_with_RAW_MEDIA_TYPE_column_from_input_file_with_multiple_sheets_dedicated_to_each_media_type",
         "function_args": [["Spots", "Press", "Radio"]]
       },
       {
@@ -48,12 +48,12 @@
       {
         "__function_comment__": "Delete row with value 'Total' from Date column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["DATE", "SECTOR", "BRAND"],[["Total"], ["Total"], ["Total"]]]
+        "function_args": [["DATE", "SECTOR", "BRAND"],["Total","Total","Total"]]
       },
       {
         "__function_comment__": "Delete row with value '*' from 'Cost in VND' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["COST IN VND"],[["*"]]]
+        "function_args": [["COST IN VND"],["\\*"]]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
@@ -94,6 +94,11 @@
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
+        "function_args": ["SECTOR", true]
+      },
+      {
+        "__function_comment__": "Create RAW_CATEGORY column from existing subcategory column name.",
+        "function_name": "add_RAW_CATEGORY_column_by_renaming_existing_column",
         "function_args": ["SECTOR"]
       },
       {

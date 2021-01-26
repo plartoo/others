@@ -5,9 +5,6 @@
     "__comment__": "You can skip the two config parameters below related to input folder and file if you run the program like as follow:",
     "__comment__": "E.g., >> python transform.py -c configs/common_qa_config.json -i ./path/to/input/file/input_data_file.xlsx",
 
-    "__comment__": "(Optional) Enter the sheet name of the input Excel file to read data from. Default is the first sheet.",
-    "input_sheet_name": "DataTemplate",
-
     "__comment__": "(Optional) Boolean flag telling if we should write data to a destination place. Default is always True.",
     "write_output": true,
 
@@ -107,7 +104,7 @@
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["CATEGORY"]
+        "function_args": ["CATEGORY", true]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",

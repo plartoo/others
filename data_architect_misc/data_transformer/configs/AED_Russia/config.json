@@ -55,7 +55,7 @@
       {
         "__function_comment__": "By the time we run this function, there should be only 13 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [11]
+        "function_args": [10]
       },
       {
         "__function_comment__": "Russian agency likes to put spaces before and after the column names. We need to remove them.",
@@ -86,8 +86,8 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_COUNTRY column (with standardized country names in comp_harm_constants.py) from raw country name column.",
-        "function_name": "add_HARMONIZED_COUNTRY_column_using_existing_country_column",
-        "function_args": ["COUNTRY"]
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
+        "function_args": ["Russia"]
       },
       {
         "__function_comment__": "Create HARMONIZED_ADVERTISER column (with standardized advertiser names in comp_harm_constants.py) from existing raw advertiser name column.",

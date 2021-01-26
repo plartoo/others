@@ -20,7 +20,7 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
         self.config = config
         self.category_mappings = ENGLISH_CATEGORY_MAPPINGS
 
-    def create_new_dataframe_from_given_sheet_names_and_add_media_type_column_using_sheet_name(
+    def create_new_dataframe_with_RAW_MEDIA_TYPE_column_from_input_file_with_multiple_sheets_dedicated_to_each_media_type(
             self,
             df,
             list_of_sheet_names):
@@ -39,11 +39,11 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
 
             # Create  RAW_MEDIA_TYPE column based on sheet names.
             temp_df[RAW_MEDIA_TYPE_COLUMN] = sheet
+            temp_df.dropna(subset=["Date", "Sector", "Brand"],inplace=True)
 
             # Append all sheet with same columns names,
             # those columns names that do not match will
             # be at the end of the dataframe
             # (E.g., "Header type" column).
             df = df.append(temp_df)
-
         return df

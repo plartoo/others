@@ -7,7 +7,7 @@
     "input_sheet_name": 0,
     "header": 8,
     "skiprows": 9,
-    "skipfooter": 0,
+    "skipfooter": 1,
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Singapore/",
@@ -18,12 +18,7 @@
     "functions_to_apply": [
       {
         "__function_comment__": "This function create new RAW_BRAND column for each Singapore file extracting the Brand name from the filename.",
-        "function_name": "add_RAW_BRAND_column_for_multiple_files_using_specific_string_part_of_filename",
-        "function_args": ["./input/APAC_Singapore"]
-      },
-      {
-        "__function_comment__": "Create a new dataframe appening all excel files that exists for Singapore.",
-        "function_name": "create_new_dataframe_from_input_EXCEL_files",
+        "function_name": "create_new_dataframe_with_RAW_BRAND_column_from_multiple_input_file_with_brand_names_as_part_of_the_file_names",
         "function_args": ["./input/APAC_Singapore"]
       },
       {
