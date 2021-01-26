@@ -48,12 +48,12 @@
       {
         "__function_comment__": "Delete row with value 'Total' from Date column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["DATE", "SECTOR", "BRAND"],["Total","Total","Total"]]
+        "function_args": [["DATE", "SECTOR", "BRAND"], [["Total"], ["Total"], ["Total"]]]
       },
       {
         "__function_comment__": "Delete row with value '*' from 'Cost in VND' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["COST IN VND"],["\\*"]]
+        "function_args": [["COST IN VND"], [["\\*"]]]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",
