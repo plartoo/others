@@ -320,8 +320,8 @@ class CommonTransformFunctions(TransformFunctions):
                 f"{len(list_of_list_of_string_values)}.")
 
         for i, col_name in enumerate(list_of_col_names):
-            for j, cell_str in enumerate(list_of_list_of_string_values):
-                df = df[~df[col_name].astype(str).str.contains(list_of_list_of_string_values[j])]
+            for j, cell_str in enumerate(list_of_list_of_string_values[i]):
+                df = df[~df[col_name].astype(str).str.contains(cell_str)]
         return df
 
     def rename_columns(self, df, old_to_new_cols_dict):
