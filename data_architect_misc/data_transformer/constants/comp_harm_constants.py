@@ -108,7 +108,7 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)Vaktijdschriften.*": "Print", "(?i)Dagbladen.*": "Print", "(?i)Folders.*": "Print",
 
     "(?i)AMBIENT\\sMEDIA.*": "OOH", "(?i)AW.*": "OOH",
-    "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)Bus/Taxis.*":"OOH", "(?i)Metro.*": "OOH",
+    "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)In.*Store.*": "In-store", "(?i)Bus/Taxis.*":"OOH", "(?i)Metro.*": "OOH",
     "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH", 
     "(?i)Posters/Rail/Digital.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",
     "(?i)PUBLICITE\\sEXTERIEURE.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",

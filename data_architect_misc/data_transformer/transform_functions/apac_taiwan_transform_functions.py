@@ -67,11 +67,8 @@ class ApacTaiwanTransformFunctions(CommonCompHarmTransformFunctions):
         """
         df = pd.DataFrame()
         excel_sheets = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE], sheet_name=None)
-
         for sheet in excel_sheets.keys():
             temp_df = pd.read_excel(self.config[KEY_CURRENT_INPUT_FILE], sheet_name=sheet)
             temp_df[colum_name_to_be_assigned] = re.split(r'(-)', sheet)[2]
-
             df = df.append(temp_df)
-
         return df

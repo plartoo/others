@@ -50,6 +50,11 @@
         "function_name": "add_PROCESSED_DATE_column_with_current_date"
       },
       {
+        "__function_comment__": "Convert the column period with a specific format in order to get the year and the month values.",
+        "function_name": "convert_date_column_to_a_different_format",
+        "function_args": ["CP_PERIOD","%b-%y"]
+      },
+      {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
         "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
         "function_args": ["CP_PERIOD"]

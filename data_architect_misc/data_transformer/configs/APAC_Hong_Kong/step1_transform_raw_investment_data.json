@@ -106,7 +106,7 @@
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["SUBCATEGORY"]
+        "function_args": ["SUBCATEGORY", true]
       },
       {
         "__function_comment__": "Create RAW_SUBCATEGORY column from existing subcategory column name.",

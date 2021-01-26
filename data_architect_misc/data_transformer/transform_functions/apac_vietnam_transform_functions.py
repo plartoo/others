@@ -39,11 +39,11 @@ class ApacVietnamTransformFunctions(CommonCompHarmTransformFunctions, CommonComp
 
             # Create  RAW_MEDIA_TYPE column based on sheet names.
             temp_df[RAW_MEDIA_TYPE_COLUMN] = sheet
+            temp_df.dropna(subset=["Date", "Sector", "Brand"],inplace=True)
 
             # Append all sheet with same columns names,
             # those columns names that do not match will
             # be at the end of the dataframe
             # (E.g., "Header type" column).
             df = df.append(temp_df)
-
         return df

@@ -12,6 +12,7 @@
     "write_output": true,
     "output_folder_path": "./output/APAC_Taiwan/",
     "output_file_name_prefix": "Transformed_Taiwan_20200501_20200531_",
+    "output_encoding" : "utf-8-sig",
 
     "custom_transform_functions_file": "./transform_functions/apac_taiwan_transform_functions.py",
 
@@ -34,7 +35,7 @@
       {
         "__function_comment__": "Delete row with value 'Grand Total' from 'Section' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["STATUS"],["TOTAL"]]
+        "function_args": [["STATUS"],["Total"]]
       },
       {
         "function_name": "drop_columns_by_name_if_they_exist_in_dataframe",

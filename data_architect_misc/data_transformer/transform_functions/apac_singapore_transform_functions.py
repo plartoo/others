@@ -36,7 +36,7 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
         # specific category mapping for this country
         self.category_mappings = comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS
 
-    def add_RAW_BRAND_column_for_multiple_files_using_specific_string_part_of_filename(
+    def create_new_dataframe_and_add_RAW_BRAND_column_for_multiple_files_using_specific_string_part_of_filename(
             self,
             df,
             folder_name
@@ -49,15 +49,14 @@ class ApacSingaporeTransformFunctions(CommonCompHarmTransformFunctions):
         """
         list_of_file_path_and_names = glob(''.join([folder_name, '/*']))
 
-        df = pd.DataFrame()
+        final_df = pd.DataFrame()
         for file_path_and_name in list_of_file_path_and_names:
-            df = pd.read_excel(file_path_and_name, header=self.config[KEY_HEADER])
+            df = pd.read_excel(file_path_and_name, header=self.config[KEY_HEADER], skipfooter=self.config['skipfooter'])
             file_name = os.path.basename(file_path_and_name)
             # REF: https://stackoverflow.com/questions/27387415/how-would-i-get-everything-before-a-in-a-string-python
             df[comp_harm_constants.RAW_BRAND_COLUMN] = re.split(r'(_)', file_name)[10]
-            df.to_excel(file_path_and_name, index = False)
-
-        return df
+            final_df = final_df.append(df,sort=False)
+        return final_df
 
     def borrow_brand_names_in_SG_for_HARMONIZED_ADVERTISER_column(
             self,

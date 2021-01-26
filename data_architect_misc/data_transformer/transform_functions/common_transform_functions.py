@@ -321,7 +321,6 @@ class CommonTransformFunctions(TransformFunctions):
 
         for i, col_name in enumerate(list_of_col_names):
             df = df[~df[col_name].astype(str).str.contains(list_of_list_of_string_values[i])]
-
         return df
 
     def rename_columns(self, df, old_to_new_cols_dict):
@@ -1283,7 +1282,6 @@ class CommonTransformFunctions(TransformFunctions):
             The dataframe with newly added YEAR column with integer year value.
         """
         df[new_date_col_name] = pd.to_datetime(df[existing_date_col_name]).dt.year
-
         return df
 
     def add_month_column_using_existing_column_with_month_values(
