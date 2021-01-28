@@ -36,7 +36,7 @@
     "output_folder_path": "./output/AED_Russia/",
 
     "__comment__": "(Optional) Prefix for the output file name.",
-    "output_file_name_prefix": "Transformed_Russia_20200501_20200630_",
+    "output_file_name_prefix": "Transformed_Russia_20200101_20201130_",
 
     "__comment__": "(Optional) Path+name of the file that has **CUSTOM** functions for data transformation, which will be imported and used in the transform process.",
     "custom_transform_functions_file": "./transform_functions/aed_russia_transform_functions.py",

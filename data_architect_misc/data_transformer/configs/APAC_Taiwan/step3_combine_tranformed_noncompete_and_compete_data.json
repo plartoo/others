@@ -10,7 +10,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Taiwan/",
-    "output_file_name_prefix": "Combined_Taiwan_Investment_20200501_20200531_",
+    "output_file_name_prefix": "Combined_Taiwan_Investment_20200901_20201101_",
 
     "output_encoding_comment": "In Taiwan input files, we have to use utf-8-sig as output encoding or else it does not work. The character outputs become incorrect if we use utf-8.",
     "output_encoding" : "utf-8-sig",

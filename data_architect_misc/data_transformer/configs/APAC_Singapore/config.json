@@ -11,7 +11,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Singapore/",
-    "output_file_name_prefix": "Transformed_Singapore_20200401_20200630_",
+    "output_file_name_prefix": "Transformed_Singapore_20200701_20200901_",
 
     "custom_transform_functions_file": "./transform_functions/apac_singapore_transform_functions.py",
 
@@ -46,7 +46,7 @@
       {
         "__function_comment__": "Delete row with value 'Grand Total' from 'Section' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["SECTION"],["GRAND TOTAL"]]
+        "function_args": [["SECTION"],[["GRAND TOTAL"]]]
       },
       {
         "__function_comment__": "Based on the previous row values, next rows will be populated to completo rows",
@@ -122,7 +122,7 @@
       },
       {
         "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
-        "function_args": ["CATEGORY"]
+        "function_args": ["CATEGORY",true]
       },
       {
         "__function_comment__": "Create RAW_CATEGORY column from existing subcategory column name.",

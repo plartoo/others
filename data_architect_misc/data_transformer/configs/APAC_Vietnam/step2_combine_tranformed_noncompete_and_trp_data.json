@@ -13,7 +13,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Vietnam/",
-    "output_file_name_prefix": "Combined_Vietnam_Investment_20200301_20200531_",
+    "output_file_name_prefix": "Combined_Vietnam_Investment_20201001_20201201_",
 
     "custom_transform_functions_file": "./transform_functions/apac_vietnam_transform_functions.py",
 

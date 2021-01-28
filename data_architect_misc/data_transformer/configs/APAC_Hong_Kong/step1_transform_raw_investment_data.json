@@ -14,7 +14,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Hong_Kong/",
-    "output_file_name_prefix": "Transformed_Hong_Kong_20200501_20200531_",
+    "output_file_name_prefix": "Transformed_Hong_Kong_20201101_20201101_",
 
     "custom_transform_functions_file": "./transform_functions/apac_hong_kong_transform_functions.py",
 
@@ -49,7 +49,7 @@
       {
         "__function_comment__": "In HK data file, the rows under '$' column sometimes have asterisk characters. We need to remove them.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["$"],["\\*"]]
+        "function_args": [["$"], [["\\*"]]]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",

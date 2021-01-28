@@ -10,7 +10,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Thailand/",
-    "output_file_name_prefix": "Combined_Thailand_Investment_20200501_20200731_",
+    "output_file_name_prefix": "Combined_Thailand_Investment_20201001_20201201_",
 
     "custom_transform_functions_file": "./transform_functions/apac_thailand_transform_functions.py",
 

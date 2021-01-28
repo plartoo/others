@@ -13,7 +13,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Philippines/",
-    "output_file_name_prefix": "Transformed_Philippines_20200301_20200531_",
+    "output_file_name_prefix": "Transformed_Philippines_20200901_20201101_",
 
     "custom_transform_functions_file": "./transform_functions/apac_philippines_transform_functions.py",
 
