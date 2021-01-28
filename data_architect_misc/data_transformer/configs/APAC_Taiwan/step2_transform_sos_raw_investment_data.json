@@ -11,7 +11,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Taiwan/",
-    "output_file_name_prefix": "Transformed_Taiwan_20200501_20200531_",
+    "output_file_name_prefix": "Transformed_Taiwan_20200901_20201101_",
 
     "output_encoding_comment": "In Taiwan input files, we have to use utf-8-sig as output encoding or else it does not work. The character outputs become incorrect if we use utf-8.",
     "output_encoding" : "utf-8-sig",
@@ -37,7 +37,7 @@
       {
         "__function_comment__": "Delete row with value 'Grand Total' from 'Section' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["STATUS"],["Total"]]
+        "function_args": [["STATUS"],[["Total"]]]
       },
       {
         "function_name": "drop_columns_by_name_if_they_exist_in_dataframe",
@@ -52,7 +52,7 @@
       {
         "__function_comment__": "In Taiwan data file, there are rows in 'Value' column could have NaN (empty). We need to remove them.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["VALUE"],["nan"]]
+        "function_args": [["VALUE"],[["nan"]]]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",

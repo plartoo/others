@@ -13,7 +13,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Thailand/",
-    "output_file_name_prefix": "Transformed_Thailand_20200501_20200731_",
+    "output_file_name_prefix": "Transformed_Thailand_20201001_20201201_",
 
     "custom_transform_functions_file": "./transform_functions/apac_thailand_transform_functions.py",
 
@@ -38,7 +38,7 @@
       {
         "__function_comment__": "Delete row with value '*' from 'Baht' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["BAHT"],["\\*"]]
+        "function_args": [["BAHT"],[["\\*"]]]
       },
       {
         "__function_comment__": "Drop empty rows in 'Baht' column.",

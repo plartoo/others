@@ -13,7 +13,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Malaysia/",
-    "output_file_name_prefix": "Transformed_Malaysia_SOS_20200501_20200531_",
+    "output_file_name_prefix": "Transformed_Malaysia_SOS_20201101_20201101_",
 
     "custom_transform_functions_file": "./transform_functions/apac_malaysia_transform_functions.py",
 
@@ -38,7 +38,7 @@
       {
         "__function_comment__": "Delete row with value '*' from 'Cost in VND' column.",
         "function_name": "drop_rows_with_matching_string_values",
-        "function_args": [["RM"],["\\*"]]
+        "function_args": [["RM"],[["\\*"]]]
       },
       {
         "__function_comment__": "Replace comma(',') values in RM (Spend Values) column.",

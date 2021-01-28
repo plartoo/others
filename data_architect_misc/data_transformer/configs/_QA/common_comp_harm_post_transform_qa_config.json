@@ -7,6 +7,10 @@
     "__comment__": "(Optional) Enter sheet name to process from input Excel file. Default is the first sheet.",
     "input_sheet_name": "Sheet1",
 
+    "__comment__": "(Optional) Enter the encoding value to obtain records from output Excel file.",
+    "__comment__": "Be carefull some countries that have output enconding in their config files as Ukraine that needs to run as utf-16",
+    "input_encoding": "utf-8",
+
     "input_delimiter": "|",
 
     "__comment__": "(Optional) Enter the row index (>= 0) to extract column headers from. Default is 0 (the first row).",

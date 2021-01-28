@@ -10,7 +10,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/APAC_Philippines/",
-    "output_file_name_prefix": "Combined_Philippines_Investment_20200601_20200801_",
+    "output_file_name_prefix": "Combined_Philippines_Investment_20200901_20201101_",
 
     "custom_transform_functions_file": "./transform_functions/apac_philippines_transform_functions.py",
 
