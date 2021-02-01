@@ -40,8 +40,28 @@ E.g., python transform.py -c .\configs\china\config.json"""
 
 I_FLAG_HELP_TEXT = """[Optional] Input file (with full or relative path) that 
 has data to which the functions defined in the config file will be applied to.
+This can be defined in the config JSON file itself with "input_file" key.
+E.g., python transform.py -c .\configs\china\config.json 
+-i ./input/switzerland/Monthly_Spend_20200229.xlsx"""
+
+O_FLAG_HELP_TEXT = """[Optional] Name (and path) of the output file where the 
+transformed data will be written to. This can be defined in the config JSON file 
+itself with "output_file" key.
+E.g., python transform.py -c .\configs\china\config.json  
+-i ./input/switzerland/Monthly_Spend_20200229.xlsx 
+-o ./output/switzerland/Monthly_Spend_20200229.xlsx"""
+
+IE_FLAG_HELP_TEXT = """[Optional] Encoding (e.g., utf-16) to use in reading the 
+input file.
 E.g., python transform.py -i ./input/switzerland/Monthly_Spend_20200229.xlsx 
--c .\configs\china\config.json"""
+-c .\configs\china\config.json 
+-ie utf-16"""
+
+OE_FLAG_HELP_TEXT = """[Optional] Encoding (e.g., utf-16) to use in writing the 
+output file.
+E.g., python transform.py -i ./input/switzerland/Monthly_Spend_20200229.xlsx 
+-c .\configs\china\config.json 
+-oe utf-16"""
 
 if __name__ == '__main__':
     # 0. Set logging config
@@ -61,6 +81,12 @@ if __name__ == '__main__':
                         help=C_FLAG_HELP_TEXT)
     parser.add_argument('-i', required=False, type=str,
                         help=I_FLAG_HELP_TEXT)
+    parser.add_argument('-o', required=False, type=str,
+                        help=O_FLAG_HELP_TEXT)
+    parser.add_argument('-ie', required=False, type=str,
+                        help=IE_FLAG_HELP_TEXT)
+    parser.add_argument('-oe', required=False, type=str,
+                        help=OE_FLAG_HELP_TEXT)
     args = parser.parse_args()
 
     # 2. Make sure JSON configuration file exists
@@ -71,10 +97,18 @@ if __name__ == '__main__':
     start_dt = datetime.datetime.now()
     for config in transform_utils.load_config(args.c):
         if args.i:
-            # This hack allows user to provide input file as commandline parameter
+            # This allows user to provide input file name and path as commandline parameter
             config = transform_utils.insert_input_file_keys_values_to_config_json(args.i, config)
+        if args.o:
+            # This allows user to provide output file name and path as commandline parameter
+            config = transform_utils.insert_output_file_key_value_to_config_json(args.o, config)
+        if args.ie:
+            # This allows user to provide input file encoding as commandline parameter
+            config = transform_utils.insert_input_file_encoding_key_value_to_config_json(args.ie, config)
+        if args.oe:
+            # This allows user to provide output file encoding as commandline parameter
+            config = transform_utils.insert_output_file_encoding_key_value_to_config_json(args.oe, config)
 
-        # Make sure config JSON has no conflicting keys and invalid data types
         transform_utils.validate_configurations(config)
 
         for input_file in transform_utils.get_input_files(config):

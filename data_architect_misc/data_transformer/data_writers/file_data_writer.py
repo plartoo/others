@@ -16,10 +16,15 @@ class FileDataWriter:
     DEFAULT_INCLUDE_INDEX_COLUMN_IN_OUTPUT_FILE = False
 
     # Parameters for output file name and path.
+    # User can provide both output file path and name using the key below
+    KEY_OUTPUT_FILE_PATH_AND_NAME = 'output_file_name_and_path'
+
+    # Or provide parts of the output file path and name using keys below
     KEY_OUTPUT_FOLDER_PATH = 'output_folder_path'
     DEFAULT_OUTPUT_FOLDER_PATH = os.path.join(os.getcwd(),
                                               'output')
     KEY_OUTPUT_FILE_PREFIX = 'output_file_name_prefix'
+    KEY_OUTPUT_FILE_NAME = 'output_file_name'
     KEY_OUTPUT_FILE_SUFFIX = 'output_file_name_suffix'
 
     # Best leave default as None for encoding
@@ -31,8 +36,10 @@ class FileDataWriter:
     def __init__(self, config):
         self.logger = logging.getLogger(__name__)
 
+        self.output_file_path_and_name = config.get(self.KEY_OUTPUT_FILE_PATH_AND_NAME)
         self.output_folder = self._get_output_folder(config)
         self.output_file_name_prefix = config.get(self.KEY_OUTPUT_FILE_PREFIX, '')
+        self.output_file_name = config.get(self.KEY_OUTPUT_FILE_NAME, '')
         self.output_file_name_suffix = config.get(self.KEY_OUTPUT_FILE_SUFFIX, '')
 
         self.include_index = config.get(
@@ -97,10 +104,14 @@ class FileDataWriter:
         as the last suffix and returns the result as output file name.
         """
         datetime_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
-        return f"{self.output_file_name_prefix}_" \
-               f"{self.output_file_name_suffix}_" \
-               f"{datetime_suffix}" \
-               f"{self._get_output_file_extension()}"
+
+        # Only select the non-empty strings from the file name parts
+        output_file_name = '_'.join([a for a in
+                                     [self.output_file_name_prefix, self.output_file_name,
+                                      self.output_file_name_suffix, datetime_suffix] if a
+                                     ])
+
+        return f"{output_file_name}{self._get_output_file_extension()}"
 
     def _get_output_file_path_and_name(self):
         """
@@ -109,5 +120,10 @@ class FileDataWriter:
         suffix, which is just timestamp in the form of
         YYYYMMDD_HHMMSS.
         """
-        return os.path.join(self.output_folder,
-                            self._get_output_file_name())
+        if self.output_file_path_and_name is not None:
+            # If user provides output file path and name via commandline
+            return self.output_file_path_and_name
+        else:
+            # if the user
+            return os.path.join(self.output_folder,
+                                self._get_output_file_name())

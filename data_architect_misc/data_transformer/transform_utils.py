@@ -23,7 +23,7 @@ def insert_input_file_keys_values_to_config_json(file_path_and_name, config):
     """
     Inserts input file's path and name as values to corresponding keys
     in config JSON. This method is called if user provides input file
-    path and name info via commandline instead of via config file.
+    path and name info via commandline instead of via the config file.
 
     This is more like a hack because feeding input file information via
     commandline is an afterthought (originally, I was not very keen on it,
@@ -34,6 +34,36 @@ def insert_input_file_keys_values_to_config_json(file_path_and_name, config):
     """
     config[KEY_INPUT_FOLDER_PATH] = os.path.split(file_path_and_name)[0]
     config[KEY_INPUT_FILE_NAME_OR_PATTERN] = os.path.split(file_path_and_name)[1]
+    return config
+
+
+def insert_output_file_key_value_to_config_json(file_path_and_name, config):
+    """
+    Inserts output file's path and name as values to corresponding keys
+    in config JSON. This method is called if user provides output file
+    path and name info via commandline instead of via the config file.
+    """
+    config[FileDataWriter.KEY_OUTPUT_FILE_PATH_AND_NAME] = file_path_and_name
+    return config
+
+
+def insert_input_file_encoding_key_value_to_config_json(input_encoding, config):
+    """
+    This allows user to provide input file encoding (for CSV files) via
+    commandline. For example, user can run the transform process like below:
+    > python -c config\config.json -i input\input_file.csv -ie utf-16
+    """
+    config[PandasCSVDataReader.KEY_INPUT_FILE_ENCODING] = input_encoding
+    return config
+
+
+def insert_output_file_encoding_key_value_to_config_json(output_encoding, config):
+    """
+    This allows user to provide output file encoding (for CSV files) via
+    commandline. For example, user can run the transform process like below:
+    > python -c config\config.json -i input\input_file.csv -oe utf-16 -o output\output.csv
+    """
+    config[FileDataWriter.KEY_OUTPUT_FILE_ENCODING] = output_encoding
     return config
 
 
