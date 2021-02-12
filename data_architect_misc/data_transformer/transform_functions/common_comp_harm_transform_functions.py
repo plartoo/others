@@ -244,7 +244,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             self,
             df,
             col_name_with_year_value: str,
-            regex_for_format):
+            regex_pattern: str):
         """
         In countries like Peru, the year's value come in the form of something like,
         'Setiembre del 20' and we need to harmonize them.
@@ -253,10 +253,10 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         import re
 
         df[comp_harm_constants.YEAR_COLUMN] = df[col_name_with_year_value].apply(
-            lambda x:re.findall(regex_for_format, x)[0])
+            lambda x:re.findall(regex_pattern, x)[0])
 
         df[comp_harm_constants.YEAR_COLUMN] = df[comp_harm_constants.YEAR_COLUMN].apply(
-            lambda x: datetime.strptime(x, '%Y') if len(x)>2 else datetime.strptime(x, '%y'))
+            lambda x: datetime.strptime(x, '%Y') if len(x) > 2 else datetime.strptime(x, '%y'))
 
         return self.add_year_column_using_existing_column_with_year_values(
             df,
@@ -288,7 +288,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     def add_HARMONIZED_MONTH_column_using_existing_column_with_month_values(
             self,
             df,
-            col_name_with_year_value: str):
+            col_name_with_month_value: str):
         """
         Add HARMONIZED_MONTH column with month values (integer or string)
         extracted from existing date column in the dataframe.
@@ -298,7 +298,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
 
         Args:
             df: Raw dataframe to transform.
-            col_name_with_year_value: Existing column name in the dataframe
+            col_name_with_month_value: Existing column name in the dataframe
             from which this code will extract the month value from.
 
         Returns:
@@ -306,7 +306,43 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         """
         return self.add_month_column_using_existing_column_with_month_values(
             df,
-            col_name_with_year_value,
+            col_name_with_month_value,
+            comp_harm_constants.MONTH_COLUMN)
+
+    def add_HARMONIZED_MONTH_column_by_extracting_month_values_using_regex_pattern(
+            self,
+            df,
+            col_name_with_month_value: str,
+            regex_pattern: str
+    ):
+        """
+        Add HARMONIZED_MONTH column with month values (integer or string)
+        extracted from existing date column in the dataframe using REGEX pattern.
+
+        For example, the 'Date' column has '31.12.2020' as original value, we can
+        use this function as:
+        add_HARMONIZED_MONTH_column_by_extracting_month_values_using_regex_pattern(
+        df,
+        'Date',
+        '\\d{2}.(\\d{2}).\\d{4}'
+        )
+        to capture the month value (in this case, it's '12') and create
+        HARMONIZED_MONTH column out of that.
+
+        Args:
+            df: Raw dataframe to transform.
+            col_name_with_month_value: Existing column name in the dataframe
+            from which this code will extract the month value from.
+            regex_pattern: Regular expression pattern to extract the month
+            value from col_name_with_month_value.
+
+        Returns:
+            Dataframe with HARMONIZED_MONTH column holding integer values.
+        """
+        return self.add_new_column_with_value_extracted_from_given_column(
+            df,
+            col_name_with_month_value,
+            regex_pattern,
             comp_harm_constants.MONTH_COLUMN)
 
     def add_HARMONIZED_MONTH_column_using_existing_month_column_with_only_full_month_names(
@@ -355,7 +391,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
 
         Args:
             df: Raw dataframe to transform.
-            col_name_with_year_value: Existing column name in the dataframe
+            col_name_with_month_value: Existing column name in the dataframe
             from which this code will extract the month value from.
 
         Returns:

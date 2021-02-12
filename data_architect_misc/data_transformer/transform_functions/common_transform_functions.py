@@ -83,6 +83,7 @@ class CommonTransformFunctions(TransformFunctions):
     REF: https://stackoverflow.com/a/2203479
          https://stackoverflow.com/a/6322114
     """
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
@@ -90,7 +91,7 @@ class CommonTransformFunctions(TransformFunctions):
             self,
             df,
             list_of_sheet_names
-        ):
+    ):
         """
         Given the list of sheet names, we will append data from these
         sheets to the main dataframe.
@@ -170,7 +171,6 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with columns dropped.
         """
         return df.drop(df.columns[list_of_col_idx], axis=1)
-
 
     def drop_columns_by_name(
             self,
@@ -339,7 +339,7 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with column headers renamed.
         """
         return df.rename(columns=old_to_new_cols_dict)
-    
+
     def capitalize_columns_name(self, df):
         """
         Capitalize column headers namse.
@@ -509,7 +509,8 @@ class CommonTransformFunctions(TransformFunctions):
         date_cols = [i for i in raw_cols if re.match(r'\d{4}\/\d{2}', i)]
         non_date_cols = [i for i in raw_cols if i not in date_cols]
 
-        df = df.melt(id_vars=non_date_cols, value_vars=date_cols, var_name=final_variable_col_name, value_name=final_value_col_name)
+        df = df.melt(id_vars=non_date_cols, value_vars=date_cols, var_name=final_variable_col_name,
+                     value_name=final_value_col_name)
 
         return df
 
@@ -985,6 +986,49 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
+    def add_new_column_with_value_extracted_from_given_column(
+            self,
+            df,
+            existing_col_name: str,
+            regex_pattern_to_extract_desired_value: str,
+            new_col_name: str
+    ):
+        """
+        Creates a new column with values extracted from another column
+        in the dataframe.
+
+        For example, if we want to add a new column named, 'Month', by
+        extracting the month values from the existing 'Date' column,
+        we can use this function as below:
+        add_new_column_with_value_extracted_from_given_column(
+        df,
+        'Date',
+        '(\\d{2}).\\d{2}.\\d{4}',
+        'Month')
+
+        Args:
+            df: Raw dataframe to transform.
+            existing_col_name: Name of the existing column from which the
+            value for the new column will be extracted.
+            regex_pattern_to_extract_desired_value: Regular expression
+            pattern to extract the desired value from the existing column.
+            new_col_name: Name of the new column to be added.
+
+        Returns:
+            The dataframe with newly added column which has values extracted
+            from the existing column.
+        """
+        if not (isinstance(new_col_name, str) and isinstance(existing_col_name, str)):
+            raise transform_errors.InputDataTypeError("Column names and regex pattern "
+                                                      "must be of string type")
+
+        # REF: https://stackoverflow.com/a/36029392
+        df[existing_col_name] = df[existing_col_name].astype(str)
+        df[new_col_name] = df[existing_col_name].str\
+            .extract(regex_pattern_to_extract_desired_value, expand=False).str.strip()
+
+        return df
+
     def add_new_column_by_copying_values_from_another_column(
             self,
             df,
@@ -1103,15 +1147,15 @@ class CommonTransformFunctions(TransformFunctions):
         df[new_col_name] = df[existing_col_name].replace(regex=dictionary_of_mappings)
         if leave_empty_if_no_match:
             # If the regex mapping does NOT exist, we need to leave this cell blank
-            df.loc[df[new_col_name] == df[existing_col_name],new_col_name] = ''
+            df.loc[df[new_col_name] == df[existing_col_name], new_col_name] = ''
 
         return df
 
     def convert_date_column_to_a_different_format(
-        self, 
-        df, 
-        date_col_name: str, 
-        format_str: str):
+            self,
+            df,
+            date_col_name: str,
+            format_str: str):
         """
         Function to convert date format in a given column (date_col_name)
         to a different format using Python's date/time format codes:
@@ -1134,7 +1178,7 @@ class CommonTransformFunctions(TransformFunctions):
                 " The format is not string type. ")
 
         df.loc[:, date_col_name] = df[date_col_name].apply(
-            lambda x:datetime.datetime.strptime(str(x), format_str))
+            lambda x: datetime.datetime.strptime(str(x), format_str))
 
         return df
 
@@ -1311,7 +1355,6 @@ class CommonTransformFunctions(TransformFunctions):
         Returns:
             The dataframe with newly added YEAR column with integer year value.
         """
-        
         df[new_date_col_name] = pd.to_datetime(df[existing_date_col_name]).dt.month
 
         return df
@@ -1472,7 +1515,7 @@ class CommonTransformFunctions(TransformFunctions):
         Returns:
             Dataframe with rows without the string value (if matches are found).
         """
-        df[col_name] = df[col_name].str.replace(regex_pattern_of_string_to_remove, "", regex = True)
+        df[col_name] = df[col_name].str.replace(regex_pattern_of_string_to_remove, "", regex=True)
 
         return df
 
