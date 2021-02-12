@@ -12,7 +12,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/NA_Canada/",
-    "output_file_name_prefix": "Transformed_Canada_INV_20200801_20200801_",
+    "output_file_name_prefix": "Transformed_Canada_INV_20201201_20201201_",
 
     "custom_transform_functions_file": "./transform_functions/na_canada_transform_functions.py",
 
