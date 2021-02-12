@@ -99,12 +99,10 @@ CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition
 ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
 
-    "(?i)DIRECT\\sMAIL.*": "Print", "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print", "(?i)NEWPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
-    "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print", "(?i)DAILIES.*": "Print",
-    "(?i).*(\b)?Mag.*": "Print", 
-
-    "(?i)Gazety.*": "Print",
-    
+    "(?i)DIRECT\\sMAIL.*": "Print", "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print",
+    "(?i)NEWPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
+    "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
+    "(?i)DAILIES.*": "Print", "(?i).*(\b)?Mag.*": "Print", "(?i)Gazety.*": "Print",
     "(?i)Vaktijdschriften.*": "Print", "(?i)Dagbladen.*": "Print", "(?i)Folders.*": "Print",
 
     "(?i)AMBIENT\\sMEDIA.*": "OOH", "(?i)AW.*": "OOH",
@@ -171,8 +169,8 @@ ADVERTISER_MAPPINGS = {
     "(?i)BDF.*": "BEIERSDORF",
     "(?i).*BEIERSDORF.*": "BEIERSDORF",
     "(?i).*BIERSDORF.*": "BEIERSDORF",
-    "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
+    "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
     "(?i)GENOMMA.*": "GENOMMA LAB",
     "(?i).*GLAXO.*": "GSK",  # also catches "\u200EGlaxoSmithKline"
@@ -188,6 +186,7 @@ ADVERTISER_MAPPINGS = {
     "(?i).*RECKIT(T)?.*": "RECKITT BENCKISER",
     "(?i)^RB\\s*?$": "RECKITT BENCKISER",
     "(?i)^RB\\sAG$": "RECKITT BENCKISER",
+    "(?i)SANO": "SANOFI",
     "(?i)SANOFI.*": "SANOFI",
     "(?i)S(.)?C(.)? JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i).*UNILEVER.*": "UNILEVER"
