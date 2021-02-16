@@ -70,77 +70,6 @@ COUNTRIES = {
     'Venezuela', 'Vietnam'
 }
 
-MEDIA_TYPES = {'Cinema', 'Digital', 'Door drops', 'In-store', 'OOH', 'Print', 'Radio', 'TV'}
-
-GLOBAL_COMPETE_ADVERTISERS = {
-    # This list is used only as a reference for new team members
-    # It is not used in the code.
-    'BEIERSDORF',
-    'CHURCH & DWIGHT',
-    'COLGATE-PALMOLIVE',
-    'GENOMMA LAB',
-    'GSK',
-    'HENKEL',
-    'JOHNSON & JOHNSON',
-    'LOREAL',
-    'P&G',
-    'PHILIPS',
-    'RECKITT BENCKISER',
-    'SANOFI',
-    'S.C. JOHNSON',
-    'THE CLOROX COMPANY',
-    'UNILEVER'
-}
-# On Oct 29, 2020 we decided to distinguish between not available values, which means there is no raw 
-# category value in the data file, and the ones which we do not know how to map with Python dictionary.
-
-CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition', '', NOT_AVAILABLE}
-
-ENGLISH_MEDIA_TYPE_MAPPINGS = {
-    "(?i)CINEMA.*": "Cinema",
-
-    "(?i)CASOPISY.*": "Print",
-    "(?i)DIRECT\\sMAIL.*": "Print", "(?i)MAGAZINE.*": "Print",  "(?i)NEWSPAPER.*": "Print",
-    "(?i)NEWPAPER.*": "Print", "(?i)JO(U)?RNAL.*": "Print",  "(?i)PRINT.*": "Print",
-    "(?i)PRESS.*": "Print", "(?i)MG.*": "Print", "(?i)NP.*": "Print",
-    "(?i)DAILIES.*": "Print", "(?i).*(\b)?Mag.*": "Print", "(?i)Gazety.*": "Print",
-    "(?i)Vaktijdschriften.*": "Print", "(?i)Dagbladen.*": "Print", "(?i)Folders.*": "Print",
-
-    "(?i)AMBIENT\\sMEDIA.*": "OOH", "(?i)AW.*": "OOH",
-    "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)In.*Store.*": "In-store", "(?i)Bus/Taxis.*":"OOH", "(?i)Metro.*": "OOH",
-    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH", 
-    "(?i)Posters/Rail/Digital.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",
-    "(?i)PUBLICITE\\sEXTERIEURE.*":"OOH", "(?i)TRANSPORT\\sMEDIA.*": "OOH",
-
-    "(?i).*(\b)?RADIO.*": "Radio", "(?i)RD.*": "Radio",
-
-    "(?i)CABLE.*": "TV", "(?i)CB.*": "TV", "FTA.*": "TV",
-    "(?i)Pay TV.*": "TV", 
-    "(?i)TV.*": "TV", "(?i).*(\b)?TV.*": "TV", "(?i)Television.*": "TV", "(?i)SPOTS": "TV",
-    "(?i)Syndication.*": "TV",
-
-    "(?i)Televisie.*": "TV", "(?i)Telewizja.*": "TV", "(?i)Kina.*": "TV",
-
-    "(?i)DESKTOP.*": "Digital", "(?i).*Display.*": "Digital", "(?i).*DOOH.*": "Digital",
-    "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)MOBILE.*": "Digital",
-    "(?i)ONLINE.*": "Digital", "(?i)OLW.*": "Digital", "(?i)SEARCH.*": "Digital",
-}
-
-SPANISH_MEDIA_TYPE_MAPPINGS = {
-    "(?i)Televisión.*": "TV", 
-    "(?i)PUBLICIDAD\\sEXTERIOR.*": "OOH","(?i)VP.*": "OOH","(?i)Vía\\sPública.*": "OOH",
-    "(?i)Revista.*": "Print", "(?i)PRENSA.*": "Print", "(?i)DIARIO.*": "Print", "(?i)Suplemento.*": "Print",
-}
-
-GERMAN_MEDIA_TYPE_MAPPINGS = {
-    "(?i)FERNSEHEN.*": "TV",
-    "(?i)KINO.*": "Cinema",
-    "(?i)FACHZEITSCHRIFTEN.*": "OOH", "(?i)PLAKAT.*": "OOH",
-    "(?i)PUBLIKUMSZEITSCHRIFTEN.*": "Print", "(?i)WERBESENDUNGEN.*": "Print", "(?i)ZEITUNGEN.*": "Print"
-}
-
-MEDIA_TYPE_MAPPINGS = dict(ENGLISH_MEDIA_TYPE_MAPPINGS, **SPANISH_MEDIA_TYPE_MAPPINGS, **GERMAN_MEDIA_TYPE_MAPPINGS)
-
 COUNTRY_MAPPINGS = {
     # Mapping between raw country names in regular expression to standardized country names
     "(?i)BAHRAIN.*": "Bahrain",
@@ -164,6 +93,26 @@ COUNTRY_MAPPINGS = {
     "(?i)UAE.*": "United Arab Emirates"
 }
 
+GLOBAL_COMPETE_ADVERTISERS = {
+    # This list is used only as a reference for new team members
+    # It is not used in the code.
+    'BEIERSDORF',
+    'CHURCH & DWIGHT',
+    'COLGATE-PALMOLIVE',
+    'GENOMMA LAB',
+    'GSK',
+    'HENKEL',
+    'JOHNSON & JOHNSON',
+    'LOREAL',
+    'P&G',
+    'PHILIPS',
+    'RECKITT BENCKISER',
+    'SANOFI',
+    'S.C. JOHNSON',
+    'THE CLOROX COMPANY',
+    'UNILEVER'
+}
+
 ADVERTISER_MAPPINGS = {
     # Mapping between raw advertiser names in regular expression to standardized advertiser names
     # This list will grow to a big one and must be kept maintained/updated constantly.
@@ -180,6 +129,7 @@ ADVERTISER_MAPPINGS = {
     "(?i).*JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
     "(?i).*L'?OREAL.*": "LOREAL",  # also catches 'LOREAL'
+    "(?i).*L OREAL.*": "LOREAL",
     "(?i).*PHILIPS.*": "PHILIPS",
     "(?i).*PROCTER.*&.*GAMBLE.*": "P&G",
     "(?i).*PROCTER.*AND.*GAMBLE.*": "P&G",
@@ -192,6 +142,63 @@ ADVERTISER_MAPPINGS = {
     "(?i)S(.)?C(.)? JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i).*UNILEVER.*": "UNILEVER"
 }
+
+MEDIA_TYPES = {'Cinema', 'Digital', 'Door drops', 'In-store', 'OOH', 'Print', 'Radio', 'TV'}
+
+ENGLISH_MEDIA_TYPE_MAPPINGS = {
+    "(?i)CINEMA.*": "Cinema",
+
+    "(?i)CASOPISY.*": "Print", "(?i)DAILIES.*": "Print",
+    "(?i)Dagbladen.*": "Print", "(?i)DIRECT.*MAIL.*": "Print", "(?i)DIARIOS.*": "Print",
+    "(?i)Folders.*": "Print",
+    "(?i)Gazety.*": "Print",
+    "(?i)JOU?RNAL.*": "Print",
+    "(?i)MAGAZINE.*": "Print", "(?i)MG.*": "Print", "(?i).*(\\b)?Mag.*": "Print",
+    "(?i)NP.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)NEWPAPER.*": "Print",
+    "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
+    "(?i)REVISTAS.*": "Print",
+    "(?i)SUPLEM.*DOMINICALES.*": "Print",
+    "(?i)Vaktijdschriften.*": "Print",
+
+    "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)In.*Store.*": "In-store",
+
+    "(?i)AMBIENT.*MEDIA.*": "OOH", "(?i)AW.*": "OOH",
+    "(?i)Bus/Taxis.*": "OOH", "(?i)EXTERIOR.*": "OOH", "(?i)Metro.*": "OOH",
+    "(?i)OUTDOOR.*": "OOH", "(?i)OOH.*": "OOH", "(?i)OUT.*OF.*HOME.*": "OOH", 
+    "(?i)Posters/Rail/Digital.*": "OOH", "(?i)TRANSPORT.*MEDIA.*": "OOH",
+    "(?i)PUBLICITE.*EXTERIEURE.*": "OOH", "(?i)TRANSPORT.*MEDIA.*": "OOH",
+
+    "(?i).*(\\b)?RADIO.*": "Radio", "(?i)RD.*": "Radio",
+
+    "(?i)CABLE.*": "TV", "(?i)CB.*": "TV", "FTA.*": "TV",
+    "(?i)Pay TV.*": "TV", 
+    "(?i)TV.*": "TV", "(?i).*(\\b)?TV.*": "TV", "(?i)TELEVISION.*": "TV", "(?i)SPOTS": "TV",
+    "(?i)Syndication.*": "TV",
+    "(?i)Televisie.*": "TV", "(?i)Telewizja.*": "TV", "(?i)Kina.*": "TV",
+
+    "(?i)DESKTOP.*": "Digital", "(?i).*Display.*": "Digital", "(?i).*DOOH.*": "Digital",
+    "(?i)DIGITAL.*": "Digital", "(?i)INTERNET.*": "Digital", "(?i)MOBILE.*": "Digital",
+    "(?i)ONLINE.*": "Digital", "(?i)OLW.*": "Digital", "(?i)SEARCH.*": "Digital",
+}
+
+SPANISH_MEDIA_TYPE_MAPPINGS = {
+    "(?i)Televisión.*": "TV", 
+    "(?i)PUBLICIDAD.*EXTERIOR.*": "OOH", "(?i)VP.*": "OOH", "(?i)Vía.*Pública.*": "OOH",
+    "(?i)Revista.*": "Print", "(?i)PRENSA.*": "Print", "(?i)DIARIO.*": "Print", "(?i)Suplemento.*": "Print",
+}
+
+GERMAN_MEDIA_TYPE_MAPPINGS = {
+    "(?i)FERNSEHEN.*": "TV",
+    "(?i)KINO.*": "Cinema",
+    "(?i)FACHZEITSCHRIFTEN.*": "OOH", "(?i)PLAKAT.*": "OOH",
+    "(?i)PUBLIKUMSZEITSCHRIFTEN.*": "Print", "(?i)WERBESENDUNGEN.*": "Print", "(?i)ZEITUNGEN.*": "Print"
+}
+
+MEDIA_TYPE_MAPPINGS = dict(ENGLISH_MEDIA_TYPE_MAPPINGS, **SPANISH_MEDIA_TYPE_MAPPINGS, **GERMAN_MEDIA_TYPE_MAPPINGS)
+
+# On Oct 29, 2020 we decided to distinguish between not available values, which means there is no raw
+# category value in the data file, and the ones which we do not know how to map with Python dictionary.
+CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition', '', NOT_AVAILABLE}
 
 ENGLISH_CATEGORY_MAPPINGS = {
     # TODO: we need to reorder these mappings alphabetically and remove duplicates
@@ -370,6 +377,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*ANTISARR.*": "Oral Care",
     "(?i).*ANTISEPT.*BUC.*": "Oral Care",
     "(?i).*CEPILLO.*DENT.*": "Oral Care",
+    "(?i).*HIGIENE.*BOCA.*": "Oral Care", # Boca means mouth
 
     "(?i).*DETERGENTE.*": "Home Care",
     "(?i).*REMOV.*MANCHA.*": "Home Care",
@@ -399,6 +407,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*TRAPEADOR.*": "Home Care",
 
     "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*CUIDADOS.*CUERPO.*": "Personal Care",
     "(?i).*MAQUIAGEM.*": "Personal Care",
     "(?i).*BELLEZA.*": "Personal Care",
     "(?i).*ESTRIA.*": "Personal Care",
@@ -440,7 +449,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*ANTIBACTERIAL.*": "Personal Care",
     "(?i).*CAPILAR.*": "Personal Care",
     "(?i).*COLAGENO.*": "Personal Care",
-    "(?i).*JABON.*": "Personal Care",
+    "(?i).*JABON.*": "Personal Care", # Jabon, Jabones mean soap
     "(?i).*SABAO.*": "Personal Care",
     "(?i).*SABONETE.*": "Personal Care",
     "(?i).*MAQUILLAJE.*": "Personal Care",
@@ -717,7 +726,8 @@ CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS,
                          **ENGLISH_CATEGORY_MAPPINGS,
                          **GERMAN_CATEGORY_MAPPINGS)
 
-MONTH_REFERENCE_BY_LANGUAGE = {
+MONTH_NAME_TO_MONTH_INTEGER_VALUE_MAPPINGS = {
+    # Mapping from month names to corresponding integer values in various languages
      "ene": 1,
      "feb": 2,
      "mar": 3,
