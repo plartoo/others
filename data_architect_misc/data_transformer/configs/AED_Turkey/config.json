@@ -55,7 +55,7 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
-        "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
+        "function_name": "add_HARMONIZED_YEAR_column_using_existing_date_column_with_year_values",
         "function_args": ["YEAR_MONTH"]
       },
       {

@@ -48,12 +48,12 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name.",
-        "function_name": "add_HARMONIZED_YEAR_column_using_existing_column_with_year_values",
+        "function_name": "add_HARMONIZED_YEAR_column_using_existing_date_column_with_year_values",
         "function_args": ["ANOS"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex due to the spanish comes in spanish and needs to check with the dictionary.",
-        "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex",
+        "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_with_alphabetical_names_by_extracting_with_regex_and_mapping",
         "function_args": ["MESES","\\w+"]
       },
       {

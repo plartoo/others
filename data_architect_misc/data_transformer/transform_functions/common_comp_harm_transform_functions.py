@@ -66,13 +66,13 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             the input files provided as paramter to this
             function.
         """
-        list_of_file_path_and_names = glob(''.join([folder_name,'/*']))
+        list_of_file_path_and_names = glob(''.join([folder_name, '/*']))
         base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
 
         for file_path_and_name in list_of_file_path_and_names:
             if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
-                base_file_path_and_name,
-                file_path_and_name
+                    base_file_path_and_name,
+                    file_path_and_name
             ):
                 raise transform_errors.InputFilesDateRangeMismatchError(base_file_path_and_name, file_path_and_name)
 
@@ -122,20 +122,20 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             the input files provided as paramter to this
             function.
         """
-        list_of_file_path_and_names = glob(''.join([folder_name,'/*']))
+        list_of_file_path_and_names = glob(''.join([folder_name, '/*']))
         base_file_path_and_name = self.config[KEY_CURRENT_INPUT_FILE]
 
         for file_path_and_name in list_of_file_path_and_names:
             if not CommonCompHarmQAFunctions.has_same_date_range_in_their_names(
-                base_file_path_and_name,
-                file_path_and_name
+                    base_file_path_and_name,
+                    file_path_and_name
             ):
                 raise transform_errors.InputFilesDateRangeMismatchError(base_file_path_and_name, file_path_and_name)
 
         df = pd.DataFrame()
         for cur_file in list_of_file_path_and_names:
             temp_df = pd.read_excel(cur_file,
-                                  header=self.config[KEY_HEADER])
+                                    header=self.config[KEY_HEADER])
             df = df.append(temp_df)
 
         return df
@@ -197,7 +197,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             {raw_year_col_name: comp_harm_constants.YEAR_COLUMN})
 
-    def add_HARMONIZED_YEAR_column_using_existing_column_with_year_values(
+    def add_HARMONIZED_YEAR_column_using_existing_date_column_with_year_values(
             self,
             df,
             col_name_with_year_value: str):
@@ -216,7 +216,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         Returns:
             Dataframe with HARMONIZED_YEAR column holding integer values.
         """
-        return self.add_year_column_using_existing_column_with_year_values(
+        return self.add_year_column_using_existing_date_column_with_year_values(
             df,
             col_name_with_year_value,
             comp_harm_constants.YEAR_COLUMN)
@@ -227,15 +227,18 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             col_name_with_year_value: str,
             regex_for_format):
         """
+        TODO: Maicol needs to review this and improve the name and the return value
+        of this function.
+
         In countries like Peru, the year's value come in the form of something like,
         'Setiembre del 2020' and we need to harmonize them.
         """
         import re
 
         df[comp_harm_constants.YEAR_COLUMN] = df[col_name_with_year_value].apply(
-            lambda x:re.findall(regex_for_format, x)[0])
+            lambda x: re.findall(regex_for_format, x)[0])
 
-        return self.add_year_column_using_existing_column_with_year_values(
+        return self.add_year_column_using_existing_date_column_with_year_values(
             df,
             comp_harm_constants.YEAR_COLUMN,
             comp_harm_constants.YEAR_COLUMN)
@@ -253,12 +256,12 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         import re
 
         df[comp_harm_constants.YEAR_COLUMN] = df[col_name_with_year_value].apply(
-            lambda x:re.findall(regex_pattern, x)[0])
+            lambda x: re.findall(regex_pattern, x)[0])
 
         df[comp_harm_constants.YEAR_COLUMN] = df[comp_harm_constants.YEAR_COLUMN].apply(
             lambda x: datetime.strptime(x, '%Y') if len(x) > 2 else datetime.strptime(x, '%y'))
 
-        return self.add_year_column_using_existing_column_with_year_values(
+        return self.add_year_column_using_existing_date_column_with_year_values(
             df,
             comp_harm_constants.YEAR_COLUMN,
             comp_harm_constants.YEAR_COLUMN)
@@ -376,7 +379,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             existing_month_col_name_with_only_full_month_names,
             comp_harm_constants.MONTH_COLUMN)
 
-    
     def add_HARMONIZED_MONTH_using_existing_column_with_month_values_and_float_values(
             self,
             df,
@@ -400,23 +402,24 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         return self.rename_columns(
             df,
             {col_name_with_month_value: comp_harm_constants.MONTH_COLUMN})
-    
-    def add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex(
+
+    def add_HARMONIZED_MONTH_column_from_existing_column_with_alphabetical_names_by_extracting_with_regex_and_mapping(
             self,
             df,
             col_name_with_month_value: str,
             regex_for_format):
         """
-        In countries like Guatemala, the month's name come in the form of something like,
-        '01Abr20' and we need to harmonize them.
+        In countries like Guatemala, the month's name needs to be extracted from
+        the raw date string like this, '01Abr20', and then mapped to their
+        respective integer values (ranging from 1 to 12) using mapping table.
         """
         import re
 
         df[col_name_with_month_value] = df[col_name_with_month_value].str.lower().apply(
-            lambda x:re.findall(regex_for_format, x)[0])
+            lambda x: re.findall(regex_for_format, x)[0])
 
         df[col_name_with_month_value] = df[col_name_with_month_value].map(
-            comp_harm_constants.MONTH_REFERENCE_BY_LANGUAGE)
+            comp_harm_constants.MONTH_NAME_TO_MONTH_INTEGER_VALUE_MAPPINGS)
 
         return self.rename_columns(
             df,
@@ -486,11 +489,11 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             standardized country names used by competitive harmonization
             project.
         """
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
-                (df,
-                 existing_country_col_name,
-                 comp_harm_constants.COUNTRY_COLUMN,
-                 comp_harm_constants.COUNTRY_MAPPINGS)
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match \
+            (df,
+             existing_country_col_name,
+             comp_harm_constants.COUNTRY_COLUMN,
+             comp_harm_constants.COUNTRY_MAPPINGS)
 
     def add_HARMONIZED_COUNTRY_column_using_fixed_str_value(
             self,
@@ -511,11 +514,10 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             standardized country names used by competitive harmonization
             project.
         """
-        return self.add_new_column_with_fixed_str_value\
-                (df,
-                 comp_harm_constants.COUNTRY_COLUMN,
-                 fixed_str_value)
-
+        return self.add_new_column_with_fixed_str_value \
+            (df,
+             comp_harm_constants.COUNTRY_COLUMN,
+             fixed_str_value)
 
     def add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column(
             self,
@@ -541,16 +543,16 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             standardized advertiser names used by the competitive
             harmonization project.
         """
-        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match\
-                (df,
-                 existing_advertiser_col_name,
-                 comp_harm_constants.ADVERTISER_COLUMN,
-                 comp_harm_constants.ADVERTISER_MAPPINGS)
+        return self.add_new_column_with_values_based_on_another_column_values_using_regex_match \
+            (df,
+             existing_advertiser_col_name,
+             comp_harm_constants.ADVERTISER_COLUMN,
+             comp_harm_constants.ADVERTISER_MAPPINGS)
 
     def add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column(
             self,
             df,
-            existing_media_type_col_name: str=comp_harm_constants.RAW_MEDIA_TYPE_COLUMN):
+            existing_media_type_col_name: str = comp_harm_constants.RAW_MEDIA_TYPE_COLUMN):
         """
         Add HARMONIZED_MEDIA_TYPE column based on string values found
         in an existing advertiser column. The HARMONIZED_MEDIA_TYPE column
@@ -598,10 +600,10 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             standardized media type names used by competitive
             harmonization project.
         """
-        return self.add_new_column_with_fixed_str_value\
-                (df,
-                 comp_harm_constants.MEDIA_TYPE_COLUMN,
-                 fixed_str_value)
+        return self.add_new_column_with_fixed_str_value \
+            (df,
+             comp_harm_constants.MEDIA_TYPE_COLUMN,
+             fixed_str_value)
 
     def replace_empty_string_values_with_NOT_AVAILABLE(
             self,
@@ -739,11 +741,11 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             Dataframe with HARMONIZED_CATEGORY column values updated
             based on the raw subcategory column values.
         """
-        return self.update_col1_values_based_on_values_in_col2_using_regex_mapping\
-                (df,
-                 comp_harm_constants.CATEGORY_COLUMN,
-                 raw_subcategory_column_name,
-                 regex_mappings_from_raw_subcategory_values_to_harmonized_category_values)
+        return self.update_col1_values_based_on_values_in_col2_using_regex_mapping \
+            (df,
+             comp_harm_constants.CATEGORY_COLUMN,
+             raw_subcategory_column_name,
+             regex_mappings_from_raw_subcategory_values_to_harmonized_category_values)
 
     def add_RAW_CATEGORY_column_by_renaming_existing_column(
             self,

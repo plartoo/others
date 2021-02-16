@@ -1297,7 +1297,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def add_year_column_using_existing_column_with_year_values(
+    def add_year_column_using_existing_date_column_with_year_values(
             self,
             df,
             existing_date_col_name,

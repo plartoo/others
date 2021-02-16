@@ -39,7 +39,7 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex.",
-        "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_in_Spanish_date_with_regex",
+        "function_name": "add_HARMONIZED_MONTH_column_from_existing_column_with_alphabetical_names_by_extracting_with_regex_and_mapping",
         "function_args": ["MES","^\\w+"]
       },
       {
