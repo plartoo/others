@@ -148,6 +148,8 @@ MEDIA_TYPES = {'Cinema', 'Digital', 'Door drops', 'In-store', 'OOH', 'Print', 'R
 ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)CINEMA.*": "Cinema",
 
+    "(?i).*DIRECT MAIL.*": "Door drops",
+
     "(?i)CASOPISY.*": "Print", "(?i)DAILIES.*": "Print",
     "(?i)Dagbladen.*": "Print", "(?i)DIRECT.*MAIL.*": "Print", "(?i)DIARIOS.*": "Print",
     "(?i)Folders.*": "Print",
@@ -158,6 +160,7 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
     "(?i)REVISTAS.*": "Print",
     "(?i)SUPLEM.*DOMINICALES.*": "Print",
+    "(?i).*TABLOIDS.*": "Print",
     "(?i)Vaktijdschriften.*": "Print",
 
     "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)In.*Store.*": "In-store",
@@ -202,15 +205,15 @@ CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition
 
 ENGLISH_CATEGORY_MAPPINGS = {
     # TODO: we need to reorder these mappings alphabetically and remove duplicates
+    "(?i)Cleaning.*agent.*": "Home Care",
+    "(?i).*Cleaners.*": "Home Care",
+    "(?i).*Detergent.*": "Home Care",
+    "(?i).*Dish.*": "Home Care",
+    "(?i).*FABRIC.*SOFTENER.*": "Home Care",
     "(?i)^HC$": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
     "(?i).*LAUNDRY.*": "Home Care",
-    "(?i)Cleaning.*agent.*": "Home Care",
-    "(?i).*Detergent.*": "Home Care",
-    "(?i).*FABRIC.*SOFTENER.*": "Home Care",
-    "(?i).*Cleaners.*": "Home Care",
-    "(?i).*Dish.*": "Home Care",
 
     "(?i)^OC$": "Oral Care",
     "(?i).*ORAL.*": "Oral Care",
@@ -222,8 +225,6 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*Toothbrush.*": "Oral Care",
 
     "(?i).*BABY.*CARE.*": "Personal Care",
-    "(?i).*Mask.*": "Personal Care",
-    "(?i).*SKIN.*CARE.*": "Personal Care",
     "(?i).*Bath.*": "Personal Care",
     "(?i).*BEAUTY.*": "Personal Care",
     "(?i).*BODY.*CARE.*": "Personal Care",
@@ -236,19 +237,16 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*Face.*Care.*": "Personal Care",
     "(?i).*Facial.*": "Personal Care",
     "(?i).*Feminine.*Care.*": "Personal Care",
-    "(?i).*Hair.*Care.*": "Personal Care",
-    "(?i).*Hair.*Colour.*": "Personal Care",
-    "(?i).*Hair.*Shampoo.*": "Personal Care",
-    "(?i).*Hair.*Removal.*": "Personal Care",
-    "(?i).*Hair.*Styl.*": "Personal Care",
-    "(?i).*Hair.*Treatment.*": "Personal Care",
+    "(?i).*Hair.*": "Personal Care",
     "(?i).*Hand.*Wash.*": "Personal Care",
     "(?i).*HIGIENE.*FEMENIN.*": "Personal Care",
     "(?i).*HYGIENE.*": "Personal Care",
+    "(?i).*Mask.*": "Personal Care",
     "(?i).*Moisturizer.*": "Personal Care",
     "(?i).*MOUTH.*CARE.*": "Personal Care",
     "(?i)^PC$": "Personal Care",
     "(?i).*PERSONAL.*CARE.*": "Personal Care",
+    "(?i).*SKIN.*CARE.*": "Personal Care",
     "(?i).*SOAP.*": "Personal Care",
     "(?i).*Shampoo.*": "Personal Care",
     "(?i).*SHAVE.*": "Personal Care",

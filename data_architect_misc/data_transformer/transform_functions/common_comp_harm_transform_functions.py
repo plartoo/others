@@ -221,6 +221,42 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             col_name_with_year_value,
             comp_harm_constants.YEAR_COLUMN)
 
+    def add_HARMONIZED_YEAR_column_by_extracting_year_values_using_regex_pattern(
+            self,
+            df,
+            col_name_with_year_value: str,
+            regex_pattern: str
+    ):
+        """
+        Add HARMONIZED_YEAR column with month values (integer or string)
+        extracted from existing date column in the dataframe using REGEX pattern.
+
+        For example, the 'Date' column has '31.12.2020' as original value, we can
+        use this function as:
+        add_HARMONIZED_YEAR_column_by_extracting_month_values_using_regex_pattern(
+        df,
+        'Date',
+        '\\d{2}.\\d{2}.(\\d{4})'
+        )
+        to capture the year value (in this case, it's '2020') and create
+        HARMONIZED_YEAR column out of that.
+
+        Args:
+            df: Raw dataframe to transform.
+            col_name_with_year_value: Existing column name in the dataframe
+            from which this code will extract the year value from.
+            regex_pattern: Regular expression pattern to extract the year
+            value from col_name_with_year_value.
+
+        Returns:
+            Dataframe with HARMONIZED_YEAR column holding year values.
+        """
+        return self.add_new_column_with_value_extracted_from_given_column(
+            df,
+            col_name_with_year_value,
+            regex_pattern,
+            comp_harm_constants.YEAR_COLUMN)
+
     def add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex(
             self,
             df,
