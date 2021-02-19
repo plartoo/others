@@ -257,28 +257,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             regex_pattern,
             comp_harm_constants.YEAR_COLUMN)
 
-    def add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex(
-            self,
-            df,
-            col_name_with_year_value: str,
-            regex_for_format):
-        """
-        TODO: Maicol needs to review this and improve the name and the return value
-        of this function.
-
-        In countries like Peru, the year's value come in the form of something like,
-        'Setiembre del 2020' and we need to harmonize them.
-        """
-        import re
-
-        df[comp_harm_constants.YEAR_COLUMN] = df[col_name_with_year_value].apply(
-            lambda x: re.findall(regex_for_format, x)[0])
-
-        return self.add_year_column_using_existing_date_column_with_year_values(
-            df,
-            comp_harm_constants.YEAR_COLUMN,
-            comp_harm_constants.YEAR_COLUMN)
-
     def add_HARMONIZED_YEAR_with_prefix_value_from_raw_data_with_YY_or_YYYY_format_using_regex(
             self,
             df,
