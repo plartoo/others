@@ -101,13 +101,11 @@ class CommonCompHarmQAFunctions:
     def assert_date_range_in_file_name_is_the_same_as_what_is_in_the_data(self, df):
         d_start, d_end = CommonCompHarmQAFunctions.extract_date_ranges_from_file_path_and_name(
             self.config[KEY_CURRENT_INPUT_FILE])
-        max_yr_in_df = max(df[comp_harm_constants.YEAR_COLUMN])
-        min_yr_in_df = min(df[comp_harm_constants.YEAR_COLUMN])
-        max_month_in_df = max(df[comp_harm_constants.MONTH_COLUMN])
-        min_month_in_df = min(df[comp_harm_constants.MONTH_COLUMN])
+        max_date_in_df = datetime.datetime.strptime(max(df[comp_harm_constants.DATE_COLUMN]), '%Y-%m-%d')
+        min_date_in_df = datetime.datetime.strptime(min(df[comp_harm_constants.DATE_COLUMN]), '%Y-%m-%d')
 
-        if ((d_start.year != min_yr_in_df) or (d_start.month != min_month_in_df)
-                or (d_end.year != max_yr_in_df) or (d_end.month != max_month_in_df)):
+        if ((d_start.year != min_date_in_df.year) or (d_start.month != min_date_in_df.month)
+                or (d_end.year != max_date_in_df.year) or (d_end.month != max_date_in_df.month)):
             raise transform_errors.InputFileNameAndDataDateRangeMismatchError(
                 self.config[KEY_CURRENT_INPUT_FILE])
 
