@@ -43,7 +43,7 @@
         "__function_comment__": "Therefore, we need to add 'Tema' column using the function below so that ",
         "__function_comment__": "the SAME config file to process all three Argentina files.",
         "function_name": "add_new_columns_with_empty_str_value_if_not_exist",
-        "function_args": ["TEMA"]
+        "function_args": [["TEMA"]]
       },
       {
         "__function_comment__": "By the time we run this function, there should be only 14 columns total remaining in the raw data frame.",
@@ -57,8 +57,8 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name but using a format with a regex.",
-        "function_name": "add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex",
-        "function_args": ["MES","\\d+"]
+        "function_name": "add_HARMONIZED_YEAR_column_by_extracting_year_values_using_regex_pattern",
+        "function_args": ["MES","(\\d+)"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex.",

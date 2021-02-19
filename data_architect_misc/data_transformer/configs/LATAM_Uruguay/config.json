@@ -9,7 +9,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/LATAM_Uruguay/",
-    "output_file_name_prefix": "Transformed_Uruguay_INV_20200801_20200801_",
+    "output_file_name_prefix": "Transformed_Uruguay_INV_20201001_20201001_",
 
     "custom_transform_functions_file": "./transform_functions/latam_uruguay_transform_functions.py",
 
@@ -33,8 +33,8 @@
       },
       {
         "__function_comment__": "Create HARMONIZED_YEAR column from existing date column name but using a format with a regex.",
-        "function_name": "add_HARMONIZED_YEAR_column_from_existing_column_in_Spanish_date_with_regex",
-        "function_args": ["MES","\\d+$"]
+        "function_name": "add_HARMONIZED_YEAR_column_by_extracting_year_values_using_regex_pattern",
+        "function_args": ["MES","(\\d+$)"]
       },
       {
         "__function_comment__": "Create HARMONIZED_MONTH column from existing date column name but using a format with a regex.",
