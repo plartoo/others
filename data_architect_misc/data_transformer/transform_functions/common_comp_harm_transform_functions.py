@@ -676,6 +676,81 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             [comp_harm_constants.GROSS_SPEND_COLUMN],
             2)
 
+    def add_GROSS_SPEND_and_YYYYMM_columns_by_asking_user_input(
+            self,
+            df):
+        """
+        Some files, such as United Kingdom's raw data, have separate gross spend
+        column for each month-year (or year-month). In this case, we can ask
+        the user to identify these columns' names to the program so that we can add
+        temporary spend columns, which we will then unpivot with "YYYY-MM" (year-month)
+        and HARMONIZED_GROSS_SPEND" columns in the resulting dataframe.
+
+        Args:
+            df: Raw dataframe to transform.
+
+        Returns:
+            Un-pivoted dataframe with "HARMONIZED_GROSS_SPEND"
+            and "YYYY-MM" columns.
+        """
+        want_to_help_prompt = """
+        If there are any(more) gross spend column(s) dedicated for
+        each month-year in the input file, you can help the computer
+        find them.
+        Enter 1 to help the computer or 0 to finish identifying
+        and proceed with the rest of the data transformation process: """
+        column_name_prompt = f"""
+        These are the columns found in the dataframe.
+
+        {list(df.columns)}
+
+        Please type one (ONLY one) of the names of the column
+        (exactly as seen above) that includes the gross spend data
+        that you'd like the computer to process:
+        """
+        column_year_prompt = f"""
+        What is the YEAR value (> 2000 and < 30000) of the gross spend column
+        you helped identify (in other words, what is year is this spend value for)? """
+        column_month_prompt = f"""
+        What is the MONTH value (1 to 12) of the gross spend column you
+        helped identify (in other words, what is year is this spend value for)? """
+
+        cols_to_unpivot = []
+        user_wants_to_identify_column = int(input(want_to_help_prompt))
+        while user_wants_to_identify_column:
+            cur_gs_col = str(input(column_name_prompt))
+            year_val = int(input(column_year_prompt))
+            month_val = int(input(column_month_prompt))
+            if not(2000 < year_val < 3000) or not(1 < month_val < 12):
+                transform_errors.InputDataTypeError(
+                    "Year value must be between 2000 and 3000. "
+                    "Month value must be between 1 and 12.")
+
+            new_gs_col = '-'.join([str(year_val), str(month_val)])
+            if new_gs_col in cols_to_unpivot:
+                # This means user has entered Year and Month, which is already been entered before
+                transform_errors.InputDataUnexpectedError(
+                    "Year and Month value you entered is already provided "
+                    "by you previously. If there are more than two gross spend "
+                    "columns with the same year and month values, you probably "
+                    "should not be invoking this function and need to transform "
+                    "the data in a different way.")
+
+            cols_to_unpivot.append(new_gs_col)
+            df[new_gs_col] = df[cur_gs_col]
+            user_wants_to_identify_column = int(input(want_to_help_prompt))
+
+        # Finally, unpivot the newly created columns above under two columns:
+        # 'YYYY-MM' and 'HARMONIZED_GROSS_SPEND'
+        variable_col_name = 'YYYY-MM'
+        df = pd.melt(df,
+                     id_vars=[c for c in df.columns if c not in cols_to_unpivot],
+                     value_vars=cols_to_unpivot,
+                     var_name=variable_col_name,
+                     value_name=comp_harm_constants.GROSS_SPEND_COLUMN)
+
+        return df
+
     def add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column(
             self,
             df,
@@ -791,6 +866,26 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df,
             {raw_category_col_name: comp_harm_constants.RAW_CATEGORY_COLUMN})
 
+    def add_RAW_CATEGORY_column_with_empty_values(
+            self,
+            df
+    ):
+        """
+        Sometimes, we don't receive any category information from the raw data.
+        In such scenarios, we use this function to add RAW_CATEGORY column
+        with empty string set as its values.
+
+        Args:
+            df: Raw dataframe to transform.
+
+        Returns:
+            Dataframe with the added RAW_CATEGORY column which has empty string values.
+        """
+        return self.add_new_column_with_fixed_str_value(
+            df,
+            comp_harm_constants.RAW_CATEGORY_COLUMN,
+            "")
+
     def add_RAW_SUBCATEGORY_column_by_renaming_existing_column(
             self,
             df,
@@ -817,51 +912,19 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             df
     ):
         """
-        This methods instantiates an empty column with standardized
-        RAW_SUBCATEGORY_COLUMN name. Sometimes, we call this function before
-        modifying the raw values and copying them into this empty column.
-        Sometimes, we call this function because there is simply no raw
-        subcategory data available, but 1PH standard requires us to
-        have a HARMONIZED_SUBCATEGORY column.
+        Sometimes, we don't receive any subcategory information from the raw data.
+        In such scenarios, we use this function to add RAW_SUBCATEGORY column
+        with empty string set as its values.
 
         Args:
             df: Raw dataframe to transform.
-            raw_subcategory_col_name: Name of the existing column, which
-            has Subcategory names (string values).
 
         Returns:
-            Dataframe with original column (Subcategory, Brand, Subbrand, etc)
-            renamed to standardized column name.
+            Dataframe with the added RAW_SUBCATEGORY column which has empty string values.
         """
         return self.add_new_column_with_fixed_str_value(
             df,
             comp_harm_constants.RAW_SUBCATEGORY_COLUMN,
-            "")
-
-    def add_RAW_CATEGORY_column_with_empty_values(
-            self,
-            df
-    ):
-        """
-        This methods instantiates an empty column with standardized
-        RAW_CATEGORY_COLUMN name. Sometimes, we call this function before
-        modifying the raw values and copying them into this empty column.
-        Sometimes, we call this function because there is simply no raw
-        subcategory data available, but 1PH standard requires us to
-        have a RAW_CATEGORY column.
-
-        Args:
-            df: Raw dataframe to transform.
-            raw_subcategory_col_name: Name of the existing column, which
-            has Subcategory names (string values).
-
-        Returns:
-            Dataframe with original column (Subcategory, Brand, Subbrand, etc)
-            renamed to standardized column name.
-        """
-        return self.add_new_column_with_fixed_str_value(
-            df,
-            comp_harm_constants.RAW_CATEGORY_COLUMN,
             "")
 
     def add_RAW_BRAND_column_by_renaming_existing_column(
@@ -898,7 +961,7 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
     ):
         """
         Add RAW_BRAND column with the empty strings (because
-        we sometimes don't receive brand info from raw data).
+        we sometimes don't receive brand info from the raw data).
 
         Args:
             df: Raw dataframe to transform.

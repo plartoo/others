@@ -122,7 +122,8 @@ class ConfigFileInputDataTypeError(TransformError):
 
 
 class InputDataTypeError(TransformError):
-    """Raised when the data type of the input parameter do not match what is expected.
+    """
+    Raised when the data type of the input parameter do not match what is expected.
     """
 
     def __init__(self, error_msg):
@@ -130,7 +131,17 @@ class InputDataTypeError(TransformError):
 
 
 class InputDataLengthError(TransformError):
-    """Raised when the length of the input parameter do not match what is expected.
+    """
+    Raised when the length of the input parameter do not match what is expected.
+    """
+
+    def __init__(self, error_msg):
+        super().__init__(error_msg)
+
+
+class InputDataUnexpectedError(TransformError):
+    """
+    Raised when the input data has some unexpected issue with it.
     """
 
     def __init__(self, error_msg):
