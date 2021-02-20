@@ -1,0 +1,110 @@
+[
+  {
+    "header": 13,
+
+    "skiprows": 15,
+    "skipfooter": 0,
+    "rows_per_read": 200000,
+
+    "input_sheet_name": 0,
+
+    "write_output": true,
+    "output_folder_path": "./output/EU_United_Kingdom/",
+
+    "output_file_name_prefix": "Transformed_United_Kingdom_INV_20201201_20201231_",
+
+    "custom_transform_functions_file": "./transform_functions/eu_united_kingdom_transform_functions.py",
+
+    "functions_to_apply": [
+      {
+        "__function_comment__": "Excel file may have empty columns. We need to drop them first",
+        "function_name": "drop_unnamed_columns"
+      },
+      {
+        "__function_comment__": "Capitalize all columns name prevent data transformation from crashing if local agency changed capitalization of the raw columns.",
+        "function_name": "capitalize_columns_name"
+      },
+      {
+        "function_name": "add_PROCESSED_DATE_column_with_current_date"
+      },
+      {
+        "function_name": "add_HARMONIZED_REGION_column",
+        "function_args": ["Europe"]
+      },
+      {
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
+        "function_args": ["United Kingdom"]
+      },
+      {
+        "function_name": "add_HARMONIZED_ADVERTISER_column_using_existing_advertiser_column",
+        "function_args": ["ADVERTISER"]
+      },
+      {
+        "function_name": "add_HARMONIZED_MEDIA_TYPE_column_using_existing_media_type_column",
+        "function_args": ["MEDIA TYPE"]
+      },
+      {
+        "function_name": "add_HARMONIZED_CURRENCY_column",
+        "function_args": ["GBP"]
+      },
+
+      {
+        "__comment__": "Extract columns with gross spend data for different month-year values ",
+        "__comment__": "by asking user's input. Then add 'GROSS_SPEND' and 'YYYY-MM' columns ",
+        "__comment__": "to the dataframe by un-pivoting the values in the user-identified columns.",
+        "function_name": "add_GROSS_SPEND_and_YYYYMM_columns_by_asking_user_input"
+      },
+
+      {
+        "__comment__": "'add_GROSS_SPEND_and_YYYYMM_columns_by_asking_user_input' function will create ",
+        "__comment__": "a 'YYYY-MM' column using user input. We can use information in that column to ",
+        "__comment__": "create HARMONIZED_YEAR column",
+        "function_name": "add_HARMONIZED_YEAR_column_by_extracting_year_values_using_regex_pattern",
+        "function_args": ["YYYY-MM", "^(\\d{4})"]
+      },
+      {
+        "__comment__": "'add_GROSS_SPEND_and_YYYYMM_columns_by_asking_user_input' function will create ",
+        "__comment__": "a 'YYYY-MM' column using user input. We can use information in that column to ",
+        "__comment__": "create HARMONIZED_MONTH column",
+        "function_name": "add_HARMONIZED_MONTH_column_by_extracting_month_values_using_regex_pattern",
+        "function_args": ["YYYY-MM", "-(\\d+)$"]
+      },
+      {
+        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
+      },
+
+
+      {
+        "function_name": "add_HARMONIZED_CATEGORY_column_by_applying_category_mappings_to_existing_column",
+        "function_args": ["ADVERTISER CAT MINOR", true]
+      },
+      {
+        "function_name": "add_RAW_CATEGORY_column_with_empty_values"
+      },
+      {
+        "function_name": "add_RAW_SUBCATEGORY_column_by_renaming_existing_column",
+        "function_args": ["ADVERTISER CAT MINOR"]
+      },
+      {
+        "function_name": "add_RAW_BRAND_column_with_empty_values"
+      },
+      {
+        "function_name": "add_RAW_SUBBRAND_column_with_empty_values"
+      },
+      {
+        "__comment__": "In UK raw data file, the product names show up together with Brand names in 'BRAND' column.",
+        "function_name": "add_RAW_PRODUCT_NAME_column_by_renaming_existing_column",
+        "function_args": ["BRAND"]
+      },
+      {
+        "__function_comment__": "Add HARMONIZED_SUBCATEGORY and HARMONIZED_PRODUCT_NAME columns with empty/NULL values ",
+        "__function_comment__": "so that automated mapping process or human mapper can fill it out later.",
+        "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "__function_comment__": "Rearrange the columns to the desired order that we use in Competitive Harmonization.",
+        "function_name": "filter_and_rearrange_columns_for_final_output"
+      }
+    ]
+  }
+]
