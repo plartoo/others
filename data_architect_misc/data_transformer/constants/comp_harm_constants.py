@@ -205,13 +205,13 @@ CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition
 
 ENGLISH_CATEGORY_MAPPINGS = {
     # TODO: we need to reorder these mappings alphabetically and remove duplicates
-	"(?i).*Bleach.*": "Home Care",
+    "(?i).*Bleach.*": "Home Care",
     "(?i)Cleaning.*agent.*": "Home Care",
     "(?i).*Cleaners.*": "Home Care",
     "(?i).*Detergent.*": "Home Care",
     "(?i).*Dish.*": "Home Care",
     "(?i).*FABRIC.*SOFTENER.*": "Home Care",
-	"(?i).*FC.*Liquids.*": "Home Care",
+    "(?i).*FC.*Liquids.*": "Home Care",
     "(?i)^HC$": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
@@ -224,6 +224,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*Dental.*": "Oral Care",
     "(?i).*Dentifrices.*": "Oral Care",
     "(?i).*Mouthwash.*": "Oral Care",
+    "(?i).*Mouthrinse.*": "Oral Care",
     "(?i).*Toothpaste.*": "Oral Care",
     "(?i).*Toothbrush.*": "Oral Care",
 
