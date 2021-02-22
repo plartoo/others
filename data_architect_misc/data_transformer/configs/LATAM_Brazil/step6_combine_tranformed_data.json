@@ -10,7 +10,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/LATAM_Brazil/",
-    "output_file_name_prefix": "Combined_Brazil_Investment_20200801_20200831_",
+    "output_file_name_prefix": "Combined_Brazil_Investment_20200101_20200931_",
 
     "custom_transform_functions_file": "./transform_functions/latam_brazil_transform_functions.py",
 

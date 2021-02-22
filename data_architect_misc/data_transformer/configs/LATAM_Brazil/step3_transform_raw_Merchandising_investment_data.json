@@ -1,7 +1,7 @@
 [
   {
-    "header": 13,
-    "skiprows": 14,
+    "header": 11,
+    "skiprows": 12,
     "skipfooter": 1,
 
     "__comment__": "(Optional) Enter the sheet name for the output Excel file. Default is 'Sheet1'.",
@@ -10,7 +10,7 @@
     "write_output": true,
     "output_folder_path": "./output/LATAM_Brazil/",
 
-    "output_file_name_prefix": "Transformed_Brazil_National_INV_20200901_20200901_",
+    "output_file_name_prefix": "Transformed_Brazil_Merchandising_INV_20200901_20200901_",
 
     "custom_transform_functions_file": "./transform_functions/latam_brazil_transform_functions.py",
 
@@ -24,9 +24,9 @@
         "function_name": "capitalize_columns_name"
       },
       {
-        "__function_comment__": "By the time we run this function, there should be only 16 columns total remaining in the raw data frame.",
+        "__function_comment__": "By the time we run this function, there should be only 15 columns total remaining in the raw data frame.",
         "function_name": "assert_number_of_columns_equals",
-        "function_args": [16]
+        "function_args": [15]
       },
       {
         "__function_comment__": "Add PROCESSED_DATE that holds the current date value.",

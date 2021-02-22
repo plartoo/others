@@ -1,7 +1,7 @@
 [
   {
-    "header": 13,
-    "skiprows": 14,
+    "header": 12,
+    "skiprows": 13,
     "skipfooter": 1,
 
     "__comment__": "(Optional) Enter the sheet name for the output Excel file. Default is 'Sheet1'.",
@@ -10,7 +10,7 @@
     "write_output": true,
     "output_folder_path": "./output/LATAM_Brazil/",
 
-    "output_file_name_prefix": "Transformed_Brazil_National_INV_20200901_20200901_",
+    "output_file_name_prefix": "Transformed_Brazil_PayTV_INV_20200901_20200901_",
 
     "custom_transform_functions_file": "./transform_functions/latam_brazil_transform_functions.py",
 
