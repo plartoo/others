@@ -11,7 +11,7 @@
 
     "write_output": true,
     "output_folder_path": "./output/EU_Germany/",
-    "output_file_name_prefix": "Combined_Germany_Investment_20180101_20201201_",
+    "output_file_name_prefix": "Combined_Germany_Investment_20210101_20210131",
 
     "custom_transform_functions_file": "./transform_functions/eu_germany_transform_functions.py",
 
