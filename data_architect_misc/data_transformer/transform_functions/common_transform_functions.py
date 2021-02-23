@@ -342,6 +342,7 @@ class CommonTransformFunctions(TransformFunctions):
 
     def capitalize_columns_name(self, df):
         """
+        TODO: rename this to capitalize_column_names
         Capitalize column headers namse.
 
         Args:
@@ -351,6 +352,20 @@ class CommonTransformFunctions(TransformFunctions):
             Dataframe with column names into uppercase.
         """
         df.columns = [x.upper() for x in df.columns.tolist()]
+        return df
+
+    def trim_space_around_column_names(self, df):
+        """
+        Trim extra space around column names of the dataframe.
+
+        Args:
+            df: Raw dataframe to transform.
+
+        Returns:
+            Dataframe with column names that have no extra spaces
+            in the beginning and the end of them.
+        """
+        df.columns = [x.strip() for x in df.columns.tolist()]
         return df
 
     def capitalize_first_letter_of_each_word_in_columns(self,
