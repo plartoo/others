@@ -2,6 +2,7 @@
   {
     "header": 0,
     "skiprows": 1,
+    "rows_per_read": 200000,
 
     "__comment__": "(Optional) Enter the sheet name for the output Excel file. Default is 'Sheet1'.",
     "output_sheet_name": "Sheet1",
@@ -95,7 +96,7 @@
       {
         "__function_comment__": "Join string values in BRAND and SUBBRAND columns using a separator and leave all this in the product column.",
         "function_name": "join_str_values_in_several_columns_to_create_a_new_column",
-        "function_args": [["BRAND","CONNECTOR","SUBBRAND"],"Product"]
+        "function_args": [["BRAND","CONNECTOR","SUBBRAND"],"PRODUCT"]
       },
       
       {
