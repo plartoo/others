@@ -340,10 +340,9 @@ class CommonTransformFunctions(TransformFunctions):
         """
         return df.rename(columns=old_to_new_cols_dict)
 
-    def capitalize_columns_name(self, df):
+    def capitalize_column_names(self, df):
         """
-        TODO: rename this to capitalize_column_names
-        Capitalize column headers namse.
+        Capitalize column headers names.
 
         Args:
             df: Raw dataframe to transform.
