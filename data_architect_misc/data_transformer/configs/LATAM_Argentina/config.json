@@ -31,7 +31,7 @@
       },
       {
         "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
-        "function_name": "capitalize_columns_name"
+        "function_name": "capitalize_column_names"
       },
       {
         "__function_comment__": "In Taiwan data file, there are rows in 'Value' column could have NaN (empty). We need to remove them.",

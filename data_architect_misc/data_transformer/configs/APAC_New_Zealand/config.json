@@ -22,7 +22,7 @@
       {
         "__function_comment__": "Capitalize all columns name prevent data transformation from crashing ",
         "__function_comment__": "if local agency changed capitalization of the raw columns.",
-        "function_name": "capitalize_columns_name"
+        "function_name": "capitalize_column_names"
       },
       {
         "__function_comment__": "In New Zealand, there was an instance where a column name has extra space at the end.",

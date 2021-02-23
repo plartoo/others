@@ -23,7 +23,7 @@
       },
       {
         "__function_comment__": "Capitalize all columns name to make sure that the transform module use always the same column name.",
-        "function_name": "capitalize_columns_name"
+        "function_name": "capitalize_column_names"
       },
       {
         "__function_comment__": "In India, the person who provides data to us never name the columns consistently.",

@@ -24,7 +24,7 @@
       },
       {
         "__function_comment__": "Capitalize all columns name prevent data transformation from crashing if local agency changed capitalization of the raw columns.",
-        "function_name": "capitalize_columns_name"
+        "function_name": "capitalize_column_names"
       },
       {
         "function_name": "assert_number_of_columns_equals",
