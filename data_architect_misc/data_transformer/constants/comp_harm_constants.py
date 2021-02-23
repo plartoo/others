@@ -122,17 +122,17 @@ ADVERTISER_MAPPINGS = {
     "(?i).*CLOROX.*": "THE CLOROX COMPANY",
     "(?i).*COLGATE.*": "COLGATE-PALMOLIVE",
     "(?i)^CP$": "COLGATE-PALMOLIVE",
+    "(?i)^CP\\sGA.*": "COLGATE-PALMOLIVE",
     "(?i)GENOMMA.*": "GENOMMA LAB",
     "(?i).*GLAXO.*": "GSK",  # also catches "\u200EGlaxoSmithKline"
     "(?i)^GSK.*": "GSK",
     "(?i).*HENKEL.*": "HENKEL",
-    "(?i).*JOHNSON.*&.*JOHNSON.*": "JOHNSON & JOHNSON",
+    "(?i).*JOHNSON.*JOHNSON.*": "JOHNSON & JOHNSON",
     "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
     "(?i).*L'?OREAL.*": "LOREAL",  # also catches 'LOREAL'
     "(?i).*L OREAL.*": "LOREAL",
     "(?i).*PHILIPS.*": "PHILIPS",
-    "(?i).*PROCTER.*&.*GAMBLE.*": "P&G",
-    "(?i).*PROCTER.*AND.*GAMBLE.*": "P&G",
+    "(?i).*PROCTER.*GAMBLE.*": "P&G",
     "(?i)P.*&.*G.*": "P&G",
     "(?i).*RECKIT(T)?.*": "RECKITT BENCKISER",
     "(?i)^RB\\s*?$": "RECKITT BENCKISER",
@@ -369,6 +369,8 @@ GERMAN_CATEGORY_MAPPINGS = {
     "(?i).*FEINSEIFEN.*": "Personal Care",
     "(?i).*RASIERPFLEGE.*": "Personal Care",
     "(?i).*BADEKOSMETIK.*": "Personal Care",
+    "(?i).*KOERPERPFLEGE.*": "Personal Care",
+
 }
 
 SPANISH_CATEGORY_MAPPINGS = {
