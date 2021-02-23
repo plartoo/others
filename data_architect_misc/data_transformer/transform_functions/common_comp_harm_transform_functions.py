@@ -192,7 +192,11 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
             Dataframe with original year column renamed to
             standardized year column name.
         """
-
+        if not (raw_year_col_name in df.columns):
+            raise transform_errors.ExpectedColumnNotFoundError(
+                f"The raw year column named, '{raw_year_col_name}', "
+                f"does NOT exist in the dataframe."
+            )
         return self.rename_columns(
             df,
             {raw_year_col_name: comp_harm_constants.YEAR_COLUMN})
@@ -428,7 +432,6 @@ class CommonCompHarmTransformFunctions(CommonTransformFunctions, CommonCompHarmQ
         respective integer values (ranging from 1 to 12) using mapping table.
         """
         import re
-
         df[col_name_with_month_value] = df[col_name_with_month_value].str.lower().apply(
             lambda x: re.findall(regex_for_format, x)[0])
 
