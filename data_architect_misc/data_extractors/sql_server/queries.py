@@ -1,0 +1,12 @@
+mapped_data_for_country = """
+SELECT DISTINCT 
+[HARMONIZED_COUNTRY]
+,[HARMONIZED_ADVERTISER]
+,[RAW_CATEGORY]
+,[RAW_SUBCATEGORY]
+,[RAW_BRAND]
+,[RAW_SUBBRAND]
+,[RAW_PRODUCT_NAME]
+--,[HARMONIZED_PRODUCT_NAME] -- We will exclude this
+FROM [dbo].[Competitive_Harmonization_1PH_Mapping]
+WHERE [HARMONIZED_COUNTRY]='"""
