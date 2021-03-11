@@ -246,7 +246,7 @@ CONFIG_TEMPLATE = [
 
 
 def main():
-    json_file = os.path.join(os.getcwd(),'config_template.json')
+    json_file = os.path.join(os.getcwd(), 'config_template.json')
     print(f"Generated skeleton JSON config file with all valid keys to => "
           f"{json_file}")
     with open(json_file, 'w') as out_file:
