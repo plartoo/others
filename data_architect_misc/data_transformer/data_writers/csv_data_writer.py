@@ -17,7 +17,7 @@ class CSVDataWriter(FileDataWriter):
     DEFAULT_OUTPUT_DELIMITER = '|'
 
     KEY_QUOTING = 'quoting'
-    DEFAULT_QUOTING = csv.QUOTE_MINIMAL
+    DEFAULT_QUOTING = "csv.QUOTE_MINIMAL"
     QUOTING_DICT = {
         "csv.QUOTE_ALL": csv.QUOTE_ALL,
         "csv.QUOTE_MINIMAL": csv.QUOTE_MINIMAL,
@@ -35,7 +35,7 @@ class CSVDataWriter(FileDataWriter):
             self.DEFAULT_OUTPUT_DELIMITER)
         self.quoting = CSVDataWriter.QUOTING_DICT[
             config.get(self.KEY_QUOTING,
-                       self.DEFAULT_QUOTING)
+                       CSVDataWriter.DEFAULT_QUOTING)
         ]
 
     def _get_output_file_extension(self):
