@@ -10,6 +10,7 @@ Last Modified: Jan 30, 2020
 
 import datetime
 import logging
+import os
 import re
 
 import pandas as pd
@@ -75,6 +76,62 @@ class TransformFunctions:
         """
         return re.sub("(^|\s)(\S)", lambda m: m.group(1) + m.group(2).upper(), s)
 
+    def _get_list_of_files_in_a_directory(self, dir_name):
+        return [os.path.join(dir_name, f) for f in os.listdir(dir_name)
+                if os.path.isfile(os.path.join(dir_name, f))]
+
+    def _pair_file_name_and_sheet(self, fs):
+        """
+        Helper function to return a pair of file name
+        and sheet name/index from either a pair of
+        file name and sheet name OR just file name.
+        """
+        default_sheet = 0
+        if len(fs) == 2:
+            # if user already provides the file name and the sheet as a list
+            return [fs[0], fs[-1]]
+        elif len(fs) == 1:
+            # if user only provides the file name
+            return [fs[0], default_sheet]
+        else:
+            raise transform_errors.InputDataLengthError(
+                f"{fs} must be a pair of a file name "
+                f"and a sheet name/index such as "
+                f"['file1.xlsx', 'Sheet1'] or just a file "
+                f"name like ['file1.xlsx'].")
+
+    def _get_list_of_files_and_sheets_to_process(self, list_of_files_and_sheets):
+        """
+        This helper function will unfold the list of files and folders
+        along with optional sheet names/indexes into list of files
+        and their corresponding sheet names/indexes.
+
+        For example, if we provide a list of files and folders like below:
+        [['file1.xlsx'], ['file2.xlsx', 0], ['folder','Sheet1']]
+        this function will find the files found under 'folder' and
+        return a list like below:
+        [['file1.xlsx', 0], ['file2.xlsx', 0],
+        ['folder/file1.xlsx','Sheet1'], ['folder/file2.xlsx','Sheet1']]
+
+        Note: if the sheet name is not given, the function will use
+        default value '0' as the sheet index next to the file name.
+        """
+        files_and_sheets = []
+        for f_s in list_of_files_and_sheets:
+            if os.path.isdir(f_s[0]):
+                for f in self._get_list_of_files_in_a_directory(f_s[0]):
+                    files_and_sheets.append(
+                        self._pair_file_name_and_sheet([f] + f_s[1:]))
+            elif os.path.isfile(f_s[0]):
+                files_and_sheets.append(
+                    self._pair_file_name_and_sheet(f_s))
+            else:
+                raise transform_errors.NotAFileOrAFolder(
+                    f"{f_s} is NOT a file nor a folder. "
+                    f"Please make sure to check this input.")
+
+        return files_and_sheets
+
 
 class CommonTransformFunctions(TransformFunctions):
     """
@@ -116,6 +173,59 @@ class CommonTransformFunctions(TransformFunctions):
             df = df.append(temp_df)
 
         return df
+
+    def load_combine_and_dedupe_from_excel_files_and_optional_sheet(
+            self,
+            df,
+            list_of_excel_file_names_and_sheet_indexes
+    ):
+        """
+        Given a list of file names (folder name is fine) and optional sheet indexes
+        or names for each of the file/folder, load and combine data from each of
+        the file (along axis=0) and run drop_duplicates() to dedupe
+        the dataframe before returning the dataframe.
+
+        For example, if we have two files (file1.xlsx and file2.xlsx) with the same
+        column headers and we want to combine them into one dataframe with duplicates
+        removed, we will call this function like below:
+        load_combine_and_dedupe_from_excel_files_and_optional_sheet_indexes(df,
+        [['file1.xlsx'], ['file2.xlsx'])
+
+        If the files have multiple sheets and we want to provide sheet names,
+        we can call the function as below:
+        load_combine_and_dedupe_from_excel_files_and_optional_sheet_indexes(df,
+        [['file1.xlsx', 'Sheet1'], ['file1.xlsx', 1], ['file2.xlsx', 0], ['file2.xlsx', 1])
+
+        If we have put the files in a folder called 'folder1', we can call the
+        function as below:
+        load_combine_and_dedupe_from_excel_files_and_optional_sheet_indexes(df,
+        [['folder1', 'Sheet1'], ['folder1', 1])
+
+        Args:
+            df: Original dataframe to combine and dedupe data.
+            list_of_excel_file_names_and_sheet_indexes: List of pairs (lists) of
+            Excel file/folder names to load data from and their corresponding
+            sheet indexes to read.
+
+        Returns:
+            Dataframe which now has data from all the sheets (default is
+            sheet_index=0) from all the files provided as input parameter.
+            The dataframe will also be duplicate-free.
+        """
+        if not isinstance(list_of_excel_file_names_and_sheet_indexes, list):
+            raise transform_errors.InputDataTypeError(
+                f"list_of_excel_file_names_and_sheet_indexes must be of list type.")
+
+        df = pd.DataFrame()
+        print(f"\nData in the following Excel files and sheets will be combined:")
+        for f_s in self._get_list_of_files_and_sheets_to_process(
+                list_of_excel_file_names_and_sheet_indexes):
+            print(f_s)
+            cur_df = pd.read_excel(f_s[0],
+                                   sheet_name=f_s[-1])
+            df = pd.concat([df, cur_df])
+
+        return df.drop_duplicates(ignore_index=True)
 
     def join_str_values_in_several_columns_to_create_a_new_column(
             self,
@@ -1038,7 +1148,7 @@ class CommonTransformFunctions(TransformFunctions):
 
         # REF: https://stackoverflow.com/a/36029392
         df[existing_col_name] = df[existing_col_name].astype(str)
-        df[new_col_name] = df[existing_col_name].str\
+        df[new_col_name] = df[existing_col_name].str \
             .extract(regex_pattern_to_extract_desired_value, expand=False).str.strip()
 
         return df
@@ -1160,8 +1270,13 @@ class CommonTransformFunctions(TransformFunctions):
 
         df[new_col_name] = df[existing_col_name].replace(regex=dictionary_of_mappings)
         if leave_empty_if_no_match:
+            # In comp harm project, we know that comp_harm_constants.CATEGORIES minus {'', NOT_AVAILABLE}
+            # are okay values. So when we do df.loc[...] below, we will ignore rows that
+            # have values from comp_harm_constants.CATEGORIES minus {'', NOT_AVAILABLE}.
+            allowed_category_names = comp_harm_constants.CATEGORIES - {'', comp_harm_constants.NOT_AVAILABLE}
             # If the regex mapping does NOT exist, we need to leave this cell blank
-            df.loc[df[new_col_name] == df[existing_col_name], new_col_name] = ''
+            df.loc[(df[new_col_name] == df[existing_col_name]) & (
+                df[new_col_name].apply(lambda x: x not in allowed_category_names)), new_col_name] = ''
 
         return df
 

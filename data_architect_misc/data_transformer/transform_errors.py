@@ -38,6 +38,16 @@ class FileNotFound(TransformError):
                          f"file(s) exists: {filename}")
 
 
+class NotAFileOrAFolder(TransformError):
+    """
+    Raised when the code is expecting a file or a folder name
+    to be passed in but the input is none of these.
+    """
+
+    def __init__(self, error_msg):
+        super().__init__(error_msg)
+
+
 class InvalidFileType(TransformError):
     """
     Raised when the user provide input file
@@ -155,6 +165,7 @@ class InputFilesDateRangeMismatchError(TransformError):
                          f"are of the same date range: {file1}\n"
                          f"and:\n{file2}")
 
+
 class InputFileNameAndDataDateRangeMismatchError(TransformError):
     def __init__(self, file_name):
         super().__init__(f"The date range in input file name "
@@ -162,6 +173,7 @@ class InputFileNameAndDataDateRangeMismatchError(TransformError):
                          f"in the data of the file: {file_name}.\n"
                          f"Make sure to name the input file with the "
                          f"correct date ranges in the data.")
+
 
 class ListEmptyError(TransformError):
     """Raised when the provided list is empty."""
