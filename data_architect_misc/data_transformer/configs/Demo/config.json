@@ -1,0 +1,104 @@
+[
+  {
+    "__comment__": "This config is to demo how to use load_combine_and_dedupe_from_excel_files_and_optional_sheet_indexes function.",
+    "input_sheet_name": 0,
+    "header": 0,
+    "skiprows": 0,
+    "skipfooter": 0,
+
+    "write_output": true,
+    "output_folder_path": "./output/Demo/",
+    "output_file_name_prefix": "Transformed_Demo_",
+
+    "custom_transform_functions_file": "./transform_functions/demo_transform_functions.py",
+
+    "functions_to_apply": [
+      {
+        "__function_comment__": "Function to combine data from several Excel file and dedupe the combined data.",
+        "function_name": "load_combine_and_dedupe_from_excel_files_and_optional_sheet",
+        "function_args": [
+          [
+            ["./input/Demo/Test1.xlsx"],
+            ["./input/Demo/Test2.xlsx", "Sheet1"],
+            ["./input/Demo/Test3.xlsx", "Demo"],
+            ["./input/Demo/Test3.xlsx", 1],
+            ["./input/Demo/folder/"]
+          ]
+        ]
+      },
+      {
+        "function_name": "add_PROCESSED_DATE_column_with_current_date"
+      },
+      {
+        "__function_comment__": "Add a new fake column to extract date, month and year values.",
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["Date","2021-03-16"]
+      },
+      {
+        "function_name": "add_HARMONIZED_YEAR_column_using_existing_date_column_with_year_values",
+        "function_args": ["Date"]
+      },
+      {
+        "function_name": "add_HARMONIZED_MONTH_column_using_existing_column_with_month_values",
+        "function_args": ["Date"]
+      },
+      {
+        "function_name": "add_HARMONIZED_DATE_column_using_existing_YEAR_and_MONTH_columns_with_integer_values"
+      },
+      {
+        "function_name": "add_HARMONIZED_REGION_column",
+        "function_args": ["Asia Pacific"]
+      },
+      {
+        "function_name": "add_HARMONIZED_COUNTRY_column_using_fixed_str_value",
+        "function_args": ["Indonesia"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_ADVERTISER","Advertiser Name"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_MEDIA_TYPE","Media Type"]
+      },
+      {
+        "function_name": "add_HARMONIZED_CURRENCY_column",
+        "function_args": ["IDR"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_GROSS_SPEND","1.00"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["HARMONIZED_CATEGORY","Harmonized Category"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["RAW_PRODUCT_NAME","Raw Product Name"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["RAW_CATEGORY","Raw Category"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["RAW_SUBCATEGORY","Raw Sub Category"]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["RAW_BRAND",""]
+      },
+      {
+        "function_name": "add_new_column_with_fixed_str_value",
+        "function_args": ["RAW_SUBBRAND",""]
+      },
+      {
+        "function_name": "add_empty_HARMONIZED_columns_for_automated_mapping"
+      },
+      {
+        "function_name": "filter_and_rearrange_columns_for_final_output"
+      }
+    ]
+  }
+]
