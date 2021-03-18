@@ -127,20 +127,22 @@ ADVERTISER_MAPPINGS = {
     "(?i).*GLAXO.*": "GSK",  # also catches "\u200EGlaxoSmithKline"
     "(?i)^GSK.*": "GSK",
     "(?i).*HENKEL.*": "HENKEL",
-    "(?i).*JOHNSON.*JOHNSON.*": "JOHNSON & JOHNSON",
-    "(?i)J.*&.*J.*": "JOHNSON & JOHNSON",
+    "(?i).*Johnson.*Johnson.*": "JOHNSON & JOHNSON",
+    "(?i).*J\s?&\s?J.*": "JOHNSON & JOHNSON",
     "(?i).*L'?OREAL.*": "LOREAL",  # also catches 'LOREAL'
     "(?i).*L OREAL.*": "LOREAL",
     "(?i).*PHILIPS.*": "PHILIPS",
     "(?i).*PROCTER.*GAMBLE.*": "P&G",
-    "(?i)P.*&.*G.*": "P&G",
+    "(?i).*P\s?&\s?G.*": "P&G",
     "(?i).*RECKIT(T)?.*": "RECKITT BENCKISER",
     "(?i)^RB\\s*?$": "RECKITT BENCKISER",
     "(?i)^RB\\sAG$": "RECKITT BENCKISER",
     "(?i)SANO": "SANOFI",
     "(?i)SANOFI.*": "SANOFI",
-    "(?i)S(.)?C(.)? JOHNSON.*": "JOHNSON & JOHNSON",
-    "(?i).*UNILEVER.*": "UNILEVER"
+    "(?i).*S(.)?C(.)?\s?JOHNSON.*": "S.C. JOHNSON",
+    "(?i).*S\s?C\sJOHNSON.*": "S.C. JOHNSON",
+    "(?i).*UNILEVER.*": "UNILEVER",
+    "(?i).*Lever\sLtd.*": "UNILEVER",
 }
 
 MEDIA_TYPES = {'Cinema', 'Digital', 'Door drops', 'In-store', 'OOH', 'Print', 'Radio', 'TV'}
@@ -156,12 +158,11 @@ ENGLISH_MEDIA_TYPE_MAPPINGS = {
     "(?i)Gazety.*": "Print",
     "(?i)JOU?RNAL.*": "Print",
     "(?i)MAGAZINE.*": "Print", "(?i)MG.*": "Print", "(?i).*(\\b)?Mag.*": "Print",
-    "(?i)NP.*": "Print", "(?i)NEWSPAPER.*": "Print", "(?i)NEWPAPER.*": "Print",
-    "(?i)PRINT.*": "Print", "(?i)PRESS.*": "Print",
-    "(?i)REVISTAS.*": "Print",
+    "(?i)NP.*": "Print", "(?i)NEW(S)?PAPER.*": "Print",
+    "(?i).*PRINT.*": "Print", "(?i).*PRESS.*": "Print",
+    "(?i).*REVISTAS.*": "Print",
     "(?i)SUPLEM.*DOMINICALES.*": "Print",
     "(?i).*TABLOIDS.*": "Print",
-    "(?i)Vaktijdschriften.*": "Print",
 
     "(?i)AT-RETAIL-MEDIA.*": "In-store", "(?i)In.*Store.*": "In-store",
 
@@ -194,8 +195,14 @@ SPANISH_MEDIA_TYPE_MAPPINGS = {
 GERMAN_MEDIA_TYPE_MAPPINGS = {
     "(?i)FERNSEHEN.*": "TV",
     "(?i)KINO.*": "Cinema",
-    "(?i)FACHZEITSCHRIFTEN.*": "OOH", "(?i)PLAKAT.*": "OOH",
-    "(?i)PUBLIKUMSZEITSCHRIFTEN.*": "Print", "(?i)WERBESENDUNGEN.*": "Print", "(?i)ZEITUNGEN.*": "Print"
+
+    "(?i)FACHZEITSCHRIFTEN.*": "OOH",
+    "(?i)PLAKAT.*": "OOH",
+
+    "(?i).*PUBLIKUMS.*": "Print",
+    "(?i)WERBESENDUNGEN.*": "Print",
+    "(?i)Vaktijdschriften.*": "Print",
+    "(?i)ZEITUNGEN.*": "Print"
 }
 
 MEDIA_TYPE_MAPPINGS = dict(ENGLISH_MEDIA_TYPE_MAPPINGS, **SPANISH_MEDIA_TYPE_MAPPINGS, **GERMAN_MEDIA_TYPE_MAPPINGS)
@@ -205,19 +212,21 @@ MEDIA_TYPE_MAPPINGS = dict(ENGLISH_MEDIA_TYPE_MAPPINGS, **SPANISH_MEDIA_TYPE_MAP
 CATEGORIES = {'Home Care', 'Oral Care', 'Other', 'Personal Care', 'Pet Nutrition', '', NOT_AVAILABLE}
 
 ENGLISH_CATEGORY_MAPPINGS = {
-    # TODO: we need to reorder these mappings alphabetically and remove duplicates
+    # TODO: keep the mapping keys below to be in alphabetical order by category
     "(?i).*Air Freshen.*": "Home Care",
     "(?i).*Bleach.*": "Home Care",
     "(?i)Cleaning.*agent.*": "Home Care",
-    "(?i).*Cleaners.*": "Home Care",
+    "(?i).*Cleaner.*": "Home Care",
     "(?i).*Detergent.*": "Home Care",
     "(?i).*Dish.*": "Home Care",
+    "(?i).*Disinfectant.*": "Home Care",
     "(?i).*FABRIC.*SOFTENER.*": "Home Care",
     "(?i).*FC.*Liquids.*": "Home Care",
     "(?i)^HC$": "Home Care",
     "(?i).*HOME.*CARE.*": "Home Care",
     "(?i).*HOUSEHOLD.*": "Home Care",
     "(?i).*LAUNDRY.*": "Home Care",
+    "(?i).*Sponge.*": "Home Care",
 
     "(?i)^OC$": "Oral Care",
     "(?i).*ORAL.*": "Oral Care",
@@ -253,6 +262,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i)^PC$": "Personal Care",
     "(?i).*PERFUME.*": "Personal Care",
     "(?i).*PERSONAL.*CARE.*": "Personal Care",
+    "(?i).*Razor.*": "Personal Care",
     "(?i).*SKIN.*CARE.*": "Personal Care",
     "(?i).*SOAP.*": "Personal Care",
     "(?i).*Shampoo.*": "Personal Care",
@@ -261,6 +271,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*Shower.*": "Personal Care",
     "(?i).*Sun.*Block.*": "Personal Care",
     "(?i).*Toiletries.*": "Personal Care",
+    "(?i).*Talc.*Powder.*": "Personal Care" ,
 
     "(?i).*(\\b)?Pet\\s.*": "Pet Nutrition",
 
@@ -271,7 +282,7 @@ ENGLISH_CATEGORY_MAPPINGS = {
     "(?i).*SHOPPING.*": "Other",
     "(?i).*BOUTIQUE.*": "Other",
     "(?i).*KETCHUP.*": "Other",
-    "(?i)(\\b)?OTHERS?(\\b)?": "Other",
+    "(?i).*(\\b)?OTHERS?(\\b)?.*": "Other",
     "(?i).*Accessories.*": "Other",
     "(?i).*Agriculture.*": "Other",
     "(?i).*Alcohol.*": "Other",
@@ -334,21 +345,20 @@ ENGLISH_CATEGORY_MAPPINGS = {
 }
 
 ITALIAN_CATEGORY_MAPPINGS = {
-    # TODO: we need to reorder these mappings alphabetically and remove duplicates
     "(?i).*DETERGENTI.*": "Home Care",
     "(?i).*PULITORI.*": "Home Care",
 
+    "(?i).*DENTI.*": "Oral Care",
     "(?i).*IGIENE.*ORALE.*": "Oral Care",
     "(?i).*ORALE.*": "Oral Care",
-    "(?i).*DENTI.*": "Oral Care",
     "(?i).*SPAZZOLINI.*": "Oral Care",
 
-    "(?i).*CURA.*PERSONA.*": "Personal Care",
-    "(?i).*DOCCIASCHIUMA.*": "Personal Care",
     "(?i).*CURA.*CORPO.*": "Personal Care",
+    "(?i).*CURA.*PERSONA.*": "Personal Care",
     "(?i).*CURA.*VISO.*": "Personal Care",
-    "(?i).*LINEA.*CURA.*": "Personal Care",
     "(?i).*DEODORANTI.*": "Personal Care",
+    "(?i).*DOCCIASCHIUMA.*": "Personal Care",
+    "(?i).*LINEA.*CURA.*": "Personal Care",
     "(?i).*SAPONI.*": "Personal Care",
     "(?i).*SHAMPOO.*": "Personal Care",
 
@@ -356,25 +366,25 @@ ITALIAN_CATEGORY_MAPPINGS = {
 }
 
 GERMAN_CATEGORY_MAPPINGS = {
-    # TODO: we need to reorder these mappings alphabetically and remove duplicates
+    "(?i).*BECKENSTEINE.*": "Home Care",
     "(?i).*GESCHIRRSPUELMITTEL.*": "Home Care",
     "(?i).*PFLEGEMITTEL.*": "Home Care",
     "(?i).*REINIG.*": "Home Care",
     "(?i).*WASCHMITTEL.*": "Home Care",
-    "(?i).*BECKENSTEINE.*": "Home Care",
     "(?i).*WEICHSPUELER.*": "Home Care",
 
     "(?i).*MUNDPFLEGE.*": "Oral Care",
     "(?i).*MUNDWASSER.*": "Oral Care",
     "(?i).*ZAHN.*": "Oral Care", 
 
+    "(?i).*BADEKOSMETIK.*": "Personal Care",
     "(?i).*BADEZUSAETZE.*": "Personal Care",
+    "(?i).*DUSCHEN.*": "Personal Care",
     "(?i).*DUSCHZUSAETZE.*": "Personal Care",
     "(?i).*FEINSEIFEN.*": "Personal Care",
-    "(?i).*RASIERPFLEGE.*": "Personal Care",
-    "(?i).*BADEKOSMETIK.*": "Personal Care",
     "(?i).*KOERPERPFLEGE.*": "Personal Care",
-
+    "(?i).*KOSMETIK.*": "Personal Care",
+    "(?i).*RASIERPFLEGE.*": "Personal Care",
 }
 
 SPANISH_CATEGORY_MAPPINGS = {
@@ -385,6 +395,7 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*ANTISARR.*": "Oral Care",
     "(?i).*ANTISEPT.*BUC.*": "Oral Care",
     "(?i).*CEPILLO.*DENT.*": "Oral Care",
+    "(?i).*CREMA.*DENTAL.*": "Oral Care",
     "(?i).*HIGIENE.*BOCA.*": "Oral Care", # Boca means mouth
 
     "(?i).*DETERGENTE.*": "Home Care",
@@ -414,7 +425,9 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*DESMANCHADOR.*": "Home Care",
     "(?i).*TRAPEADOR.*": "Home Care",
 
+    "(?i).*BRONCEADO.*": "Personal Care",
     "(?i).*COSMETICO.*": "Personal Care",
+    "(?i).*CREMA.*CORPORAL.*": "Personal Care",
     "(?i).*CUIDADOS.*CUERPO.*": "Personal Care",
     "(?i).*MAQUIAGEM.*": "Personal Care",
     "(?i).*BELLEZA.*": "Personal Care",
@@ -484,6 +497,10 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*ALIMENTO.*PERRO.*": "Pet Nutrition",
     "(?i).*ALIMENTO.*MASCOT.*": "Pet Nutrition",
 
+    "(?i).*ANTIACIDO.*": "Other",
+    "(?i).*ANTIALERGICO.*": "Other",
+    "(?i).*ANTIDIARREICO.*": "Other",
+    "(?i).*ANTISEPTICO.*": "Other",
     "(?i).*COLEGIO.*": "Other",
     "(?i).*CONGRESO.*": "Other",
     "(?i).*MODA.*": "Other",
@@ -728,6 +745,9 @@ SPANISH_CATEGORY_MAPPINGS = {
     "(?i).*SUPLEMENTO.*": "Other",
     "(?i).*EXCAVADOR.*": "Other",
     "(?i).*ESTACION.*": "Other",
+    "(?i).*lAXANTE.*": "Other",
+    "(?i).*PRESERVATIVO.*": "Other",
+    "(?i).*UNGUENTO.*": "Other",
 }
 
 CATEGORY_MAPPINGS = dict(SPANISH_CATEGORY_MAPPINGS,
@@ -809,7 +829,59 @@ MONTH_NAME_TO_MONTH_INTEGER_VALUE_MAPPINGS = {
     "november": 11,
     "december": 12,
 
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
     "october": 10,
+    "november": 11,
+    "december": 12,
 
-    "setiembre": 9,
+    # German
+    "januar": 1,
+    "februar": 2,
+    "maerz": 3,
+    "april": 4,
+    "mai": 5,
+    "juni": 6,
+    "juli": 7,
+    "august": 8,
+    "september": 9,
+    "oktober": 10,
+    "november": 11,
+    "dezember": 12,
+
+    # Italian
+    "genaio": 1,
+    "febbraio": 2,
+    "marzo": 3,
+    "aprile": 4,
+    "maggio": 5,
+    "giugno": 6,
+    "luglio": 7,
+    "agosto": 8,
+    "settembre": 9,
+    "ottobre": 10,
+    "novembre": 11,
+    "dicembre": 12,
+
+    # French
+    "janvier": 1,
+    "fevrier": 2,
+    "fevriere": 2,
+    "mars": 3,
+    "avril": 4,
+    "mai": 5,
+    "juin": 6,
+    "juillet": 7,
+    "aout": 8,
+    "septembre": 9,
+    "octobre": 10,
+    "novembre": 11,
+    "decembre": 12
 }
