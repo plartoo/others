@@ -17,6 +17,7 @@ class EuEstoniaTransformFunctions(CommonCompHarmTransformFunctions):
     """
     ESTONIA_SPECIFIC_CATEGORY_MAPPINGS = {
         # Add any Estonia-specific mappings that cannot be used for other EU countries here.
+        "(?i).*PERSONAL.*WASH.*": "Personal Care",
     }
 
     def __init__(self, config):

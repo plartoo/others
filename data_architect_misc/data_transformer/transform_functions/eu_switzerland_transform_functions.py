@@ -24,6 +24,7 @@ class EuSwitzerlandTransformFunctions(CommonCompHarmTransformFunctions):
         self.config = config
         self.category_mappings = dict(
             comp_harm_constants.ENGLISH_CATEGORY_MAPPINGS,
+            **comp_harm_constants.GERMAN_CATEGORY_MAPPINGS,
             **EuSwitzerlandTransformFunctions.SWITZERLAND_SPECIFIC_CATEGORY_MAPPINGS)
 
     def unpivot_month_columns_with_spend_values(self,df):

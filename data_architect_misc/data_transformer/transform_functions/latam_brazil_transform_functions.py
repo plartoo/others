@@ -17,6 +17,33 @@ class LatamBrazilTransformFunctions(CommonCompHarmTransformFunctions):
     """
     BRAZIL_SPECIFIC_CATEGORY_MAPPINGS = {
         # Add any Brazil-specific mappings that cannot be used for other LATAM countries here.
+        "(?i).*DENTADURA.*": "Oral Care",
+        "(?i).*ESCOVA.*DENTAL.*": "Oral Care",
+        "(?i).*PASTA.*DENTAL.*": "Oral Care",
+
+        "(?i).*AMACIANTE.*ROUPA.*": "Home Care",
+        "(?i).*DESENGORDURANTE.*": "Home Care",
+        "(?i).*DESINFETANTE.*": "Home Care",
+
+        "(?i).*BATOM.*": "Personal Care",
+        "(?i).*BARBEADOR.*": "Personal Care",
+        "(?i).*CLAREADOR.*FACIAL.*": "Personal Care",
+        "(?i).*CONDICIONADOR.*": "Personal Care",
+        "(?i).*CREME.*BARBEAR.*": "Personal Care",
+        "(?i).*CUIDADO.*FACIAL.*": "Personal Care",
+        "(?i).*HIDRA.*CORPORAL.*": "Personal Care",
+        "(?i).*HIDRA.*FACIAL.*": "Personal Care",
+        "(?i).*PELE.*BEBE.*": "Personal Care",
+        "(?i).*PESS.*BELEZA.*": "Personal Care",
+        "(?i).*PROTETOR.*SOLAR.*": "Personal Care",
+
+        "(?i).*ANTI.*SEPTICO.*": "Other",
+        "(?i).*CERVEJA.*": "Other",
+        "(?i).*COMPLEXO.*VITAMINICO.*": "Other",
+        "(?i).*CICATRIZANTE.*": "Other",
+        "(?i).*INSETICIDA.*": "Other",
+        "(?i).*REPELENTE.*": "Other",
+
     }
 
     def __init__(self, config):

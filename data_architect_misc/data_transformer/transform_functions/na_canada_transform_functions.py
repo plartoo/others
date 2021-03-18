@@ -20,7 +20,7 @@ class NaCanadaTransformFunctions(CommonCompHarmTransformFunctions):
     of this class.
     """
     CANADA_SPECIFIC_CATEGORY_MAPPINGS = {
-        # Add any Canada-specific mappings that cannot be used for other NA countries here.
+        "(?i).*TOILET.*": "Home Care",
     }
 
     def __init__(self, config):

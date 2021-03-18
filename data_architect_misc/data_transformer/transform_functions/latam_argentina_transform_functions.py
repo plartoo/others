@@ -31,12 +31,20 @@ class LatamArgentinaTransformFunctions(CommonCompHarmTransformFunctions):
         "(?i).*EPS.*": "Other",
         "(?i).*CLIN.*PSICOLOG.*": "Other",
         "(?i).*PESQUERA.*": "Other",
+        "(?i).*REPELENTE.*": "Other",
+        "(?i).*TRAPO.*": "Other",
 
+        "(?i).*DETERG.*LAVADO.*": "Home Care",
         "(?i).*LEJIA.*": "Home Care",
-        
+        "(?i).*LIMPIAPISO.*": "Home Care",
+
+        "(?i).*COLORACION.*": "Personal Care",
         "(?i).*CREM.*ESCALDA.*": "Personal Care",
         "(?i).*C.D.\\sMULTIBENE.*": "Personal Care",
         "(?i).*C.D.\\sBLANQUE.*": "Personal Care",
+        "(?i).*ESMALTE.*UÑA.*": "Personal Care",
+        "(?i).*HAIR.*STYLING.*": "Personal Care",
+        "(?i).*PRODUCTO.*ANTICASPA.*": "Personal Care",
     }
 
     def __init__(self, config):

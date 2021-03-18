@@ -80,7 +80,7 @@ class EuItalyTransformFunctions(CommonCompHarmTransformFunctions):
         pivoted_columns = ['Subcategory','Advertiser','Brand','Product','DATA']
         for columnstomelt in cols_to_unpivot:
             df_unpivot_temp = pd.melt(df_data, id_vars=pivoted_columns, value_vars=columnstomelt, var_name='Merged_Columns', value_name='Values')
-            df_unpivot_temp = df_unpivot_temp.loc[df_unpivot_temp['Values'] > 0] # Keep only the values with spend > 0 
+            df_unpivot_temp = df_unpivot_temp.loc[df_unpivot_temp['Values'].astype(str).str.isnumeric() & df_unpivot_temp['Values'] > 0] # Keep only the values with spend > 0 
 
             # Creating the Date and Media columns from the combined string column created in earlier steps above
             df_unpivot_temp.loc[:, 'Media'] = df_unpivot_temp['Merged_Columns'].apply(lambda x:x.split('_')[0])
