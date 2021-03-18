@@ -76,31 +76,52 @@ class TransformFunctions:
         """
         return re.sub("(^|\s)(\S)", lambda m: m.group(1) + m.group(2).upper(), s)
 
-    def _get_list_of_files_in_a_directory(self, dir_name):
-        return [os.path.join(dir_name, f) for f in os.listdir(dir_name)
-                if os.path.isfile(os.path.join(dir_name, f))]
+    def _get_list_of_files_in_a_directory(self, dir_name, file_ext=None):
+        if file_ext is not None:
+            return [os.path.join(dir_name, f) for f in os.listdir(dir_name)
+                    if os.path.isfile(os.path.join(dir_name, f))
+                    and f.endswith(file_ext)]
+        else:
+            return [os.path.join(dir_name, f) for f in os.listdir(dir_name)
+                    if os.path.isfile(os.path.join(dir_name, f))]
 
-    def _pair_file_name_and_sheet(self, fs):
+    def _get_list_of_excel_files_in_a_directory(self, dir_name):
+        xls_files = [os.path.join(dir_name, f) for f in os.listdir(dir_name)
+                     if os.path.isfile(os.path.join(dir_name, f))
+                     and f.endswith('.xls')]
+        xlsx_files = [os.path.join(dir_name, f) for f in os.listdir(dir_name)
+                      if os.path.isfile(os.path.join(dir_name, f))
+                      and f.endswith('.xlsx')]
+        return xls_files + xlsx_files
+
+    def _get_list_of_csv_files_in_a_directory(self, dir_name):
+        return [os.path.join(dir_name, f) for f in os.listdir(dir_name)
+                if os.path.isfile(os.path.join(dir_name, f))
+                and f.endswith('.csv')]
+
+    def _pair_file_path_name_and_sheet(self, f_s):
         """
-        Helper function to return a pair of file name
-        and sheet name/index from either a pair of
-        file name and sheet name OR just file name.
+        Helper function to return a pair of file
+        path-name and sheet name/index (e.g.,
+        ['./folder/file.xlsx','Sheet1']) when given
+        either just the file path-name or the file
+        path-name and the sheet name/index.
         """
         default_sheet = 0
-        if len(fs) == 2:
+        if len(f_s) == 2:
             # if user already provides the file name and the sheet as a list
-            return [fs[0], fs[-1]]
-        elif len(fs) == 1:
+            return [f_s[0], f_s[-1]]
+        elif len(f_s) == 1:
             # if user only provides the file name
-            return [fs[0], default_sheet]
+            return [f_s[0], default_sheet]
         else:
             raise transform_errors.InputDataLengthError(
-                f"{fs} must be a pair of a file name "
-                f"and a sheet name/index such as "
-                f"['file1.xlsx', 'Sheet1'] or just a file "
-                f"name like ['file1.xlsx'].")
+                f"{f_s} must be either a file/folder path-name "
+                f"such as ['./folder/file1.xlsx'] or a pair of "
+                f"file/folder path-name with sheet name/index such as: "
+                f"['./folder/file1.xlsx', 'Sheet1']")
 
-    def _get_list_of_files_and_sheets_to_process(self, list_of_files_and_sheets):
+    def _get_list_of_excel_files_and_sheets_to_process(self, list_of_files_and_sheets):
         """
         This helper function will unfold the list of files and folders
         along with optional sheet names/indexes into list of files
@@ -119,18 +140,113 @@ class TransformFunctions:
         files_and_sheets = []
         for f_s in list_of_files_and_sheets:
             if os.path.isdir(f_s[0]):
-                for f in self._get_list_of_files_in_a_directory(f_s[0]):
+                for f in self._get_list_of_excel_files_in_a_directory(f_s[0]):
                     files_and_sheets.append(
-                        self._pair_file_name_and_sheet([f] + f_s[1:]))
+                        self._pair_file_path_name_and_sheet([f] + f_s[1:]))
             elif os.path.isfile(f_s[0]):
                 files_and_sheets.append(
-                    self._pair_file_name_and_sheet(f_s))
+                    self._pair_file_path_name_and_sheet(f_s))
             else:
                 raise transform_errors.NotAFileOrAFolder(
                     f"{f_s} is NOT a file nor a folder. "
                     f"Please make sure to check this input.")
 
         return files_and_sheets
+
+    def _pair_file_path_name_and_config(
+            self,
+            f_c,
+            delimiter='|',
+            encoding='utf-8',
+            quoting='QUOTE_MINIMAL'
+    ):
+        """
+        Helper function to return a pair of file
+        path-name and config (e.g.,
+        ['./folder/file.xlsx', {'delimiter':'|','encoding':'utf-8','quoting'='QUOTE_ALL'}]
+        )
+        when given either just the file path-name
+        or the file path-name and the config.
+        """
+        import csv
+
+        quoting_options = {
+            'QUOTE_MINIMAL': csv.QUOTE_MINIMAL,
+            'QUOTE_ALL': csv.QUOTE_ALL,
+            'QUOTE_NONE': csv.QUOTE_NONE,
+            'QUOTE_NONNUMERIC': csv.QUOTE_NONNUMERIC,
+        }
+        default_config = {
+            'delimiter': delimiter,
+            'encoding': encoding,
+            'quoting': quoting_options[quoting]
+        }
+
+        if len(f_c) == 2:
+            # if user already provides the file name and the config as a list,
+            # we just need to update the 'quoting' value to use the actual constant
+            # from csv library
+            delimiter_val = f_c[-1].get('delimiter', delimiter)
+            encoding_val = f_c[-1].get('encoding', encoding)
+            quoting_val = quoting_options[f_c[-1].get('quoting')] \
+                if f_c[-1].get('quoting') is not None else quoting_options[quoting]
+
+            return [f_c[0],
+                    {'delimiter': delimiter_val,
+                     'encoding': encoding_val,
+                     'quoting': quoting_val}
+                    ]
+        elif len(f_c) == 1:
+            # if user only provides the file/folder path and name
+            return [f_c[0], default_config]
+        else:
+            raise transform_errors.InputDataLengthError(
+                f"{f_c} must be either a file/folder path-name "
+                f"such as ['./folder/file1.csv'] or a pair of "
+                f"file/folder path-name with config such as "
+                f"['./folder/file1.csv', {{'delimiter': ','}}]")
+
+    def _get_list_of_csv_files_and_configs_to_process(
+            self,
+            list_of_csv_files_and_configs):
+        """
+        This helper function will prepare the list of CSV files
+        (if folder path is provided, the list of CSV files under that
+        folder will be extracted) along with configs to be
+        used in reading these files.
+
+        For example, if we provide a list of files and folders like below:
+        [['file1.csv'],
+        ['file2.csv', {'delimiter':','}],
+        ['folder1',{'delimiter':'|', 'encoding': 'utf-16'}]]
+        this function will find the files found under 'folder1' and
+        return a list like below:
+        [['file1.csv', {'delimiter':'|','encoding':'utf-8','quoting'=csv.QUOTE_MINIMAL}],
+        ['file2.csv', {'delimiter':',','encoding':'utf-8','quoting'=csv.QUOTE_MINIMAL}],
+        ['folder/file1.csv', csv.QUOTE_MINIMAL}],
+        ['folder/file2.csv', csv.QUOTE_MINIMAL}]]
+
+        Note: for the configs that are not specified, this function will use
+        the following values as default:
+        delimiter = '|'
+        encoding = 'utf-8'
+        quoting = csv.QUOTE_MINIMAL
+        """
+        files_and_configs = []
+        for f_c in list_of_csv_files_and_configs:
+            if os.path.isdir(f_c[0]):
+                for f in self._get_list_of_csv_files_in_a_directory(f_c[0]):
+                    files_and_configs.append(
+                        self._pair_file_path_name_and_config([f] + f_c[1:]))
+            elif os.path.isfile(f_c[0]):
+                files_and_configs.append(
+                    self._pair_file_path_name_and_config(f_c))
+            else:
+                raise transform_errors.NotAFileOrAFolder(
+                    f"{f_c} is NOT a file nor a folder. "
+                    f"Please make sure to check this input.")
+
+        return files_and_configs
 
 
 class CommonTransformFunctions(TransformFunctions):
@@ -174,55 +290,108 @@ class CommonTransformFunctions(TransformFunctions):
 
         return df
 
-    def load_combine_and_dedupe_from_excel_files_and_optional_sheet(
+    def load_combine_and_dedupe_from_excel_files(
             self,
             df,
-            list_of_excel_file_names_and_sheet_indexes
+            list_of_excel_files_or_folders_and_sheet_info
     ):
         """
-        Given a list of file names (folder name is fine) and optional sheet indexes
-        or names for each of the file/folder, load and combine data from each of
-        the file (along axis=0) and run drop_duplicates() to dedupe
-        the dataframe before returning the dataframe.
+        Given a list of file (or folder) path names, and optional sheet indexes
+        or sheet names for each of these file/folder, this function will
+        load and combine data from each of the files (along axis=0) and
+        run drop_duplicates() to dedupe the dataframe before returning it.
 
-        For example, if we have two files (file1.xlsx and file2.xlsx) with the same
-        column headers and we want to combine them into one dataframe with duplicates
-        removed, we will call this function like below:
-        load_combine_and_dedupe_from_excel_files_and_optional_sheet_indexes(df,
+        For example, if we have two files (file1.xlsx and file2.xlsx) with
+        **the same column headers** and we want to combine them into
+        one dataframe with duplicates removed, we will call this function
+        like below:
+        load_combine_and_dedupe_from_excel_files(df,
         [['file1.xlsx'], ['file2.xlsx'])
 
         If the files have multiple sheets and we want to provide sheet names,
         we can call the function as below:
-        load_combine_and_dedupe_from_excel_files_and_optional_sheet_indexes(df,
+        load_combine_and_dedupe_from_excel_files(df,
         [['file1.xlsx', 'Sheet1'], ['file1.xlsx', 1], ['file2.xlsx', 0], ['file2.xlsx', 1])
 
         If we have put the files in a folder called 'folder1', we can call the
         function as below:
-        load_combine_and_dedupe_from_excel_files_and_optional_sheet_indexes(df,
+        load_combine_and_dedupe_from_excel_files(df,
         [['folder1', 'Sheet1'], ['folder1', 1])
 
         Args:
             df: Original dataframe to combine and dedupe data.
-            list_of_excel_file_names_and_sheet_indexes: List of pairs (lists) of
-            Excel file/folder names to load data from and their corresponding
-            sheet indexes to read.
+            list_of_excel_files_or_folders_and_sheet_info: List of pairs
+            (lists) of Excel file/folder path and names and their
+            corresponding sheet names/indexes to read data from.
 
         Returns:
             Dataframe which now has data from all the sheets (default is
             sheet_index=0) from all the files provided as input parameter.
             The dataframe will also be duplicate-free.
         """
-        if not isinstance(list_of_excel_file_names_and_sheet_indexes, list):
+        if not isinstance(list_of_excel_files_or_folders_and_sheet_info, list):
             raise transform_errors.InputDataTypeError(
                 f"list_of_excel_file_names_and_sheet_indexes must be of list type.")
 
         df = pd.DataFrame()
         print(f"\nData in the following Excel files and sheets will be combined:")
-        for f_s in self._get_list_of_files_and_sheets_to_process(
-                list_of_excel_file_names_and_sheet_indexes):
+        for f_s in self._get_list_of_excel_files_and_sheets_to_process(
+                list_of_excel_files_or_folders_and_sheet_info):
             print(f_s)
             cur_df = pd.read_excel(f_s[0],
                                    sheet_name=f_s[-1])
+            df = pd.concat([df, cur_df])
+
+        return df.drop_duplicates(ignore_index=True)
+
+    def load_combine_and_dedupe_from_csv_files(
+            self,
+            df,
+            list_of_csv_files_or_folders_and_corresponding_configs
+    ):
+        """
+        Given a list of file path names (or folder paths are fine),
+        this function will load and combine data from each of these CSV
+        files (along axis=0) and run drop_duplicates() to dedupe the
+        dataframe before returning it.
+
+        For example, if we have two files (file1.csv and file2.csv) with
+        **the same column headers** and we want to combine them into
+        one dataframe with duplicates removed, we will call this function
+        like below:
+        load_combine_and_dedupe_from_csv_files(df,
+        [['file1.csv'],
+        ['file2.csv', {'delimiter':'|','encoding':'utf-8','quoting'='QUOTE_ALL'})
+
+        The configuration to read CSV file is optional as shown above. If not
+        provided, the function will use the followings as default:
+        delimiter = '|'
+        encoding = 'utf-8'
+        quoting = 'QUOTE_MINIMAL'
+
+        Args:
+            df: Original dataframe to combine and dedupe data.
+            list_of_csv_files_or_folders_and_corresponding_configs:
+            List of pairs (lists) of CSV file/folder names to load data from
+            and their corresponding configs (such as delimiter, encoding
+            and quoting) in json format to read data from.
+
+        Returns:
+            Dataframe which now has (deduped) data from all the CSV files.
+        """
+        if not isinstance(list_of_csv_files_or_folders_and_corresponding_configs, list):
+            raise transform_errors.InputDataTypeError(
+                f"list_of_csv_files_or_folders_and_corresponding_configs must be of list type.")
+
+        df = pd.DataFrame()
+        print(f"\nData in the following CSV files will be combined using corresponding configs:")
+        for f_c in self._get_list_of_csv_files_and_configs_to_process(
+                list_of_csv_files_or_folders_and_corresponding_configs):
+            print(f_c)
+            cur_df = pd.read_csv(f_c[0],
+                                 delimiter=f_c[1]['delimiter'],
+                                 encoding=f_c[1]['encoding'],
+                                 quoting=f_c[1]['quoting'])
             df = pd.concat([df, cur_df])
 
         return df.drop_duplicates(ignore_index=True)
