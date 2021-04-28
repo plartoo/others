@@ -87,26 +87,28 @@ def generate_new_access_token(client_id,
     cur_datetime = datetime.now()
 
     try:
-        if current_token is None:
+        if (current_token is None) or (cur_datetime >= current_token_expires_on):
             # REF: https://github.com/reddit-archive/reddit/wiki/OAuth2#retrieving-the-access-token
             data = {"grant_type": "password",
                     "username": username, "password": pwd}
+            resp = requests.post(ACCESS_TOKEN_URL,
+                                 auth=requests.auth.HTTPBasicAuth(client_id, client_secret),
+                                 data=data,
+                                 headers={"User-Agent": USER_AGENT})
+            resp.raise_for_status()
+            return resp.json()['access_token'], get_token_expiration_datetime_object(cur_datetime,
+                                                                                     resp.json()['expires_in'])
+        # else:
+        #     if cur_datetime >= current_token_expires_on:
+        #         # REF: https://github.com/reddit-archive/reddit/wiki/OAuth2#refreshing-the-token
+        #         # Despite the ref above, I was never successfully able to refresh the token.
+        #         # Setting data as below only returns 400 Bad request error.
+        #         # Thus, I've decided to comment this part out and modified the 'if' condition above
+        #         data = {"grant_type": "refresh_token",
+        #                 "refresh_token": current_token}
         else:
-            if cur_datetime >= current_token_expires_on:
-                # REF: https://github.com/reddit-archive/reddit/wiki/OAuth2#refreshing-the-token
-                data = {"grant_type": "refresh_token",
-                        "refresh_token": current_token}
+            return current_token, current_token_expires_on
 
-            else:
-                return current_token, current_token_expires_on
-
-        resp = requests.post(ACCESS_TOKEN_URL,
-                             auth=requests.auth.HTTPBasicAuth(client_id, client_secret),
-                             data=data,
-                             headers={"User-Agent": USER_AGENT})
-        resp.raise_for_status()
-        return resp.json()['access_token'], get_token_expiration_datetime_object(cur_datetime,
-                                                                                 resp.json()['expires_in'])
     except HTTPError as http_err:
         sys.exit(f"HTTP Error occurred in fetching new access token: {http_err}")
     except Exception as err:
