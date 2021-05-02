@@ -4,18 +4,18 @@ The script follows the example shown in this URL:
 https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example
 
 Usage:
-python track_keyword_on_subreddit.py -s <subreddit_name> -k <keyword_to_detect> -m <how_often_to_check_in_minutes>
+python track_keyword_on_reddit.py -s <subreddit_name> -k <keyword_to_detect> -m <how_often_to_check_in_minutes>
 
 For example:
->> python track_keyword_on_subreddit.py -s "r/gamesale/new" -l 10 -k "megaman 11" -m 5
+>> python track_keyword_on_reddit.py -s "r/gamesale/new" -l 10 -k "megaman 11" -m 5
 The above command will check "Megaman 11" keyword in the 10 most recent posts of the subreddit
 "r/gamesale/new" every 5 minutes.
 
->> python track_keyword_on_subreddit.py -s r/gamesale/new -k "\[H\].*PS4" -m 5
+>> python track_keyword_on_reddit.py -s r/gamesale/new -k "\[H\].*PS4" -m 5
 The above command will check the strings that has "[H].*PS4" keyword in
 the lastest 100 posts in the subreddit r/gamesale/new every 5 minutes.
 
->> python track_keyword_on_subreddit.py -s r/gamesale/new
+>> python track_keyword_on_reddit.py -s r/gamesale/new
 -k "\[H\].*Super Mario" "\[H\].*Mega.*man" -m 5
 The above command will track two keywords, namely "\[H\].*Super Mario" and
 "\[H\].*Mega.*man", in the subreddit "r/gamesale/new" every 5 minutes.
@@ -51,7 +51,7 @@ import requests
 import requests.auth
 
 from reddit_account_info import client_id, client_secret, username, pwd
-from track_keyword_on_subreddit_account_info import recipient_emails, sender_email
+from track_keyword_on_reddit_account_info import recipient_emails, sender_email
 import gmail_utils
 
 
