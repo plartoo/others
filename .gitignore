@@ -6,3 +6,4 @@ __pycache__/
 /data_architect_misc/data_transformer/sql_server_account_info.py
 
 random_stuff/quizzes/count_integer_occurrence.py
+*.exe
